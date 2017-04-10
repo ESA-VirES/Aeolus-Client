@@ -1,0 +1,65 @@
+
+<section id="cover" class="cover active" data-zoom="-50000000" data-events="layout:switch:singleview" data-reset="">
+    <span class="close"><i class="fa fa-times-circle"/></span>
+    <small class='scroll'>Scroll ▼</small>
+    <h2>Geomagnetic Field Models</h2>
+    <p>This Tutorial demonstrates available features for provided Geomagnetic Field Models.</p>
+    <p>It is an interactive Tutorial so you just need to scroll down to see the functionality of the application.</p>
+    <p>The tutorial can be closed at any point in time.</p>
+    <small class='scroll'>Scroll ▼</small>
+</section>
+<section data-events="ui:open:layercontrol" data-parameter="IGRF12_view::coefficients_range:-1,-1" data-set-parameter="IGRF12_view:F">
+    <span class="close"><i class="fa fa-times-circle"/></span>
+    <h3>Layer Selection</h3>
+    <p>In order to visualise a field model product we first have to activate it in the Layer Selection Window.</p>
+    <p>We have just opened it, you can see it on the left side of the screen.</p>
+    <p>You can open and close it at any time by clicking in the navigation bar (top of the screen) on the Layers button with the symbol <i class="fa fa-fw fa-globe"></i>.</p>
+    <p>The available Geomagnetic Field Models are:</p>
+    <ul>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">Swarm Initial Field Model (SIFM)</li>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">International Geomagnetic Reference Field (IGRF12)</li>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">CHAOS-5</li>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">Custom Model (upload of model coefficients in .shc format)</li>
+    </ul>
+    <p>In the Custom Model Settings (<i class="fa fa-sliders"/>) it is possible to upload your own (local) Geomagnetic Field Model as .shc file.</p>
+</section>
+<section  data-layers="IGRF12_view" data-settings="IGRF12_view">
+    <span class="close"><i class="fa fa-times-circle"/></span>
+    <h3>Settings</h3>
+    <p>We now activated the IGRF12 model Layer which is visualised on the virtual globe.</p>
+    <p>Additionally we opened the product settings window (on the right). Product settings can be accessed by clicking on the <i class="fa fa-sliders"/>-symbol of a product.</p>
+    <p>In the product settings you can select which parameter to visualise, what color scale to use and the range for the color scale.</p>
+    <p>Geomagnetic Field Models have the following parameters for visualisation:</p>
+    <ul>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">Total field intensity</li>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">Horizontal intensity</li>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">North component</li>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">East component</li>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">Down component</li>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">Inclination</li>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">Declination</li>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">Fieldlines</li>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">North component (East-West Gradient)</li>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">East component (East-West Gradient)</li>
+        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">Down component (East-West Gradient)</li>
+    </ul>
+    <p>You can now try out different parameters for visualisation if you like.</p>
+    <p>At any point you can use the "Save as Image" button of the Virtual Globe (top right) to save the current visualisation.</p>
+</section>
+<section data-parameter="IGRF12_view:Y:range:-50,50;IGRF12_view::coefficients_range:10,-1" data-set-parameter="IGRF12_view:Y">
+    <span class="close"><i class="fa fa-times-circle"/></span>
+    <h3>Additional parameters</h3>
+    <p>Field model settings have additional parameters for coefficient range and height above ellipsoid for the visualised resulting model.</p>
+    <p>As an example we just selected the East Component parameter, changed the coefficient ranges to [10,-1] (-1 meaning no limit, i.e. using all available coefficients starting at 10).</p>
+    <p>The range of values is reduced and therefore we also reduced the color scale range.</p>
+</section>
+<section data-set-parameter="IGRF12_view:Fieldlines" data-bbox="-141,63,-79,76">
+    <span class="close"><i class="fa fa-times-circle"/></span>
+    <h3>Field Lines</h3>
+    <p>Field lines can be visualized for a selected area on the virtual globe. We already created a selection to display them. A selection can be done by activating the "Select Area" button located on the top right of the map view.</p>
+    <p>If a selection is already active, the button will clear the slection first containing the text "Clear Selection".</p>
+    <p>Once activated move your mouse over the desired area and click once to start drawing the bounding box. Move to cursor to the desired position and click again to finalize the selection.</p>
+</section>
+
+
+<div style="height: 25em;"><!-- FIXME --></div>

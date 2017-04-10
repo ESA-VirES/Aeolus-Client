@@ -1,0 +1,57 @@
+[
+	{
+		"id":"document",
+	 	"version":"1.0"
+	},
+	{
+	 	"id":"SW_OPER_MAGA_LR_1B_20140901T000000_20140901T235959_0301_MDR_MAG_LR-0",
+	 	"point":{
+	 		"outlineColor":{
+	 			"rgba":[255,0,0,255]
+	 		},
+	 		"outlineWidth":1,
+	 		"pixelSize":10,
+	 		"show":true,
+	 		"color":{
+	 			"rgba":[150,0,90,255]
+	 		}
+	 	},
+	 	"position":{
+	 		"cartographicDegrees":[4.631919,7.867091,459382]
+	 	}
+	},
+	{
+    "polyline": {
+		"width": 2, 
+		"material": {
+        	"solidColor": {
+          		"color": {
+            		"rgba": [
+            			0, 0, 255, 255
+            		]
+          		}
+        	},
+        	"polylineGlow":{
+        		"glowPower": 1.0,
+          		"color": {
+            		"rgba": [0, 255, 0, 255]
+          		}
+        	},
+        	"polylineArrow":{
+          		"color": {
+            		"rgba": [255, 0, 0, 255]
+          		}
+        	}
+      	}, 
+      	"positions": {
+        	"cartesian": [
+          		-7378140.0, -9.03531e-10, 0.0, 
+				-7287490.0, -174102.0, 1099510.0, 
+				-6663490.0, -319968.0, 2113560.0
+       		]
+      	}
+    }, 
+    "id": "8846f4cb-9ac2-4361-bd91-e7c97f848244"
+  }
+
+]

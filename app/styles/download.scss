@@ -1,0 +1,112 @@
+@import "defaults";
+
+
+// Overwriting absolute positions to show correct positions in scrollable objects
+.w2ui-list{
+    position: relative !important;
+}
+
+.w2ui-field-helper{
+    position: relative !important;
+}
+
+#validationwarning{
+    font-size: 0.8em;
+    float: right;
+    position: absolute;
+    right: 140px;
+    margin-top: -24px;
+    color: #9a2929;
+}
+
+#modal-start-download .ui-datepicker-trigger{
+    position: absolute;
+    margin-left: -1px;
+}
+
+.panel-collapse{
+    border-right-style: solid;
+    border-bottom-style: solid;
+    border-left-style: solid;
+    border-color: #ccc;
+    border-width: 1px;
+    margin-top: -10px;
+    margin-left: 7px;
+    margin-right: 8px;
+}
+
+.panel-collapse > .panel-body{
+    padding-top: 10px;
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-bottom: 0px;
+}
+
+#download_processes .collapse_object .fa-chevron-down {
+    display: none;
+}
+#download_processes .collapse_object.collapsed .fa-chevron-down {
+    display: inline-block;
+}
+#download_processes .collapse_object.collapsed .fa-chevron-up {
+    display: none;
+}
+#download_processes .collapse_object .fa-chevron-up {
+    display: inline-block;
+}
+
+
+
+/**
+ * Progress bars with centered text
+ */
+.progress {
+    background-color: #a0a0a0 !important;
+    position: relative!important;
+}
+
+.progress-bar {
+    z-index: 1;
+    position: absolute!important;
+    background-color: #579459!important;
+}
+
+.progress span {
+    position: absolute!important;
+    height: 100%;
+    top: 2px;
+    left: 0;
+    z-index: 2;
+    color: white; // You might need to change it
+    text-align: center!important;
+    width: 100%;
+}
+
+#filters .form-control, #date .form-control, #timefilter .form-control{
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+}
+
+#filters textarea, #date textarea, #timefilter textarea{
+    height: 26px;
+}
+
+#starttime, #endtime {
+    height: 24px !important;
+    border-radius: 0px !important;
+    border-style: solid !important;
+    border-color: rgb(169, 169, 169) !important;
+    border-width: 1px !important;
+}
+
+.ui-datepicker-trigger{
+    height: 24px;
+    border-radius: 0px !important;
+    border-style: solid !important;
+    border-color: rgb(169, 169, 169) !important;
+    border-width: 1px !important;
+}
+
+.ui-datepicker-trigger:hover{
+    border-color: rgb(110, 110, 110) !important;
+}

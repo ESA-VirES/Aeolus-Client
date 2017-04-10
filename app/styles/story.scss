@@ -1,0 +1,74 @@
+
+@import "defaults";
+
+
+#storyView{
+    position: absolute;
+    overflow: hidden;
+    top: 50px;
+    left: 25em;
+    width: 20em;
+    height: 100%;
+    z-index: 1200;
+    display: none;
+    visibility: hidden;
+}
+
+#story{
+    
+    width: 21em;
+    height: 100%;
+    padding: 1em;
+    color: white;
+    overflow: auto;
+    font-family: 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    font-size: 1em;
+    
+}
+#story::-webkit-scrollbar {
+    display: none;
+}
+
+#story #cover {
+    margin-top: 50%;
+    padding-bottom: 2em;
+}
+#story #cover #logo {
+    display: block;
+    margin: 1em auto;
+}
+#story #cover .scroll {
+    float: right;
+    font-size: 10px;
+    text-transform: uppercase;
+    padding: 5px 10px;
+}
+#story section .close {
+    float: right;
+    color: white;
+    text-shadow: none;
+}
+#story section.active .close {
+    cursor: pointer;
+}
+#story section {
+    clear: both;
+    margin-bottom: 25px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    color: rgba(128,128,128,0);
+    text-shadow: rgba(25,25,25,1) 0px 0px 4px;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+#story section.active {
+    color: #eee;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+#story :link, #story :visited {
+    color: rgba(128,128,128,0);
+    text-shadow: rgba(25,25,25,1) 0px 0px 4px;
+}
+#story .active :link, #story .active :visited {
+    color: rgb(192,192,192);
+}

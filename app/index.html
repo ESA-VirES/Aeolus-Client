@@ -1,0 +1,150 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> 
+<html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <!-- build:css({.tmp,app}) styles/main.css -->
+            <link rel="stylesheet" href="bower_components/w2ui/dist/w2ui.min.css">
+            <link rel="stylesheet" href="styles/main.css" />
+            <link rel="stylesheet" href="styles/bootstrap.icon-large.min.css" />
+            <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css" />
+            <link rel="stylesheet" href="bower_components/d3.TimeSlider/d3.timeslider.min.css" />
+            <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+            <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
+            <link rel="stylesheet" href="bower_components/sumoselect/sumoselect.css" />
+            <link rel="stylesheet" href="bower_components/d3.Graphs/lib/styles/av.min.css" />
+            <link rel="stylesheet" href="bower_components/cesium/Build/Cesium/Widgets/widgets.css" />
+            <link rel="stylesheet" href="scripts/vendor/cesium_DrawHelper.css" />
+        <!-- endbuild -->
+
+        <!-- Possible path configurations if dependency files are on different paths -->
+        <script type="text/javascript">
+
+            var CONFIG_URL = "scripts/config.json";
+            CESIUM_BASE_URL = "bower_components/cesium/Build/Cesium/";
+            var require = {
+                baseUrl : "scripts/"
+            };
+
+        </script>
+
+        <!-- build:js scripts/vendor/modernizr.js -->
+        <script src="bower_components/modernizr/modernizr.js"></script>
+        <!-- endbuild -->
+        <script type="text/javascript" src="bower_components/Keypress/keypress.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div id="content">
+            <div id="main"></div>
+            <div id="viewContent"></div>
+            <div id="leftSideBar"></div>
+            <div id="rightSideBar"></div>
+            <div id="optionsBar"></div>
+            <div id="topBar"></div>
+            <div id="bottomBar"></div>
+        </div>
+
+        <div id="storyView" style="z-index: 0;"></div>
+
+        <!--<div id="loadscreen" class="modal-backdrop"> <i class="fa fa-spinner fa-spin fa-4x"></i> </div>-->
+        <div id="loadscreen" class="modal-backdrop">
+            <div id="loading-spacer">
+                <div class="project-title">VirES for Aeolus</div>
+            </div>
+            <div class="loader">
+                <div class="inner one"></div>
+                <div class="inner two"></div>
+                <div class="inner three"></div>
+            </div>
+        </div>
+
+        <!-- HIDDEN DOWNLOAD DIV -->
+        <div id="div-downloads">
+          <iframe name="iframe-download-post" id="iframe-download-post"></iframe>
+        </div>
+
+        <!-- HIDDEN X3DOM DIV -->
+        <div id="x3dom-hidden" style="display:none">
+            <div id="x3dom-wrapper">
+                <div id="progressbar"></div>
+                <X3D id="x3d" showlog="false" showstat="false" showprogress="false">
+                    <scene id="x3dScene"></scene>
+                </X3D>
+      
+                <div id='x3domUI'></div>
+            </div>
+        </div>
+
+        <script id="rbv-empty-view-template" type="text/html">
+          <i class="sprite sprite-scatter"></i> Please select an Area of Interest (AoI) in one of the MapViewer!
+        </script>
+
+        <div id="preload">
+           <img src="images/glyphicons.png" width="1" height="1" alt="Preload image" />
+        </div>
+
+        <div id="error-messages"></div>
+
+        <div id="pngdataurl"></div>
+
+
+
+
+        <div id="terrain_attribution">
+            <p style="float: right"><a href="javascript:;" onclick="toggle(terrain_attribution)">×</a></p>
+            <p>Terrain map data</p>
+            <ul>
+                <li>OpenStreetMap © <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a></li>
+                <li>NaturalEarth <a href="http://www.naturalearthdata.com/about/terms-of-use/" target="_blank">public domain</a></li>
+                <li>EU-DEM © Produced using Copernicus data and information<br>funded by the European Union</li>
+                <li>SRTM © <a href="http://nasa.gov" target="_blank">NASA</a></li>
+                <li>GTOPO30</li>
+                <li>CleanTOPO2 public domain</li>
+                <li>GlobCover © <a href="http://esa.int" target="_blank">ESA</a></li>
+            </ul>
+            <p>Terrain map design © <a href="http://eox.at" target="_blank">EOX IT Services GmbH</a></p>
+        </div>
+
+        <script>
+            // Used to display/hide terrain attribution
+            function toggle(e) { e.style.display = (e.style.display == 'block' ? 'none' : 'block'); }
+        </script>
+
+        <!-- build:js init.js -->
+        <script data-main="init" src="bower_components/requirejs/require.js"></script>     
+        <!-- endbuild -->
+
+
+        <!-- Piwik -->
+        <!--<script type="text/javascript">
+         var _paq = _paq || [];
+         _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
+         _paq.push(["setDoNotTrack", true]);
+         _paq.push(['trackPageView']);
+         _paq.push(['enableLinkTracking']);
+         (function() {
+           var u="//nix.eox.at/piwik/";
+           _paq.push(['setTrackerUrl', u+'piwik.php']);
+           _paq.push(['setSiteId', 4]);
+           var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+           g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+         })();
+        </script>
+        <noscript><p><img src="//nix.eox.at/piwik/piwik.php?idsite=4" style="border:0;" alt="" /></p></noscript>-->
+        <!-- End Piwik Code -->
+
+
+    </body>
+</html>

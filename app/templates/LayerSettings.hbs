@@ -1,0 +1,55 @@
+<div class="panel-heading">
+    <button type="button" class="close"><i class="fa fa-times-circle"></i></button>
+    <h3 class="panel-title"><i class="fa fa-fw fa-gears"></i> Layer Settings</h3>
+</div>
+<div class="panel-body">
+
+	<div id="parameters">
+		<ul style="padding-left:0">
+		  <li ><form id="satellite_selection"></form></li>
+		  <li>
+
+		  	<form>
+			  <label for="options" style="width:70px;">Parameter </label>
+			  <select name="options" id="options"></select>
+			  <p id="description"></p>
+			  <p id="uom"></p>
+			</form>
+
+		  <li style="margin-top: 15px;">
+		  	<div id="colorscale">
+
+		  		<form>
+				  <label for="style" style="width:70px;">Style </label>
+				  <select name="style" id="style"></select>
+				</form>
+
+		    	<div id="setting_colorscale" style="width:100%; pointer-events: none;"></div>
+		    </div>
+		  </li>
+
+		  <li style="margin-top: -15px; z-index: 1000;">
+		  	<input id="range_min" type="text" style="width:60px;"/>
+		  	<input id="range_max" type="text" style="width:60px; float:right;"/>
+		  </li>
+		  
+		  <li style="margin-top: 15px;">
+		  	<label for="opacitysilder" id="opacitysilder_label">Opacity </label>
+		  	<input id="opacitysilder" type="range" min=0  max=100 step=1 style="width:100%;"/>
+		  </li>
+		  
+		</ul>
+
+	</div>
+
+	<div id="coefficients_range" style="margin-top: 15px;"></div>
+
+    <div id="height" style="margin-top: 15px;"></div>
+    <div id="applychanges"></div>
+    <div id="outlines" style="margin-top: 5px;"></div>
+    <div id="shc" style="margin-top: 5px;"></div>
+    <div id="logarithmic" style="margin-top: 5px;"></div>
+    <div id="contours" style="margin-top: 5px;"></div>
+    <div id="showColorscale" style="margin-top: 5px;"></div>
+    
+</div>

@@ -1,0 +1,76 @@
+
+
+@import "defaults";
+
+#viewport {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+
+#cesium_attribution {
+  visibility: hidden;
+}
+
+#cesium_custom_attribution {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color: #333;
+  background-color: #fff;
+  padding: 1px 5px 0 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px 0 0 0;
+  border-width: 1px 0 0 1px;
+  font-size: .69em;
+  line-height: 1.0em;
+  font-family: 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
+  z-index: $layer-gui;
+}
+
+#cesium_save{
+  position: absolute;
+  right: 84px;
+  top: 7px;
+  height: 32px;
+  z-index: 5;
+}
+
+#bb_selection{
+  position: absolute;
+  right: 210px;
+  top: 7px;
+  height: 32px;
+  z-index: 5;
+}
+
+.cesium-viewer-geocoderContainer{
+  right: 127px !important;
+}
+
+.darkbutton{
+  background-color: #333 !important;
+  border-color: #444 !important;
+}
+
+.darkbutton:hover{
+  background-color: #48b !important;
+  border-color: #aef !important;
+}
+
+.cesium-viewer{
+    padding-bottom: 7em;
+    background-color: white;
+}
+
+.twipsy{
+  pointer-events: none;
+  display: none;
+}

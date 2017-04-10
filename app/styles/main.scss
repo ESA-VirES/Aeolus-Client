@@ -1,0 +1,493 @@
+$iconSpritePath: "../images/glyphicons-halflings.png";
+$iconWhiteSpritePath: "../images/glyphicons-halflings-white.png";
+
+@import "defaults";
+@import "splitview";
+@import "timeslider";
+@import "mapviewer";
+@import "virtualglobeviewer";
+@import "rectangularboxviewer";
+@import "sliceviewer";
+@import "window";
+@import "analyticsviewer";
+@import "stylesheet";
+@import "optionscontrol";
+@import "colorramp";
+@import "story";
+@import "tooltip";
+@import "cesium";
+@import "layersettings";
+@import "spinner";
+@import "social";
+@import "download";
+
+
+/*
+ * Basic styles
+ */
+html, body {
+  height: 100%;
+  width: 100%;
+  padding: 0 !important;
+  // FIXXME: Their are a few 'quirks' in the layout, making it necessary to force hidding the scrollbars
+  // for some cases:
+  overflow: hidden;
+}
+
+body {
+  background-color: $default-background !important;
+}
+
+ul, li {
+  list-style-type: none;
+  list-style-position: inside;
+}
+
+hr {
+  margin: 1em 0;
+}
+
+.not-selectable {
+  -khtml-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+
+/*
+ * Color legend attributes 
+ */
+
+#colorlegend{
+  position: absolute;
+  height: 75px;
+  top: 60px;
+  width: 640px;
+  left: 50%;
+  margin-left: -320px;
+  z-index: $layer-gui;
+  pointer-events:none;
+  /*background-color: #222;
+  border-radius: 5px;
+  color: #999;
+  font-family: Helvetica,Arial,sans-serif;
+  font-size: 12px;
+  padding: 5px;
+  text-align: center;*/
+
+
+}
+
+#colorlegend img{
+  border-radius: 5px;
+}
+
+#colorlegend g.axis line, #colorlegend g.axis path {
+    fill:none;
+    stroke: black;
+    shape-rendering:crispEdges;
+}
+
+#colorlegend g.axis text{
+    fill: black;
+    font-family:sans-serif;
+}
+
+#colorlegend > g.axis path {
+    stroke-width:2;
+    stroke: black;
+}
+
+
+body.wait *, body.wait {
+  cursor:wait !important;
+}
+
+
+
+// Initial loading spinner element
+#loadscreen{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 5000;
+  text-align: center;
+  opacity: 0.8;
+}
+
+#loadscreen i {
+  position:relative;
+  top: calc(50%);
+}
+
+div#preload { 
+  display: none;
+}
+
+// Error message element
+#error-messages{
+  position: absolute;
+  top: 60px;
+  width:40%;
+  left: 30%;
+  z-index: $layer-gui;
+}
+
+.authview{
+  width: 50em;
+  height: 80%;
+  top: 5em;
+  left: 50%;
+  margin: 0 0 0 -25em;
+  font-size: 1em;
+  position: absolute;
+}
+
+.authview .panel-body{
+  height: 97%;
+}
+
+#content{
+  width: 100%;
+  height: 100%;
+}
+
+
+/*
+ * Panels & Modals
+ */
+.panel .close {
+  float: right;
+  margin: -.1em -.2em 0 0;
+  font-size: 2em;
+}
+
+#about .close{
+  margin: -.2em -.2em 0 0;
+  font-size: 2em;
+}
+
+.panel .no-label, .modal .no-label {
+  float: left;
+  margin: -.55em 0 0 -.6em;
+  font-size: 1em;
+}
+
+.panel {
+  z-index: $layer-gui;
+  box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.39)!important;
+}
+
+
+@media (min-width:768px){
+  #infoblock {    
+    width: 60%;
+    margin-left: -30%;
+    left: 50%;
+  }
+}
+
+#about ul li {
+  list-style-position: outside;
+}
+
+.panel-default {
+  border-color: #818080 !important;
+}
+
+
+/*
+ * Buttons
+ */
+button[active=active] {
+  background-color: #ccc;
+}
+
+/*
+ * Draggable & Sortable Elements
+ */
+.ui-draggable .panel-heading {
+    cursor: move;
+}
+.sortable-placeholder {
+    display: block;
+    height: 2em;
+}
+
+/*
+ * Layer control styles
+ */
+.layercontrol {
+    width: 24em;
+    top: 8em;
+    left: 3em;
+    font-size: .9em;
+    position: absolute;
+    z-index: 1031 !important;
+}
+.layercontrol ul {
+    margin: 0 0 1em 1.5em;
+    padding: 0;
+}
+#baseLayers ul {
+  margin-bottom: 0;
+}
+#baseLayers li {
+  margin-bottom: 0;
+  margin-top: .2em;
+}
+.layercontrol li {
+    margin: .2em 0 .8em 0;
+    padding: 0 0 0 .6em;
+}
+.layercontrol ul input {
+    margin-top: 2px;
+}
+.layercontrol .sortable-layer {
+  margin: .3em -.5em 0 -2em;
+  padding: 0;
+}
+.layercontrol .sortable-layer .form-control {
+  font-size: 1em;
+  line-height: 1.1em;
+}
+.form-control {
+  padding-right: 6px !important;
+  padding-left: 6px !important;
+}
+.fa-sort {
+    cursor: ns-resize;
+}
+
+#satcheckcontainer{
+  margin-right: -5px;
+  margin-left: -5px;
+}
+
+
+#satcheckcontainer .col-md-3{
+  padding-right: 0px;
+  padding-left: 0px;
+  white-space: nowrap;
+}
+
+
+/*
+ * Tool control
+ */
+.toolcontrol {
+  width: 5.2em;
+  top: 10em;
+  right: 3em;
+  font-size: .9em;
+  position: absolute;
+  right: 3em;
+}
+.toolcontrol .panel-heading h3 {
+  text-align: center;
+  font-size: 1.8em;
+}
+.toolcontrol .panel-body {
+  text-align: center;
+  padding: .3em .3em .1em .4em;
+}
+.toolcontrol .btn-group-vertical {
+  margin-bottom: .5em;
+}
+
+/*
+ * Selection Manager, Download Manager
+ */
+.selectionManager, .download {
+  width: 55em;
+  top: 10em;
+  left: 50%;
+  margin: 0 0 0 -25em;
+  font-size: 1em;
+  position: absolute;
+}
+.selectionManager .input-group {
+  margin: .3em 0;
+}
+
+#btn-start-download {
+  float: right;
+}
+
+.selectionManager .panel-body, .download .panel-body {
+  max-height: 15em;
+  overflow: auto;
+}
+
+.popover {
+  //width: 20em;
+  font-weight:normal;
+}
+
+.popover-title {
+    font-size: 1.2em;
+}
+.popover-content {
+    font-size: 0.9em;
+
+}
+
+#modal-start-download .input-group-btn{
+  height: 100%;
+}
+
+.delete-filter{
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+
+/*
+ * Empty view
+ */
+
+.empty-view {
+  position: absolute;
+
+  top: 0;
+  width: 100%;
+  height: 100%;
+
+  padding-top: 50%;
+  font-size: 22px;
+  text-align: center;
+  font-weight: bold;
+  color: #6B6868;
+}
+
+/*
+ * Old Styles
+ */
+
+// #content {
+//  height: 100%;
+//  width: 100%;
+// }
+
+#main {
+  position: absolute;
+
+  top: $header-height;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+#bottomBar {
+  bottom: 10px;
+  position: absolute;
+  width: 96%;
+  left: 2%;
+}
+
+/*
+ * Time Slider
+ */
+.brush .extent {
+  fill-opacity: 0.8!important;
+}
+
+#viewContent{
+  position: relative;
+}
+
+.tab-header {
+   cursor: pointer;
+}
+
+.dropdown{
+  cursor: pointer;
+}
+
+.sidepane {
+  width: 100px;
+  height: 100px;
+}
+
+/* Style to change the upload button appearance */
+.myfileupload-buttonbar input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    border: solid transparent;
+    border-width: 0 0 100px 200px;
+    opacity: 0.0;
+    filter: alpha(opacity=0);
+    -o-transform: translate(250px, -50px) scale(1);
+    direction: ltr;
+    cursor: pointer;
+}
+
+.shcbutton{
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+  text-align: center;
+  overflow: hidden;
+}
+
+ .myui-button
+{
+    position: relative;
+    cursor: pointer;
+    text-align: center;
+    overflow: hidden;
+}
+
+
+.hero-unit {
+    margin: 50px auto 0 auto;
+    width: 300px;
+}
+
+#div-downloads {
+  display: none;
+}
+
+
+.popover {
+  position: fixed;
+}
+
+
+/* Util styles */
+
+#countdowncircle {
+  display: block;
+  position: absolute;
+  right: 30px;
+  margin-top: 6px;
+}
+
+#loader { 
+  fill: #999;
+}
+
+.radio-inline{
+  padding-left: 0px !important;
+  margin-right: 2px !important;
+}
+
+.radio-inline input{
+  margin-left: 0px !important;
+  margin-right: 2px !important;
+}
+
+.baselayerList{
+  margin-left: 0px !important;
+}
+
+.input-group-sm>.input-group-addon, .input-group-sm>.input-group-btn>.btn {
+  padding: 3px 10px !important;
+  line-height: 0.5 !important;
+}
+
+.w2ui-list ul li{
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif !important;
+}
