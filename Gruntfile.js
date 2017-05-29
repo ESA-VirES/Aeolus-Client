@@ -80,7 +80,7 @@ module.exports = function (grunt) {
             },
             proxies: [{
                 context: '/vires00',
-                //host: 'staging.vires.services',
+                //host: 'staging.aeolus.services',
                 host: 'localhost',
                 port: 8300,
                 rewrite: {
