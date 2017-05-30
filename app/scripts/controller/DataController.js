@@ -7,13 +7,12 @@
     'backbone',
     'communicator',
     'globals',
-    'hbs!tmpl/wps_getdata',
     'hbs!tmpl/wps_fetchData',
     'app',
     'papaparse',
   ],
 
-  function( Backbone, Communicator, globals, wps_getdataTmpl, wps_fetchDataTmpl, App, Papa) {
+  function( Backbone, Communicator, globals, wps_fetchDataTmpl, App, Papa) {
 
     var DataController = Backbone.Marionette.Controller.extend({
 

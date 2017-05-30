@@ -7,15 +7,13 @@ define([
     'models/MapModel',
     'globals',
     'papaparse',
-    'hbs!tmpl/wps_eval_model',
-    'hbs!tmpl/wps_eval_model_diff',
     'hbs!tmpl/wps_get_field_lines',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
     'plotty'
 ], function( Marionette, Communicator, App, MapModel, globals, Papa,
-             tmplEvalModel, tmplEvalModelDiff, tmplGetFieldLines) {
+             tmplGetFieldLines) {
     'use strict';
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
@@ -842,7 +840,7 @@ define([
                     var map = this.map;
                     var customModelLayer = this.customModelLayer;
 
-                    $.post(url, tmplEvalModel(options))
+                    /*$.post(url, tmplEvalModel(options))
                         .done(function( data ) {
                             var imageURI = 'data:image/gif;base64,'+data;
                             var layerOptions = {url: imageURI};
@@ -862,7 +860,7 @@ define([
                                 map.scene.imageryLayers.addImageryProvider(imagelayer, index);
                             product.set('ces_layer', customModelLayer);
                             customModelLayer.show = true;
-                        });
+                        });*/
                 } // END if product has shc
             }else{ 
                 var cesLayer = product.get('ces_layer');

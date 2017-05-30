@@ -19,7 +19,6 @@
     'hbs!tmpl/DownloadFilter',
     'hbs!tmpl/FilterTemplate',
     'hbs!tmpl/DownloadProcess',
-    'hbs!tmpl/wps_retrieve_data_filtered',
     'hbs!tmpl/CoverageDownloadPost',
     'hbs!tmpl/wps_fetchFilteredDataAsync',
     'underscore',
@@ -27,7 +26,7 @@
     'w2popup'
   ],
   function( Backbone, Communicator, globals, m, DownloadFilterTmpl,
-            FilterTmpl, DownloadProcessTmpl, wps_requestTmpl, CoverageDownloadPostTmpl, wps_fetchFilteredDataAsync ) {
+            FilterTmpl, DownloadProcessTmpl, CoverageDownloadPostTmpl, wps_fetchFilteredDataAsync ) {
 
     var DownloadProcessView = Backbone.Marionette.ItemView.extend({
       tagName: "div",

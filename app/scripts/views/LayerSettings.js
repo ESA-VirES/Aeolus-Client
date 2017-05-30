@@ -8,13 +8,11 @@
         'communicator',
         'globals',
         'hbs!tmpl/LayerSettings',
-        'hbs!tmpl/wps_eval_model_GET',
-        'hbs!tmpl/wps_eval_model',
         'underscore',
         'plotty'
     ],
 
-    function( Backbone, Communicator, globals, LayerSettingsTmpl, evalModelTmpl, evalModelTmpl_POST ) {
+    function( Backbone, Communicator, globals, LayerSettingsTmpl ) {
 
         var LayerSettings = Backbone.Marionette.Layout.extend({
 
@@ -390,7 +388,7 @@
                 }
 
                 // request range for selected parameter if layer is of type model
-                if(this.current_model.get("model") && this.selected != "Fieldlines"){
+                /*if(this.current_model.get("model") && this.selected != "Fieldlines"){
 
                     var that = this;
 
@@ -450,7 +448,7 @@
                     }
                 }else{
                     Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
-                }
+                }*/
 
             },
 
@@ -584,7 +582,7 @@
                     $("#applychanges").empty();
 
                     // If there were changes of the model parameters recalculate the color range
-                    if(model_change){
+                    /*if(model_change){
                         var that = this;
 
                         var sel_time = Communicator.reqres.request('get:time');
@@ -635,7 +633,7 @@
                         //Apply changes
                         this.current_model.set("parameters", options);
                         Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
-                    }
+                    }*/
                 }
             },
 
@@ -661,7 +659,7 @@
             },
 
             onUploadSelectionChanged: function(evt) {
-                var that = this;
+                /*var that = this;
                 var reader = new FileReader();
                 var filename = evt.target.files[0].name;
                 reader.onloadend = function(evt) {
@@ -722,7 +720,7 @@
 
                 }
 
-                reader.readAsText(evt.target.files[0]);
+                reader.readAsText(evt.target.files[0]);*/
             },
 
             addLogOption: function(options){

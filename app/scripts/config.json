@@ -7,7 +7,7 @@
         "contrib/Cesium/CesiumViewModule"
     ],
 
-    "storyTemplate": "UseCaseTestTemplate",
+    "storyTemplate": "UseCase_SwarmAnalytics",
 
     "mapConfig": {
         "model": "models/MapModel",
@@ -609,14 +609,8 @@
         "id": "CheckBoxOverlayLayer",
         "template": "hbs!tmpl/CheckBoxOverlayLayer"
     }, {
-        "id": "UseCaseTestTemplate",
-        "template": "hbs!tmpl/UseCaseTestTemplate"
-    }, {
         "id": "UseCase_SwarmAnalytics",
         "template": "hbs!tmpl/UseCase_SwarmAnalytics"
-    }, {
-        "id": "UseCase_FieldLines",
-        "template": "hbs!tmpl/UseCase_FieldLines"
     }, {
         "id": "UseCase_MagneticModels",
         "template": "hbs!tmpl/UseCase_MagneticModels"
