@@ -249,7 +249,7 @@
                                         }
                                     }
                                 });
-                            }else if(this.model.get('views')[0].protocol == "WPS"){
+                            /*}else if(this.model.get('views')[0].protocol == "WPS"){
                                 if(this.model.get('shc')){
                                     // If an shc file was loaded acticate layer as normal
                                     Communicator.mediator.trigger('map:layer:change', options);
@@ -272,7 +272,7 @@
                                     //checkbox.attr('checked', false);
                                     checkbox.prop( "checked", false );
                                     //checkbox.disableSelection();
-                                }
+                                }*/
 
                             }else{
                                 Communicator.mediator.trigger('map:layer:change', options);

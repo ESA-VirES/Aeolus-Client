@@ -94,6 +94,74 @@ define([
             );
             plotty.addColorScale('blackwhite', ['#000000', '#ffffff'], [0, 1]);
 
+            
+            var renderSettings_ray = {
+                xAxis: ['rayleigh_datetime'],
+                yAxis: ['rayleigh_altitude'],
+                combinedParameters: {
+                    rayleigh_datetime: ['rayleigh_datetime_start', 'rayleigh_datetime_stop'],
+                    rayleigh_altitude: ['rayleigh_altitude_bottom', 'rayleigh_altitude_top'],
+                },
+                colorAxis: ['rayleigh_wind_velocity']
+            };
+
+            var dataSettings = {
+                F: {
+                    symbol: 'circle',
+                    uom: 'n',
+                    //regression: 'polynomial',
+                    lineConnect: true
+                },
+                Timestamp: {
+                    scaleFormat: 'time'
+                },
+                id: {
+                    scaleType: 'ordinal',
+                    categories: ['Alpha', 'Bravo']
+                },
+                Latitude: {
+
+                },
+                rayleigh_dem_altitude: {
+                    symbol: 'circle',
+                    uom: 'm',
+                    lineConnect: true
+                },
+                rayleigh_wind_velocity: {
+                    uom: 'cm/s',
+                    colorscale: 'viridis',
+                    extent: [-3000,3000]
+                    //outline: false
+                },
+                rayleigh_datetime_start: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+
+                rayleigh_datetime_stop: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+
+            };
+
+
+            $('body').append($('<div/>', {
+                id: 'hiddenRenderArea' 
+            }));
+
+
+            /*this.graph = new graphly.graphly({
+                el: '#hiddenRenderArea',
+                dataSettings: dataSettings,
+                renderSettings: renderSettings_ray,
+                filterManager: globals.swarm.get('filterManager'),
+                fixedSize: true,
+                fixedWidth: 4096,
+                fixedHeigt: 512
+            });*/
+
+
             this.connectDataEvents();
         },
 
@@ -174,6 +242,7 @@ define([
                     terrainProvider : new Cesium.CesiumTerrainProvider({
                         url : '//tiles.maps.eox.at/dem'
                     }),
+                    terrainExaggeration: 20.0,
                     creditContainer: 'cesium_attribution',
                     contextOptions: {webgl: {preserveDrawingBuffer: true}},
                     clock: clock
@@ -410,10 +479,20 @@ define([
 
         connectDataEvents: function(){
             globals.swarm.on('change:data', function(model, data) {
-                if (data.length && data.length>0){
-                    this.createDataFeatures(data, 'pointcollection', 'band');
+                if (Object.keys(data).length){
+                    /*this.graph.loadData(data);
+                    //this.createDataFeatures(data, 'pointcollection', 'band');
+                    var positions = [];
+                    for (var i = 0; i < data.rayleigh_lats.length; i++) {
+                        if(i%3==0){
+                            positions.push(data.rayleigh_lons[i]);
+                            positions.push(data.rayleigh_lats[i]);
+                        }
+                    }
+                    this.createCurtain(data, positions, 'pointcollection', 'band');*/
+                    
                 }else{
-                    for (var i = 0; i < this.activeCollections.length; i++) {
+                    /*for (var i = 0; i < this.activeCollections.length; i++) {
                         if(this.featuresCollection.hasOwnProperty(this.activeCollections[i])){
                             this.map.scene.primitives.remove(
                                 this.featuresCollection[this.activeCollections[i]]
@@ -421,12 +500,12 @@ define([
                             delete this.featuresCollection[this.activeCollections[i]];
                         }
                     }
-                    this.activeCollections = [];
+                    this.activeCollections = [];*/
                 }
             }, this);
 
             globals.swarm.on('change:filters', function(model, filters) {
-                this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
+                //this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
             }, this);
         },
 
@@ -438,6 +517,79 @@ define([
                 var modepicker = new Cesium.SceneModePicker(container, scene);
                 this.map._sceneModePicker = modepicker;
             }
+        },
+
+
+        createCurtain: function(data, positions, cov_id, cur_coll, alpha, height){
+
+
+            var heights = [];
+            for (var i = (positions.length/2) - 1; i >= 0; i--) {
+                heights.push(height);
+            };
+
+
+            //this.map.entities.removeAll();
+
+            alpha = 0.99;
+
+
+            var sliceMat = new Cesium.Material.fromType('Image', {
+                image : this.graph.getCanvasImage(),
+                color: new Cesium.Color(1, 1, 1, alpha)
+            });
+
+            var sliceAppearance = new Cesium.MaterialAppearance({
+                translucent : true,
+                flat: true,
+                material : sliceMat
+            });
+
+
+
+            height = 1000000;
+
+            var max_heights = [];
+            var min_heights = [];
+            for (var i = (positions.length/2) - 1; i >= 0; i--) {
+                max_heights.push(height);
+                min_heights.push(0.0);
+            };
+
+
+            var wall = new Cesium.WallGeometry({
+                positions : Cesium.Cartesian3.fromDegreesArray(positions),
+                maximumHeights : max_heights,
+            });
+
+            var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
+
+            var instance = new Cesium.GeometryInstance({
+              geometry : wallGeometry
+            });
+
+            var prim = new Cesium.Primitive({
+              geometryInstances : [instance],
+              appearance : sliceAppearance,
+              releaseGeometryInstances: false,
+              asynchronous: false
+            });
+
+            var prim = this.map.scene.primitives.add(prim);
+
+            var that = this;
+            this.graph.on('rendered', function(){
+                //console.log(this.getCanvasImage());
+                if(prim && prim.hasOwnProperty('_appearance') && prim._appearance){
+                    prim.appearance.material._textures.image.copyFrom(that.graph.getCanvas());
+                }
+                /*if(wall){
+                    wall._wall._material._image = that.graph.getCanvasImage();
+                }*/
+                //material.uniforms._image = that.graph.getCanvasImage();
+            });
+
+
         },
 
         //method to create layer depending on protocol
@@ -710,7 +862,7 @@ define([
                         this.checkColorscale(product.get('download').id);
 
                         if (product.get('views')[0].protocol === 'WPS'){
-                            this.checkShc(product, options.visible);
+                            //this.checkShc(product, options.visible);
 
                         }else if (product.get('views')[0].protocol === 'WMS' ||
                                   product.get('views')[0].protocol === 'WMTS' ){
@@ -1178,7 +1330,7 @@ define([
                             }
                         }
                     }else if (product.get('views')[0].protocol === 'WPS'){
-                        this.checkShc(product, product.get('visible'));
+                        //this.checkShc(product, product.get('visible'));
                     }
                 }
             }, this);
@@ -1207,7 +1359,8 @@ define([
         },
 
         getMapExtent: function(){
-            var ellipsoid = this.map.scene.globe.ellipsoid;
+            // TODO: repair get map extent
+            /*var ellipsoid = this.map.scene.globe.ellipsoid;
             var c2 = new Cesium.Cartesian2(0, 0);
             var leftTop = this.map.scene.camera.pickEllipsoid(c2, ellipsoid);
             c2 = new Cesium.Cartesian2(this.map.scene.canvas.width, this.map.scene.canvas.height);
@@ -1241,7 +1394,7 @@ define([
                     // If everything fails assume whole world is visible which is wrong
                     return {left: -180, bottom: -90, right: 180, top: 90};
                 }
-            }
+            }*/
         },
 
         renderSVG: function(svg, width, height){
@@ -1514,9 +1667,9 @@ define([
             }
 
             globals.products.each(function(product) {
-                if (product.get('views')[0].protocol === 'WPS'){
+                /*if (product.get('views')[0].protocol === 'WPS'){
                     this.checkShc(product, product.get('visible'));
-                }
+                }*/
             },this);
         },
 
@@ -1674,15 +1827,15 @@ define([
                     product.set('time',string);
                     var cesLayer = product.get('ces_layer');
                     if(cesLayer){
-                        cesLayer.imageryProvider.updateProperties('time', string);
+                        /*cesLayer.imageryProvider.updateProperties('time', string);
                         if (cesLayer.show){
                             var index = this.map.scene.imageryLayers.indexOf(cesLayer);
                             this.map.scene.imageryLayers.remove(cesLayer, false);
                             this.map.scene.imageryLayers.add(cesLayer, index);
-                        }
+                        }*/
                     }
                 }else if (product.get('views')[0].protocol === 'WPS'){
-                    this.checkShc(product, product.get('visible'));
+                    //this.checkShc(product, product.get('visible'));
                 }
             }, this);
             this.checkFieldLines();

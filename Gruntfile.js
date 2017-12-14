@@ -82,7 +82,7 @@ module.exports = function (grunt) {
                 context: '/vires00',
                 //host: 'staging.aeolus.services',
                 host: 'localhost',
-                port: 8300,
+                port: 8401,
                 rewrite: {
                     '^/vires00': '/'
                 },
@@ -93,11 +93,11 @@ module.exports = function (grunt) {
             },{
                 context: '/ows',
                 host: 'localhost',
-                port: 8300
+                port: 8401
             },{
                 context: '/wps',
                 host: 'localhost',
-                port: 8300
+                port: 8401
             }],            
             livereload: {
                 options: {

@@ -129,13 +129,13 @@
             }]
         }],
         "products": [{
-            "name": "MAGA LR 1B",
+            "name": "ADM L1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "views": [{
-                "id": "SW_OPER_MAGA_LR_1B",
-                "protocol": "CZML",
+                "id": "AEOLUS",
+                "protocol": "WPS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
                 ],
@@ -143,16 +143,11 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_MAGA_LR_1B",
-                "protocol": "EOWCS",
+                "id": "AEOLUS",
+                "protocol": "WPS",
                 "url": "http://localhost:9000/vires00/ows"
             },
-            "processes" : [
-                {
-                    "id": "retrieve_data",
-                    "layer_id": "SW_OPER_MAGA_LR_1B"
-                }
-            ],
+            "process" : "aeolus:level1B",
             "parameters": {
                 "B_NEC": {
                     "range": [15000, 55000],
@@ -172,121 +167,17 @@
                 "Timestamp": {
                     "uom": null,
                     "name": "Time of observation"
-                },
-                "SyncStatus": {
-                    "uom": null,
-                    "name": "Time synchronization status (of VFM), source and quality"
-                },
-                "Latitude": {
-                    "uom": "deg",
-                    "name": "Position in ITRF - Geocentric latitude"
-                },
-                "Longitude": {
-                    "uom": "deg",
-                    "name": "Position in ITRF - Geocentric longitude"
-                },
-                "Radius": {
-                    "uom": "m",
-                    "name": "Position in ITRF - Radius"
-                },
-                "F": {
-                    "uom":"nT",
-                    "name": "Magnetic field intensity"
-                },
-                "dF_AOCS": {
-                    "uom": "nT",
-                    "name": "Magnetic stray field correction intensity of AOCS magneto-torquer coils"
-                },
-                "dF_other": {
-                    "uom": "nT",
-                    "name": "Magnetic stray field correction intensity of all other sources"
-                },
-                "F_error": {
-                    "uom": "nT",
-                    "name": "Error estimate on magnetic field intensity"
-                },
-                "B_VFM": {
-                    "uom": "nT",
-                    "name": "Magnetic field vector, VFM frame"
-                },
-                "B_NEC": {
-                    "uom":"nT",
-                    "name": "Magnetic field vector, NEC frame"
-                },
-                "dB_Sun": {
-                    "uom": "nT",
-                    "name": "Magnetic stray field correction vector of Sun induced stray field, VFM frame"
-                },
-                "dB_AOCS": {
-                    "uom": "nT",
-                    "name": "Magnetic stray field correction vector of AOCS magneto-torquer coils, VFM frame"
-                },
-                "dB_other": {
-                    "uom": "nT",
-                    "name": "Magnetic stray field correction vector of all other sources, VFM frame"
-                },
-                "B_error": {
-                    "uom": "nT",
-                    "name": "Error estimates on magnetic field, VFM frame"
-                },
-                "q_NEC_CRF": {
-                    "uom": null,
-                    "name": "Quaternion, transformation: NEC ← CRF"
-                },
-                "Att_error": {
-                    "uom": "mdeg",
-                    "name": "Error estimates on attitude information"
-                },
-                "Flags_F": {
-                    "uom": null,
-                    "name": "Flags characterizing the magnetic field intensity measurement (F)"
-                },
-                "Flags_B": {
-                    "uom": null,
-                    "name": "Flags characterizing the magnetic field vector measurement (B_VFM, B_NEC)"
-                },
-                "Flags_q": {
-                    "uom": null,
-                    "name": "Flags characterizing the attitude information"
-                },
-                "Flags_Platform": {
-                    "uom": null,
-                    "name": "Flags characterizing the S/C platform information"
-                },
-                "ASM_Freq_Dev": {
-                    "uom": null,
-                    "name": "ASM frequency calibration data deviation"
-                },
-                "QDLat": {
-                    "uom": "deg",
-                    "name": "Quasi dipole latitude"
-                },
-                "QDLon": {
-                    "uom": "deg",
-                    "name": "Quasi dipole longitude"
-                },
-                "MLT": {
-                    "uom": null,
-                    "name": "Magnetic local time"
                 }
             },
-            "outlines": false,
-            "satellite": "Swarm"
-
+            "outlines": false
         },{
-            "name": "IGRF12",
-            "visible": false,
+            "name": "ADM L2B",
+            "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "opacity": 0.7,
-            "tileSize":1024,
-            "validity":{
-                "start": "1900-01-01T00:00:00Z",
-                "end": "2020-01-01T00:00:00Z"
-            },
             "views": [{
-                "id": "IGRF12_view",
-                "protocol": "WMS",
+                "id": "SW_OPER_MAGA_LR_1B",
+                "protocol": "WPS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
                 ],
@@ -294,144 +185,33 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "IGRF12",
-                "protocol": "EOWCS",
+                "id": "SW_OPER_MAGA_LR_1B",
+                "protocol": "WPS",
                 "url": "http://localhost:9000/vires00/ows"
             },
+            "process" : "aeolus:level2B",
             "parameters": {
+                "B_NEC": {
+                    "range": [15000, 55000],
+                    "uom":"nT",
+                    "colorscale": "jet",
+                    "name": "Magnetic field vector, NEC frame"
+                },
                 "F": {
                     "range": [15000, 55000],
                     "uom":"nT",
-                    "name": "Total field intensity",
                     "colorscale": "jet",
-                    "selected": true
-                },
-                "H": {
-                    "range": [10000, 23000],
-                    "uom":"nT",
-                    "name": "Horizontal intensity",
-                    "colorscale": "jet"
-                },
-                "X": {
-                    "range": [10000, 23000],
-                    "uom":"nT",
-                    "name": "North component",
-                    "colorscale": "jet"
-                },
-                "Y": {
-                    "range": [-7000, 7000],
-                    "uom":"nT",
-                    "name": "East component",
-                    "colorscale": "diverging_1"
-                },
-                "Z": {
-                    "range": [-45000, 45000],
-                    "uom":"nT",
-                    "name": "Down component",
-                    "colorscale": "diverging_1"
-                },
-                "I": {
-                    "range": [-80, 80],
-                    "uom":"degree",
-                    "name": "Inclination",
-                    "colorscale": "diverging_1"
-                },
-                "D": {
-                    "range": [-80, 80],
-                    "uom":"degree",
-                    "name": "Declination",
-                    "colorscale": "diverging_1"
-                },
-                "Fieldlines":{
-                    "range": [1, 40000],
-                    "uom":"nT",
-                    "name": "Fieldlines",
-                    "description": "In order to visualize fieldlines please select an area with the bounding box tool.",
-                    "colorscale": "jet",
-                    "logarithmic": true
-                },
-                "X_EW": {
-                    "range": [-5, 5],
-                    "uom":"nT/km",
-                    "name": "North component (East-West Gradient)",
-                    "colorscale": "diverging_1"
-                },
-                "Y_EW": {
-                    "range": [-5, 5],
-                    "uom":"nT/km",
-                    "name": "East component (East-West Gradient)",
-                    "colorscale": "diverging_1"
-                },
-                "Z_EW": {
-                    "range": [-5, 5],
-                    "uom":"nT/km",
-                    "name": "Down component (East-West Gradient)",
-                    "colorscale": "diverging_1"
+                    "selected": true,
+                    "name": "Magnetic field intensity"
                 }
             },
             "download_parameters": {
-                "B_NEC_res_IGRF12": {
-                    "uom":"nT",
-                    "name": "Residuals to IGRF12 model of Magnetic field vector, NEC frame"
-                },
-                "F_res_IGRF12": {
-                    "uom":"nT",
-                    "name": "Residuals of Magnetic field intensity to IGRF12 model"
-                }
-            },
-            "height": 450,
-            "model": true,
-            "coefficients_range": [-1,-1]
-
-        },{
-            "name": "Dst Index",
-            "visible": false,
-            "timeSlider": true,
-            "timeSliderProtocol": "INDEX",
-            "views": [{
-                "id": "dst",
-                "protocol": "INDEX",
-                "urls": [
-                    "http://localhost:9000/vires00/ows"
-                ]
-            }],
-            "download": {
-                "id": "dst",
-                "protocol": "INDEX",
-                "url": "http://localhost:9000/vires00/ows"
-            },
-            "download_parameters": {
-                "dst": {
+                "Timestamp": {
                     "uom": null,
-                    "name": "Equivalent equatorial magnetic disturbances index"
+                    "name": "Time of observation"
                 }
             },
-            "index": true
-        },{
-            "name": "Kp Index",
-            "visible": false,
-            "timeSlider": true,
-            "timeSliderProtocol": "INDEX",
-            "color": "#0AA8B3",
-            "views": [{
-                "id": "kp",
-                "protocol": "INDEX",
-                "urls": [
-                    "http://localhost:9000/vires00/ows"
-                ]
-            }],
-            "download": {
-                "id": "kp",
-                "protocol": "INDEX",
-                "url": "http://localhost:9000/vires00/ows"
-            },
-            "download_parameters": {
-                "kp": {
-                    "uom": null,
-                    "name": "Planetary index of geomagnetic activity"
-                }
-            },
-            "index": true
+            "outlines": false
         }],
         "overlays": [{
             "name": "Coastlines and Countries",

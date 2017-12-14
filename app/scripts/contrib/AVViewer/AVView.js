@@ -4,6 +4,7 @@ define(['backbone.marionette',
     'models/AVModel',
     'globals',
     'd3',
+    'graphly',
     'analytics'
 ], function(Marionette, Communicator, App, AVModel, globals) {
     'use strict';
@@ -37,30 +38,172 @@ define(['backbone.marionette',
             this.plotType = 'scatter';
             this.prevParams = [];
 
-            $('#tmp_download_button').unbind( 'click' );
-            $('#tmp_download_button').remove();
-
-            // TODO: Hack to handle how analyticsviewer re-renders button, need to update analaytics viewer
-            d3.select(this.el).append('button')
-                .attr('type', 'button')
-                .attr('id', 'tmp_download_button')
-                .attr('class', 'btn btn-success')
-                .attr('style', 'position: absolute; right: 55px; top: 7px; z-index: 1000;')
-                .text('Download');
-
-
-            $('#tmp_download_button').click(function(){
-                Communicator.mediator.trigger('dialog:open:download:filter', true);
-            });
 
             this.$('.d3canvas').remove();
             this.$el.append('<div class="d3canvas"></div>');
-            this.$('.d3canvas').append('<div id="scatterdiv" style="height:60%;"></div>');
-            this.$('.d3canvas').append('<div id="parallelsdiv" style="height:39%;"></div>');
+            this.$('.d3canvas').append('<div id="graph" style="height:60%;"></div>');
+            this.$('.d3canvas').append('<div id="filters" style="height:39%;"></div>');
+
+
+            /*var renderSettings_ray = {
+                xAxis: [
+                    'rayleigh_datetime',
+                    'rayleigh_datetime',
+                ],
+                yAxis: [
+                    'rayleigh_altitude',
+                    'rayleigh_dem_altitude'
+                ],
+                //y2Axis: [],
+                combinedParameters: {
+                    rayleigh_datetime: ['rayleigh_datetime_start', 'rayleigh_datetime_stop'],
+                    rayleigh_altitude: ['rayleigh_altitude_bottom', 'rayleigh_altitude_top'],
+                    mie_datetime: ['mie_datetime_start', 'mie_datetime_stop'],
+                    mie_altitude: ['mie_altitude_bottom', 'mie_altitude_top']
+                },
+                colorAxis: [
+                    'rayleigh_wind_velocity',
+                    //'mie_wind_velocity',
+                ],
+
+            };*/
+
+
+
+
+
+
+
+            var renderSettings_test = {
+                xAxis: [
+                    //'latitude_of_DEM_intersection'
+                    'time'
+                ],
+                yAxis: [
+                    'mie_altitude'
+                ],
+                //y2Axis: [],
+                combinedParameters: {
+                    mie_latitude: ['mie_latitude_start', 'mie_latitude_end'],
+                    mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
+                    latitude_of_DEM_intersection: [
+                        'latitude_of_DEM_intersection_start',
+                        'latitude_of_DEM_intersection_end'
+                    ],
+                    time: ['time_start', 'time_end'],
+                },
+                colorAxis: ['mie_wind_data']
+
+            };
+
+            var dataSettings = {
+               
+                /*rayleigh_dem_altitude: {
+                    symbol: 'circle',
+                    uom: 'm',
+                    lineConnect: true
+                },
+                rayleigh_wind_velocity: {
+                    uom: 'cm/s',
+                    colorscale: 'viridis',
+                    extent: [-3000,3000]
+                    //outline: false
+                },
+                rayleigh_datetime_start: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+
+                rayleigh_datetime_stop: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+
+                velocity_at_DEM_intersection: {
+                    symbol: 'circle',
+                    uom: 'm',
+                    lineConnect: true
+                },*/
+
+
+
+                time_start: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                time_end: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+
+                time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+
+
+
+
+                mie_wind_data: {
+                    uom: 'cm/s',
+                    colorscale: 'viridis',
+                    extent: [-40,40]
+                    //outline: false
+                },
+
+
+
+            };
+
+            if (this.graph === undefined){
+
+                /*this.filterManager = new FilterManager({
+                    el:'#filters',
+                    filterSettings: filterSettings,
+                });*/
+
+                this.filterManager = globals.swarm.get('filterManager');
+                
+
+                this.graph = new graphly.graphly({
+                    el: '#graph',
+                    dataSettings: dataSettings,
+                    renderSettings: renderSettings_test,
+                    filterManager: globals.swarm.get('filterManager')
+                });
+
+                globals.swarm.get('filterManager').setRenderNode('#filters');
+
+                //$('#tooltip').appendTo(document.body);
+
+                /*fM.getNode().addEventListener(
+                    'change',
+                    (evt)=>{
+                        // Check if event comes directly from el with filters id
+                        if(evt.target.id === 'filters'){
+                            //this.filters = evt.detail;
+                            //this.renderData();
+                             //prim_to_render.appearance.material._textures.image.copyFrom(self.p_plot.canvas);
+
+                            var data = globals.swarm.get('data');
+                            var positions = [];
+                            for (var i = 0; i < data.rayleigh_lats.length; i++) {
+                                if(i%3==0){
+                                    positions.push(data.rayleigh_lons[i]);
+                                    positions.push(data.rayleigh_lats[i]);
+                                }
+                            }
+                            this.createCurtain(data, positions, 'pointcollection', 'band');
+                        }
+                    }
+                );*/
+
+            }
+
 
             var swarmdata = globals.swarm.get('data');
 
-            var args = {
+            /*var args = {
                 scatterEl: '#scatterdiv',
                 histoEl: '#parallelsdiv',
                 selection_x: 'Latitude',
@@ -73,6 +216,8 @@ define(['backbone.marionette',
                 single_color: true,
                 file_save_string: 'VirES_Services_plot_rendering'
             };
+
+
 
             args.filterListChanged = function(param){
               localStorage.setItem('selectedFilterList', JSON.stringify(param));
@@ -112,9 +257,9 @@ define(['backbone.marionette',
                 this.prevParams = JSON.parse(
                     localStorage.getItem('prevParams')
                 );
-            }
+            }*/
 
-            if (this.sp === undefined){
+            /*if (this.sp === undefined){
                 this.sp = new scatterPlot(
                     args, function(){},
                     function (values) {
@@ -151,11 +296,14 @@ define(['backbone.marionette',
                     that.sp.sel_y = JSON.parse(localStorage.getItem('yAxisSelection'));
                 }
 
-            }
+            }*/
 
             if(swarmdata && swarmdata.length>0){
                 args.parsedData = swarmdata;
-                that.sp.loadData(args);
+                //that.sp.loadData(args);
+                //that.filterManager.initManager();
+                that.graph.loadData(data);
+                //that.filterManager.loadData(data);
             }
             return this;
         }, //onShow end
@@ -192,7 +340,7 @@ define(['backbone.marionette',
             // If element already has plot rendering
             if( $(this.el).html()){
                 // Prepare to create list of available parameters
-                var availableParameters = {};
+                /*var availableParameters = {};
                 globals.products.each(function(prod) {
                     if(prod.get('download_parameters')){
                         var par = prod.get('download_parameters');
@@ -322,14 +470,6 @@ define(['backbone.marionette',
                     // Check for special case of only EEF selected
                     var onlyEEF = true;
 
-                    /*globals.swarm.filtered_collection.each(function(layer){
-                      if(layer.get('containerproduct')){
-                        if(layer.get('id') !== 'EEF' && layer.get('visible')){
-                          onlyEEF = false;
-                        }
-                      }
-                    });*/
-
                     if(this.$('.d3canvas').length === 1){
                         $('#scatterdiv').empty();
                         $('#parallelsdiv').empty();
@@ -346,6 +486,11 @@ define(['backbone.marionette',
                     $('#scatterdiv').empty();
                     $('#parallelsdiv').empty();
                     $('#scatterdiv').append('<div id="nodatainfo">No data available for your current selection</div>');
+                }*/
+
+                //this.filterManager.initManager();
+                if(Object.keys(data).length > 0){
+                    this.graph.loadData(data);
                 }
             }
         },

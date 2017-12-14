@@ -21,18 +21,21 @@
     "bootstrap": "~3.0.1",
     "font-awesome": "~4.5.0",
     "d3.Graphs": "ESA-VirES/AnalyticsViewer#~0.4.17",
-    "cesium": "http://cesiumjs.org/releases/Cesium-1.20.zip",
+    "cesium": "https://github.com/AnalyticalGraphicsInc/cesium/releases/download/1.39/Cesium-1.39.zip",
     "papaparse": "~4.1.0",
     "plotty": "santilland/plotty#^0.1.1",
     "jqueryui-touch-punch": "*",
     "FileSaver.js": "eligrey/FileSaver.js",
     "canvas-toBlob.js": "eligrey/canvas-toBlob.js",
-    "Blob.js": "eligrey/Blob.js"
+    "Blob.js": "eligrey/Blob.js",
+    "graphly": "EOX-A/graphly#^0.0.6"
   },
   "devDependencies": {
     "Keypress": "~2.0.0"
   },
   "resolutions": {
-    "d3": "~3.5.3"
+    "d3": "~3.5.3",
+    "papaparse": "^4.3.2",
+    "plotty": "^0.2.0"
   }
 }

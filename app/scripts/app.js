@@ -198,7 +198,7 @@ var VECTOR_BREAKDOWN = {};
                             protocol: product.download.protocol,
                             url: product.download.url
                         },
-                        processes: product.processes,
+                        process: product.process,
                         unit: product.unit,
                         parameters: product.parameters,
                         download_parameters: product.download_parameters,
