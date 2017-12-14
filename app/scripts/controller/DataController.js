@@ -124,6 +124,17 @@
           if(globals.products.models[i].get('model') && globals.products.models[i].get('visible')){
             this.activeModels.push(globals.products.models[i].get("download").id);
           }
+          var product = globals.products.models[i];
+          if (product.get('process')){
+            if(product.get('visible')){
+              this.changeLayer(product.attributes);
+            }
+            //this.activeWPSproducts.push(product.get('process'));
+            /*this.activeWPSproducts.push({
+              collectionId: product.get('download').id,
+              id: product.get('process')
+            });*/
+          }
         }
       },
 
@@ -450,8 +461,8 @@
             );
             var positions = [];
             for (var i = 0; i < ds.latitude_of_DEM_intersection.length; i++) {
-              positions.push(ds.latitude_of_DEM_intersection[i]);
               positions.push(ds.longitude_of_DEM_intersection[i]);
+              positions.push(ds.latitude_of_DEM_intersection[i]);
             }
             var mie_altitude = that.flattenObservationArraySE(ds.mie_altitude);
             var mie_bin_quality_flag = that.flattenObservationArray(ds.mie_bin_quality_flag);

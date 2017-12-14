@@ -37,6 +37,8 @@ var VECTOR_BREAKDOWN = {};
 
             configure: function(config) {
 
+                //localStorage.clear();
+
 
                 $("body").tooltip({ 
                     selector: '[data-toggle=tooltip]',
@@ -142,7 +144,7 @@ var VECTOR_BREAKDOWN = {};
                     colors : d3.scale.category10(),
                     index : 0,
                     getColor: function () { return this.colors(this.index++) }
-                }
+                };
 
 
                 //Productsare loaded and added to the global collection
@@ -568,6 +570,7 @@ var VECTOR_BREAKDOWN = {};
                     Communicator.mediator.trigger('selection:changed', JSON.parse(localStorage.getItem('areaSelection')));
                 }
 
+                //Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
                 //Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
 
                 // Remove loading screen when this point is reached in the script

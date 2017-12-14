@@ -303,7 +303,7 @@ define(['backbone.marionette',
                 //that.sp.loadData(args);
                 //that.filterManager.initManager();
                 that.graph.loadData(data);
-                //that.filterManager.loadData(data);
+                that.filterManager.loadData(data);
             }
             return this;
         }, //onShow end

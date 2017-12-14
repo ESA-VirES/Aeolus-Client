@@ -95,71 +95,68 @@ define([
             plotty.addColorScale('blackwhite', ['#000000', '#ffffff'], [0, 1]);
 
             
-            var renderSettings_ray = {
-                xAxis: ['rayleigh_datetime'],
-                yAxis: ['rayleigh_altitude'],
+             var renderSettings = {
+                xAxis: [
+                    'time'
+                ],
+                yAxis: [
+                    'mie_altitude'
+                ],
+                //y2Axis: [],
                 combinedParameters: {
-                    rayleigh_datetime: ['rayleigh_datetime_start', 'rayleigh_datetime_stop'],
-                    rayleigh_altitude: ['rayleigh_altitude_bottom', 'rayleigh_altitude_top'],
+                    mie_latitude: ['mie_latitude_start', 'mie_latitude_end'],
+                    mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
+                    latitude_of_DEM_intersection: [
+                        'latitude_of_DEM_intersection_start',
+                        'latitude_of_DEM_intersection_end'
+                    ],
+                    time: ['time_start', 'time_end'],
                 },
-                colorAxis: ['rayleigh_wind_velocity']
+                colorAxis: ['mie_wind_data']
+
             };
 
             var dataSettings = {
-                F: {
-                    symbol: 'circle',
-                    uom: 'n',
-                    //regression: 'polynomial',
-                    lineConnect: true
+               
+                time_start: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
                 },
-                Timestamp: {
-                    scaleFormat: 'time'
+                time_end: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
                 },
-                id: {
-                    scaleType: 'ordinal',
-                    categories: ['Alpha', 'Bravo']
-                },
-                Latitude: {
 
+                time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
                 },
-                rayleigh_dem_altitude: {
-                    symbol: 'circle',
-                    uom: 'm',
-                    lineConnect: true
-                },
-                rayleigh_wind_velocity: {
+
+                mie_wind_data: {
                     uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-3000,3000]
+                    extent: [-40,40]
                     //outline: false
-                },
-                rayleigh_datetime_start: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-
-                rayleigh_datetime_stop: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
+                }
 
             };
 
 
             $('body').append($('<div/>', {
-                id: 'hiddenRenderArea' 
+                id: 'hiddenRenderArea' ,
+                style: 'height:100px; width:100px;visibility:hidden;'
             }));
 
 
-            /*this.graph = new graphly.graphly({
+            this.graph = new graphly.graphly({
                 el: '#hiddenRenderArea',
                 dataSettings: dataSettings,
-                renderSettings: renderSettings_ray,
+                renderSettings: renderSettings,
                 filterManager: globals.swarm.get('filterManager'),
                 fixedSize: true,
-                fixedWidth: 4096,
+                fixedWidth: 2048,
                 fixedHeigt: 512
-            });*/
+            });
 
 
             this.connectDataEvents();
@@ -480,16 +477,10 @@ define([
         connectDataEvents: function(){
             globals.swarm.on('change:data', function(model, data) {
                 if (Object.keys(data).length){
-                    /*this.graph.loadData(data);
+                    this.graph.loadData(data);
                     //this.createDataFeatures(data, 'pointcollection', 'band');
-                    var positions = [];
-                    for (var i = 0; i < data.rayleigh_lats.length; i++) {
-                        if(i%3==0){
-                            positions.push(data.rayleigh_lons[i]);
-                            positions.push(data.rayleigh_lats[i]);
-                        }
-                    }
-                    this.createCurtain(data, positions, 'pointcollection', 'band');*/
+                    
+                    this.createCurtain(data, 'pointcollection', 'band');
                     
                 }else{
                     /*for (var i = 0; i < this.activeCollections.length; i++) {
@@ -520,16 +511,9 @@ define([
         },
 
 
-        createCurtain: function(data, positions, cov_id, cur_coll, alpha, height){
+        createCurtain: function(data, cov_id, cur_coll, alpha, height){
 
-
-            var heights = [];
-            for (var i = (positions.length/2) - 1; i >= 0; i--) {
-                heights.push(height);
-            };
-
-
-            //this.map.entities.removeAll();
+            this.map.scene.primitives.removeAll();
 
             alpha = 0.99;
 
@@ -549,17 +533,14 @@ define([
 
             height = 1000000;
 
-            var max_heights = [];
-            var min_heights = [];
-            for (var i = (positions.length/2) - 1; i >= 0; i--) {
-                max_heights.push(height);
-                min_heights.push(0.0);
-            };
-
+            var maxHeights = [];
+            for (var i = 0; i <data.positions.length; i++) {
+                maxHeights.push(height);
+            }
 
             var wall = new Cesium.WallGeometry({
-                positions : Cesium.Cartesian3.fromDegreesArray(positions),
-                maximumHeights : max_heights,
+                positions : Cesium.Cartesian3.fromDegreesArray(data.positions),
+                maximumHeights : maxHeights,
             });
 
             var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
@@ -575,7 +556,7 @@ define([
               asynchronous: false
             });
 
-            var prim = this.map.scene.primitives.add(prim);
+            prim = this.map.scene.primitives.add(prim);
 
             var that = this;
             this.graph.on('rendered', function(){
@@ -583,10 +564,6 @@ define([
                 if(prim && prim.hasOwnProperty('_appearance') && prim._appearance){
                     prim.appearance.material._textures.image.copyFrom(that.graph.getCanvas());
                 }
-                /*if(wall){
-                    wall._wall._material._image = that.graph.getCanvasImage();
-                }*/
-                //material.uniforms._image = that.graph.getCanvasImage();
             });
 
 

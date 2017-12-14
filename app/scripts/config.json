@@ -149,60 +149,18 @@
             },
             "process" : "aeolus:level1B",
             "parameters": {
-                "B_NEC": {
-                    "range": [15000, 55000],
-                    "uom":"nT",
-                    "colorscale": "jet",
-                    "name": "Magnetic field vector, NEC frame"
-                },
-                "F": {
-                    "range": [15000, 55000],
-                    "uom":"nT",
-                    "colorscale": "jet",
+                "Mie": {
+                    "range": [-40, 40],
+                    "uom":"cm/s",
                     "selected": true,
-                    "name": "Magnetic field intensity"
-                }
-            },
-            "download_parameters": {
-                "Timestamp": {
-                    "uom": null,
-                    "name": "Time of observation"
-                }
-            },
-            "outlines": false
-        },{
-            "name": "ADM L2B",
-            "color": "#1f77b4",
-            "timeSlider": true,
-            "timeSliderProtocol": "WPS",
-            "views": [{
-                "id": "SW_OPER_MAGA_LR_1B",
-                "protocol": "WPS",
-                "urls": [
-                    "http://localhost:9000/vires00/ows"
-                ],
-                "style": "default",
-                "format": "image/png"
-            }],
-            "download": {
-                "id": "SW_OPER_MAGA_LR_1B",
-                "protocol": "WPS",
-                "url": "http://localhost:9000/vires00/ows"
-            },
-            "process" : "aeolus:level2B",
-            "parameters": {
-                "B_NEC": {
-                    "range": [15000, 55000],
-                    "uom":"nT",
-                    "colorscale": "jet",
-                    "name": "Magnetic field vector, NEC frame"
+                    "colorscale": "viridis",
+                    "name": "Mie"
                 },
-                "F": {
-                    "range": [15000, 55000],
-                    "uom":"nT",
-                    "colorscale": "jet",
-                    "selected": true,
-                    "name": "Magnetic field intensity"
+                "Rayleigh": {
+                    "range": [-40, 40],
+                    "uom":"cm/s",
+                    "colorscale": "plasma",
+                    "name": "Rayleigh"
                 }
             },
             "download_parameters": {
