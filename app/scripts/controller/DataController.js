@@ -435,6 +435,7 @@
         xhr.open('GET', url, true);
         xhr.responseType = 'arraybuffer';
         var that = this;
+        var collectionId = process.collectionId;
 
         xhr.onload = function(e) {
             var tmp = new Uint8Array(this.response);
@@ -479,7 +480,15 @@
               positions: positions
             };
 
-            globals.swarm.set({data: tmpdata});
+            // TODO: Getting the object and setting one parameter does not trigger
+            // change event, need to think about using multiple objects for different
+            // ids instead of one object with multiple parameters 
+            var resData = {};//globals.swarm.get('data');
+            resData[collectionId] = tmpdata;
+
+            globals.swarm.set({data: resData});
+
+            // TODO: Merge data for filtermanager?
             that.filterManager.loadData(tmpdata);
         };
 

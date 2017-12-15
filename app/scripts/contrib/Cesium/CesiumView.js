@@ -44,6 +44,7 @@ define([
             this.beginTime = null;
             this.endTime = null;
             this.plot = null;
+            this.curtainPrimitive = null;
 
             $(window).resize(function() {
                 if (this.map) {
@@ -116,7 +117,7 @@ define([
 
             };
 
-            var dataSettings = {
+            this.dataSettings = {
                
                 time_start: {
                     scaleFormat: 'time',
@@ -150,7 +151,7 @@ define([
 
             this.graph = new graphly.graphly({
                 el: '#hiddenRenderArea',
-                dataSettings: dataSettings,
+                dataSettings: this.dataSettings,
                 renderSettings: renderSettings,
                 filterManager: globals.swarm.get('filterManager'),
                 fixedSize: true,
@@ -477,10 +478,14 @@ define([
         connectDataEvents: function(){
             globals.swarm.on('change:data', function(model, data) {
                 if (Object.keys(data).length){
-                    this.graph.loadData(data);
-                    //this.createDataFeatures(data, 'pointcollection', 'band');
                     
-                    this.createCurtain(data, 'pointcollection', 'band');
+                    //this.createDataFeatures(data, 'pointcollection', 'band');
+                    var idKeys = Object.keys(data);
+                    for (var i = idKeys.length - 1; i >= 0; i--) {
+                        this.graph.loadData(data[idKeys[i]]);
+                        this.createCurtain(data[idKeys[i]], idKeys[i], 'mie');
+                    }
+                    
                     
                 }else{
                     /*for (var i = 0; i < this.activeCollections.length; i++) {
@@ -510,23 +515,127 @@ define([
             }
         },
 
+        updateCurtain: function(id){
+
+            var data = globals.swarm.get('data')[id];
+            var product = globals.products.find(
+                function(p){return p.get('download').id === id;}
+            );
+
+            if(product && product.hasOwnProperty('curtain')){
+                var curtain = product.curtain;
+                var parameters = product.get('parameters');
+                var band;
+                var keys = _.keys(parameters);
+                _.each(keys, function(key){
+                    if(parameters[key].selected){
+                        band = key;
+                    }
+                });
+                var style = parameters[band].colorscale;
+                var range = parameters[band].range;
+
+
+                //this.graph.setColorScale(style);
+                //this.graph.onSetExtent(range);
+                this.dataSettings[band].colorscale = style;
+                this.dataSettings[band].extent = range;
+                this.graph.dataSettings = this.dataSettings;
+                this.graph.loadData(data);
+
+                var alpha = 0.99;
+
+                var newmat = new Cesium.Material({
+                    fabric : {
+                        uniforms : {
+                            image : this.graph.getCanvasImage(),
+                            repeat : new Cesium.Cartesian2(-1.0, 1.0),
+                            alpha : alpha
+                        },
+                        components : {
+                            diffuse : 'texture2D(image, fract(repeat * materialInput.st)).rgb',
+                            alpha : 'texture2D(image, fract(repeat * materialInput.st)).a * alpha'
+                        }
+                    },
+                    flat: true,
+                    translucent : true
+                });
+
+                var sliceAppearance = new Cesium.MaterialAppearance({
+                    translucent : true,
+                    flat: true,
+                    material : newmat
+                });
+
+                if(curtain && curtain.hasOwnProperty('_appearance') && curtain._appearance){
+                    curtain.appearance.material._textures.image.copyFrom(this.graph.getCanvas());
+                }
+
+                this.checkColorscale(id);
+            }
+
+        },
+
 
         createCurtain: function(data, cov_id, cur_coll, alpha, height){
 
-            this.map.scene.primitives.removeAll();
+            var currProd = globals.products.find(
+                function(p){return p.get('download').id === cov_id;}
+            );
 
-            alpha = 0.99;
+            if(currProd.hasOwnProperty('curtain')){
+                this.map.scene.primitives.remove(currProd.curtain);
+                delete currProd.curtain;
+            }
+
+            //alpha = 0.99;
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
+
+            alpha = currProd.get('opacity');
 
 
-            var sliceMat = new Cesium.Material.fromType('Image', {
+            //this.graph.setColorScale(style);
+            //this.graph.onSetExtent(range);
+            this.dataSettings[band].colorscale = style;
+            this.dataSettings[band].extent = range;
+            this.graph.dataSettings = this.dataSettings;
+
+            var newmat = new Cesium.Material({
+                fabric : {
+                    uniforms : {
+                        image : this.graph.getCanvasImage(),
+                        repeat : new Cesium.Cartesian2(-1.0, 1.0),
+                        alpha : alpha
+                    },
+                    components : {
+                        diffuse : 'texture2D(image, fract(repeat * materialInput.st)).rgb',
+                        alpha : 'texture2D(image, fract(repeat * materialInput.st)).a * alpha'
+                    }
+                },
+                flat: true,
+                translucent : true
+            });
+
+
+            /*var sliceMat = new Cesium.Material.fromType('Image', {
                 image : this.graph.getCanvasImage(),
                 color: new Cesium.Color(1, 1, 1, alpha)
-            });
+            });*/
 
             var sliceAppearance = new Cesium.MaterialAppearance({
                 translucent : true,
                 flat: true,
-                material : sliceMat
+                material : newmat
             });
 
 
@@ -557,6 +666,10 @@ define([
             });
 
             prim = this.map.scene.primitives.add(prim);
+
+            currProd.curtain = prim;
+
+            //this.curtainPrimitive = prim;
 
             var that = this;
             this.graph.on('rendered', function(){
@@ -731,7 +844,20 @@ define([
 
         onUpdateOpacity: function(options) {
 
-            globals.products.each(function(product) {
+            var product = globals.products.find(
+                function(p){return p.get('download').id === options.model.get('download').id;}
+            );
+
+            if(product){
+                if(product.hasOwnProperty('curtain')){
+                    //product.curtain.appearance.material._textures.image.copyFrom(that.graph.getCanvas());
+                    product.curtain.appearance.material.uniforms.alpha = options.value;//.clone();
+                    //c.alpha = options.value;
+                    //product.curtain.appearance.material.uniforms.color = c;
+                }
+            }
+
+            /*globals.products.each(function(product) {
                 if(product.get('download').id === options.model.get('download').id){
                     var cesLayer = product.get('ces_layer');
                     // Find active parameter and satellite
@@ -778,7 +904,7 @@ define([
                         cesLayer.alpha = options.value;
                     }
                 }
-            }, this);
+            }, this);*/
         },
 
         addCustomAttribution: function(view) {
@@ -1230,7 +1356,32 @@ define([
         },
 
         OnLayerParametersChanged: function(layer){
-            globals.products.each(function(product) {
+
+            // TODO: Rewrite all references to change layer to use download id and not name!
+
+            var product = globals.products.find(
+                function(p){return p.get('name') === layer;}
+            );
+
+            if(product){
+                /*var parameters = product.get('parameters');
+                var band;
+                var keys = _.keys(parameters);
+                _.each(keys, function(key){
+                    if(parameters[key].selected){
+                        band = key;
+                    }
+                });
+                var style = parameters[band].colorscale;
+                var range = parameters[band].range;*/
+                
+                if(product.hasOwnProperty('curtain')){
+                    //product.curtain
+                    this.updateCurtain(product.get('download').id);
+                }
+            }
+
+            /*globals.products.each(function(product) {
                 if(product.get('name')===layer){
 
                     this.checkColorscale(product.get('download').id);
@@ -1310,7 +1461,7 @@ define([
                         //this.checkShc(product, product.get('visible'));
                     }
                 }
-            }, this);
+            }, this);*/
         },
 
 

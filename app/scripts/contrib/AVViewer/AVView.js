@@ -490,7 +490,9 @@ define(['backbone.marionette',
 
                 //this.filterManager.initManager();
                 if(Object.keys(data).length > 0){
-                    this.graph.loadData(data);
+                    //this.graph.loadData(data);
+                    // TODO: Iterate through all ids and load to corresponding graphs
+                    this.graph.loadData(data['AEOLUS']);
                 }
             }
         },

@@ -92,12 +92,12 @@
                 "crs": "EPSG:4326"
             }]
         }, {
-            "name": "Blue Marble",
+            "name": "S2 Cloudless",
             "visible": false,
             "views": [{
-                "id": "bluemarble",
+                "id": "s2cloudless",
                 "protocol": "WMTS",
-                "urlTemplate": "https://{s}.tiles.maps.eox.at/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=bluemarble&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
+                "urlTemplate": "https://{s}.tiles.maps.eox.at/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=s2cloudless&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
                 "subdomains": "abcdef",
                 "urls": [
                     "//a.tiles.maps.eox.at/wmts/",
@@ -116,9 +116,9 @@
                 "isphericalMercator": false,
                 "wrapDateLine": true,
                 "zoomOffset": 0,
-                "attribution": "Blue Marble { &copy; <a href=\"http://nasa.gov\" target=\"_blank\">NASA</a> }"
+                "attribution": "Sentinel-2 cloudless - <a href=\"https://s2maps.eu\" target=\"_blank\">https://s2maps.eu</a> by <a href=\"https://eox.at\" target=\"_blank\">EOX IT Services GmbH</a> (Contains modified Copernicus Sentinel data 2016 & 2017)"
             }, {
-                "id": "bluemarble",
+                "id": "s2cloudless",
                 "protocol": "WMS",
                 "urls": [
                     "//tiles.maps.eox.at/wms"
@@ -149,14 +149,14 @@
             },
             "process" : "aeolus:level1B",
             "parameters": {
-                "Mie": {
+                "mie_wind_data": {
                     "range": [-40, 40],
                     "uom":"cm/s",
                     "selected": true,
                     "colorscale": "viridis",
                     "name": "Mie"
                 },
-                "Rayleigh": {
+                "rayleigh_wind_data": {
                     "range": [-40, 40],
                     "uom":"cm/s",
                     "colorscale": "plasma",
