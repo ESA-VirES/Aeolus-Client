@@ -26,6 +26,7 @@
         this.selected_time = null;
 
 
+
         var filterSettings = {
             parameterMatrix: {
                 'height': [
@@ -40,65 +41,44 @@
             },
             filterRelation: [
                 [
-                    /*'mie_latitude', 'mie_longitude', 'mie_altitude', 'mie_dem_altitude',
-                    'mie_datetime_start', 'mie_datetime_stop', 'mie_startlat',
-                    'mie_endlat','mie_altitude_top', 'mie_altitude_bottom', 'height',
-                    'mie_geo_height', 'mie_wind_velocity', 'mie_observation_type',*/
                     'mie_quality_flag_data', 'mie_wind_data', 'mie_latitude', 'mie_altitude',
                     'mie_latitude_start', 'mie_latitude_end', 'mie_altitude_start', 'mie_altitude_end',
                     'time', 'time_start', 'time_end', 'latitude_of_DEM_intersection_start',
-                    'latitude_of_DEM_intersection_end', 'latitude_of_DEM_intersection'
+                    'latitude_of_DEM_intersection_end', 'latitude_of_DEM_intersection',
+                    'geoid_separation','velocity_at_DEM_intersection'
                 ]/*,
                 [
-                    'rayleigh_latitude', 'rayleigh_longitude', 'rayleigh_altitude',
-                    'rayleigh_dem_altitude', 'rayleigh_datetime_start',
-                    'rayleigh_datetime_stop', 'rayleigh_startlat', 'rayleigh_endlat',
-                    'rayleigh_altitude_top', 'rayleigh_altitude_bottom', 'height',
-                    'rayleigh_geo_height', 'rayleigh_wind_velocity'
+                    'rayleigh_HLOS_wind_speed','rayleigh_altitude','rayleigh_bin_quality_flag',
+                    'rayleigh_signal_channel_A_intensity','rayleigh_signal_channel_B_intensity',
+                    'rayleigh_ground_velocity',
                 ]*/
             ],
             visibleFilters: [
-                'mie_quality_flag_data',
-                /*'T_elec',
-                'Latitude',
-                'height',
-                'latitude',
-                'longitude',
-                'rayleigh_wind_velocity',
-                'mie_wind_velocity',
-                'mie_observation_type',
-                'Laser_Freq_Offset',
-                'Mie_Valid',
-                'Rayleigh_Valid',
-                'Fizeau_Transmission',
-                'Rayleigh_A_Response',
-                'Rayleigh_B_Response',
-                'Num_Mie_Used',
-                'Num_Rayleigh_Used',
-                'Num_Corrupt_Mie',
-                'Num_Corrupt_Rayleigh',
-
-                'Frequency_Offset',
-                'Frequency_Valid',
-                'Measurement_Response_Valid',
-                'Reference_Pulse_Response_Valid',
-                'Measurement_Response',
-                'Measurement_Error_Mie_Response',
-                'Reference_Pulse_Response',
-                'Reference_Pulse_Error_Mie_Response',
-                'Num_Valid_Measurements',
-                'Num_Measurements_Usable',
-                'Num_Reference_Pulses_Usable',
-                'Num_Measurement_Invalid',
-                'Num_Pulse_Validity_Status_Flag_False',
-                'Num_Sat_Not_on_Target_Measurements',
-                'Num_Corrupt_Measurement_Bins',
-                'Num_Corrupt_Reference_Pulses',
-                'Num_Mie_Core_Algo_Fails_Measurements',
-                //'Num_Ground_Echo_Not_Detected_Measurements'*/
+                'mie_quality_flag_data', 'mie_wind_data', 'geoid_separation','velocity_at_DEM_intersection'
             ],
             //boolParameter: [],
-            //maskParameter: {},
+            maskParameter: {
+              'mie_quality_flag_data': {
+                  values: [
+                      ['Bit 1', 'Overall validity. Data invalid 1, otherwise 0 '],
+                      ['Bit 2', 'Set to 1 if signal-to-noise below SNR_Threshold, default 0 '],
+                      ['Bit 3', 'Data saturation found 1, otherwise 0 '],
+                      ['Bit 4', 'Data spike found 1, otherwise 0 '],
+                      ['Bit 5', 'Reference pulse invalid 1, otherwise 0 '],
+                      ['Bit 6', 'Source packet invalid 1, otherwise 0 '],
+                      ['Bit 7', 'Number of corresponding valid pulses is below Meas_Cavity_Lock_Status_Thresh 1, otherwise 0 '],
+                      ['Bit 8', 'Spacecraft attitude not on target 1, otherwise 0 '],
+                      ['Bit 9', 'For Mie, peak not found 1, otherwise 0. For Rayleigh, rayleigh response not found 1, otherwise 0 '],
+                      ['Bit 10','Set to 1 if the absolute wind velocity above Wind_Velocity_Threshold, default 0 '],
+                      ['Bit 11','Set to 1 if polynomial fit of error responses was used but no valid root of the polynomial was found, otherwise 0. '],
+                      ['Bit 12','Bin was detected as ground bin, otherwise 0. '],
+                      ['Bit 13','Spare, set to 0'],
+                      ['Bit 14','Spare, set to 0'],
+                      ['Bit 15','Spare, set to 0'],
+                      ['Bit 16','Spare, set to 0']
+                  ]
+              }
+          },
             //choiceParameter: {}
         };
 
@@ -427,10 +407,16 @@
         '&DataInputs=collection_ids=["AEOLUS"];'+
         'begin_time='+getISODateTimeString(this.selected_time.start)+
         ';end_time='+getISODateTimeString(this.selected_time.end)+
-        ';observation_fields=time,mie_HLOS_wind_speed,latitude_of_DEM_intersection,longitude_of_DEM_intersection,mie_altitude,mie_bin_quality_flag'+//'bbox=0,1,2,3,urn:ogc:def:crs:EPSG::3857'+
+        ';observation_fields=time,latitude_of_DEM_intersection,longitude_of_DEM_intersection'+
+        ',mie_HLOS_wind_speed,mie_altitude,mie_bin_quality_flag,mie_signal_intensity,mie_ground_velocity'+
+        ',rayleigh_HLOS_wind_speed,rayleigh_altitude,rayleigh_bin_quality_flag,rayleigh_signal_channel_A_intensity,rayleigh_signal_channel_B_intensity,rayleigh_ground_velocity'+
+        ',geoid_separation,velocity_at_DEM_intersection'+
         //';measurement_fields=time,mie_HLOS_wind_speed,latitude_of_DEM_intersection,mie_altitude,mie_bin_quality_flag'+//'bbox=0,1,2,3,urn:ogc:def:crs:EPSG::3857'+
         //';measurement_fields=time'+//'bbox=0,1,2,3,urn:ogc:def:crs:EPSG::3857'+
         '&RawDataOutput=output';
+
+
+
 
         xhr.open('GET', url, true);
         xhr.responseType = 'arraybuffer';
@@ -442,16 +428,6 @@
             var data = msgpack.decode(tmp);
 
             var ds = data.AEOLUS[0];
-
-            /*var time = that.flattenArraySE(ds.time);
-            var mie_HLOS_wind_speed = that.flattenMeasurementArray(ds.mie_HLOS_wind_speed);
-            //var mie_latitude = that.flattenMeasurementArraySE(data.AEOLUS[1].mie_latitude);
-            var latitude_of_DEM_intersection = that.proxyFlattenMeasurementArraySE(
-              ds.latitude_of_DEM_intersection,
-              ds.mie_altitude
-            );
-            var mie_altitude = that.flattenMeasurementArraySE(ds.mie_altitude);
-            var mie_bin_quality_flag = that.flattenMeasurementArray(ds.mie_bin_quality_flag);*/
 
             var time = that.proxyFlattenObservationArraySE(ds.time, ds.mie_altitude);
             var mie_HLOS_wind_speed = that.flattenObservationArray(ds.mie_HLOS_wind_speed);
@@ -468,6 +444,15 @@
             var mie_altitude = that.flattenObservationArraySE(ds.mie_altitude);
             var mie_bin_quality_flag = that.flattenObservationArray(ds.mie_bin_quality_flag);
 
+            var geoid_separation = that.proxyFlattenObservationArraySE(
+              ds.geoid_separation,
+              ds.mie_altitude
+            );
+            var velocity_at_DEM_intersection = that.proxyFlattenObservationArraySE(
+              ds.velocity_at_DEM_intersection,
+              ds.mie_altitude
+            );
+
             var tmpdata = {
               time_start: time[0],
               time_end: time[1],
@@ -477,7 +462,9 @@
               mie_quality_flag_data: mie_bin_quality_flag,
               mie_altitude_start: mie_altitude[1],
               mie_altitude_end: mie_altitude[0],
-              positions: positions
+              positions: positions,
+              geoid_separation: geoid_separation[0],
+              velocity_at_DEM_intersection: velocity_at_DEM_intersection[0]
             };
 
             // TODO: Getting the object and setting one parameter does not trigger

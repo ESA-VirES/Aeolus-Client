@@ -36,3 +36,19 @@
     position: absolute;
     width: 100%;
 }
+
+/*Rewrite some defaults of bootstrap*/
+.filterContainer label {
+    margin-bottom: 0px!important; 
+    font-weight: normal!important;
+}
+
+.filterContainer input {
+    margin: 1px 0 0!important;
+}
+
+.filterContainer .editButton{
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box; 
+}

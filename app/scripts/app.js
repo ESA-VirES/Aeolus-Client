@@ -40,12 +40,12 @@ var VECTOR_BREAKDOWN = {};
                 //localStorage.clear();
 
 
-                $("body").tooltip({ 
+                /*$("body").tooltip({ 
                     selector: '[data-toggle=tooltip]',
                     position: { my: "left+5 center", at: "right center" },
                     hide: { effect: false, duration: 0 },
                     show:{ effect: false, delay: 700}
-                });
+                });*/
 
                 var imagerenderercanvas = $('<canvas/>',{id: 'imagerenderercanvas'});
                 $('body').append(imagerenderercanvas);
@@ -554,12 +554,12 @@ var VECTOR_BREAKDOWN = {};
 
           // The tooltip is called twice at beginning and end, it seems to show the style of the
           // tooltips more consistently, there is some problem where sometimes no style is shown for tooltips
-          $("body").tooltip({ 
+          /*$("body").tooltip({ 
                     selector: '[data-toggle=tooltip]',
                     position: { my: "left+5 center", at: "right center" },
                     hide: { effect: false, duration: 0 },
                     show:{ effect: false, delay: 700}
-                });
+                });*/
 
               // Now that products and data are loaded make sure datacontroller is correctly initialized
                 Communicator.mediator.trigger('manual:init');
