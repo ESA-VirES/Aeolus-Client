@@ -149,18 +149,18 @@
             },
             "process" : "aeolus:level1B",
             "parameters": {
-                "mie_wind_data": {
+                "mie_HLOS_wind_speed": {
                     "range": [-40, 40],
                     "uom":"cm/s",
                     "selected": true,
                     "colorscale": "viridis",
-                    "name": "Mie"
+                    "name": "Mie HLOS wind speed"
                 },
-                "rayleigh_wind_data": {
+                "rayleigh_HLOS_wind_speed": {
                     "range": [-40, 40],
                     "uom":"cm/s",
                     "colorscale": "plasma",
-                    "name": "Rayleigh"
+                    "name": "Rayleigh HLOS wind speed"
                 }
             },
             "download_parameters": {

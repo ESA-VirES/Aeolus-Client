@@ -41,11 +41,11 @@
             },
             filterRelation: [
                 [
-                    'mie_quality_flag_data', 'mie_wind_data', 'mie_latitude', 'mie_altitude',
+                    'mie_quality_flag_data', 'mie_wind_HLOS_wind_speed', 'mie_latitude', 'mie_altitude',
                     'mie_latitude_start', 'mie_latitude_end', 'mie_altitude_start', 'mie_altitude_end',
-                    'time', 'time_start', 'time_end', 'latitude_of_DEM_intersection_start',
-                    'latitude_of_DEM_intersection_end', 'latitude_of_DEM_intersection',
-                    'geoid_separation','velocity_at_DEM_intersection'
+                    'time', 'mie_time_start', 'mie_time_end', 'mie_latitude_of_DEM_intersection_start',
+                    'mie_latitude_of_DEM_intersection_end', 'mie_latitude_of_DEM_intersection',
+                    'mie_geoid_separation','mie_velocity_at_DEM_intersection'
                 ]/*,
                 [
                     'rayleigh_HLOS_wind_speed','rayleigh_altitude','rayleigh_bin_quality_flag',
@@ -54,7 +54,7 @@
                 ]*/
             ],
             visibleFilters: [
-                'mie_quality_flag_data', 'mie_wind_data', 'geoid_separation','velocity_at_DEM_intersection'
+                'mie_quality_flag_data', 'mie_HLOS_wind_speed', //'geoid_separation','velocity_at_DEM_intersection'
             ],
             //boolParameter: [],
             maskParameter: {
@@ -429,10 +429,11 @@
 
             var ds = data.AEOLUS[0];
 
-            var time = that.proxyFlattenObservationArraySE(ds.time, ds.mie_altitude);
+            // MIE
+            var mie_time = that.proxyFlattenObservationArraySE(ds.time, ds.mie_altitude);
             var mie_HLOS_wind_speed = that.flattenObservationArray(ds.mie_HLOS_wind_speed);
             //var mie_latitude = that.flattenMeasurementArraySE(data.AEOLUS[1].mie_latitude);
-            var latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
+            var mie_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
               ds.latitude_of_DEM_intersection,
               ds.mie_altitude
             );
@@ -444,27 +445,57 @@
             var mie_altitude = that.flattenObservationArraySE(ds.mie_altitude);
             var mie_bin_quality_flag = that.flattenObservationArray(ds.mie_bin_quality_flag);
 
-            var geoid_separation = that.proxyFlattenObservationArraySE(
+            var mie_geoid_separation = that.proxyFlattenObservationArraySE(
               ds.geoid_separation,
               ds.mie_altitude
             );
-            var velocity_at_DEM_intersection = that.proxyFlattenObservationArraySE(
+            var mie_velocity_at_DEM_intersection = that.proxyFlattenObservationArraySE(
               ds.velocity_at_DEM_intersection,
               ds.mie_altitude
             );
 
+
+
+            // RAYLEIGH
+            var ray_time = that.proxyFlattenObservationArraySE(ds.time, ds.rayleigh_altitude);
+            var ray_HLOS_wind_speed = that.flattenObservationArray(ds.rayleigh_HLOS_wind_speed);
+            //var mie_latitude = that.flattenMeasurementArraySE(data.AEOLUS[1].mie_latitude);
+            var ray_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
+              ds.latitude_of_DEM_intersection,
+              ds.rayleigh_altitude
+            );
+            var ray_altitude = that.flattenObservationArraySE(ds.rayleigh_altitude);
+            var ray_bin_quality_flag = that.flattenObservationArray(ds.rayleigh_bin_quality_flag);
+
+            var ray_geoid_separation = that.proxyFlattenObservationArraySE(
+              ds.geoid_separation,
+              ds.rayleigh_altitude
+            );
+            var ray_velocity_at_DEM_intersection = that.proxyFlattenObservationArraySE(
+              ds.velocity_at_DEM_intersection,
+              ds.rayleigh_altitude
+            );
+
             var tmpdata = {
-              time_start: time[0],
-              time_end: time[1],
-              latitude_of_DEM_intersection_start: latitude_of_DEM_intersection[1],
-              latitude_of_DEM_intersection_end: latitude_of_DEM_intersection[0],
-              mie_wind_data: mie_HLOS_wind_speed,
+              mie_time_start: mie_time[0],
+              mie_time_end: mie_time[1],
+              mie_latitude_of_DEM_intersection_start: mie_latitude_of_DEM_intersection[1],
+              mie_latitude_of_DEM_intersection_end: mie_latitude_of_DEM_intersection[0],
+              mie_HLOS_wind_speed: mie_HLOS_wind_speed,
               mie_quality_flag_data: mie_bin_quality_flag,
               mie_altitude_start: mie_altitude[1],
               mie_altitude_end: mie_altitude[0],
               positions: positions,
-              geoid_separation: geoid_separation[0],
-              velocity_at_DEM_intersection: velocity_at_DEM_intersection[0]
+              /*geoid_separation: geoid_separation[0],
+              velocity_at_DEM_intersection: velocity_at_DEM_intersection[0]*/
+              rayleigh_time_start: ray_time[0],
+              rayleigh_time_end: ray_time[1],
+              rayleigh_latitude_of_DEM_intersection_start: ray_latitude_of_DEM_intersection[1],
+              rayleigh_latitude_of_DEM_intersection_end: ray_latitude_of_DEM_intersection[0],
+              rayleigh_HLOS_wind_speed: ray_HLOS_wind_speed,
+              rayleigh_quality_flag_data: ray_bin_quality_flag,
+              rayleigh_altitude_start: ray_altitude[1],
+              rayleigh_altitude_end: ray_altitude[0],
             };
 
             // TODO: Getting the object and setting one parameter does not trigger

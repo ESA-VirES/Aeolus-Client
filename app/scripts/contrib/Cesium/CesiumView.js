@@ -108,22 +108,22 @@ define([
                     mie_latitude: ['mie_latitude_start', 'mie_latitude_end'],
                     mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
                     latitude_of_DEM_intersection: [
-                        'latitude_of_DEM_intersection_start',
-                        'latitude_of_DEM_intersection_end'
+                        'mie_latitude_of_DEM_intersection_start',
+                        'mie_latitude_of_DEM_intersection_end'
                     ],
-                    time: ['time_start', 'time_end'],
+                    time: ['mie_time_start', 'mie_time_end'],
                 },
-                colorAxis: ['mie_wind_data']
+                colorAxis: ['mie_HLOS_wind_speed']
 
             };
 
             this.dataSettings = {
                
-                time_start: {
+                mie_time_start: {
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
                 },
-                time_end: {
+                mie_time_end: {
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
                 },
@@ -133,7 +133,7 @@ define([
                     timeFormat: 'MJD2000_S'
                 },
 
-                mie_wind_data: {
+                mie_HLOS_wind_speed: {
                     uom: 'cm/s',
                     colorscale: 'viridis',
                     extent: [-40,40]
