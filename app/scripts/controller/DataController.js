@@ -434,7 +434,13 @@
       sendRequest: function(process){
         var xhr = new XMLHttpRequest();
 
-        var url = 'http://localhost:9000/vires00/ows?service=wps&request=execute&identifier='+process.id+
+        var product = globals.products.find(
+            function(p){return p.get('download').id === process.collectionId;}
+        );
+
+        var urlBase = product.get('download').url;
+
+        var url = urlBase + '?service=wps&request=execute&identifier='+process.id+
         '&DataInputs=collection_ids=["AEOLUS"];'+
         'begin_time='+getISODateTimeString(this.selected_time.start)+
         ';end_time='+getISODateTimeString(this.selected_time.end)+
