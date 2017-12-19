@@ -98,7 +98,7 @@ define([
             
              var renderSettings = {
                 xAxis: [
-                    'time'
+                    'mie_time'
                 ],
                 yAxis: [
                     'mie_altitude'
@@ -107,11 +107,19 @@ define([
                 combinedParameters: {
                     mie_latitude: ['mie_latitude_start', 'mie_latitude_end'],
                     mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
-                    latitude_of_DEM_intersection: [
+                    mie_latitude_of_DEM_intersection: [
                         'mie_latitude_of_DEM_intersection_start',
                         'mie_latitude_of_DEM_intersection_end'
                     ],
-                    time: ['mie_time_start', 'mie_time_end'],
+                    mie_time: ['mie_time_start', 'mie_time_end'],
+
+                    rayleigh_latitude: ['rayleigh_latitude_start', 'rayleigh_latitude_end'],
+                    rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
+                    rayleigh_latitude_of_DEM_intersection: [
+                        'rayleigh_latitude_of_DEM_intersection_start',
+                        'rayleigh_latitude_of_DEM_intersection_end'
+                    ],
+                    rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end'],
                 },
                 colorAxis: ['mie_HLOS_wind_speed']
 
@@ -134,6 +142,13 @@ define([
                 },
 
                 mie_HLOS_wind_speed: {
+                    uom: 'cm/s',
+                    colorscale: 'viridis',
+                    extent: [-40,40]
+                    //outline: false
+                },
+
+                rayleigh_HLOS_wind_speed: {
                     uom: 'cm/s',
                     colorscale: 'viridis',
                     extent: [-40,40]
@@ -541,6 +556,16 @@ define([
                 this.dataSettings[band].colorscale = style;
                 this.dataSettings[band].extent = range;
                 this.graph.dataSettings = this.dataSettings;
+                
+                if(band === 'mie_HLOS_wind_speed'){
+                    this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
+                    this.graph.renderSettings.yAxis = ['mie_altitude'];
+                    this.graph.renderSettings.xAxis =['mie_time'];
+                }else if(band === 'rayleigh_HLOS_wind_speed'){
+                    this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
+                    this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
+                    this.graph.renderSettings.xAxis =['rayleigh_time'];
+                }
                 this.graph.loadData(data);
 
                 var alpha = 0.99;
@@ -609,6 +634,17 @@ define([
             this.dataSettings[band].colorscale = style;
             this.dataSettings[band].extent = range;
             this.graph.dataSettings = this.dataSettings;
+
+            if(band === 'mie_HLOS_wind_speed'){
+                this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
+                this.graph.renderSettings.yAxis = ['mie_altitude'];
+                this.graph.renderSettings.xAxis =['mie_time'];
+            }else if(band === 'rayleigh_HLOS_wind_speed'){
+                this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
+                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
+            }
+            this.graph.renderData(data);
 
             var newmat = new Cesium.Material({
                 fabric : {

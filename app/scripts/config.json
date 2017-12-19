@@ -133,6 +133,7 @@
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
+            "visible": true,
             "views": [{
                 "id": "AEOLUS",
                 "protocol": "WPS",
@@ -272,19 +273,18 @@
             "eventToRaise": "application:reset"
         }]
     },
-
     "timeSlider": {
         "domain": {
             "start": "2000-02-28T01:00:00Z",
             "end": "2018-03-05T01:00:00Z"
         },
         "brush": {
-            "start": "2016-03-02T10:00:00Z",
-            "end": "2016-03-02T11:00:00Z"
+            "start": "2015-10-01T11:04:38Z",
+            "end": "2015-10-01T11:30:35Z"
         },
         "display": {
-            "start": "2016-02-28T01:00:00Z",
-            "end": "2016-03-05T01:00:00Z"
+            "start": "2015-10-01T01:00:00Z",
+            "end": "2015-10-02T01:00:00Z"
         }
     },
 

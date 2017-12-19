@@ -43,7 +43,8 @@ define(['backbone.marionette',
             this.$el.append('<div class="d3canvas"></div>');
             this.$('.d3canvas').append('<div id="graph_1" style="height:30%;"></div>');
             this.$('.d3canvas').append('<div id="graph_2" style="height:30%;"></div>');
-            this.$('.d3canvas').append('<div id="filters" style="height:39%;"></div>');
+            this.$('.d3canvas').append('<div id="filterDivContainer" style="height:39%;"></div>');
+            this.$('#filterDivContainer').append('<div id="filters"></div>');
 
 
             var renderSettings_mie = {

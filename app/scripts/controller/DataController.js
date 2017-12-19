@@ -33,32 +33,63 @@
                     'mie_altitude_start', 'mie_altitude_end'
                 ],
                 'latitude': [
-                    'mie_latitude'
+                    'mie_latitude', 'rayleigh_latitude'
                 ],
                 'longitude': [
                    'mie_longitude'
+                ], 
+                'geoid_separation': [
+                    'rayleigh_geoid_separation', 'mie_geoid_separation'
+                ],
+                'velocity_at_DEM_intersection': [
+                    'rayleigh_velocity_at_DEM_intersection', 'mie_velocity_at_DEM_intersection'
                 ]
             },
+
             filterRelation: [
                 [
-                    'mie_quality_flag_data', 'mie_wind_HLOS_wind_speed', 'mie_latitude', 'mie_altitude',
-                    'mie_latitude_start', 'mie_latitude_end', 'mie_altitude_start', 'mie_altitude_end',
-                    'time', 'mie_time_start', 'mie_time_end', 'mie_latitude_of_DEM_intersection_start',
-                    'mie_latitude_of_DEM_intersection_end', 'mie_latitude_of_DEM_intersection',
+                    'mie_quality_flag_data', 'mie_HLOS_wind_speed',
+                    'mie_altitude_start', 'mie_altitude_end',
+                    'mie_time_start', 'mie_time_end', 'mie_latitude_of_DEM_intersection_start',
+                    'mie_latitude_of_DEM_intersection_end',
                     'mie_geoid_separation','mie_velocity_at_DEM_intersection'
-                ]/*,
+                ],
                 [
-                    'rayleigh_HLOS_wind_speed','rayleigh_altitude','rayleigh_bin_quality_flag',
-                    'rayleigh_signal_channel_A_intensity','rayleigh_signal_channel_B_intensity',
-                    'rayleigh_ground_velocity',
-                ]*/
+                    'rayleigh_quality_flag_data', 'rayleigh_HLOS_wind_speed',
+                    'rayleigh_altitude_start', 'rayleigh_altitude_end',
+                    'rayleigh_time_start', 'rayleigh_time_end', 'rayleigh_latitude_of_DEM_intersection_start',
+                    'rayleigh_latitude_of_DEM_intersection_end',
+                    'rayleigh_geoid_separation','rayleigh_velocity_at_DEM_intersection'
+                ]
             ],
             visibleFilters: [
-                'mie_quality_flag_data', 'mie_HLOS_wind_speed', //'geoid_separation','velocity_at_DEM_intersection'
+                'mie_quality_flag_data', 'mie_HLOS_wind_speed',
+                'geoid_separation','velocity_at_DEM_intersection',
+                'rayleigh_quality_flag_data', 'rayleigh_HLOS_wind_speed'
             ],
             //boolParameter: [],
             maskParameter: {
               'mie_quality_flag_data': {
+                  values: [
+                      ['Bit 1', 'Overall validity. Data invalid 1, otherwise 0 '],
+                      ['Bit 2', 'Set to 1 if signal-to-noise below SNR_Threshold, default 0 '],
+                      ['Bit 3', 'Data saturation found 1, otherwise 0 '],
+                      ['Bit 4', 'Data spike found 1, otherwise 0 '],
+                      ['Bit 5', 'Reference pulse invalid 1, otherwise 0 '],
+                      ['Bit 6', 'Source packet invalid 1, otherwise 0 '],
+                      ['Bit 7', 'Number of corresponding valid pulses is below Meas_Cavity_Lock_Status_Thresh 1, otherwise 0 '],
+                      ['Bit 8', 'Spacecraft attitude not on target 1, otherwise 0 '],
+                      ['Bit 9', 'For Mie, peak not found 1, otherwise 0. For Rayleigh, rayleigh response not found 1, otherwise 0 '],
+                      ['Bit 10','Set to 1 if the absolute wind velocity above Wind_Velocity_Threshold, default 0 '],
+                      ['Bit 11','Set to 1 if polynomial fit of error responses was used but no valid root of the polynomial was found, otherwise 0. '],
+                      ['Bit 12','Bin was detected as ground bin, otherwise 0. '],
+                      ['Bit 13','Spare, set to 0'],
+                      ['Bit 14','Spare, set to 0'],
+                      ['Bit 15','Spare, set to 0'],
+                      ['Bit 16','Spare, set to 0']
+                  ]
+              },
+              'rayleigh_quality_flag_data': {
                   values: [
                       ['Bit 1', 'Overall validity. Data invalid 1, otherwise 0 '],
                       ['Bit 2', 'Set to 1 if signal-to-noise below SNR_Threshold, default 0 '],
@@ -485,7 +516,10 @@
               mie_quality_flag_data: mie_bin_quality_flag,
               mie_altitude_start: mie_altitude[1],
               mie_altitude_end: mie_altitude[0],
+              mie_geoid_separation:mie_geoid_separation[0],
+              mie_velocity_at_DEM_intersection: mie_velocity_at_DEM_intersection[0],
               positions: positions,
+
               /*geoid_separation: geoid_separation[0],
               velocity_at_DEM_intersection: velocity_at_DEM_intersection[0]*/
               rayleigh_time_start: ray_time[0],
@@ -496,6 +530,8 @@
               rayleigh_quality_flag_data: ray_bin_quality_flag,
               rayleigh_altitude_start: ray_altitude[1],
               rayleigh_altitude_end: ray_altitude[0],
+              rayleigh_geoid_separation: ray_geoid_separation[0],
+              rayleigh_velocity_at_DEM_intersection: ray_velocity_at_DEM_intersection[0]
             };
 
             // TODO: Getting the object and setting one parameter does not trigger

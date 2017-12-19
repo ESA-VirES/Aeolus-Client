@@ -44,11 +44,23 @@
 }
 
 .filterContainer input {
-    margin: 1px 0 0!important;
+    margin: 1px 4px 0!important;
+
 }
 
 .filterContainer .editButton{
     -webkit-box-sizing: content-box;
     -moz-box-sizing: content-box;
     box-sizing: content-box; 
+}
+
+#filters {
+    margin: auto 1.5em; display: inline-block;
+    text-align: left;
+}
+
+
+
+#filterDivContainer{
+   text-align: center;
 }
