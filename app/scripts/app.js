@@ -37,13 +37,15 @@ var VECTOR_BREAKDOWN = {};
 
             configure: function(config) {
 
+                //localStorage.clear();
 
-                $("body").tooltip({ 
+
+                /*$("body").tooltip({ 
                     selector: '[data-toggle=tooltip]',
                     position: { my: "left+5 center", at: "right center" },
                     hide: { effect: false, duration: 0 },
                     show:{ effect: false, delay: 700}
-                });
+                });*/
 
                 var imagerenderercanvas = $('<canvas/>',{id: 'imagerenderercanvas'});
                 $('body').append(imagerenderercanvas);
@@ -142,7 +144,7 @@ var VECTOR_BREAKDOWN = {};
                     colors : d3.scale.category10(),
                     index : 0,
                     getColor: function () { return this.colors(this.index++) }
-                }
+                };
 
 
                 //Productsare loaded and added to the global collection
@@ -198,7 +200,7 @@ var VECTOR_BREAKDOWN = {};
                             protocol: product.download.protocol,
                             url: product.download.url
                         },
-                        processes: product.processes,
+                        process: product.process,
                         unit: product.unit,
                         parameters: product.parameters,
                         download_parameters: product.download_parameters,
@@ -552,12 +554,12 @@ var VECTOR_BREAKDOWN = {};
 
           // The tooltip is called twice at beginning and end, it seems to show the style of the
           // tooltips more consistently, there is some problem where sometimes no style is shown for tooltips
-          $("body").tooltip({ 
+          /*$("body").tooltip({ 
                     selector: '[data-toggle=tooltip]',
                     position: { my: "left+5 center", at: "right center" },
                     hide: { effect: false, duration: 0 },
                     show:{ effect: false, delay: 700}
-                });
+                });*/
 
               // Now that products and data are loaded make sure datacontroller is correctly initialized
                 Communicator.mediator.trigger('manual:init');
@@ -568,6 +570,7 @@ var VECTOR_BREAKDOWN = {};
                     Communicator.mediator.trigger('selection:changed', JSON.parse(localStorage.getItem('areaSelection')));
                 }
 
+                //Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
                 //Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
 
                 // Remove loading screen when this point is reached in the script

@@ -44,6 +44,7 @@ define([
             this.beginTime = null;
             this.endTime = null;
             this.plot = null;
+            this.curtainPrimitive = null;
 
             $(window).resize(function() {
                 if (this.map) {
@@ -93,6 +94,86 @@ define([
                  0.8, 0.9, 0.999999999999, 1]
             );
             plotty.addColorScale('blackwhite', ['#000000', '#ffffff'], [0, 1]);
+
+            
+             var renderSettings = {
+                xAxis: [
+                    'mie_time'
+                ],
+                yAxis: [
+                    'mie_altitude'
+                ],
+                //y2Axis: [],
+                combinedParameters: {
+                    mie_latitude: ['mie_latitude_start', 'mie_latitude_end'],
+                    mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
+                    mie_latitude_of_DEM_intersection: [
+                        'mie_latitude_of_DEM_intersection_start',
+                        'mie_latitude_of_DEM_intersection_end'
+                    ],
+                    mie_time: ['mie_time_start', 'mie_time_end'],
+
+                    rayleigh_latitude: ['rayleigh_latitude_start', 'rayleigh_latitude_end'],
+                    rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
+                    rayleigh_latitude_of_DEM_intersection: [
+                        'rayleigh_latitude_of_DEM_intersection_start',
+                        'rayleigh_latitude_of_DEM_intersection_end'
+                    ],
+                    rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end'],
+                },
+                colorAxis: ['mie_HLOS_wind_speed']
+
+            };
+
+            this.dataSettings = {
+               
+                mie_time_start: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                mie_time_end: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+
+                time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+
+                mie_HLOS_wind_speed: {
+                    uom: 'cm/s',
+                    colorscale: 'viridis',
+                    extent: [-40,40]
+                    //outline: false
+                },
+
+                rayleigh_HLOS_wind_speed: {
+                    uom: 'cm/s',
+                    colorscale: 'viridis',
+                    extent: [-40,40]
+                    //outline: false
+                }
+
+            };
+
+
+            $('body').append($('<div/>', {
+                id: 'hiddenRenderArea' ,
+                style: 'height:100px; width:100px;visibility:hidden;'
+            }));
+
+
+            this.graph = new graphly.graphly({
+                el: '#hiddenRenderArea',
+                dataSettings: this.dataSettings,
+                renderSettings: renderSettings,
+                filterManager: globals.swarm.get('filterManager'),
+                fixedSize: true,
+                fixedWidth: 2048,
+                fixedHeigt: 512
+            });
+
 
             this.connectDataEvents();
         },
@@ -174,6 +255,7 @@ define([
                     terrainProvider : new Cesium.CesiumTerrainProvider({
                         url : '//tiles.maps.eox.at/dem'
                     }),
+                    terrainExaggeration: 20.0,
                     creditContainer: 'cesium_attribution',
                     contextOptions: {webgl: {preserveDrawingBuffer: true}},
                     clock: clock
@@ -410,10 +492,18 @@ define([
 
         connectDataEvents: function(){
             globals.swarm.on('change:data', function(model, data) {
-                if (data.length && data.length>0){
-                    this.createDataFeatures(data, 'pointcollection', 'band');
+                if (Object.keys(data).length){
+                    
+                    //this.createDataFeatures(data, 'pointcollection', 'band');
+                    var idKeys = Object.keys(data);
+                    for (var i = idKeys.length - 1; i >= 0; i--) {
+                        this.graph.loadData(data[idKeys[i]]);
+                        this.createCurtain(data[idKeys[i]], idKeys[i], 'mie');
+                    }
+                    
+                    
                 }else{
-                    for (var i = 0; i < this.activeCollections.length; i++) {
+                    /*for (var i = 0; i < this.activeCollections.length; i++) {
                         if(this.featuresCollection.hasOwnProperty(this.activeCollections[i])){
                             this.map.scene.primitives.remove(
                                 this.featuresCollection[this.activeCollections[i]]
@@ -421,12 +511,12 @@ define([
                             delete this.featuresCollection[this.activeCollections[i]];
                         }
                     }
-                    this.activeCollections = [];
+                    this.activeCollections = [];*/
                 }
             }, this);
 
             globals.swarm.on('change:filters', function(model, filters) {
-                this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
+                //this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
             }, this);
         },
 
@@ -438,6 +528,194 @@ define([
                 var modepicker = new Cesium.SceneModePicker(container, scene);
                 this.map._sceneModePicker = modepicker;
             }
+        },
+
+        updateCurtain: function(id){
+
+            var data = globals.swarm.get('data')[id];
+            var product = globals.products.find(
+                function(p){return p.get('download').id === id;}
+            );
+
+            if(product && product.hasOwnProperty('curtain')){
+                var curtain = product.curtain;
+                var parameters = product.get('parameters');
+                var band;
+                var keys = _.keys(parameters);
+                _.each(keys, function(key){
+                    if(parameters[key].selected){
+                        band = key;
+                    }
+                });
+                var style = parameters[band].colorscale;
+                var range = parameters[band].range;
+
+
+                //this.graph.setColorScale(style);
+                //this.graph.onSetExtent(range);
+                this.dataSettings[band].colorscale = style;
+                this.dataSettings[band].extent = range;
+                this.graph.dataSettings = this.dataSettings;
+                
+                if(band === 'mie_HLOS_wind_speed'){
+                    this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
+                    this.graph.renderSettings.yAxis = ['mie_altitude'];
+                    this.graph.renderSettings.xAxis =['mie_time'];
+                }else if(band === 'rayleigh_HLOS_wind_speed'){
+                    this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
+                    this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
+                    this.graph.renderSettings.xAxis =['rayleigh_time'];
+                }
+                this.graph.loadData(data);
+
+                var alpha = 0.99;
+
+                var newmat = new Cesium.Material({
+                    fabric : {
+                        uniforms : {
+                            image : this.graph.getCanvasImage(),
+                            repeat : new Cesium.Cartesian2(-1.0, 1.0),
+                            alpha : alpha
+                        },
+                        components : {
+                            diffuse : 'texture2D(image, fract(repeat * materialInput.st)).rgb',
+                            alpha : 'texture2D(image, fract(repeat * materialInput.st)).a * alpha'
+                        }
+                    },
+                    flat: true,
+                    translucent : true
+                });
+
+                var sliceAppearance = new Cesium.MaterialAppearance({
+                    translucent : true,
+                    flat: true,
+                    material : newmat
+                });
+
+                if(curtain && curtain.hasOwnProperty('_appearance') && curtain._appearance){
+                    curtain.appearance.material._textures.image.copyFrom(this.graph.getCanvas());
+                }
+
+                this.checkColorscale(id);
+            }
+
+        },
+
+
+        createCurtain: function(data, cov_id, cur_coll, alpha, height){
+
+            var currProd = globals.products.find(
+                function(p){return p.get('download').id === cov_id;}
+            );
+
+            if(currProd.hasOwnProperty('curtain')){
+                this.map.scene.primitives.remove(currProd.curtain);
+                delete currProd.curtain;
+            }
+
+            //alpha = 0.99;
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
+
+            alpha = currProd.get('opacity');
+
+
+            //this.graph.setColorScale(style);
+            //this.graph.onSetExtent(range);
+            this.dataSettings[band].colorscale = style;
+            this.dataSettings[band].extent = range;
+            this.graph.dataSettings = this.dataSettings;
+
+            if(band === 'mie_HLOS_wind_speed'){
+                this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
+                this.graph.renderSettings.yAxis = ['mie_altitude'];
+                this.graph.renderSettings.xAxis =['mie_time'];
+            }else if(band === 'rayleigh_HLOS_wind_speed'){
+                this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
+                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
+            }
+            this.graph.renderData(data);
+
+            var newmat = new Cesium.Material({
+                fabric : {
+                    uniforms : {
+                        image : this.graph.getCanvasImage(),
+                        repeat : new Cesium.Cartesian2(-1.0, 1.0),
+                        alpha : alpha
+                    },
+                    components : {
+                        diffuse : 'texture2D(image, fract(repeat * materialInput.st)).rgb',
+                        alpha : 'texture2D(image, fract(repeat * materialInput.st)).a * alpha'
+                    }
+                },
+                flat: true,
+                translucent : true
+            });
+
+
+            /*var sliceMat = new Cesium.Material.fromType('Image', {
+                image : this.graph.getCanvasImage(),
+                color: new Cesium.Color(1, 1, 1, alpha)
+            });*/
+
+            var sliceAppearance = new Cesium.MaterialAppearance({
+                translucent : true,
+                flat: true,
+                material : newmat
+            });
+
+
+
+            height = 1000000;
+
+            var maxHeights = [];
+            for (var i = 0; i <data.positions.length; i++) {
+                maxHeights.push(height);
+            }
+
+            var wall = new Cesium.WallGeometry({
+                positions : Cesium.Cartesian3.fromDegreesArray(data.positions),
+                maximumHeights : maxHeights,
+            });
+
+            var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
+
+            var instance = new Cesium.GeometryInstance({
+              geometry : wallGeometry
+            });
+
+            var prim = new Cesium.Primitive({
+              geometryInstances : [instance],
+              appearance : sliceAppearance,
+              releaseGeometryInstances: false,
+              asynchronous: false
+            });
+
+            prim = this.map.scene.primitives.add(prim);
+
+            currProd.curtain = prim;
+
+            //this.curtainPrimitive = prim;
+
+            var that = this;
+            this.graph.on('rendered', function(){
+                //console.log(this.getCanvasImage());
+                if(prim && prim.hasOwnProperty('_appearance') && prim._appearance){
+                    prim.appearance.material._textures.image.copyFrom(that.graph.getCanvas());
+                }
+            });
+
+
         },
 
         //method to create layer depending on protocol
@@ -602,7 +880,20 @@ define([
 
         onUpdateOpacity: function(options) {
 
-            globals.products.each(function(product) {
+            var product = globals.products.find(
+                function(p){return p.get('download').id === options.model.get('download').id;}
+            );
+
+            if(product){
+                if(product.hasOwnProperty('curtain')){
+                    //product.curtain.appearance.material._textures.image.copyFrom(that.graph.getCanvas());
+                    product.curtain.appearance.material.uniforms.alpha = options.value;//.clone();
+                    //c.alpha = options.value;
+                    //product.curtain.appearance.material.uniforms.color = c;
+                }
+            }
+
+            /*globals.products.each(function(product) {
                 if(product.get('download').id === options.model.get('download').id){
                     var cesLayer = product.get('ces_layer');
                     // Find active parameter and satellite
@@ -649,7 +940,7 @@ define([
                         cesLayer.alpha = options.value;
                     }
                 }
-            }, this);
+            }, this);*/
         },
 
         addCustomAttribution: function(view) {
@@ -710,7 +1001,7 @@ define([
                         this.checkColorscale(product.get('download').id);
 
                         if (product.get('views')[0].protocol === 'WPS'){
-                            this.checkShc(product, options.visible);
+                            //this.checkShc(product, options.visible);
 
                         }else if (product.get('views')[0].protocol === 'WMS' ||
                                   product.get('views')[0].protocol === 'WMTS' ){
@@ -1101,7 +1392,32 @@ define([
         },
 
         OnLayerParametersChanged: function(layer){
-            globals.products.each(function(product) {
+
+            // TODO: Rewrite all references to change layer to use download id and not name!
+
+            var product = globals.products.find(
+                function(p){return p.get('name') === layer;}
+            );
+
+            if(product){
+                /*var parameters = product.get('parameters');
+                var band;
+                var keys = _.keys(parameters);
+                _.each(keys, function(key){
+                    if(parameters[key].selected){
+                        band = key;
+                    }
+                });
+                var style = parameters[band].colorscale;
+                var range = parameters[band].range;*/
+                
+                if(product.hasOwnProperty('curtain')){
+                    //product.curtain
+                    this.updateCurtain(product.get('download').id);
+                }
+            }
+
+            /*globals.products.each(function(product) {
                 if(product.get('name')===layer){
 
                     this.checkColorscale(product.get('download').id);
@@ -1178,10 +1494,10 @@ define([
                             }
                         }
                     }else if (product.get('views')[0].protocol === 'WPS'){
-                        this.checkShc(product, product.get('visible'));
+                        //this.checkShc(product, product.get('visible'));
                     }
                 }
-            }, this);
+            }, this);*/
         },
 
 
@@ -1207,7 +1523,8 @@ define([
         },
 
         getMapExtent: function(){
-            var ellipsoid = this.map.scene.globe.ellipsoid;
+            // TODO: repair get map extent
+            /*var ellipsoid = this.map.scene.globe.ellipsoid;
             var c2 = new Cesium.Cartesian2(0, 0);
             var leftTop = this.map.scene.camera.pickEllipsoid(c2, ellipsoid);
             c2 = new Cesium.Cartesian2(this.map.scene.canvas.width, this.map.scene.canvas.height);
@@ -1241,7 +1558,7 @@ define([
                     // If everything fails assume whole world is visible which is wrong
                     return {left: -180, bottom: -90, right: 180, top: 90};
                 }
-            }
+            }*/
         },
 
         renderSVG: function(svg, width, height){
@@ -1514,9 +1831,9 @@ define([
             }
 
             globals.products.each(function(product) {
-                if (product.get('views')[0].protocol === 'WPS'){
+                /*if (product.get('views')[0].protocol === 'WPS'){
                     this.checkShc(product, product.get('visible'));
-                }
+                }*/
             },this);
         },
 
@@ -1674,15 +1991,15 @@ define([
                     product.set('time',string);
                     var cesLayer = product.get('ces_layer');
                     if(cesLayer){
-                        cesLayer.imageryProvider.updateProperties('time', string);
+                        /*cesLayer.imageryProvider.updateProperties('time', string);
                         if (cesLayer.show){
                             var index = this.map.scene.imageryLayers.indexOf(cesLayer);
                             this.map.scene.imageryLayers.remove(cesLayer, false);
                             this.map.scene.imageryLayers.add(cesLayer, index);
-                        }
+                        }*/
                     }
                 }else if (product.get('views')[0].protocol === 'WPS'){
-                    this.checkShc(product, product.get('visible'));
+                    //this.checkShc(product, product.get('visible'));
                 }
             }, this);
             this.checkFieldLines();

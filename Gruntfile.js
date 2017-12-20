@@ -82,7 +82,7 @@ module.exports = function (grunt) {
                 context: '/vires00',
                 //host: 'staging.aeolus.services',
                 host: 'localhost',
-                port: 8300,
+                port: 8401,
                 rewrite: {
                     '^/vires00': '/'
                 },
@@ -93,11 +93,11 @@ module.exports = function (grunt) {
             },{
                 context: '/ows',
                 host: 'localhost',
-                port: 8300
+                port: 8401
             },{
                 context: '/wps',
                 host: 'localhost',
-                port: 8300
+                port: 8401
             }],            
             livereload: {
                 options: {
@@ -371,6 +371,8 @@ module.exports = function (grunt) {
                         'bower_components/w2ui/dist/w2ui-fields.min.js',
                         'bower_components/w2ui/src/w2popup.js',
                         'bower_components/w2ui/src/w2utils.js',
+                        'bower_components/msgpack-lite/dist/msgpack.min.js',
+                        'bower_components/graphly/dist/graphly.min.js',
                         'scripts/vendor/**',
                     ]
                 },{

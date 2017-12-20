@@ -212,7 +212,7 @@
                         
                     }   
 
-                    if (protocol == "WPS"){
+                    /*if (protocol == "WPS"){
                         this.$("#shc").empty();
                         this.$("#shc").append(
                             '<p>Spherical Harmonics Coefficients</p>'+
@@ -231,7 +231,7 @@
                             that.$("#shc").append('<p id="filename" style="font-size:.9em;">Selected File: '+this.current_model.get('shc_name')+'</p>');
                         }
                         
-                    }
+                    }*/
 
                     if(options[this.selected].hasOwnProperty("logarithmic"))
                         this.createScale(options[that.selected].logarithmic);
@@ -386,6 +386,8 @@
                     $("#coefficients_range").show();
                     $("#opacitysilder").parent().show();
                 }
+
+                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
 
                 // request range for selected parameter if layer is of type model
                 /*if(this.current_model.get("model") && this.selected != "Fieldlines"){
@@ -582,7 +584,7 @@
                     $("#applychanges").empty();
 
                     // If there were changes of the model parameters recalculate the color range
-                    /*if(model_change){
+                    if(model_change){
                         var that = this;
 
                         var sel_time = Communicator.reqres.request('get:time');
@@ -633,7 +635,7 @@
                         //Apply changes
                         this.current_model.set("parameters", options);
                         Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
-                    }*/
+                    }
                 }
             },
 

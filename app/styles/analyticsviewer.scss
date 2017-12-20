@@ -7,153 +7,24 @@
     width: 100%;
     height: 100%;
 
-    margin: 0;
-    padding: 0;
+    /*margin: 0;
+    padding: 0;*/
 }
 
-text.nvd3.nv-noData {
-    fill: #6B6868;
-}
 
 .analytics {
     width: 100%;
     height: 100%;
-    padding-top: 50px;
-    padding-left: 5px;
-    padding-bottom: 8.9em;
-    padding-right: 0px;
-    float: left;
-    background-color: white;
-}
-
-.analytics .gui {
-    top:220px;
-}
-
-//nvd3 needs this
-.analytics svg{
-    /* Trying to get SVG to act like a greedy block in all browsers */
-    display: block;
-    width:100%;
-    height:100%;
-}
-
-.analytics .disabled{
-    display: inline;
-}
-
-.analytics .highlight {
-    padding: 1px;
-    margin-top: 2px;
 }
 
 
-.analytics .outer {
-    display: table;
-    position: absolute;
-    height: 100%;
-    width: 100%;
-}
-
-.analytics .middle {
-    display: table-cell;
-    vertical-align: middle;
-}
-
-.analytics .inner {
-    margin-left: auto;
-    margin-right: auto; 
-    width: auto;
+.filterContainer{
+-webkit-box-sizing: content-box!important; 
+    -moz-box-sizing: content-box!important;
+    box-sizing: content-box!important;
 }
 
 
-#tmp_download_button, #save, #grid, #download_button, #reset_filters, #reset, #toggle_filters {
-    background-color: #333 !important;
-    border-color: #444 !important;
-    height:32px;
-}
-
-#tmp_download_button:hover, #save:hover, #grid:hover, #reset_filters:hover, #reset:hover, #toggle_filters:hover{
-    background-color: #48b !important;
-    border-color: #aef !important;
-}
-
-#reset_filters.disabled, #reset_filters[disabled], fieldset[disabled] #reset_filters{
-    color: #999;
-}
-
-
-.xselectdropdown{
-    position: absolute !important;
-    float: right;
-    bottom: -31px !important;
-}
-
-#save, #grid, #download_button, #reset{
-    top: -43px!important;
-}
-
-#save{
-    right: 134px!important;
-}
-
-#grid{
-    right: 260px!important;
-}
-
-#download_button, #tmp_download_button{
-    right: 40px!important;
-}
-
-#reset{
-    right: 365px!important;
-}
-
-#reset_filters, #toggle_filters{
-    position: absolute !important;
-    top: -27px !important;
-}
-
-#scatterdiv{
-    position: relative;
-}
-
-#parallelsdiv{
-    position: relative;
-    margin-top: 27px;
-    margin-left: -55px;
-}
-
-.w2ui-overlay {
-//position: relative!important;
-    min-width: 565px!important;
-}
-
-.parallels .tick text{
-    cursor: default!important;
-}
-
-#addfilteropen{
-    height: 33px;
-}
-
-#filterinputgroup .w2ui-field-helper.w2ui-list{
-    border-bottom-left-radius: 0px;
-    border-top-left-radius: 0px;
-}
-
-#filtermanager{
-    pointer-events: none;
-    opacity: 0;
-}
-
-#w2ui-overlay.downloadsection{
-    margin-left: -18px!important;
-}
-
-#custom_download .w2ui-field-helper.w2ui-list{
-    height: auto !important;
-}
 
 #nodatainfo{
     text-align: center;
@@ -164,4 +35,32 @@ text.nvd3.nv-noData {
     bottom: 20px;
     position: absolute;
     width: 100%;
+}
+
+/*Rewrite some defaults of bootstrap*/
+.filterContainer label {
+    margin-bottom: 0px!important; 
+    font-weight: normal!important;
+}
+
+.filterContainer input {
+    margin: 1px 4px 0!important;
+
+}
+
+.filterContainer .editButton{
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box; 
+}
+
+#filters {
+    margin: auto 1.5em; display: inline-block;
+    text-align: left;
+}
+
+
+
+#filterDivContainer{
+   text-align: center;
 }
