@@ -97,7 +97,7 @@ define(['backbone.marionette',
                 },
 
                 rayleigh_HLOS_wind_speed: {
-                    uom: 'cm/s',
+                    uom: 'm/s',
                     colorscale: 'viridis',
                     extent: [-40,40]
                     //outline: false
@@ -110,6 +110,10 @@ define(['backbone.marionette',
                 rayleigh_time_end: {
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
+                },
+                rayleigh_altitude:{
+                    name: 'altitude',
+                    uom: 'm'
                 },
 
 
@@ -125,11 +129,17 @@ define(['backbone.marionette',
 
 
                 mie_HLOS_wind_speed: {
-                    uom: 'cm/s',
+                    uom: 'm/s',
                     colorscale: 'viridis',
                     extent: [-40,40]
                     //outline: false
                 },
+
+                mie_altitude:{
+                    name: 'altitude',
+                    uom: 'm'
+                }
+
 
 
 

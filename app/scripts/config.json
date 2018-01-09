@@ -152,14 +152,14 @@
             "parameters": {
                 "mie_HLOS_wind_speed": {
                     "range": [-40, 40],
-                    "uom":"cm/s",
+                    "uom":"m/s",
                     "selected": true,
                     "colorscale": "viridis",
                     "name": "Mie HLOS wind speed"
                 },
                 "rayleigh_HLOS_wind_speed": {
                     "range": [-40, 40],
-                    "uom":"cm/s",
+                    "uom":"m/s",
                     "colorscale": "plasma",
                     "name": "Rayleigh HLOS wind speed"
                 }
@@ -279,12 +279,12 @@
             "end": "2018-03-05T01:00:00Z"
         },
         "brush": {
-            "start": "2015-10-01T11:04:38Z",
-            "end": "2015-10-01T11:30:35Z"
+            "start": "2007-10-02T14:01:28Z",
+            "end": "2007-10-02T14:36:16Z"
         },
         "display": {
-            "start": "2015-10-01T01:00:00Z",
-            "end": "2015-10-02T01:00:00Z"
+            "start": "2007-10-01T00:01:28Z",
+            "end": "2007-10-03T23:01:28Z"
         }
     },
 

@@ -268,6 +268,9 @@ define([
                 var initialCesiumLayer = this.map.imageryLayers.get(0);
             }
 
+            // disable fxaa
+            this.map.scene.fxaa = false;
+
             if(localStorage.getItem('cameraPosition') !== null){
                 var c = JSON.parse(localStorage.getItem('cameraPosition'));
                 this.map.scene.camera.position = new Cesium.Cartesian3(
@@ -497,8 +500,8 @@ define([
                     //this.createDataFeatures(data, 'pointcollection', 'band');
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
-                        this.graph.loadData(data[idKeys[i]]);
-                        this.createCurtain(data[idKeys[i]], idKeys[i], 'mie');
+                        //this.graph.loadData(data[idKeys[i]]);
+                        this.createCurtains(data[idKeys[i]], idKeys[i], 'mie');
                     }
                     
                     
@@ -602,15 +605,23 @@ define([
         },
 
 
-        createCurtain: function(data, cov_id, cur_coll, alpha, height){
+        createCurtains: function(data, cov_id, cur_coll, alpha, height){
 
             var currProd = globals.products.find(
                 function(p){return p.get('download').id === cov_id;}
             );
 
-            if(currProd.hasOwnProperty('curtain')){
-                this.map.scene.primitives.remove(currProd.curtain);
-                delete currProd.curtain;
+            var curtainCollection;
+
+            if(currProd.hasOwnProperty('curtains')){
+                currProd.curtains.removeAll();
+                curtainCollection = currProd.curtains;
+                /*this.map.scene.primitives.remove(currProd.curtains);
+                delete currProd.curtains;*/
+            }else{
+                curtainCollection = new Cesium.PrimitiveCollection();
+                this.map.scene.primitives.add(curtainCollection);
+                currProd.curtains = curtainCollection;
             }
 
             //alpha = 0.99;
@@ -628,58 +639,168 @@ define([
 
             alpha = currProd.get('opacity');
 
-
-            //this.graph.setColorScale(style);
-            //this.graph.onSetExtent(range);
             this.dataSettings[band].colorscale = style;
             this.dataSettings[band].extent = range;
             this.graph.dataSettings = this.dataSettings;
+
+            var dataJumps;
 
             if(band === 'mie_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
                 this.graph.renderSettings.yAxis = ['mie_altitude'];
                 this.graph.renderSettings.xAxis =['mie_time'];
+                dataJumps = data.mie_jumps;
             }else if(band === 'rayleigh_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
                 this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
                 this.graph.renderSettings.xAxis =['rayleigh_time'];
+                dataJumps = data.rayleigh_jumps;
             }
-            this.graph.renderData(data);
-
-            var newmat = new Cesium.Material({
-                fabric : {
-                    uniforms : {
-                        image : this.graph.getCanvasImage(),
-                        repeat : new Cesium.Cartesian2(-1.0, 1.0),
-                        alpha : alpha
-                    },
-                    components : {
-                        diffuse : 'texture2D(image, fract(repeat * materialInput.st)).rgb',
-                        alpha : 'texture2D(image, fract(repeat * materialInput.st)).a * alpha'
-                    }
-                },
-                flat: true,
-                translucent : true
-            });
-
-
-            /*var sliceMat = new Cesium.Material.fromType('Image', {
-                image : this.graph.getCanvasImage(),
-                color: new Cesium.Color(1, 1, 1, alpha)
-            });*/
-
-            var sliceAppearance = new Cesium.MaterialAppearance({
-                translucent : true,
-                flat: true,
-                material : newmat
-            });
-
 
 
             height = 1000000;
 
-            var maxHeights = [];
-            for (var i = 0; i <data.positions.length; i++) {
+            //TODO: How to correctly handle multiple curtains with jumps
+
+            for (var i = 0; i <= data.stepPositions.length; i++) {
+
+                var start = 0;
+                var end = data.stepPositions[i]*2;
+                var dataStart = 0;
+                var dataEnd = dataJumps[0];
+                if (i>0){
+                    start = data.stepPositions[i-1]*2+4;
+                    dataStart = dataJumps[i*2-1];
+                    dataEnd = dataJumps[i*2];
+                }
+                if(i===data.stepPositions.length){
+                    end = data.positions.length;
+                    dataEnd = data[band].length;
+                }
+
+                var dataSlice = {};
+                if(band === 'mie_HLOS_wind_speed'){
+                    dataSlice['mie_HLOS_wind_speed'] = 
+                        data['mie_HLOS_wind_speed'].slice(dataStart, dataEnd);
+                    dataSlice['mie_altitude_start'] = 
+                        data['mie_altitude_start'].slice(dataStart, dataEnd);
+                    dataSlice['mie_altitude_end'] = 
+                        data['mie_altitude_end'].slice(dataStart, dataEnd);
+                    dataSlice['mie_time_start'] = 
+                        data['mie_time_start'].slice(dataStart, dataEnd);
+                        dataSlice['mie_time_end'] = 
+                        data['mie_time_end'].slice(dataStart, dataEnd);
+                }else if(band === 'rayleigh_HLOS_wind_speed'){
+                    dataSlice['rayleigh_HLOS_wind_speed'] = 
+                        data['rayleigh_HLOS_wind_speed'].slice(dataStart, dataEnd);
+                    dataSlice['rayleigh_altitude_start'] = 
+                        data['rayleigh_altitude_start'].slice(dataStart, dataEnd);
+                    dataSlice['rayleigh_altitude_end'] = 
+                        data['rayleigh_altitude_end'].slice(dataStart, dataEnd);
+                    dataSlice['rayleigh_time_start'] = 
+                        data['rayleigh_time_start'].slice(dataStart, dataEnd);
+                    dataSlice['rayleigh_time_end'] = 
+                        data['rayleigh_time_end'].slice(dataStart, dataEnd);
+                }
+
+                this.graph.loadData(dataSlice);
+
+                var newmat = new Cesium.Material({
+                    fabric : {
+                        uniforms : {
+                            image : this.graph.getCanvasImage(),
+                            repeat : new Cesium.Cartesian2(1.0, 1.0),
+                            alpha : alpha
+                        },
+                        components : {
+                            diffuse : 'texture2D(image, fract(repeat * materialInput.st)).rgb',
+                            alpha : 'texture2D(image, fract(repeat * materialInput.st)).a * alpha'
+                        }
+                    },
+                    flat: true,
+                    translucent : true
+                });
+
+
+                var slicedPosData = data.positions.slice(start, end);
+                
+                /*for (var p = 0; p < slicedPosData.length; p++) {
+                    if(slicedPosData[p]>=180){
+                        slicedPosData[p] -=360;
+                    }
+                }
+                console.log(slicedPosData.length);
+
+                var output = 'LINESTRING (';
+                for (var la = 0; la < slicedPosData.length; la+=2) {
+                  output+=
+                    slicedPosData[la]+' '+slicedPosData[(la+1)]+','
+                  ;
+                }
+                output = output.slice(0, -1); 
+                output+=')';
+                console.log(output);*/
+
+                // TODO: Add line so that path can be seen in 2D
+                // A polyline with two connected line segments
+                /*var polyline = new Cesium.PolylineGeometry({
+                  positions : Cesium.Cartesian3.fromDegreesArray([
+                    0.0, 0.0,
+                    5.0, 0.0,
+                    5.0, 5.0
+                  ]),
+                  width : 10.0
+                });
+                var geometry = Cesium.PolylineGeometry.createGeometry(polyline);*/
+
+
+                var maxHeights = [];
+                for (var j = 0; j <slicedPosData.length; j++) {
+                    maxHeights.push(height);
+                }
+
+                var wall = new Cesium.WallGeometry({
+                    positions : Cesium.Cartesian3.fromDegreesArray(slicedPosData),
+                    maximumHeights : maxHeights,
+                });
+
+                var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
+
+                var instance = new Cesium.GeometryInstance({
+                  geometry : wallGeometry
+                });
+
+                // Check if normal is negative, if it is we need to flip the
+                // direction of the texture to be applied
+                if(wallGeometry.attributes.normal.values[0]<0){
+                    newmat.uniforms.repeat.x = -1;
+                }
+                var sliceAppearance = new Cesium.MaterialAppearance({
+                    translucent : true,
+                    flat: true,
+                    faceForward: true,
+                    //closed: true,
+                    material : newmat
+                });
+
+
+                //instances.push(instance);
+                var prim = new Cesium.Primitive({
+                  geometryInstances : instance,
+                  appearance : sliceAppearance,
+                  releaseGeometryInstances: false,
+                  //asynchronous: false
+                });
+
+                curtainCollection.add(prim);
+            }
+
+            //currProd.curtains = curtainCollection;
+            //this.map.scene.primitives.add(curtainCollection);
+
+
+            /*var maxHeights = [];
+            for (var j = 0; j <data.positions.length; j++) {
                 maxHeights.push(height);
             }
 
@@ -694,8 +815,11 @@ define([
               geometry : wallGeometry
             });
 
+            instances.push(instance);
+
+
             var prim = new Cesium.Primitive({
-              geometryInstances : [instance],
+              geometryInstances : instances,
               appearance : sliceAppearance,
               releaseGeometryInstances: false,
               asynchronous: false
@@ -703,11 +827,13 @@ define([
 
             prim = this.map.scene.primitives.add(prim);
 
-            currProd.curtain = prim;
+            currProd.curtains = prim;*/
 
             //this.curtainPrimitive = prim;
 
             var that = this;
+            //TODO: Handle cleanup of event handler correctly
+            //this.graph.removeListener('rendered');
             this.graph.on('rendered', function(){
                 //console.log(this.getCanvasImage());
                 if(prim && prim.hasOwnProperty('_appearance') && prim._appearance){
@@ -887,6 +1013,7 @@ define([
             if(product){
                 if(product.hasOwnProperty('curtain')){
                     //product.curtain.appearance.material._textures.image.copyFrom(that.graph.getCanvas());
+
                     product.curtain.appearance.material.uniforms.alpha = options.value;//.clone();
                     //c.alpha = options.value;
                     //product.curtain.appearance.material.uniforms.color = c;
