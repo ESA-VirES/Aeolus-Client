@@ -38,6 +38,7 @@ define([
             this.extentPrimitive = null;
             this.activeModels = [];
             this.activeCollections = [];
+            this.activeCurtainCollections = [];
             this.differenceImage = null;
             this.dataFilters = {};
             this.colorscales = {};
@@ -506,6 +507,9 @@ define([
                     
                     
                 }else{
+                    for (var i = 0; i < this.activeCurtainCollections.length; i++) {
+                        this.activeCurtainCollections[i].removeAll();
+                    }
                     /*for (var i = 0; i < this.activeCollections.length; i++) {
                         if(this.featuresCollection.hasOwnProperty(this.activeCollections[i])){
                             this.map.scene.primitives.remove(
@@ -620,6 +624,7 @@ define([
                 delete currProd.curtains;*/
             }else{
                 curtainCollection = new Cesium.PrimitiveCollection();
+                this.activeCurtainCollections.push(curtainCollection);
                 this.map.scene.primitives.add(curtainCollection);
                 currProd.curtains = curtainCollection;
             }
@@ -1011,10 +1016,13 @@ define([
             );
 
             if(product){
-                if(product.hasOwnProperty('curtain')){
+                if(product.hasOwnProperty('curtains')){
                     //product.curtain.appearance.material._textures.image.copyFrom(that.graph.getCanvas());
 
-                    product.curtain.appearance.material.uniforms.alpha = options.value;//.clone();
+                    
+                    for (var i = 0; i < product.curtains._primitives.length; i++) {
+                        product.curtains._primitives[i].appearance.material.uniforms.alpha = options.value;//.clone();
+                    }
                     //c.alpha = options.value;
                     //product.curtain.appearance.material.uniforms.color = c;
                 }

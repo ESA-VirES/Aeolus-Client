@@ -492,27 +492,17 @@
 
             var ds = data.AEOLUS[0];
 
+            if($.isEmptyObject(ds)){
+              globals.swarm.set({data: {}});
+              return;
+            }
+
             // First thing we need to find possible jumps in data and handle them
             var positions = [];
             for (var i = 0; i < ds.latitude_of_DEM_intersection.length; i++) {
               positions.push(ds.longitude_of_DEM_intersection[i]);
               positions.push(ds.latitude_of_DEM_intersection[i]);
             }
-
-            // Find jumps in data
-            // Find normal position steps size
-            // Step size changes right now depending on test dataset...
-            /*var lonStep = d3.median([
-              positions[2]-positions[0],
-              positions[4]-positions[2],
-              positions[6]-positions[4]
-            ]);
-
-            var latStep = d3.median([
-              positions[3]-positions[1],
-              positions[5]-positions[3],
-              positions[7]-positions[5]
-            ]);*/
 
             var lonStep = 10;
             var latStep = 10;
@@ -529,7 +519,6 @@
               }
             }
 
-            console.log(stepPositions);
 
             var mie_jumps = that.findObservationJumps(ds.mie_altitude, stepPositions);
 
@@ -584,72 +573,6 @@
             );
 
             var ray_jumps = that.findObservationJumps(ds.rayleigh_altitude, stepPositions);
-
-            console.log(ray_jumps, mie_jumps, stepPositions);
-            //console.log(positions.lengthy);
-            /*for(var i=0; i<mie_time[0].length-1; i++){
-              var dif = mie_time[1][i]-mie_time[0][i];
-              if(Math.abs(dif)>14){
-                console.log(dif);
-              }
-            }*/
-
-            var output = 'LINESTRING (';
-            for (var i = 0; i < positions.length; i+=2) {
-              output+=
-                positions[i]+' '+positions[(i+1)]+','
-              ;
-            }
-            output.slice(0, -1); 
-            output+=')';
-            //console.log(output);
-
-            //TODO testing if number of points defining the wall creates issues
-            // with texture orientation, limiting the number of points to 100 (pairs)
-            // to see effects of performance and if it does solve any issue
-            // for larger selection we need to rethink the option to create multiple curtains
-            // and with the possibilities of jumps in data we need to reconsider it anyways...
-            /*var positionLimit = 20;
-
-            var reducedPositions = [];
-            var posLen = positions.length
-            if(posLen>positionLimit){
-              var step = parseInt(posLen/positionLimit*2);
-              if(step === 0){
-                step = 2;
-              }
-
-              for (var p = 0; p < posLen; p+=step) {
-                if(p%2!==0){
-                  reducedPositions.push(positions[p-1], positions[p])
-                }else{
-                  reducedPositions.push(positions[p], positions[p+1])
-                }
-                
-              }
-
-              if (p+step >= posLen){
-                // last position pair will not be included so add it here
-                reducedPositions.push(positions[posLen-2], positions[posLen-1]);
-              }
-            }else{
-              reducedPositions = positions;
-            }
-
-            console.log(reducedPositions);
-            
-            console.log(reducedPositions.length);*/
-
-
-            /*var reducedPositions = [
-              positions[0],positions[1],
-              //positions[parseInt(positions.length/2)-1],positions[parseInt(positions.length/2)],
-              positions[positions.length-2],positions[positions.length-1]
-            ];*/
-
-            /*console.log(positions[0],positions[1]);
-            console.log(mie_time[0][0]);
-            console.log(mie_HLOS_wind_speed[0]);*/
 
 
             var tmpdata = {

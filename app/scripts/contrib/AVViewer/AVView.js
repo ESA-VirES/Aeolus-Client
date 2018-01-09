@@ -41,9 +41,11 @@ define(['backbone.marionette',
 
             this.$('.d3canvas').remove();
             this.$el.append('<div class="d3canvas"></div>');
-            this.$('.d3canvas').append('<div id="graph_1" style="height:30%;"></div>');
-            this.$('.d3canvas').append('<div id="graph_2" style="height:30%;"></div>');
-            this.$('.d3canvas').append('<div id="filterDivContainer" style="height:39%;"></div>');
+            this.$('.d3canvas').append('<div id="graph_1"></div>');
+            this.$('.d3canvas').append('<div id="graph_2"></div>');
+            this.$('.d3canvas').append('<div id="filterDivContainer"></div>');
+            this.$el.append('<div id="nodataavailable"></div>');
+            $('#nodataavailable').text('No data available for current selection');
             this.$('#filterDivContainer').append('<div id="filters"></div>');
 
 
@@ -315,10 +317,17 @@ define(['backbone.marionette',
 
                 //this.filterManager.initManager();
                 if(Object.keys(data).length > 0){
+                    $('#nodataavailable').hide();
                     //this.graph.loadData(data);
                     // TODO: Iterate through all ids and load to corresponding graphs
                     this.graph1.loadData(data['AEOLUS']);
                     this.graph2.loadData(data['AEOLUS']);
+                }else{
+                    $('#nodataavailable').show();
+                    /*$('#graph_1').append('div').text('No data available for selection');
+                    $('#graph_2').empty();
+                    $('#filters').empty();*/
+
                 }
             }
         },
