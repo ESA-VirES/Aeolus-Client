@@ -25,7 +25,52 @@
         this.activeModels = [];
         this.selected_time = null;
 
-
+        var dataSettings = {
+                time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                rayleigh_HLOS_wind_speed: {
+                    uom: 'm/s',
+                    colorscale: 'viridis',
+                    extent: [-40,40]
+                },
+                rayleigh_time_start: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                rayleigh_time_end: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                rayleigh_altitude:{
+                    name: 'altitude',
+                    uom: 'm'
+                },
+                mie_time_start: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                mie_time_end: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                mie_HLOS_wind_speed: {
+                    uom: 'm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20]
+                },
+                mie_altitude:{
+                    name: 'altitude',
+                    uom: 'm'
+                },
+                velocity_at_DEM_intersection: {
+                    uom: 'm/s'
+                },
+                geoid_separation: {
+                    uom: 'm'
+                }
+            };
 
         var filterSettings = {
             parameterMatrix: {
@@ -45,6 +90,7 @@
                     'rayleigh_velocity_at_DEM_intersection', 'mie_velocity_at_DEM_intersection'
                 ]
             },
+            dataSettings: dataSettings,
 
             filterRelation: [
                 [

@@ -145,7 +145,7 @@ define([
                 mie_HLOS_wind_speed: {
                     uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-40,40]
+                    extent: [-20,20]
                     //outline: false
                 },
 
@@ -173,6 +173,21 @@ define([
                 fixedSize: true,
                 fixedWidth: 2048,
                 fixedHeigt: 512
+            });
+
+            var that = this;
+
+            globals.swarm.get('filterManager').on('filterChange', function(filters){
+                //console.log(filters);
+                var data = globals.swarm.get('data');
+                if (Object.keys(data).length){
+                    var idKeys = Object.keys(data);
+                    for (var i = idKeys.length - 1; i >= 0; i--) {
+                        //this.graph.loadData(data[idKeys[i]]);
+                        that.createCurtains(data[idKeys[i]], idKeys[i]);
+                    }
+                }
+
             });
 
 
@@ -502,10 +517,8 @@ define([
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
                         //this.graph.loadData(data[idKeys[i]]);
-                        this.createCurtains(data[idKeys[i]], idKeys[i], 'mie');
+                        this.createCurtains(data[idKeys[i]], idKeys[i]);
                     }
-                    
-                    
                 }else{
                     for (var i = 0; i < this.activeCurtainCollections.length; i++) {
                         this.activeCurtainCollections[i].removeAll();
@@ -537,7 +550,7 @@ define([
             }
         },
 
-        updateCurtain: function(id){
+        /*updateCurtain: function(id){
 
             var data = globals.swarm.get('data')[id];
             var product = globals.products.find(
@@ -606,10 +619,10 @@ define([
                 this.checkColorscale(id);
             }
 
-        },
+        },*/
 
 
-        createCurtains: function(data, cov_id, cur_coll, alpha, height){
+        createCurtains: function(data, cov_id, alpha, height){
 
             var currProd = globals.products.find(
                 function(p){return p.get('download').id === cov_id;}
@@ -654,12 +667,12 @@ define([
                 this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
                 this.graph.renderSettings.yAxis = ['mie_altitude'];
                 this.graph.renderSettings.xAxis =['mie_time'];
-                dataJumps = data.mie_jumps;
+                //dataJumps = data.mie_jumps;
             }else if(band === 'rayleigh_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
                 this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
                 this.graph.renderSettings.xAxis =['rayleigh_time'];
-                dataJumps = data.rayleigh_jumps;
+                //dataJumps = data.rayleigh_jumps;
             }
 
 
@@ -671,46 +684,38 @@ define([
 
                 var start = 0;
                 var end = data.stepPositions[i]*2;
-                var dataStart = 0;
-                var dataEnd = dataJumps[0];
+                var dataStartMie = 0;
+                var dataEndMie = data.mie_jumps[0];
+                var dataStartRay = 0;
+                var dataEndRay = data.rayleigh_jumps[0];
                 if (i>0){
                     start = data.stepPositions[i-1]*2+4;
-                    dataStart = dataJumps[i*2-1];
-                    dataEnd = dataJumps[i*2];
+                    dataStartMie = data.mie_jumps[i*2-1];
+                    dataEndMie = data.mie_jumps[i*2];
+                    dataStartRay = data.rayleigh_jumps[i*2-1];
+                    dataEndRay = data.rayleigh_jumps[i*2];
                 }
                 if(i===data.stepPositions.length){
                     end = data.positions.length;
-                    dataEnd = data[band].length;
+                    dataEndMie = data['mie_HLOS_wind_speed'].length;
+                    dataEndRay = data['rayleigh_HLOS_wind_speed'].length;
                 }
 
                 var dataSlice = {};
-                if(band === 'mie_HLOS_wind_speed'){
-                    dataSlice['mie_HLOS_wind_speed'] = 
-                        data['mie_HLOS_wind_speed'].slice(dataStart, dataEnd);
-                    dataSlice['mie_altitude_start'] = 
-                        data['mie_altitude_start'].slice(dataStart, dataEnd);
-                    dataSlice['mie_altitude_end'] = 
-                        data['mie_altitude_end'].slice(dataStart, dataEnd);
-                    dataSlice['mie_time_start'] = 
-                        data['mie_time_start'].slice(dataStart, dataEnd);
-                        dataSlice['mie_time_end'] = 
-                        data['mie_time_end'].slice(dataStart, dataEnd);
-                }else if(band === 'rayleigh_HLOS_wind_speed'){
-                    dataSlice['rayleigh_HLOS_wind_speed'] = 
-                        data['rayleigh_HLOS_wind_speed'].slice(dataStart, dataEnd);
-                    dataSlice['rayleigh_altitude_start'] = 
-                        data['rayleigh_altitude_start'].slice(dataStart, dataEnd);
-                    dataSlice['rayleigh_altitude_end'] = 
-                        data['rayleigh_altitude_end'].slice(dataStart, dataEnd);
-                    dataSlice['rayleigh_time_start'] = 
-                        data['rayleigh_time_start'].slice(dataStart, dataEnd);
-                    dataSlice['rayleigh_time_end'] = 
-                        data['rayleigh_time_end'].slice(dataStart, dataEnd);
+                var dataKeys = Object.keys(data);
+                for (var k = dataKeys.length - 1; k >= 0; k--) {
+                    if (dataKeys[k].indexOf('mie')!==-1){
+                        dataSlice[dataKeys[k]] = 
+                        data[dataKeys[k]].slice(dataStartMie, dataEndMie);
+                    } else if (dataKeys[k].indexOf('ray')!==-1){
+                        dataSlice[dataKeys[k]] = 
+                        data[dataKeys[k]].slice(dataStartRay, dataEndRay);
+                    }
                 }
 
                 this.graph.loadData(dataSlice);
 
-                var newmat = new Cesium.Material({
+                /*var newmat = new Cesium.Material({
                     fabric : {
                         uniforms : {
                             image : this.graph.getCanvasImage(),
@@ -724,6 +729,10 @@ define([
                     },
                     flat: true,
                     translucent : true
+                });*/
+                var newmat = new Cesium.Material.fromType('Image', {
+                    image : this.graph.getCanvasImage(),
+                    color: new Cesium.Color(1, 1, 1, alpha),
                 });
 
 
@@ -836,15 +845,15 @@ define([
 
             //this.curtainPrimitive = prim;
 
-            var that = this;
+            //var that = this;
             //TODO: Handle cleanup of event handler correctly
             //this.graph.removeListener('rendered');
-            this.graph.on('rendered', function(){
+            /*this.graph.on('rendered', function(){
                 //console.log(this.getCanvasImage());
                 if(prim && prim.hasOwnProperty('_appearance') && prim._appearance){
                     prim.appearance.material._textures.image.copyFrom(that.graph.getCanvas());
                 }
-            });
+            });*/
 
 
         },
@@ -1021,7 +1030,7 @@ define([
 
                     
                     for (var i = 0; i < product.curtains._primitives.length; i++) {
-                        product.curtains._primitives[i].appearance.material.uniforms.alpha = options.value;//.clone();
+                        product.curtains._primitives[i].appearance.material.uniforms.color.alpha = options.value;//.clone();
                     }
                     //c.alpha = options.value;
                     //product.curtain.appearance.material.uniforms.color = c;
@@ -1546,9 +1555,21 @@ define([
                 var style = parameters[band].colorscale;
                 var range = parameters[band].range;*/
                 
-                if(product.hasOwnProperty('curtain')){
+                if(product.hasOwnProperty('curtains')){
                     //product.curtain
-                    this.updateCurtain(product.get('download').id);
+                    //this.updateCurtain(product.get('download').id);
+                    var covid = product.get('download').id;
+                    var data = globals.swarm.get('data')[covid];
+                    this.createCurtains(data, covid);
+
+                    /*if (Object.keys(data).length){
+                        //this.createDataFeatures(data, 'pointcollection', 'band');
+                        var idKeys = Object.keys(data);
+                        for (var i = idKeys.length - 1; i >= 0; i--) {
+                            //this.graph.loadData(data[idKeys[i]]);
+                            this.createCurtains(data[idKeys[i]], idKeys[i], 'mie');
+                        }
+                    }*/
                 }
             }
 

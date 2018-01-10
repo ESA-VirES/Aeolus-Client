@@ -91,7 +91,7 @@ define(['backbone.marionette',
 
             };
 
-            var dataSettings = {
+            this.dataSettings = {
 
                 time: {
                     scaleFormat: 'time',
@@ -133,7 +133,7 @@ define(['backbone.marionette',
                 mie_HLOS_wind_speed: {
                     uom: 'm/s',
                     colorscale: 'viridis',
-                    extent: [-40,40]
+                    extent: [-20,20]
                     //outline: false
                 },
 
@@ -141,11 +141,32 @@ define(['backbone.marionette',
                     name: 'altitude',
                     uom: 'm'
                 }
-
-
-
-
             };
+
+
+            // Check for already defined data settings
+            globals.products.each(function(product) {
+
+                var currProd = globals.products.find(
+                    function(p){
+                        return p.get('download').id === product.get('download').id;
+                    }
+                );
+
+                var parameters = currProd.get('parameters');
+                var band;
+                var keys = _.keys(parameters);
+                _.each(keys, function(key){
+                    if(parameters[key].hasOwnProperty('colorscale')){
+                        this.dataSettings[key].colorscale = parameters[key].colorscale;
+                    }
+                    if(parameters[key].hasOwnProperty('range')){
+                        this.dataSettings[key].extent = parameters[key].range;
+                    }
+                }, this);
+                
+
+            }, this);
 
             if (this.graph1 === undefined){
 
@@ -154,7 +175,7 @@ define(['backbone.marionette',
 
                 this.graph1 = new graphly.graphly({
                     el: '#graph_1',
-                    dataSettings: dataSettings,
+                    dataSettings: this.dataSettings,
                     renderSettings: renderSettings_mie,
                     filterManager: globals.swarm.get('filterManager')
                 });
@@ -166,7 +187,7 @@ define(['backbone.marionette',
             if (this.graph2 === undefined){
                 this.graph2 = new graphly.graphly({
                     el: '#graph_2',
-                    dataSettings: dataSettings,
+                    dataSettings: this.dataSettings,
                     renderSettings: renderSettings_rayleigh,
                     filterManager: globals.swarm.get('filterManager'),
                     connectedGraph: this.graph1
@@ -311,6 +332,35 @@ define(['backbone.marionette',
             }
         },
 
+        onLayerParametersChanged: function(layer){
+
+            var currProd = globals.products.find(
+                function(p){return p.get('name') === layer;}
+            );
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
+
+            this.dataSettings[band].colorscale = style;
+            this.dataSettings[band].extent = range;
+            //this.graph.dataSettings = this.dataSettings;
+            this.graph1.updateSettings = this.dataSettings;
+            this.graph1.renderData(false);
+            this.graph1.createHelperObjects();
+            this.graph2.dataSettings = this.dataSettings;
+            this.graph2.renderData(false);
+            this.graph2.createHelperObjects();
+
+        },
+
         reloadData: function(model, data) {
             // If element already has plot rendering
             if( $(this.el).html()){
@@ -322,6 +372,7 @@ define(['backbone.marionette',
                     // TODO: Iterate through all ids and load to corresponding graphs
                     this.graph1.loadData(data['AEOLUS']);
                     this.graph2.loadData(data['AEOLUS']);
+                    this.filterManager.loadData(data['AEOLUS']);
                 }else{
                     $('#nodataavailable').show();
                     /*$('#graph_1').append('div').text('No data available for selection');
