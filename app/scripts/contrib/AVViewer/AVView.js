@@ -41,9 +41,11 @@ define(['backbone.marionette',
 
             this.$('.d3canvas').remove();
             this.$el.append('<div class="d3canvas"></div>');
-            this.$('.d3canvas').append('<div id="graph_1" style="height:30%;"></div>');
-            this.$('.d3canvas').append('<div id="graph_2" style="height:30%;"></div>');
-            this.$('.d3canvas').append('<div id="filterDivContainer" style="height:39%;"></div>');
+            this.$('.d3canvas').append('<div id="graph_1"></div>');
+            this.$('.d3canvas').append('<div id="graph_2"></div>');
+            this.$('.d3canvas').append('<div id="filterDivContainer"></div>');
+            this.$el.append('<div id="nodataavailable"></div>');
+            $('#nodataavailable').text('No data available for current selection');
             this.$('#filterDivContainer').append('<div id="filters"></div>');
 
 
@@ -89,7 +91,7 @@ define(['backbone.marionette',
 
             };
 
-            var dataSettings = {
+            this.dataSettings = {
 
                 time: {
                     scaleFormat: 'time',
@@ -97,7 +99,7 @@ define(['backbone.marionette',
                 },
 
                 rayleigh_HLOS_wind_speed: {
-                    uom: 'cm/s',
+                    uom: 'm/s',
                     colorscale: 'viridis',
                     extent: [-40,40]
                     //outline: false
@@ -110,6 +112,10 @@ define(['backbone.marionette',
                 rayleigh_time_end: {
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
+                },
+                rayleigh_altitude:{
+                    name: 'altitude',
+                    uom: 'm'
                 },
 
 
@@ -125,15 +131,42 @@ define(['backbone.marionette',
 
 
                 mie_HLOS_wind_speed: {
-                    uom: 'cm/s',
+                    uom: 'm/s',
                     colorscale: 'viridis',
-                    extent: [-40,40]
+                    extent: [-20,20]
                     //outline: false
                 },
 
-
-
+                mie_altitude:{
+                    name: 'altitude',
+                    uom: 'm'
+                }
             };
+
+
+            // Check for already defined data settings
+            globals.products.each(function(product) {
+
+                var currProd = globals.products.find(
+                    function(p){
+                        return p.get('download').id === product.get('download').id;
+                    }
+                );
+
+                var parameters = currProd.get('parameters');
+                var band;
+                var keys = _.keys(parameters);
+                _.each(keys, function(key){
+                    if(parameters[key].hasOwnProperty('colorscale')){
+                        this.dataSettings[key].colorscale = parameters[key].colorscale;
+                    }
+                    if(parameters[key].hasOwnProperty('range')){
+                        this.dataSettings[key].extent = parameters[key].range;
+                    }
+                }, this);
+                
+
+            }, this);
 
             if (this.graph1 === undefined){
 
@@ -142,7 +175,7 @@ define(['backbone.marionette',
 
                 this.graph1 = new graphly.graphly({
                     el: '#graph_1',
-                    dataSettings: dataSettings,
+                    dataSettings: this.dataSettings,
                     renderSettings: renderSettings_mie,
                     filterManager: globals.swarm.get('filterManager')
                 });
@@ -154,7 +187,7 @@ define(['backbone.marionette',
             if (this.graph2 === undefined){
                 this.graph2 = new graphly.graphly({
                     el: '#graph_2',
-                    dataSettings: dataSettings,
+                    dataSettings: this.dataSettings,
                     renderSettings: renderSettings_rayleigh,
                     filterManager: globals.swarm.get('filterManager'),
                     connectedGraph: this.graph1
@@ -299,16 +332,53 @@ define(['backbone.marionette',
             }
         },
 
+        onLayerParametersChanged: function(layer){
+
+            var currProd = globals.products.find(
+                function(p){return p.get('name') === layer;}
+            );
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
+
+            this.dataSettings[band].colorscale = style;
+            this.dataSettings[band].extent = range;
+            //this.graph.dataSettings = this.dataSettings;
+            this.graph1.updateSettings = this.dataSettings;
+            this.graph1.renderData(false);
+            this.graph1.createHelperObjects();
+            this.graph2.dataSettings = this.dataSettings;
+            this.graph2.renderData(false);
+            this.graph2.createHelperObjects();
+
+        },
+
         reloadData: function(model, data) {
             // If element already has plot rendering
             if( $(this.el).html()){
 
                 //this.filterManager.initManager();
                 if(Object.keys(data).length > 0){
+                    $('#nodataavailable').hide();
                     //this.graph.loadData(data);
                     // TODO: Iterate through all ids and load to corresponding graphs
                     this.graph1.loadData(data['AEOLUS']);
                     this.graph2.loadData(data['AEOLUS']);
+                    this.filterManager.loadData(data['AEOLUS']);
+                }else{
+                    $('#nodataavailable').show();
+                    /*$('#graph_1').append('div').text('No data available for selection');
+                    $('#graph_2').empty();
+                    $('#filters').empty();*/
+
                 }
             }
         },

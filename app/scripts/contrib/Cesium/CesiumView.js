@@ -38,6 +38,7 @@ define([
             this.extentPrimitive = null;
             this.activeModels = [];
             this.activeCollections = [];
+            this.activeCurtainCollections = [];
             this.differenceImage = null;
             this.dataFilters = {};
             this.colorscales = {};
@@ -144,7 +145,7 @@ define([
                 mie_HLOS_wind_speed: {
                     uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-40,40]
+                    extent: [-20,20]
                     //outline: false
                 },
 
@@ -172,6 +173,21 @@ define([
                 fixedSize: true,
                 fixedWidth: 2048,
                 fixedHeigt: 512
+            });
+
+            var that = this;
+
+            globals.swarm.get('filterManager').on('filterChange', function(filters){
+                //console.log(filters);
+                var data = globals.swarm.get('data');
+                if (Object.keys(data).length){
+                    var idKeys = Object.keys(data);
+                    for (var i = idKeys.length - 1; i >= 0; i--) {
+                        //this.graph.loadData(data[idKeys[i]]);
+                        that.createCurtains(data[idKeys[i]], idKeys[i]);
+                    }
+                }
+
             });
 
 
@@ -267,6 +283,9 @@ define([
                 this.map = new Cesium.Viewer(this.el, options);
                 var initialCesiumLayer = this.map.imageryLayers.get(0);
             }
+
+            // disable fxaa
+            this.map.scene.fxaa = false;
 
             if(localStorage.getItem('cameraPosition') !== null){
                 var c = JSON.parse(localStorage.getItem('cameraPosition'));
@@ -497,12 +516,13 @@ define([
                     //this.createDataFeatures(data, 'pointcollection', 'band');
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
-                        this.graph.loadData(data[idKeys[i]]);
-                        this.createCurtain(data[idKeys[i]], idKeys[i], 'mie');
+                        //this.graph.loadData(data[idKeys[i]]);
+                        this.createCurtains(data[idKeys[i]], idKeys[i]);
                     }
-                    
-                    
                 }else{
+                    for (var i = 0; i < this.activeCurtainCollections.length; i++) {
+                        this.activeCurtainCollections[i].removeAll();
+                    }
                     /*for (var i = 0; i < this.activeCollections.length; i++) {
                         if(this.featuresCollection.hasOwnProperty(this.activeCollections[i])){
                             this.map.scene.primitives.remove(
@@ -530,7 +550,7 @@ define([
             }
         },
 
-        updateCurtain: function(id){
+        /*updateCurtain: function(id){
 
             var data = globals.swarm.get('data')[id];
             var product = globals.products.find(
@@ -599,18 +619,27 @@ define([
                 this.checkColorscale(id);
             }
 
-        },
+        },*/
 
 
-        createCurtain: function(data, cov_id, cur_coll, alpha, height){
+        createCurtains: function(data, cov_id, alpha, height){
 
             var currProd = globals.products.find(
                 function(p){return p.get('download').id === cov_id;}
             );
 
-            if(currProd.hasOwnProperty('curtain')){
-                this.map.scene.primitives.remove(currProd.curtain);
-                delete currProd.curtain;
+            var curtainCollection;
+
+            if(currProd.hasOwnProperty('curtains')){
+                currProd.curtains.removeAll();
+                curtainCollection = currProd.curtains;
+                /*this.map.scene.primitives.remove(currProd.curtains);
+                delete currProd.curtains;*/
+            }else{
+                curtainCollection = new Cesium.PrimitiveCollection();
+                this.activeCurtainCollections.push(curtainCollection);
+                this.map.scene.primitives.add(curtainCollection);
+                currProd.curtains = curtainCollection;
             }
 
             //alpha = 0.99;
@@ -628,58 +657,164 @@ define([
 
             alpha = currProd.get('opacity');
 
-
-            //this.graph.setColorScale(style);
-            //this.graph.onSetExtent(range);
             this.dataSettings[band].colorscale = style;
             this.dataSettings[band].extent = range;
             this.graph.dataSettings = this.dataSettings;
+
+            var dataJumps;
 
             if(band === 'mie_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
                 this.graph.renderSettings.yAxis = ['mie_altitude'];
                 this.graph.renderSettings.xAxis =['mie_time'];
+                //dataJumps = data.mie_jumps;
             }else if(band === 'rayleigh_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
                 this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
                 this.graph.renderSettings.xAxis =['rayleigh_time'];
+                //dataJumps = data.rayleigh_jumps;
             }
-            this.graph.renderData(data);
-
-            var newmat = new Cesium.Material({
-                fabric : {
-                    uniforms : {
-                        image : this.graph.getCanvasImage(),
-                        repeat : new Cesium.Cartesian2(-1.0, 1.0),
-                        alpha : alpha
-                    },
-                    components : {
-                        diffuse : 'texture2D(image, fract(repeat * materialInput.st)).rgb',
-                        alpha : 'texture2D(image, fract(repeat * materialInput.st)).a * alpha'
-                    }
-                },
-                flat: true,
-                translucent : true
-            });
-
-
-            /*var sliceMat = new Cesium.Material.fromType('Image', {
-                image : this.graph.getCanvasImage(),
-                color: new Cesium.Color(1, 1, 1, alpha)
-            });*/
-
-            var sliceAppearance = new Cesium.MaterialAppearance({
-                translucent : true,
-                flat: true,
-                material : newmat
-            });
-
 
 
             height = 1000000;
 
-            var maxHeights = [];
-            for (var i = 0; i <data.positions.length; i++) {
+            //TODO: How to correctly handle multiple curtains with jumps
+
+            for (var i = 0; i <= data.stepPositions.length; i++) {
+
+                var start = 0;
+                var end = data.stepPositions[i]*2;
+                var dataStartMie = 0;
+                var dataEndMie = data.mie_jumps[0];
+                var dataStartRay = 0;
+                var dataEndRay = data.rayleigh_jumps[0];
+                if (i>0){
+                    start = data.stepPositions[i-1]*2+4;
+                    dataStartMie = data.mie_jumps[i*2-1];
+                    dataEndMie = data.mie_jumps[i*2];
+                    dataStartRay = data.rayleigh_jumps[i*2-1];
+                    dataEndRay = data.rayleigh_jumps[i*2];
+                }
+                if(i===data.stepPositions.length){
+                    end = data.positions.length;
+                    dataEndMie = data['mie_HLOS_wind_speed'].length;
+                    dataEndRay = data['rayleigh_HLOS_wind_speed'].length;
+                }
+
+                var dataSlice = {};
+                var dataKeys = Object.keys(data);
+                for (var k = dataKeys.length - 1; k >= 0; k--) {
+                    if (dataKeys[k].indexOf('mie')!==-1){
+                        dataSlice[dataKeys[k]] = 
+                        data[dataKeys[k]].slice(dataStartMie, dataEndMie);
+                    } else if (dataKeys[k].indexOf('ray')!==-1){
+                        dataSlice[dataKeys[k]] = 
+                        data[dataKeys[k]].slice(dataStartRay, dataEndRay);
+                    }
+                }
+
+                this.graph.loadData(dataSlice);
+
+                /*var newmat = new Cesium.Material({
+                    fabric : {
+                        uniforms : {
+                            image : this.graph.getCanvasImage(),
+                            repeat : new Cesium.Cartesian2(1.0, 1.0),
+                            alpha : alpha
+                        },
+                        components : {
+                            diffuse : 'texture2D(image, fract(repeat * materialInput.st)).rgb',
+                            alpha : 'texture2D(image, fract(repeat * materialInput.st)).a * alpha'
+                        }
+                    },
+                    flat: true,
+                    translucent : true
+                });*/
+                var newmat = new Cesium.Material.fromType('Image', {
+                    image : this.graph.getCanvasImage(),
+                    color: new Cesium.Color(1, 1, 1, alpha),
+                });
+
+
+                var slicedPosData = data.positions.slice(start, end);
+                
+                /*for (var p = 0; p < slicedPosData.length; p++) {
+                    if(slicedPosData[p]>=180){
+                        slicedPosData[p] -=360;
+                    }
+                }
+                console.log(slicedPosData.length);
+
+                var output = 'LINESTRING (';
+                for (var la = 0; la < slicedPosData.length; la+=2) {
+                  output+=
+                    slicedPosData[la]+' '+slicedPosData[(la+1)]+','
+                  ;
+                }
+                output = output.slice(0, -1); 
+                output+=')';
+                console.log(output);*/
+
+                // TODO: Add line so that path can be seen in 2D
+                // A polyline with two connected line segments
+                /*var polyline = new Cesium.PolylineGeometry({
+                  positions : Cesium.Cartesian3.fromDegreesArray([
+                    0.0, 0.0,
+                    5.0, 0.0,
+                    5.0, 5.0
+                  ]),
+                  width : 10.0
+                });
+                var geometry = Cesium.PolylineGeometry.createGeometry(polyline);*/
+
+
+                var maxHeights = [];
+                for (var j = 0; j <slicedPosData.length; j++) {
+                    maxHeights.push(height);
+                }
+
+                var wall = new Cesium.WallGeometry({
+                    positions : Cesium.Cartesian3.fromDegreesArray(slicedPosData),
+                    maximumHeights : maxHeights,
+                });
+
+                var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
+
+                var instance = new Cesium.GeometryInstance({
+                  geometry : wallGeometry
+                });
+
+                // Check if normal is negative, if it is we need to flip the
+                // direction of the texture to be applied
+                if(wallGeometry.attributes.normal.values[0]<0){
+                    newmat.uniforms.repeat.x = -1;
+                }
+                var sliceAppearance = new Cesium.MaterialAppearance({
+                    translucent : true,
+                    flat: true,
+                    faceForward: true,
+                    //closed: true,
+                    material : newmat
+                });
+
+
+                //instances.push(instance);
+                var prim = new Cesium.Primitive({
+                  geometryInstances : instance,
+                  appearance : sliceAppearance,
+                  releaseGeometryInstances: false,
+                  //asynchronous: false
+                });
+
+                curtainCollection.add(prim);
+            }
+
+            //currProd.curtains = curtainCollection;
+            //this.map.scene.primitives.add(curtainCollection);
+
+
+            /*var maxHeights = [];
+            for (var j = 0; j <data.positions.length; j++) {
                 maxHeights.push(height);
             }
 
@@ -694,8 +829,11 @@ define([
               geometry : wallGeometry
             });
 
+            instances.push(instance);
+
+
             var prim = new Cesium.Primitive({
-              geometryInstances : [instance],
+              geometryInstances : instances,
               appearance : sliceAppearance,
               releaseGeometryInstances: false,
               asynchronous: false
@@ -703,17 +841,19 @@ define([
 
             prim = this.map.scene.primitives.add(prim);
 
-            currProd.curtain = prim;
+            currProd.curtains = prim;*/
 
             //this.curtainPrimitive = prim;
 
-            var that = this;
-            this.graph.on('rendered', function(){
+            //var that = this;
+            //TODO: Handle cleanup of event handler correctly
+            //this.graph.removeListener('rendered');
+            /*this.graph.on('rendered', function(){
                 //console.log(this.getCanvasImage());
                 if(prim && prim.hasOwnProperty('_appearance') && prim._appearance){
                     prim.appearance.material._textures.image.copyFrom(that.graph.getCanvas());
                 }
-            });
+            });*/
 
 
         },
@@ -885,9 +1025,13 @@ define([
             );
 
             if(product){
-                if(product.hasOwnProperty('curtain')){
+                if(product.hasOwnProperty('curtains')){
                     //product.curtain.appearance.material._textures.image.copyFrom(that.graph.getCanvas());
-                    product.curtain.appearance.material.uniforms.alpha = options.value;//.clone();
+
+                    
+                    for (var i = 0; i < product.curtains._primitives.length; i++) {
+                        product.curtains._primitives[i].appearance.material.uniforms.color.alpha = options.value;//.clone();
+                    }
                     //c.alpha = options.value;
                     //product.curtain.appearance.material.uniforms.color = c;
                 }
@@ -1411,9 +1555,21 @@ define([
                 var style = parameters[band].colorscale;
                 var range = parameters[band].range;*/
                 
-                if(product.hasOwnProperty('curtain')){
+                if(product.hasOwnProperty('curtains')){
                     //product.curtain
-                    this.updateCurtain(product.get('download').id);
+                    //this.updateCurtain(product.get('download').id);
+                    var covid = product.get('download').id;
+                    var data = globals.swarm.get('data')[covid];
+                    this.createCurtains(data, covid);
+
+                    /*if (Object.keys(data).length){
+                        //this.createDataFeatures(data, 'pointcollection', 'band');
+                        var idKeys = Object.keys(data);
+                        for (var i = idKeys.length - 1; i >= 0; i--) {
+                            //this.graph.loadData(data[idKeys[i]]);
+                            this.createCurtains(data[idKeys[i]], idKeys[i], 'mie');
+                        }
+                    }*/
                 }
             }
 

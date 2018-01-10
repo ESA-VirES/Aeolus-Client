@@ -25,7 +25,52 @@
         this.activeModels = [];
         this.selected_time = null;
 
-
+        var dataSettings = {
+                time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                rayleigh_HLOS_wind_speed: {
+                    uom: 'm/s',
+                    colorscale: 'viridis',
+                    extent: [-40,40]
+                },
+                rayleigh_time_start: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                rayleigh_time_end: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                rayleigh_altitude:{
+                    name: 'altitude',
+                    uom: 'm'
+                },
+                mie_time_start: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                mie_time_end: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                mie_HLOS_wind_speed: {
+                    uom: 'm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20]
+                },
+                mie_altitude:{
+                    name: 'altitude',
+                    uom: 'm'
+                },
+                velocity_at_DEM_intersection: {
+                    uom: 'm/s'
+                },
+                geoid_separation: {
+                    uom: 'm'
+                }
+            };
 
         var filterSettings = {
             parameterMatrix: {
@@ -45,6 +90,7 @@
                     'rayleigh_velocity_at_DEM_intersection', 'mie_velocity_at_DEM_intersection'
                 ]
             },
+            dataSettings: dataSettings,
 
             filterRelation: [
                 [
@@ -328,29 +374,39 @@
         this.checkModelValidity();
       },
 
-      proxyFlattenObservationArraySE: function(input, proxy){
-        //var time = data.AEOLUS[1].time;
+      proxyFlattenObservationArraySE: function(input, proxy, jumps){
         var start = [];
         var end = [];
         for (var i = 0; i < proxy.length-1; i++) {
+          if(jumps.indexOf(i)!==-1){
+            continue;
+          }
           for (var j = 0; j < proxy[i].length-1; j++) {
             if (j===proxy[i].length-1){
               start.push(input[i]);
               end.push(input[i+1]);
+              /*if(Math.abs(input[i]-input[i+1])>15){
+                var a=1;
+              }*/
             }else{
               start.push(input[i]);
               end.push(input[i+1]);
+              /*if(Math.abs(input[i]-input[i+1])>15){
+                var a=1;
+              }*/
             }
           }
         }
         return [start, end];
       },
 
-      flattenObservationArraySE: function(input){
-        //var time = data.AEOLUS[1].time;
+      flattenObservationArraySE: function(input, jumps){
         var start = [];
         var end = [];
         for (var i = 0; i < input.length-1; i++) {
+          if(jumps.indexOf(i)!==-1){
+            continue;
+          }
           for (var j = 0; j < input[i].length-1; j++) {
             if(j===input[i].length-1){
               start.push(input[i][j]);
@@ -364,10 +420,29 @@
         return [start, end];
       },
 
-      flattenObservationArray: function(input){
-        //var time = data.AEOLUS[1].time;
+      findObservationJumps: function(input, jumps){
+        var resultJumps = [];
+        var counter = 0;
+        for (var i = 0; i < input.length-1; i++) {
+
+          //start and end of jump
+          if(jumps.indexOf(i)!==-1 && jumps[jumps.length-1]!==counter){
+            resultJumps.push(counter);
+            resultJumps.push(counter+input[i].length-1);
+          }else{
+            counter += input[i].length-1;
+          }
+          
+        }
+        return resultJumps;
+      },
+
+      flattenObservationArray: function(input, jumps){
         var output = [];
         for (var i = 0; i < input.length-1; i++) {
+          if(jumps.indexOf(i)!==-1){
+            continue;
+          }
           for (var j = 0; j < input[i].length; j++) {
             output.push(input[i][j]);
           }
@@ -376,7 +451,6 @@
       },
 
       proxyFlattenMeasurementArraySE: function(input, proxy){
-        //var time = data.AEOLUS[1].time;
         var start = [];
         var end = [];
         for (var i = 0; i < proxy.length-1; i++) {
@@ -397,7 +471,6 @@
       },
 
       flattenMeasurementArraySE: function(input){
-        //var time = data.AEOLUS[1].time;
         var start = [];
         var end = [];
         for (var i = 0; i < input.length-1; i++) {
@@ -418,7 +491,6 @@
       },
 
       flattenMeasurementArray: function(input){
-        //var time = data.AEOLUS[1].time;
         var output = [];
         for (var i = 0; i < input.length; i++) {
           for (var j = 0; j < input[i].length; j++) {
@@ -466,52 +538,88 @@
 
             var ds = data.AEOLUS[0];
 
-            // MIE
-            var mie_time = that.proxyFlattenObservationArraySE(ds.time, ds.mie_altitude);
-            var mie_HLOS_wind_speed = that.flattenObservationArray(ds.mie_HLOS_wind_speed);
-            //var mie_latitude = that.flattenMeasurementArraySE(data.AEOLUS[1].mie_latitude);
-            var mie_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
-              ds.latitude_of_DEM_intersection,
-              ds.mie_altitude
-            );
+            if($.isEmptyObject(ds)){
+              globals.swarm.set({data: {}});
+              return;
+            }
+
+            // First thing we need to find possible jumps in data and handle them
             var positions = [];
             for (var i = 0; i < ds.latitude_of_DEM_intersection.length; i++) {
               positions.push(ds.longitude_of_DEM_intersection[i]);
               positions.push(ds.latitude_of_DEM_intersection[i]);
             }
-            var mie_altitude = that.flattenObservationArraySE(ds.mie_altitude);
-            var mie_bin_quality_flag = that.flattenObservationArray(ds.mie_bin_quality_flag);
+
+            var lonStep = 10;
+            var latStep = 10;
+
+
+            var stepPositions = [];
+            for (var i = 2; i < positions.length; i++) {
+              if (i%2===0 && Math.abs(positions[i]-positions[i-2])>=Math.abs(lonStep)+2.5) {
+                stepPositions.push(parseInt(i/2));
+              }else if (i%2===1 && Math.abs(positions[i]-positions[i-2])>=Math.abs(latStep)+2.5) {
+                if(stepPositions.length>0 && stepPositions[stepPositions.length-1]!=parseInt((i-1)/2)){
+                  stepPositions.push(parseInt((i-1)/2));
+                }
+              }
+            }
+
+
+            var mie_jumps = that.findObservationJumps(ds.mie_altitude, stepPositions);
+
+            // MIE
+            var mie_time = that.proxyFlattenObservationArraySE(ds.time, ds.mie_altitude, stepPositions);
+            var mie_HLOS_wind_speed = that.flattenObservationArray(ds.mie_HLOS_wind_speed, stepPositions);
+            //var mie_latitude = that.flattenMeasurementArraySE(data.AEOLUS[1].mie_latitude);
+            var mie_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
+              ds.latitude_of_DEM_intersection,
+              ds.mie_altitude,
+              stepPositions
+            );
+            
+
+            var mie_altitude = that.flattenObservationArraySE(ds.mie_altitude, stepPositions);
+            var mie_bin_quality_flag = that.flattenObservationArray(ds.mie_bin_quality_flag, stepPositions);
 
             var mie_geoid_separation = that.proxyFlattenObservationArraySE(
               ds.geoid_separation,
-              ds.mie_altitude
+              ds.mie_altitude,
+              stepPositions
             );
             var mie_velocity_at_DEM_intersection = that.proxyFlattenObservationArraySE(
               ds.velocity_at_DEM_intersection,
-              ds.mie_altitude
+              ds.mie_altitude,
+              stepPositions
             );
 
 
 
             // RAYLEIGH
-            var ray_time = that.proxyFlattenObservationArraySE(ds.time, ds.rayleigh_altitude);
-            var ray_HLOS_wind_speed = that.flattenObservationArray(ds.rayleigh_HLOS_wind_speed);
+            var ray_time = that.proxyFlattenObservationArraySE(ds.time, ds.rayleigh_altitude, stepPositions);
+            var ray_HLOS_wind_speed = that.flattenObservationArray(ds.rayleigh_HLOS_wind_speed, stepPositions);
             //var mie_latitude = that.flattenMeasurementArraySE(data.AEOLUS[1].mie_latitude);
             var ray_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
               ds.latitude_of_DEM_intersection,
-              ds.rayleigh_altitude
+              ds.rayleigh_altitude,
+              stepPositions
             );
-            var ray_altitude = that.flattenObservationArraySE(ds.rayleigh_altitude);
-            var ray_bin_quality_flag = that.flattenObservationArray(ds.rayleigh_bin_quality_flag);
+            var ray_altitude = that.flattenObservationArraySE(ds.rayleigh_altitude, stepPositions);
+            var ray_bin_quality_flag = that.flattenObservationArray(ds.rayleigh_bin_quality_flag, stepPositions);
 
             var ray_geoid_separation = that.proxyFlattenObservationArraySE(
               ds.geoid_separation,
-              ds.rayleigh_altitude
+              ds.rayleigh_altitude,
+              stepPositions
             );
             var ray_velocity_at_DEM_intersection = that.proxyFlattenObservationArraySE(
               ds.velocity_at_DEM_intersection,
-              ds.rayleigh_altitude
+              ds.rayleigh_altitude,
+              stepPositions
             );
+
+            var ray_jumps = that.findObservationJumps(ds.rayleigh_altitude, stepPositions);
+
 
             var tmpdata = {
               mie_time_start: mie_time[0],
@@ -525,6 +633,8 @@
               mie_geoid_separation:mie_geoid_separation[0],
               mie_velocity_at_DEM_intersection: mie_velocity_at_DEM_intersection[0],
               positions: positions,
+              stepPositions: stepPositions,
+              mie_jumps: mie_jumps,
 
               /*geoid_separation: geoid_separation[0],
               velocity_at_DEM_intersection: velocity_at_DEM_intersection[0]*/
@@ -537,7 +647,8 @@
               rayleigh_altitude_start: ray_altitude[1],
               rayleigh_altitude_end: ray_altitude[0],
               rayleigh_geoid_separation: ray_geoid_separation[0],
-              rayleigh_velocity_at_DEM_intersection: ray_velocity_at_DEM_intersection[0]
+              rayleigh_velocity_at_DEM_intersection: ray_velocity_at_DEM_intersection[0],
+              rayleigh_jumps: ray_jumps
             };
 
             // TODO: Getting the object and setting one parameter does not trigger

@@ -64,3 +64,35 @@
 #filterDivContainer{
    text-align: center;
 }
+
+
+
+
+.d3canvas {
+    position:absolute;
+}
+
+#graph_1 {
+    height:30%;
+}
+
+#graph_2 {
+    height:30%;
+}
+
+#filterDivContainer {
+    height:39%;
+}
+
+#nodataavailable{
+    height:100%;
+    width:100%;
+    position:absolute;
+    z-index:500;
+    display:none;
+    background-color:white;
+    text-align: center;
+    padding-top: 35%;
+    font-size: 2em;
+    color: grey;
+}

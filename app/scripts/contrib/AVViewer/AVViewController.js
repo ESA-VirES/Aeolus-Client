@@ -32,6 +32,11 @@ define([
                 this.connectToView();
                 console.log('splitview connect');
             }.bind(this));
+
+            this.analyticsView.listenTo(
+                Communicator.mediator, 'layer:parameters:changed', 
+                _.bind(this.analyticsView.onLayerParametersChanged, this.analyticsView)
+            );
         },
 
         isActive: function(){
