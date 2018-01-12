@@ -153,7 +153,7 @@ var VECTOR_BREAKDOWN = {};
                 var range = [];
 
                 // Remove three first colors as they are used by the products
-                autoColor.getColor();autoColor.getColor();autoColor.getColor();
+                //autoColor.getColor();autoColor.getColor();autoColor.getColor();
 
                 // If there are already saved product config in the local
                 // storage use that instead
@@ -211,7 +211,7 @@ var VECTOR_BREAKDOWN = {};
                         satellite: product.satellite,
                         tileSize: (product.tileSize) ? product.tileSize : 256,
                         validity: product.validity,
-                        showColorscale: true
+                        showColorscale: defaultFor(product.showColorscale, true)
                     });
 
                     if(lm.get('model')){

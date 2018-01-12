@@ -177,8 +177,8 @@
                         $("#showColorscale").empty();
                         this.$("#showColorscale").append(
                             '<form style="vertical-align: middle;">'+
-                            '<label class="valign" for="outlines" style="width: 120px; margin">Legend </label>'+
-                            '<input class="valign" style="margin-top: -5px;" type="checkbox" name="outlines" value="outlines" ' + checked + '></input>'+
+                            '<label class="valign" for="showColorscale" style="width: 120px; margin">Legend </label>'+
+                            '<input class="valign" style="margin-top: -5px;" type="checkbox" name="showColorscale" value="showColorscale" ' + checked + '></input>'+
                             '</form>'
                         );
 
