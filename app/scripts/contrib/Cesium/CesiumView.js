@@ -217,6 +217,7 @@ define([
                 }
             };
 
+            this.$el.append('<div id="coordinates_label"></div>');
             this.$el.append('<div id="cesium_attribution"></div>');
             this.$el.append('<div id="cesium_custom_attribution"></div>');
             $('#cesium_custom_attribution').append(
@@ -335,6 +336,22 @@ define([
                 //hide the selectionIndicator
                 this.map.selectionIndicator.viewModel.selectionIndicatorElement.style.visibility = 'hidden'; 
             }.bind(this), Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+            handler.setInputAction(function(movement) {
+                var ellipsoid = Cesium.Ellipsoid.WGS84;
+                var position = this.map.scene.camera.pickEllipsoid(movement.endPosition, ellipsoid);
+                $('#coordinates_label').hide();
+                if (Cesium.defined(position)) {
+                    var cartographic = ellipsoid.cartesianToCartographic(position);
+                    var lat = Cesium.Math.toDegrees(cartographic.latitude);
+                    var lon = Cesium.Math.toDegrees(cartographic.longitude);
+                    //var height = cartographic.height;
+                    $('#coordinates_label').show();
+                    $('#coordinates_label').html(
+                        'Lat: ' + lat.toFixed(4) + '</br>Lon: '+lon.toFixed(4)
+                    );
+                }
+            }.bind(this), Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
             this.billboards = this.map.scene.primitives.add(
                 new Cesium.BillboardCollection()
@@ -677,6 +694,8 @@ define([
 
 
             height = 1000000;
+            var lineInstances = [];
+            var renderOutlines = defaultFor(currProd.get('outlines'), false);
 
             //TODO: How to correctly handle multiple curtains with jumps
 
@@ -715,71 +734,58 @@ define([
 
                 this.graph.loadData(dataSlice);
 
-                /*var newmat = new Cesium.Material({
-                    fabric : {
-                        uniforms : {
-                            image : this.graph.getCanvasImage(),
-                            repeat : new Cesium.Cartesian2(1.0, 1.0),
-                            alpha : alpha
-                        },
-                        components : {
-                            diffuse : 'texture2D(image, fract(repeat * materialInput.st)).rgb',
-                            alpha : 'texture2D(image, fract(repeat * materialInput.st)).a * alpha'
-                        }
-                    },
-                    flat: true,
-                    translucent : true
-                });*/
                 var newmat = new Cesium.Material.fromType('Image', {
                     image : this.graph.getCanvasImage(),
                     color: new Cesium.Color(1, 1, 1, alpha),
                 });
+                newmat.uniforms.repeat.x = -1;
 
 
                 var slicedPosData = data.positions.slice(start, end);
-                
-                /*for (var p = 0; p < slicedPosData.length; p++) {
-                    if(slicedPosData[p]>=180){
-                        slicedPosData[p] -=360;
+
+                if(renderOutlines){
+                    var slicedPosDataWithHeight = [];
+                    for (var p = 0; p < slicedPosData.length; p+=2) {
+                        slicedPosDataWithHeight.push(slicedPosData[p]);
+                        slicedPosDataWithHeight.push(slicedPosData[p+1]);
+                        slicedPosDataWithHeight.push(height);
                     }
+
+
+                    lineInstances.push(
+                        new Cesium.GeometryInstance({
+                            geometry : new Cesium.PolylineGeometry({
+                                positions : 
+                                Cesium.Cartesian3.fromDegreesArrayHeights(
+                                    slicedPosDataWithHeight
+                                ),
+                                width : 10.0
+                            })
+                        })
+                    );
+
+                    lineInstances.push(
+                        new Cesium.GeometryInstance({
+                            geometry : new Cesium.PolylineGeometry({
+                                positions : 
+                                Cesium.Cartesian3.fromDegreesArray(
+                                    slicedPosData
+                                ),
+                                width : 10.0
+                            })
+                        })
+                    );
                 }
-                console.log(slicedPosData.length);
-
-                var output = 'LINESTRING (';
-                for (var la = 0; la < slicedPosData.length; la+=2) {
-                  output+=
-                    slicedPosData[la]+' '+slicedPosData[(la+1)]+','
-                  ;
-                }
-                output = output.slice(0, -1); 
-                output+=')';
-                console.log(output);*/
-
-                // TODO: Add line so that path can be seen in 2D
-                // A polyline with two connected line segments
-                /*var polyline = new Cesium.PolylineGeometry({
-                  positions : Cesium.Cartesian3.fromDegreesArray([
-                    0.0, 0.0,
-                    5.0, 0.0,
-                    5.0, 5.0
-                  ]),
-                  width : 10.0
-                });
-                var geometry = Cesium.PolylineGeometry.createGeometry(polyline);*/
-
 
                 var maxHeights = [];
                 for (var j = 0; j <slicedPosData.length; j++) {
                     maxHeights.push(height);
                 }
-
                 var wall = new Cesium.WallGeometry({
                     positions : Cesium.Cartesian3.fromDegreesArray(slicedPosData),
                     maximumHeights : maxHeights,
                 });
-
                 var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
-
                 var instance = new Cesium.GeometryInstance({
                   geometry : wallGeometry
                 });
@@ -787,8 +793,9 @@ define([
                 // Check if normal is negative, if it is we need to flip the
                 // direction of the texture to be applied
                 if(wallGeometry.attributes.normal.values[0]<0){
-                    newmat.uniforms.repeat.x = -1;
+                    newmat.uniforms.repeat.x = 1;
                 }
+
                 var sliceAppearance = new Cesium.MaterialAppearance({
                     translucent : true,
                     flat: true,
@@ -796,7 +803,6 @@ define([
                     //closed: true,
                     material : newmat
                 });
-
 
                 //instances.push(instance);
                 var prim = new Cesium.Primitive({
@@ -809,53 +815,17 @@ define([
                 curtainCollection.add(prim);
             }
 
-            //currProd.curtains = curtainCollection;
-            //this.map.scene.primitives.add(curtainCollection);
-
-
-            /*var maxHeights = [];
-            for (var j = 0; j <data.positions.length; j++) {
-                maxHeights.push(height);
+            if(renderOutlines){
+                var linesPrim = new Cesium.Primitive({
+                    geometryInstances: lineInstances,
+                    appearance: new Cesium.PolylineMaterialAppearance({
+                        material : new Cesium.Material.fromType('PolylineArrow', {
+                            color: new Cesium.Color(0.53, 0.02, 0.65, 1)
+                        })
+                    })
+                });
+                curtainCollection.add(linesPrim);
             }
-
-            var wall = new Cesium.WallGeometry({
-                positions : Cesium.Cartesian3.fromDegreesArray(data.positions),
-                maximumHeights : maxHeights,
-            });
-
-            var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
-
-            var instance = new Cesium.GeometryInstance({
-              geometry : wallGeometry
-            });
-
-            instances.push(instance);
-
-
-            var prim = new Cesium.Primitive({
-              geometryInstances : instances,
-              appearance : sliceAppearance,
-              releaseGeometryInstances: false,
-              asynchronous: false
-            });
-
-            prim = this.map.scene.primitives.add(prim);
-
-            currProd.curtains = prim;*/
-
-            //this.curtainPrimitive = prim;
-
-            //var that = this;
-            //TODO: Handle cleanup of event handler correctly
-            //this.graph.removeListener('rendered');
-            /*this.graph.on('rendered', function(){
-                //console.log(this.getCanvasImage());
-                if(prim && prim.hasOwnProperty('_appearance') && prim._appearance){
-                    prim.appearance.material._textures.image.copyFrom(that.graph.getCanvas());
-                }
-            });*/
-
-
         },
 
         //method to create layer depending on protocol
@@ -1532,7 +1502,14 @@ define([
         },
 
         onLayerOutlinesChanged: function(collection){
-            this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
+            //this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
+            var data = globals.swarm.get('data');
+            if (Object.keys(data).length){
+                var idKeys = Object.keys(data);
+                for (var i = idKeys.length - 1; i >= 0; i--) {
+                    this.createCurtains(data[idKeys[i]], idKeys[i]);
+                }
+            }
         },
 
         OnLayerParametersChanged: function(layer){
@@ -1561,6 +1538,7 @@ define([
                     var covid = product.get('download').id;
                     var data = globals.swarm.get('data')[covid];
                     this.createCurtains(data, covid);
+                    this.checkColorscale(covid);
 
                     /*if (Object.keys(data).length){
                         //this.createDataFeatures(data, 'pointcollection', 'band');

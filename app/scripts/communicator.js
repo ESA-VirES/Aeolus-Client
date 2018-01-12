@@ -178,7 +178,9 @@
                     }
                 }
 
-                if(event === 'layer:parameters:changed'){
+                if(event === 'layer:parameters:changed' || 
+                   event ==='layer:outlines:changed' || 
+                   event ==='layer:colorscale:show'){
                     localStorage.setItem(
                         'productsConfig',
                         JSON.stringify(
