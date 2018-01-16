@@ -47,11 +47,11 @@ define([
             this.plot = null;
             this.curtainPrimitive = null;
 
-            $(window).resize(function() {
+            /*$(window).resize(function() {
                 if (this.map) {
                     this.onResize();
                 }
-            },this);
+            },this);*/
 
             plotty.addColorScale('redblue', ['#ff0000', '#0000ff'], [0, 1]);
             plotty.addColorScale('coolwarm', 
@@ -497,10 +497,17 @@ define([
             this.connectDataEvents();
 
             // Redraw to make sure we are at current selection
-            this.createDataFeatures(
+            /*this.createDataFeatures(
                 globals.swarm.get('data'),
                 'pointcollection', 'band'
-            );
+            );*/
+            var data = globals.swarm.get('data');
+            if (Object.keys(data).length){
+                var idKeys = Object.keys(data);
+                for (var i = idKeys.length - 1; i >= 0; i--) {
+                    this.createCurtains(data[idKeys[i]], idKeys[i]);
+                }
+            }
 
             $('#bb_selection').unbind('click');
             $('#bb_selection').click(function(){
@@ -1517,7 +1524,7 @@ define([
             // TODO: Rewrite all references to change layer to use download id and not name!
 
             var product = globals.products.find(
-                function(p){return p.get('name') === layer;}
+                function(p){return p.get('download').id === layer;}
             );
 
             if(product){
@@ -2156,6 +2163,7 @@ define([
 
 
         onClose: function(){
+            //this.graph.destroy();
             this.isClosed = true;
         },
 

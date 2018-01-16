@@ -18,7 +18,12 @@ define(['backbone.marionette',
             this.sp = undefined;
 
             $(window).resize(function() {
-              this.onResize();
+                if(this.graph1){
+                    this.graph1.resize();
+                }
+                if(this.graph2){
+                    this.graph2.resize();
+                }
             }.bind(this));
             this.connectDataEvents();
         },
@@ -38,15 +43,28 @@ define(['backbone.marionette',
             this.plotType = 'scatter';
             this.prevParams = [];
 
-
-            this.$('.d3canvas').remove();
-            this.$el.append('<div class="d3canvas"></div>');
-            this.$('.d3canvas').append('<div id="graph_1"></div>');
-            this.$('.d3canvas').append('<div id="graph_2"></div>');
-            this.$('.d3canvas').append('<div id="filterDivContainer"></div>');
-            this.$el.append('<div id="nodataavailable"></div>');
-            $('#nodataavailable').text('No data available for current selection');
-            this.$('#filterDivContainer').append('<div id="filters"></div>');
+            if (typeof this.graph1 === 'undefined' && 
+                typeof this.graph2 === 'undefined') {
+                /*this.graph1.destroy();
+                delete this.graph1;
+                this.graph2.destroy();
+                delete this.graph2;
+                this.$el.empty();*/
+                this.$el.append('<div class="d3canvas"></div>');
+                this.$('.d3canvas').append('<div id="graph_1"></div>');
+                this.$('.d3canvas').append('<div id="graph_2"></div>');
+                this.$('.d3canvas').append('<div id="filterDivContainer"></div>');
+                this.$el.append('<div id="nodataavailable"></div>');
+                $('#nodataavailable').text('No data available for current selection');
+                this.$('#filterDivContainer').append('<div id="filters"></div>');
+            }else{
+                if(this.graph1){
+                    this.graph1.resize();
+                }
+                if(this.graph2){
+                    this.graph2.resize();
+                }
+            }
 
 
             var renderSettings_mie = {
@@ -164,24 +182,17 @@ define(['backbone.marionette',
                         this.dataSettings[key].extent = parameters[key].range;
                     }
                 }, this);
-                
-
             }, this);
 
             if (this.graph1 === undefined){
-
-
                 this.filterManager = globals.swarm.get('filterManager');
-
                 this.graph1 = new graphly.graphly({
                     el: '#graph_1',
                     dataSettings: this.dataSettings,
                     renderSettings: renderSettings_mie,
                     filterManager: globals.swarm.get('filterManager')
                 });
-
                 globals.swarm.get('filterManager').setRenderNode('#filters');
-
             }
 
             if (this.graph2 === undefined){
@@ -195,111 +206,17 @@ define(['backbone.marionette',
                 this.graph1.connectGraph(this.graph2);
             }
 
+            var data = globals.swarm.get('data');
 
-            var swarmdata = globals.swarm.get('data');
-
-            /*var args = {
-                scatterEl: '#scatterdiv',
-                histoEl: '#parallelsdiv',
-                selection_x: 'Latitude',
-                selection_y: ['F'],
-                margin: {top: 10, right: 67, bottom: 10, left: 60},
-                histoMargin: {top: 55, right: 70, bottom: 25, left: 100},
-                shorten_width: 125,
-                toIgnoreHistogram: ['Latitude', 'Longitude', 'Radius'],
-                fieldsforfiltering: ['F','B_N', 'B_E', 'B_C', 'Dst', 'QDLat','MLT'],
-                single_color: true,
-                file_save_string: 'VirES_Services_plot_rendering'
-            };
-
-
-
-            args.filterListChanged = function(param){
-              localStorage.setItem('selectedFilterList', JSON.stringify(param));
-            };
-            args.xAxisSelectionChanged = function(param){
-              localStorage.setItem('xAxisSelection', JSON.stringify(param));
-            };
-            args.yAxisSelectionChanged = function(param){
-              localStorage.setItem('yAxisSelection', JSON.stringify(param));
-            };
-            args.filtersViewChanged = function(param){
-              localStorage.setItem('filterViewHidden', JSON.stringify(param));
-            };
-            args.gridSettingChanged = function(param){
-              localStorage.setItem('gridVisible', JSON.stringify(param));
-            };
-
-            if(localStorage.getItem('filterViewHidden') !== null){
-                args.filters_hidden = JSON.parse(
-                    localStorage.getItem('filterViewHidden')
-                );
-                if(args.filters_hidden){
-                    $('#scatterdiv').css('height', '95%');
-                    $('#parallelsdiv').css('height', '40px');
-                }
-            }
-            if(localStorage.getItem('gridVisible') !== null){
-                args.grid = JSON.parse(localStorage.getItem('gridVisible'));
-            }
-
-            var filterList = localStorage.getItem('selectedFilterList');
-            if(filterList !== null){
-                filterList = JSON.parse(filterList);
-                args.fieldsforfiltering = filterList;
-            }
-            if(localStorage.getItem('prevParams') !== null){
-                this.prevParams = JSON.parse(
-                    localStorage.getItem('prevParams')
-                );
-            }*/
-
-            /*if (this.sp === undefined){
-                this.sp = new scatterPlot(
-                    args, function(){},
-                    function (values) {
-                        if (values !== null){
-                            Communicator.mediator.trigger(
-                                'cesium:highlight:point',
-                                [values.Latitude, values.Longitude, values.Radius]
-                            );
-                        }else{
-                            Communicator.mediator.trigger('cesium:highlight:removeAll');
-                        }
-                    }, 
-                    function(filter){
-                        Communicator.mediator.trigger('analytics:set:filter', filter);
-                    }
-                );
-
-                 // If filters from previous session load them
-                if(localStorage.getItem('filterSelection') !== null){
-                    var filters = JSON.parse(localStorage.getItem('filterSelection'));
-                    Communicator.mediator.trigger('analytics:set:filter', filters);
-                    _.map(filters, function(value, key){
-                        that.sp.active_brushes.push(key);
-                        that.sp.brush_extents[key] = value;
-                    });
-                }
-
-                // If filters from previous session load them
-                if(localStorage.getItem('xAxisSelection') !== null){
-                    that.sp.sel_x = JSON.parse(localStorage.getItem('xAxisSelection'));
-                }
-                // If filters from previous session load them
-                if(localStorage.getItem('yAxisSelection') !== null){
-                    that.sp.sel_y = JSON.parse(localStorage.getItem('yAxisSelection'));
-                }
-
-            }*/
-
-            if(swarmdata && swarmdata.length>0){
-                args.parsedData = swarmdata;
-                //that.sp.loadData(args);
-                //that.filterManager.initManager();
-                that.graph1.loadData(data);
-                that.graph2.loadData(data);
-                that.filterManager.loadData(data);
+            if(Object.keys(data).length > 0){
+                $('#nodataavailable').hide();
+                //this.graph.loadData(data);
+                // TODO: Iterate through all ids and load to corresponding graphs
+                this.graph1.createHelperObjects();
+                this.graph2.createHelperObjects();
+                this.graph1.loadData(data['AEOLUS']);
+                this.graph2.loadData(data['AEOLUS']);
+                this.filterManager.loadData(data['AEOLUS']);
             }
             return this;
         }, //onShow end
@@ -335,7 +252,7 @@ define(['backbone.marionette',
         onLayerParametersChanged: function(layer){
 
             var currProd = globals.products.find(
-                function(p){return p.get('name') === layer;}
+                function(p){return p.get('download').id === layer;}
             );
 
             var parameters = currProd.get('parameters');
@@ -389,6 +306,15 @@ define(['backbone.marionette',
         },
 
         close: function() {
+            if(this.graph1){
+                this.graph1.destroy();
+            }
+            if(this.graph2){
+                this.graph2.destroy();
+            }
+
+            delete this.graph1;
+            delete this.graph2;
             this.isClosed = true;
             this.$el.empty();
             this.triggerMethod('view:disconnect');
