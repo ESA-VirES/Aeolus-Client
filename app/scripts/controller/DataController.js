@@ -25,7 +25,7 @@
         this.activeModels = [];
         this.selected_time = null;
 
-        var dataSettings = {
+        this.dataSettings = {
                 time: {
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
@@ -72,6 +72,7 @@
                 }
             };
 
+
         var filterSettings = {
             parameterMatrix: {
                 'height': [
@@ -90,7 +91,7 @@
                     'rayleigh_velocity_at_DEM_intersection', 'mie_velocity_at_DEM_intersection'
                 ]
             },
-            dataSettings: dataSettings,
+            dataSettings: this.dataSettings,
 
             filterRelation: [
                 [
@@ -172,6 +173,7 @@
         this.listenTo(Communicator.mediator, 'manual:init', this.onManualInit);
 
         this.listenTo(Communicator.mediator, "analytics:set:filter", this.onAnalyticsFilterChanged);
+        this.listenTo(Communicator.mediator, 'layer:parameters:changed', this.onLayerParametersChanged);
        
       },
 
@@ -193,6 +195,27 @@
             });*/
           }
         }
+        // Check for already defined data settings
+        globals.products.each(function(product) {
+
+            var currProd = globals.products.find(
+                function(p){
+                    return p.get('download').id === product.get('download').id;
+                }
+            );
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].hasOwnProperty('colorscale')){
+                    this.dataSettings[key].colorscale = parameters[key].colorscale;
+                }
+                if(parameters[key].hasOwnProperty('range')){
+                    this.dataSettings[key].extent = parameters[key].range;
+                }
+            }, this);
+        }, this);
       },
 
       checkModelValidity: function(){
@@ -314,6 +337,33 @@
 
         //this.checkModelValidity();
         this.checkSelections();
+      },
+
+
+      onLayerParametersChanged: function(layer){
+        var currProd = globals.products.find(
+            function(p){return p.get('download').id === layer;}
+        );
+
+        var parameters = currProd.get('parameters');
+        var band;
+        var keys = _.keys(parameters);
+        _.each(keys, function(key){
+            if(parameters[key].selected){
+                band = key;
+            }
+        });
+        var style = parameters[band].colorscale;
+        var range = parameters[band].range;
+
+        //this.filterManager.dataSettings[band].colorscale = style;
+        this.filterManager.dataSettings[band].extent = range;
+
+        //this.filterManager.updateDataSettings(this.filterManager.dataSettings);
+        //this.filterManager.updateDataSettings(this.filterManager.dataSettings);
+        this.filterManager._initData();
+        this.filterManager._renderFilters();
+
       },
       
 

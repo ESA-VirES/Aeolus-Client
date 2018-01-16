@@ -134,7 +134,7 @@
                         else
                             that.createScale();
 
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"));
+                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
                     });
 
                     this.$("#opacitysilder").unbind();
@@ -261,7 +261,7 @@
                     this.$("#contours input").change(function(evt){
                         var contours = !that.current_model.get("contours");
                         that.current_model.set("contours", contours);
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"));
+                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
                     });
                 }*/
 
@@ -387,7 +387,7 @@
                     $("#opacitysilder").parent().show();
                 }
 
-                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
 
                 // request range for selected parameter if layer is of type model
                 /*if(this.current_model.get("model") && this.selected != "Fieldlines"){
@@ -449,7 +449,7 @@
                             .always(this.handleRangeChange.bind(this));
                     }
                 }else{
-                    Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                    Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
                 }*/
 
             },
@@ -496,7 +496,7 @@
                 options[this.selected].range = range;
                 this.current_model.set("parameters", options);
                 this.createScale();
-                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
             },
 
             handleRangeResponseError: function(response){
@@ -518,7 +518,7 @@
                 else
                     this.createScale();
 
-                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
             },
 
             applyChanges: function(){
@@ -634,7 +634,7 @@
                     }else{
                         //Apply changes
                         this.current_model.set("parameters", options);
-                        Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                        Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
                     }
                 }
             },
@@ -707,7 +707,7 @@
                             options[that.selected].range = range;
                             that.current_model.set("parameters", options);
                             that.createScale();
-                            //Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                            //Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
                             Communicator.mediator.trigger("file:shc:loaded", evt.target.result);
 
                             var params = { name: that.current_model.get("name"), isBaseLayer: false, visible: false };
@@ -746,7 +746,7 @@
                         options[that.selected].logarithmic = !options[that.selected].logarithmic;
                         
                         that.current_model.set("parameters", options);
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"));
+                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
 
                         if(options[that.selected].hasOwnProperty("logarithmic"))
                             that.createScale(options[that.selected].logarithmic);
