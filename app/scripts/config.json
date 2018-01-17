@@ -130,7 +130,6 @@
         }],
         "products": [{
             "name": "ADM L1B",
-            "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "visible": true,
@@ -248,7 +247,6 @@
                     "name": "Frequency Valid"
                 },
                 "Ground_Frequency_Valid": {
-                    "selected": true,
                     "range": [0, 1],
                     "uom": "bool",
                     "colorscale": "redblue",

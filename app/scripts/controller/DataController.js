@@ -26,51 +26,131 @@
         this.selected_time = null;
 
         this.dataSettings = {
-                time: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                rayleigh_HLOS_wind_speed: {
-                    uom: 'm/s',
-                    colorscale: 'viridis',
-                    extent: [-40,40]
-                },
-                rayleigh_time_start: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                rayleigh_time_end: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                rayleigh_altitude:{
-                    name: 'altitude',
-                    uom: 'm'
-                },
-                mie_time_start: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                mie_time_end: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                mie_HLOS_wind_speed: {
-                    uom: 'm/s',
-                    colorscale: 'viridis',
-                    extent: [-20,20]
-                },
-                mie_altitude:{
-                    name: 'altitude',
-                    uom: 'm'
-                },
-                velocity_at_DEM_intersection: {
-                    uom: 'm/s'
-                },
-                geoid_separation: {
-                    uom: 'm'
-                }
-            };
+
+          // L1b
+
+          time: {
+              scaleFormat: 'time',
+              timeFormat: 'MJD2000_S'
+          },
+
+          rayleigh_HLOS_wind_speed: {
+              uom: 'm/s',
+              colorscale: 'viridis',
+              extent: [-40,40]
+              //outline: false
+          },
+          rayleigh_time_start: {
+              scaleFormat: 'time',
+              timeFormat: 'MJD2000_S'
+          },
+
+          rayleigh_time_end: {
+              scaleFormat: 'time',
+              timeFormat: 'MJD2000_S'
+          },
+          rayleigh_altitude:{
+              name: 'altitude',
+              uom: 'm'
+          },
+
+
+
+          mie_time_start: {
+              scaleFormat: 'time',
+              timeFormat: 'MJD2000_S'
+          },
+          mie_time_end: {
+              scaleFormat: 'time',
+              timeFormat: 'MJD2000_S'
+          },
+
+
+          mie_HLOS_wind_speed: {
+              uom: 'm/s',
+              colorscale: 'viridis',
+              extent: [-20,20]
+              //outline: false
+          },
+
+          mie_altitude:{
+              name: 'altitude',
+              uom: 'm'
+          },
+
+
+          // AUX MRC
+          Frequency_Valid: {
+              extent: [0, 1],
+              uom: 'bool',
+              colorscale: 'redblue',
+              name: 'Frequency Valid'
+          },
+          Reference_Pulse_Response_Valid: {
+              range: [0, 1],
+              uom: 'bool',
+              colorscale: 'redblue',
+              name: 'Reference Pulse Response Valid'
+          },
+          Measurement_Response_Valid: {
+              range: [0, 1],
+              uom: 'bool',
+              colorscale: 'redblue',
+              name: 'Measurement Response Valid'
+          },
+
+          // AUx RRC
+          Frequency_Valid: {
+              extent: [0, 1],
+              uom: 'boolean',
+              colorscale: 'redblue',
+              name: 'Frequency Valid'
+          },
+          Ground_Frequency_Valid: {
+              extent: [0, 1],
+              uom: 'bool',
+              colorscale: 'redblue',
+              name: 'Ground Frequency Valid'
+          },
+          Measurement_Response_Valid: {
+              extent: [0, 1],
+              uom: 'bool',
+              colorscale: 'redblue',
+              name: 'Measurement Response Valid'
+          },
+          Reference_Pulse_Response_Valid: {
+              extent: [0, 1],
+              uom: 'bool',
+              colorscale: 'redblue',
+              name: 'Reference Pulse Response Valid'
+          },
+          Ground_Measurement_Response_Valid: {
+              extent: [0, 1],
+              uom: 'bool',
+              colorscale: 'redblue',
+              name: 'Ground Measurement Response Valid'
+          },
+
+          // AUX IRC
+
+          
+
+          // AUX ZWC
+          Mie_Ground_Correction_Velocity: {
+              selected: true,
+              range: [0, 1],
+              uom: 'm/s',
+              colorscale: 'redblue',
+              name: 'Mie Ground Correction Velocity'
+          },
+          Rayleigh_Ground_Correction_Velocity: {
+              selected: true,
+              range: [0, 1],
+              uom: 'm/s',
+              colorscale: 'redblue',
+              name: 'Rayleigh Ground Correction Velocity'
+          }
+      };
 
 
         var filterSettings = {
