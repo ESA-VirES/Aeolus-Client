@@ -45,11 +45,6 @@ define(['backbone.marionette',
 
             if (typeof this.graph1 === 'undefined' && 
                 typeof this.graph2 === 'undefined') {
-                /*this.graph1.destroy();
-                delete this.graph1;
-                this.graph2.destroy();
-                delete this.graph2;
-                this.$el.empty();*/
                 this.$el.append('<div class="d3canvas"></div>');
                 this.$('.d3canvas').append('<div id="graph_1"></div>');
                 this.$('.d3canvas').append('<div id="graph_2"></div>');

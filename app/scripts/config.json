@@ -170,6 +170,187 @@
                     "name": "Time of observation"
                 }
             },
+            "outlines": true
+        },
+        {
+            "name": "AUX MRC",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "views": [{
+                "id": "AUX_MRC",
+                "protocol": "WPS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "AUX_MRC",
+                "protocol": "WPS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "process" : "aeolus:AUX_MRC",
+            "parameters": {
+                "Frequency_Valid": {
+                    "selected": true,
+                    "range": [0, 1],
+                    "uom": "bool",
+                    "colorscale": "redblue",
+                    "name": "Frequency Valid"
+                },
+                "Reference_Pulse_Response_Valid": {
+                    "range": [0, 1],
+                    "uom": "bool",
+                    "colorscale": "redblue",
+                    "name": "Reference Pulse Response Valid"
+                },
+                "Measurement_Response_Valid": {
+                    "range": [0, 1],
+                    "uom": "bool",
+                    "colorscale": "redblue",
+                    "name": "Measurement Response Valid"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                }
+            },
+            "outlines": false
+        },
+        {
+            "name": "AUX RRC",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "views": [{
+                "id": "AUX_RRC",
+                "protocol": "WPS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "AUX_RRC",
+                "protocol": "WPS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "process" : "aeolus:AUX_RRC",
+            "parameters": {
+                "Frequency_Valid": {
+                    "selected": true,
+                    "range": [0, 1],
+                    "uom": "bool",
+                    "colorscale": "redblue",
+                    "name": "Frequency Valid"
+                },
+                "Ground_Frequency_Valid": {
+                    "selected": true,
+                    "range": [0, 1],
+                    "uom": "bool",
+                    "colorscale": "redblue",
+                    "name": "Ground Frequency Valid"
+                },
+                "Measurement_Response_Valid": {
+                    "range": [0, 1],
+                    "uom": "bool",
+                    "colorscale": "redblue",
+                    "name": "Measurement Response Valid"
+                },
+                "Reference_Pulse_Response_Valid": {
+                    "range": [0, 1],
+                    "uom": "bool",
+                    "colorscale": "redblue",
+                    "name": "Reference Pulse Response Valid"
+                },
+                "Ground_Measurement_Response_Valid": {
+                    "range": [0, 1],
+                    "uom": "bool",
+                    "colorscale": "redblue",
+                    "name": "Ground Measurement Response Valid"
+                }
+                
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                }
+            },
+            "outlines": false
+        },
+        {
+            "name": "AUX ISR",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "views": [{
+                "id": "AUX_ISR",
+                "protocol": "WPS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "AUX_ISR",
+                "protocol": "WPS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "process" : "aeolus:AUX_ISR",
+            "parameters": {
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                }
+            },
+            "outlines": false
+        },{
+            "name": "AUX ZWC",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "views": [{
+                "id": "AUX_ZWC",
+                "protocol": "WPS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "AUX_ZWC",
+                "protocol": "WPS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "process" : "aeolus:AUX_ZWC",
+            "parameters": {
+                "Mie_Ground_Correction_Velocity": {
+                    "selected": true,
+                    "range": [0, 1],
+                    "uom": "m/s",
+                    "colorscale": "redblue",
+                    "name": "Mie Ground Correction Velocity"
+                },
+                "Rayleigh_Ground_Correction_Velocity": {
+                    "selected": true,
+                    "range": [0, 1],
+                    "uom": "m/s",
+                    "colorscale": "redblue",
+                    "name": "Rayleigh Ground Correction Velocity"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                }
+            },
             "outlines": false
         }],
         "overlays": [{
