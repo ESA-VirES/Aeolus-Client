@@ -306,8 +306,8 @@
 
 
       changeLayer: function(options) {
-        this.activeWPSproducts = [];
         if (!options.isBaseLayer){
+          this.activeWPSproducts = [];
           var product = globals.products.find(function(model) { return model.get('name') == options.name; });
           if (product){
             if(options.visible){
