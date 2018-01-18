@@ -23,7 +23,7 @@
                 'blackwhite','viridis','inferno', 'hsv','hot','cool',
                 'spring', 'summer','autumn','winter','bone','copper','yignbu',
                 'greens','yiorrd','bluered', 'portland', 'blackbody','earth',
-                'electric','magma','plasma'
+                'electric','magma','plasma', 'redblue'
             ],
 
             initialize: function(options) {

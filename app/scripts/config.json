@@ -176,7 +176,7 @@
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "views": [{
-                "id": "AUX_MRC",
+                "id": "AUX_MRC_1B",
                 "protocol": "WPS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -185,26 +185,26 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "AUX_MRC",
+                "id": "AUX_MRC_1B",
                 "protocol": "WPS",
                 "url": "http://localhost:9000/vires00/ows"
             },
-            "process" : "aeolus:AUX_MRC",
+            "process" : "aeolus:level1B:AUX",
             "parameters": {
-                "Frequency_Valid": {
+                "frequency_valid": {
                     "selected": true,
                     "range": [0, 1],
                     "uom": "bool",
                     "colorscale": "redblue",
                     "name": "Frequency Valid"
                 },
-                "Reference_Pulse_Response_Valid": {
+                "reference_pulse_response_valid": {
                     "range": [0, 1],
                     "uom": "bool",
                     "colorscale": "redblue",
                     "name": "Reference Pulse Response Valid"
                 },
-                "Measurement_Response_Valid": {
+                "measurement_response_valid": {
                     "range": [0, 1],
                     "uom": "bool",
                     "colorscale": "redblue",
@@ -224,7 +224,7 @@
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "views": [{
-                "id": "AUX_RRC",
+                "id": "AUX_RRC_1B",
                 "protocol": "WPS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -233,38 +233,38 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "AUX_RRC",
+                "id": "AUX_RRC_1B",
                 "protocol": "WPS",
                 "url": "http://localhost:9000/vires00/ows"
             },
-            "process" : "aeolus:AUX_RRC",
+            "process" : "aeolus:level1B:AUX",
             "parameters": {
-                "Frequency_Valid": {
+                "frequency_valid": {
                     "selected": true,
                     "range": [0, 1],
                     "uom": "bool",
                     "colorscale": "redblue",
                     "name": "Frequency Valid"
                 },
-                "Ground_Frequency_Valid": {
+                "ground_frequency_valid": {
                     "range": [0, 1],
                     "uom": "bool",
                     "colorscale": "redblue",
                     "name": "Ground Frequency Valid"
                 },
-                "Measurement_Response_Valid": {
+                "measurement_response_valid": {
                     "range": [0, 1],
                     "uom": "bool",
                     "colorscale": "redblue",
                     "name": "Measurement Response Valid"
                 },
-                "Reference_Pulse_Response_Valid": {
+                "reference_pulse_response_valid": {
                     "range": [0, 1],
                     "uom": "bool",
                     "colorscale": "redblue",
                     "name": "Reference Pulse Response Valid"
                 },
-                "Ground_Measurement_Response_Valid": {
+                "ground_measurement_response_valid": {
                     "range": [0, 1],
                     "uom": "bool",
                     "colorscale": "redblue",
@@ -285,7 +285,7 @@
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "views": [{
-                "id": "AUX_ISR",
+                "id": "AUX_ISR_1B",
                 "protocol": "WPS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -294,11 +294,11 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "AUX_ISR",
+                "id": "AUX_ISR_1B",
                 "protocol": "WPS",
                 "url": "http://localhost:9000/vires00/ows"
             },
-            "process" : "aeolus:AUX_ISR",
+            "process" : "aeolus:level1B:AUX",
             "parameters": {
             },
             "download_parameters": {
@@ -313,7 +313,7 @@
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "views": [{
-                "id": "AUX_ZWC",
+                "id": "AUX_ZWC_1B",
                 "protocol": "WPS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -322,11 +322,11 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "AUX_ZWC",
+                "id": "AUX_ZWC_1B",
                 "protocol": "WPS",
                 "url": "http://localhost:9000/vires00/ows"
             },
-            "process" : "aeolus:AUX_ZWC",
+            "process" : "aeolus:level1B:AUX",
             "parameters": {
                 "Mie_Ground_Correction_Velocity": {
                     "selected": true,

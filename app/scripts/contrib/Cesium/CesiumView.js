@@ -39,6 +39,7 @@ define([
             this.activeModels = [];
             this.activeCollections = [];
             this.activeCurtainCollections = [];
+            this.activePointsCollections = [];
             this.differenceImage = null;
             this.dataFilters = {};
             this.colorscales = {};
@@ -126,132 +127,7 @@ define([
 
             };
 
-            this.dataSettings = {
-
-                // L1b
-
-                time: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-
-                rayleigh_HLOS_wind_speed: {
-                    uom: 'm/s',
-                    colorscale: 'viridis',
-                    extent: [-40,40]
-                    //outline: false
-                },
-                rayleigh_time_start: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-
-                rayleigh_time_end: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                rayleigh_altitude:{
-                    name: 'altitude',
-                    uom: 'm'
-                },
-
-
-
-                mie_time_start: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                mie_time_end: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-
-
-                mie_HLOS_wind_speed: {
-                    uom: 'm/s',
-                    colorscale: 'viridis',
-                    extent: [-20,20]
-                    //outline: false
-                },
-
-                mie_altitude:{
-                    name: 'altitude',
-                    uom: 'm'
-                },
-
-
-                // AUX MRC
-                Frequency_Valid: {
-                    extent: [0, 1],
-                    uom: 'bool',
-                    colorscale: 'redblue',
-                    name: 'Frequency Valid'
-                },
-                Reference_Pulse_Response_Valid: {
-                    range: [0, 1],
-                    uom: 'bool',
-                    colorscale: 'redblue',
-                    name: 'Reference Pulse Response Valid'
-                },
-                Measurement_Response_Valid: {
-                    range: [0, 1],
-                    uom: 'bool',
-                    colorscale: 'redblue',
-                    name: 'Measurement Response Valid'
-                },
-
-                // AUx RRC
-                Frequency_Valid: {
-                    extent: [0, 1],
-                    uom: 'boolean',
-                    colorscale: 'redblue',
-                    name: 'Frequency Valid'
-                },
-                Ground_Frequency_Valid: {
-                    extent: [0, 1],
-                    uom: 'bool',
-                    colorscale: 'redblue',
-                    name: 'Ground Frequency Valid'
-                },
-                Measurement_Response_Valid: {
-                    extent: [0, 1],
-                    uom: 'bool',
-                    colorscale: 'redblue',
-                    name: 'Measurement Response Valid'
-                },
-                Reference_Pulse_Response_Valid: {
-                    extent: [0, 1],
-                    uom: 'bool',
-                    colorscale: 'redblue',
-                    name: 'Reference Pulse Response Valid'
-                },
-                Ground_Measurement_Response_Valid: {
-                    extent: [0, 1],
-                    uom: 'bool',
-                    colorscale: 'redblue',
-                    name: 'Ground Measurement Response Valid'
-                },
-
-                // AUX IRC
-
-                
-
-                // AUX ZWC
-                Mie_Ground_Correction_Velocity: {
-                    selected: true,
-                    range: [0, 1],
-                    uom: 'm/s',
-                    colorscale: 'redblue',
-                    name: 'Mie Ground Correction Velocity'
-                },
-                Rayleigh_Ground_Correction_Velocity: {
-                    selected: true,
-                    range: [0, 1],
-                    uom: 'm/s',
-                    colorscale: 'redblue',
-                    name: 'Rayleigh Ground Correction Velocity'
-                }
-            };
+            this.dataSettings = globals.dataSettings;
 
 
             $('body').append($('<div/>', {
@@ -279,7 +155,11 @@ define([
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
                         //this.graph.loadData(data[idKeys[i]]);
-                        that.createCurtains(data[idKeys[i]], idKeys[i]);
+                        if(idKeys[i] === 'AEOLUS'){
+                            that.createCurtains(data[idKeys[i]], idKeys[i]);
+                        } else {
+                            that.createPointCollection(data[idKeys[i]], idKeys[i]);
+                        }
                     }
                 }
 
@@ -600,7 +480,11 @@ define([
             if (Object.keys(data).length){
                 var idKeys = Object.keys(data);
                 for (var i = idKeys.length - 1; i >= 0; i--) {
-                    this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    if(idKeys[i] === 'AEOLUS'){
+                        this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    } else {
+                        this.createPointCollection(data[idKeys[i]], idKeys[i]);
+                    }
                 }
             }
 
@@ -636,12 +520,20 @@ define([
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
                         //this.graph.loadData(data[idKeys[i]]);
-                        this.createCurtains(data[idKeys[i]], idKeys[i]);
+                        if(idKeys[i] === 'AEOLUS'){
+                            this.createCurtains(data[idKeys[i]], idKeys[i]);
+                        } else {
+                            this.createPointCollection(data[idKeys[i]], idKeys[i]);
+                        }
                     }
                 }else{
                     for (var i = 0; i < this.activeCurtainCollections.length; i++) {
                         this.activeCurtainCollections[i].removeAll();
                     }
+                    for (var i = 0; i < this.activePointsCollections.length; i++) {
+                        this.activePointsCollections[i].removeAll();
+                    }
+
                     /*for (var i = 0; i < this.activeCollections.length; i++) {
                         if(this.featuresCollection.hasOwnProperty(this.activeCollections[i])){
                             this.map.scene.primitives.remove(
@@ -1098,14 +990,19 @@ define([
 
             if(product){
                 if(product.hasOwnProperty('curtains')){
-                    //product.curtain.appearance.material._textures.image.copyFrom(that.graph.getCanvas());
-
-                    
                     for (var i = 0; i < product.curtains._primitives.length; i++) {
                         product.curtains._primitives[i].appearance.material.uniforms.color.alpha = options.value;//.clone();
                     }
-                    //c.alpha = options.value;
-                    //product.curtain.appearance.material.uniforms.color = c;
+                }
+                if(product.hasOwnProperty('points')){
+                    for (var i = 0; i < product.points._pointPrimitives.length; i++) {
+                        var b = product.points.get(i);
+                        if(b.color){
+                            var c = b.color.clone();
+                            c.alpha = options.value;
+                            b.color = c;
+                        }
+                    }
                 }
             }
 
@@ -1376,6 +1273,89 @@ define([
         },
 
 
+        createPointCollection: function(data, cov_id, alpha, height){
+
+            var currProd = globals.products.find(
+                function(p){return p.get('download').id === cov_id;}
+            );
+
+            var pointCollection;
+
+            if(!this.map.scene.context._gl.getExtension('EXT_frag_depth')){
+                pointCollection._rs = 
+                    Cesium.RenderState.fromCache({
+                        depthTest : {
+                            enabled : true,
+                            func : Cesium.DepthFunction.LESS
+                        },
+                        depthMask : false,
+                        blending : Cesium.BlendingState.ALPHA_BLEND
+                    });
+            }
+
+            if(currProd.hasOwnProperty('points')){
+                currProd.points.removeAll();
+                pointCollection = currProd.points;
+                /*this.map.scene.primitives.remove(currProd.curtains);
+                delete currProd.curtains;*/
+            }else{
+                pointCollection = new Cesium.PointPrimitiveCollection();
+                this.activePointsCollections.push(pointCollection);
+                this.map.scene.primitives.add(pointCollection);
+                currProd.points = pointCollection;
+            }
+
+            //alpha = 0.99;
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
+
+            alpha = currProd.get('opacity');
+
+            /*this.dataSettings[band].colorscale = style;
+            this.dataSettings[band].extent = range;
+            this.graph.dataSettings = this.dataSettings;*/
+
+            height = 1000000;
+            var renderOutlines = defaultFor(currProd.get('outlines'), false);
+
+            this.plot.setColorScale(style);
+            this.plot.setDomain(range);
+
+            var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
+            
+
+            for (var i = 0; i < data[band].length; i++) {
+                var color = this.plot.getColor(data[band][i]);
+                var options = {
+                    position : new Cesium.Cartesian3.fromDegrees(
+                        data['lon_of_DEM_intersection'][i],
+                        data['lat_of_DEM_intersection'][i],
+                        height
+                    ),
+                    color : new Cesium.Color.fromBytes(
+                        color[0], color[1], color[2], alpha*255
+                    ),
+                    pixelSize : 8,
+                    scaleByDistance : scaltype
+                };
+
+                pointCollection.add(options);
+            }
+
+            this.map.scene.primitives.add(pointCollection);
+
+        },
+
+
         createDataFeatures: function (results){
             if(results.length>0){
                 // The feature collections are removed directly when a change happens
@@ -1609,7 +1589,11 @@ define([
             if (Object.keys(data).length){
                 var idKeys = Object.keys(data);
                 for (var i = idKeys.length - 1; i >= 0; i--) {
-                    this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    if(idKeys[i] === 'AEOLUS'){
+                        this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    } else {
+                        this.createPointCollection(data[idKeys[i]], idKeys[i]);
+                    }
                 }
             }
         },
@@ -1641,15 +1625,13 @@ define([
                     var data = globals.swarm.get('data')[covid];
                     this.createCurtains(data, covid);
                     this.checkColorscale(covid);
+                }
 
-                    /*if (Object.keys(data).length){
-                        //this.createDataFeatures(data, 'pointcollection', 'band');
-                        var idKeys = Object.keys(data);
-                        for (var i = idKeys.length - 1; i >= 0; i--) {
-                            //this.graph.loadData(data[idKeys[i]]);
-                            this.createCurtains(data[idKeys[i]], idKeys[i], 'mie');
-                        }
-                    }*/
+                if(product.hasOwnProperty('points')){
+                    var covid = product.get('download').id;
+                    var data = globals.swarm.get('data')[covid];
+                    this.createPointCollection(data, covid);
+                    this.checkColorscale(covid);
                 }
             }
 

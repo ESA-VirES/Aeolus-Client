@@ -61,176 +61,65 @@ define(['backbone.marionette',
                 }
             }
 
-
-            var renderSettings_mie = {
-                xAxis: [
-                    'time'
-                ],
-                yAxis: [
-                    'mie_altitude'
-                ],
-                //y2Axis: [],
-                combinedParameters: {
-                    mie_latitude: ['mie_latitude_start', 'mie_latitude_end'],
-                    mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
-                    latitude_of_DEM_intersection: [
-                        'mie_latitude_of_DEM_intersection_start',
-                        'mie_latitude_of_DEM_intersection_end'
+            this.renderSettings = {
+                rayleigh: {
+                    xAxis: [
+                        'time'
                     ],
-                    time: ['mie_time_start', 'mie_time_end'],
-                },
-                colorAxis: ['mie_HLOS_wind_speed']
-
-            };
-
-            var renderSettings_rayleigh = {
-                xAxis: [
-                    'time'
-                ],
-                yAxis: [
-                    'rayleigh_altitude'
-                ],
-                //y2Axis: [],
-                combinedParameters: {
-                    rayleigh_latitude: ['rayleigh_latitude_start', 'rayleigh_latitude_end'],
-                    rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
-                    latitude_of_DEM_intersection: [
-                        'rayleigh_latitude_of_DEM_intersection_start',
-                        'rayleigh_latitude_of_DEM_intersection_end'
+                    yAxis: [
+                        'rayleigh_altitude'
                     ],
-                    time: ['rayleigh_time_start', 'rayleigh_time_end'],
-                },
-                colorAxis: ['rayleigh_HLOS_wind_speed']
+                    combinedParameters: {
+                        rayleigh_latitude: ['rayleigh_latitude_start', 'rayleigh_latitude_end'],
+                        rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
+                        latitude_of_DEM_intersection: [
+                            'rayleigh_latitude_of_DEM_intersection_start',
+                            'rayleigh_latitude_of_DEM_intersection_end'
+                        ],
+                        time: ['rayleigh_time_start', 'rayleigh_time_end'],
+                    },
+                    colorAxis: ['rayleigh_HLOS_wind_speed']
 
-            };
+                },
+                mie: {
+                    xAxis: [
+                    'time'
+                    ],
+                    yAxis: [
+                        'mie_altitude'
+                    ],
+                    //y2Axis: [],
+                    combinedParameters: {
+                        mie_latitude: ['mie_latitude_start', 'mie_latitude_end'],
+                        mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
+                        latitude_of_DEM_intersection: [
+                            'mie_latitude_of_DEM_intersection_start',
+                            'mie_latitude_of_DEM_intersection_end'
+                        ],
+                        time: ['mie_time_start', 'mie_time_end'],
+                    },
+                    colorAxis: ['mie_HLOS_wind_speed']
 
-            this.dataSettings = {
-
-                // L1b
-
-                time: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
                 },
-
-                rayleigh_HLOS_wind_speed: {
-                    uom: 'm/s',
-                    colorscale: 'viridis',
-                    extent: [-40,40]
-                    //outline: false
+                AUX_MRC_1B: {
+                    xAxis: ['frequency_offset'],
+                    yAxis: ['measurement_error_mie_response'],
+                    colorAxis: [ null ],
                 },
-                rayleigh_time_start: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
+                AUX_RRC_1B: {
+                    xAxis: ['frequency_offset'],
+                    yAxis: ['measurement_error_rayleigh_response'],
+                    colorAxis: [ null ]
                 },
-
-                rayleigh_time_end: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                rayleigh_altitude:{
-                    name: 'altitude',
-                    uom: 'm'
-                },
-
-
-
-                mie_time_start: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                mie_time_end: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-
-
-                mie_HLOS_wind_speed: {
-                    uom: 'm/s',
-                    colorscale: 'viridis',
-                    extent: [-20,20]
-                    //outline: false
-                },
-
-                mie_altitude:{
-                    name: 'altitude',
-                    uom: 'm'
-                },
-
-
-                // AUX MRC
-                Frequency_Valid: {
-                    extent: [0, 1],
-                    uom: 'bool',
-                    colorscale: 'redblue',
-                    name: 'Frequency Valid'
-                },
-                Reference_Pulse_Response_Valid: {
-                    range: [0, 1],
-                    uom: 'bool',
-                    colorscale: 'redblue',
-                    name: 'Reference Pulse Response Valid'
-                },
-                Measurement_Response_Valid: {
-                    range: [0, 1],
-                    uom: 'bool',
-                    colorscale: 'redblue',
-                    name: 'Measurement Response Valid'
-                },
-
-                // AUx RRC
-                Frequency_Valid: {
-                    extent: [0, 1],
-                    uom: 'boolean',
-                    colorscale: 'redblue',
-                    name: 'Frequency Valid'
-                },
-                Ground_Frequency_Valid: {
-                    extent: [0, 1],
-                    uom: 'bool',
-                    colorscale: 'redblue',
-                    name: 'Ground Frequency Valid'
-                },
-                Measurement_Response_Valid: {
-                    extent: [0, 1],
-                    uom: 'bool',
-                    colorscale: 'redblue',
-                    name: 'Measurement Response Valid'
-                },
-                Reference_Pulse_Response_Valid: {
-                    extent: [0, 1],
-                    uom: 'bool',
-                    colorscale: 'redblue',
-                    name: 'Reference Pulse Response Valid'
-                },
-                Ground_Measurement_Response_Valid: {
-                    extent: [0, 1],
-                    uom: 'bool',
-                    colorscale: 'redblue',
-                    name: 'Ground Measurement Response Valid'
-                },
-
-                // AUX IRC
-
-                
-
-                // AUX ZWC
-                Mie_Ground_Correction_Velocity: {
-                    selected: true,
-                    range: [0, 1],
-                    uom: 'm/s',
-                    colorscale: 'redblue',
-                    name: 'Mie Ground Correction Velocity'
-                },
-                Rayleigh_Ground_Correction_Velocity: {
-                    selected: true,
-                    range: [0, 1],
-                    uom: 'm/s',
-                    colorscale: 'redblue',
-                    name: 'Rayleigh Ground Correction Velocity'
+                AUX_ISR_1B: {
+                    xAxis: ['time_freq_step', 'time_freq_step'],
+                    yAxis: ['Rayleigh_A_Response', 'Rayleigh_B_Response'],
+                    colorAxis: [ null, null ]
                 }
             };
 
+
+            this.dataSettings = globals.dataSettings;
 
             // Check for already defined data settings
             globals.products.each(function(product) {
@@ -259,7 +148,7 @@ define(['backbone.marionette',
                 this.graph1 = new graphly.graphly({
                     el: '#graph_1',
                     dataSettings: this.dataSettings,
-                    renderSettings: renderSettings_mie,
+                    renderSettings: this.renderSettings.mie,
                     filterManager: globals.swarm.get('filterManager')
                 });
                 globals.swarm.get('filterManager').setRenderNode('#filters');
@@ -269,7 +158,7 @@ define(['backbone.marionette',
                 this.graph2 = new graphly.graphly({
                     el: '#graph_2',
                     dataSettings: this.dataSettings,
-                    renderSettings: renderSettings_rayleigh,
+                    renderSettings: this.renderSettings.rayleigh,
                     filterManager: globals.swarm.get('filterManager'),
                     connectedGraph: this.graph1
                 });
@@ -282,11 +171,32 @@ define(['backbone.marionette',
                 $('#nodataavailable').hide();
                 //this.graph.loadData(data);
                 // TODO: Iterate through all ids and load to corresponding graphs
+
                 this.graph1.createHelperObjects();
                 this.graph2.createHelperObjects();
-                this.graph1.loadData(data['AEOLUS']);
-                this.graph2.loadData(data['AEOLUS']);
-                this.filterManager.loadData(data['AEOLUS']);
+
+                if(idKeys[0] === 'AEOLUS'){
+                    this.graph1.renderSettings =  this.renderSettings.mie;
+                    this.graph2.renderSettings =  this.renderSettings.rayleigh;
+                    $('#graph_1').css('height', '30%');
+                    $('#graph_2').css('height', '30%');
+                    $('#graph_2').show();
+                    this.graph1.loadData(data['AEOLUS']);
+                    this.graph2.loadData(data['AEOLUS']);
+                    this.graph2.resize();
+                    this.graph1.connectGraph(this.graph2);
+                    this.filterManager.loadData(data['AEOLUS']);
+
+                }else /*if(idKeys[0] === 'AUX_MRC_1B')*/{
+                    this.graph1.connectGraph(false);
+                    $('#graph_1').css('height', '60%');
+                    $('#graph_2').hide();
+                    this.graph1.renderSettings = this.renderSettings[idKeys[0]];
+                    this.graph1.loadData(data[idKeys[0]]);
+                    this.graph1.resize();
+                    this.filterManager.loadData(data[idKeys[0]]);
+                }
+
             }
             return this;
         }, //onShow end
@@ -321,31 +231,33 @@ define(['backbone.marionette',
 
         onLayerParametersChanged: function(layer){
 
-            var currProd = globals.products.find(
-                function(p){return p.get('download').id === layer;}
-            );
+            // Parameters only apply for L1B curtains (possibly L2B)
+            if(layer === 'AEOLUS'){
+                var currProd = globals.products.find(
+                    function(p){return p.get('download').id === layer;}
+                );
 
-            var parameters = currProd.get('parameters');
-            var band;
-            var keys = _.keys(parameters);
-            _.each(keys, function(key){
-                if(parameters[key].selected){
-                    band = key;
-                }
-            });
-            var style = parameters[band].colorscale;
-            var range = parameters[band].range;
+                var parameters = currProd.get('parameters');
+                var band;
+                var keys = _.keys(parameters);
+                _.each(keys, function(key){
+                    if(parameters[key].selected){
+                        band = key;
+                    }
+                });
+                var style = parameters[band].colorscale;
+                var range = parameters[band].range;
 
-            this.dataSettings[band].colorscale = style;
-            this.dataSettings[band].extent = range;
-            //this.graph.dataSettings = this.dataSettings;
-            this.graph1.updateSettings = this.dataSettings;
-            this.graph1.renderData(false);
-            this.graph1.createHelperObjects();
-            this.graph2.dataSettings = this.dataSettings;
-            this.graph2.renderData(false);
-            this.graph2.createHelperObjects();
-
+                this.dataSettings[band].colorscale = style;
+                this.dataSettings[band].extent = range;
+                //this.graph.dataSettings = this.dataSettings;
+                this.graph1.updateSettings = this.dataSettings;
+                this.graph1.renderData(false);
+                this.graph1.createHelperObjects();
+                this.graph2.dataSettings = this.dataSettings;
+                this.graph2.renderData(false);
+                this.graph2.createHelperObjects();
+            }
         },
 
         reloadData: function(model, data) {
@@ -353,13 +265,28 @@ define(['backbone.marionette',
             if( $(this.el).html()){
 
                 //this.filterManager.initManager();
-                if(Object.keys(data).length > 0){
+                var idKeys = Object.keys(data);
+                if(idKeys.length > 0){
                     $('#nodataavailable').hide();
                     //this.graph.loadData(data);
                     // TODO: Iterate through all ids and load to corresponding graphs
-                    this.graph1.loadData(data['AEOLUS']);
-                    this.graph2.loadData(data['AEOLUS']);
-                    this.filterManager.loadData(data['AEOLUS']);
+                    if(idKeys[0] === 'AEOLUS'){
+                        this.graph1.renderSettings =  this.renderSettings.mie;
+                        this.graph2.renderSettings =  this.renderSettings.rayleigh;
+                        this.graph1.loadData(data['AEOLUS']);
+                        this.graph2.loadData(data['AEOLUS']);
+                        this.graph1.connectGraph(this.graph2);
+                        this.filterManager.loadData(data['AEOLUS']);
+
+                    }else /*if(idKeys[0] === 'AUX_MRC_1B')*/{
+                        this.graph1.connectGraph(false);
+                        $('#graph_1').css('height', '60%');
+                        $('#graph_2').hide();
+                        this.graph1.renderSettings = this.renderSettings[idKeys[0]];
+                        this.graph1.loadData(data[idKeys[0]]);
+                        this.graph1.resize();
+                        this.filterManager.loadData(data[idKeys[0]]);
+                    }
                 }else{
                     $('#nodataavailable').show();
                     /*$('#graph_1').append('div').text('No data available for selection');
