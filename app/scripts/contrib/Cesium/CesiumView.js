@@ -1276,6 +1276,12 @@ define([
 
         createPointCollection: function(data, cov_id, alpha, height){
 
+            if(!data.hasOwnProperty('lon_of_DEM_intersection')){
+                // If data does not have required position information
+                // do not try to render it
+                return;
+            }
+
             var currProd = globals.products.find(
                 function(p){return p.get('download').id === cov_id;}
             );
@@ -1866,6 +1872,10 @@ define([
                     }
                 });
 
+                if(sel === false){
+                    return;
+                }
+
                 var rangeMin = product.get('parameters')[sel].range[0];
                 var rangeMax = product.get('parameters')[sel].range[1];
                 var uom = product.get('parameters')[sel].uom;
@@ -1883,101 +1893,100 @@ define([
                     .attr('height', 60)
                     .attr('id', 'svgcolorscalecontainer');
 
-                    if(logscale){
-                        axisScale = d3.scale.log();
-                    }else{
-                        axisScale = d3.scale.linear();
+                if(logscale){
+                    axisScale = d3.scale.log();
+                }else{
+                    axisScale = d3.scale.linear();
+                }
+
+                axisScale.domain([rangeMin, rangeMax]);
+                axisScale.range([0, scalewidth]);
+
+                var xAxis = d3.svg.axis()
+                    .scale(axisScale);
+
+                if(logscale){
+                    var numberFormat = d3.format(',f');
+                    function logFormat(d) {
+                        var x = Math.log(d) / Math.log(10) + 1e-6;
+                        return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
                     }
+                     xAxis.tickFormat(logFormat);
 
-                    axisScale.domain([rangeMin, rangeMax]);
-                    axisScale.range([0, scalewidth]);
-
-                    var xAxis = d3.svg.axis()
-                        .scale(axisScale);
-
-                    if(logscale){
-                        var numberFormat = d3.format(',f');
-                        function logFormat(d) {
-                            var x = Math.log(d) / Math.log(10) + 1e-6;
-                            return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
-                        }
-                         xAxis.tickFormat(logFormat);
-
-                    }else{
-                        var step = (rangeMax - rangeMin)/5;
-                        xAxis.tickValues(
-                            d3.range(rangeMin,rangeMax+step, step)
-                        );
-                        xAxis.tickFormat(d3.format('g'));
-                    }
-
-                    var g = svgContainer.append('g')
-                        .attr('class', 'x axis')
-                        .attr('transform', 'translate(' + [margin, 20]+')')
-                        .call(xAxis);
-
-                    // Add layer info
-                    var info = product.get('name');
-                    info += ' - ' + sel;
-                    if(uom){
-                        info += ' ['+uom+']';
-                    }
-
-                     g.append('text')
-                        .style('text-anchor', 'middle')
-                        .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
-                        .attr('font-weight', 'bold')
-                        .text(info);
-
-                    svgContainer.selectAll('text')
-                        .attr('stroke', 'none')
-                        .attr('fill', 'black')
-                        .attr('font-weight', 'bold');
-
-                    svgContainer.selectAll('.tick').select('line')
-                        .attr('stroke', 'black');
-
-                    svgContainer.selectAll('.axis .domain')
-                        .attr('stroke-width', '2')
-                        .attr('stroke', '#000')
-                        .attr('shape-rendering', 'crispEdges')
-                        .attr('fill', 'none');
-
-                    svgContainer.selectAll('.axis path')
-                        .attr('stroke-width', '2')
-                        .attr('shape-rendering', 'crispEdges')
-                        .attr('stroke', '#000');
-
-                    var svgHtml = d3.select('#svgcolorscalecontainer')
-                        .attr('version', 1.1)
-                        .attr('xmlns', 'http://www.w3.org/2000/svg')
-                        .node().innerHTML;
-
-                    var renderHeight = 55;
-                    var renderWidth = width;
-
-                    var index = Object.keys(this.colorscales).length;
-
-                    var prim = this.map.scene.primitives.add(
-                        this.createViewportQuad(
-                            this.renderSVG(svgHtml, renderWidth, renderHeight),
-                            0, index*55+5, renderWidth, renderHeight
-                        )
+                }else{
+                    var step = (rangeMax - rangeMin)/5;
+                    xAxis.tickValues(
+                        d3.range(rangeMin,rangeMax+step, step)
                     );
-                    var csPrim = this.map.scene.primitives.add(
-                        this.createViewportQuad(
-                            colorscaleimage, 20, index*55 +42, scalewidth, 10
-                        )
-                    );
+                    xAxis.tickFormat(d3.format('g'));
+                }
 
-                    this.colorscales[pId] = {
-                        index: index,
-                        prim: prim,
-                        csPrim: csPrim
-                    };
+                var g = svgContainer.append('g')
+                    .attr('class', 'x axis')
+                    .attr('transform', 'translate(' + [margin, 20]+')')
+                    .call(xAxis);
 
-                    svgContainer.remove();
-                
+                // Add layer info
+                var info = product.get('name');
+                info += ' - ' + sel;
+                if(uom){
+                    info += ' ['+uom+']';
+                }
+
+                 g.append('text')
+                    .style('text-anchor', 'middle')
+                    .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
+                    .attr('font-weight', 'bold')
+                    .text(info);
+
+                svgContainer.selectAll('text')
+                    .attr('stroke', 'none')
+                    .attr('fill', 'black')
+                    .attr('font-weight', 'bold');
+
+                svgContainer.selectAll('.tick').select('line')
+                    .attr('stroke', 'black');
+
+                svgContainer.selectAll('.axis .domain')
+                    .attr('stroke-width', '2')
+                    .attr('stroke', '#000')
+                    .attr('shape-rendering', 'crispEdges')
+                    .attr('fill', 'none');
+
+                svgContainer.selectAll('.axis path')
+                    .attr('stroke-width', '2')
+                    .attr('shape-rendering', 'crispEdges')
+                    .attr('stroke', '#000');
+
+                var svgHtml = d3.select('#svgcolorscalecontainer')
+                    .attr('version', 1.1)
+                    .attr('xmlns', 'http://www.w3.org/2000/svg')
+                    .node().innerHTML;
+
+                var renderHeight = 55;
+                var renderWidth = width;
+
+                var index = Object.keys(this.colorscales).length;
+
+                var prim = this.map.scene.primitives.add(
+                    this.createViewportQuad(
+                        this.renderSVG(svgHtml, renderWidth, renderHeight),
+                        0, index*55+5, renderWidth, renderHeight
+                    )
+                );
+                var csPrim = this.map.scene.primitives.add(
+                    this.createViewportQuad(
+                        colorscaleimage, 20, index*55 +42, scalewidth, 10
+                    )
+                );
+
+                this.colorscales[pId] = {
+                    index: index,
+                    prim: prim,
+                    csPrim: csPrim
+                };
+
+                svgContainer.remove();
             }
 
         },

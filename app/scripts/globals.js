@@ -85,7 +85,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 timeFormat: 'MJD2000_S'
             },
             'measurement_error_mie_response': {
-                uom: 'ACCD pixel index'
+                uom: 'ACCD pixel index',
+                regression: 'polynomial'
             },
             'ground_frequency_valid': {
                 extent: [0, 1],
@@ -100,7 +101,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 name: 'Ground Measurement Response Valid'
             },
             'measurement_error_rayleigh_response': {
-                uom: 'ACCD pixel index'
+                uom: 'ACCD pixel index',
+                regression: 'polynomial'
             },
             'measurement_response':{
                 uom: 'ACCD pixel index'
@@ -116,17 +118,50 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             },
 
             // AUX IRC
+            'rayleigh_channel_A_response':{
+                uom: 'a.u.',
+                displayName: 'Channel A',
+                symbol: 'circle_empty',
+                lineConnect: true
+            },
+            'rayleigh_channel_B_response':{
+                uom: 'a.u.',
+                displayName: 'Channel B',
+                symbol: 'rectangle_empty',
+                lineConnect: true
+            },
+            
+            'laser_frequency_offset':{
+                uom: 'GHz'
+            },
+            
+            'fizeau_transmission':{
+                uom: 'a.u.'
+            },
+            'mie_response':{
+                uom: 'ACCD pixel index'
+            },
+            'mean_laser_energy_mie':{
+                uom: 'mj'
+            },
+            'mean_laser_energy_rayleigh':{
+                uom: 'mj'
+            },
+            'FWHM_mie_core_2':{
+                uom: 'ACCD pixel index'
+            },
+            
 
 
             // AUX ZWC
-            'Mie_Ground_Correction_Velocity': {
+            'mie_ground_correction_velocity': {
                 selected: true,
                 range: [0, 1],
                 uom: 'm/s',
                 colorscale: 'redblue',
                 name: 'Mie Ground Correction Velocity'
             },
-            'Rayleigh_Ground_Correction_Velocity': {
+            'rayleigh_ground_correction_velocity': {
                 selected: true,
                 range: [0, 1],
                 uom: 'm/s',

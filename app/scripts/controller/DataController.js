@@ -78,7 +78,10 @@
                 'reference_pulse_error_rayleigh_response',
                 'ground_measurement_response',
                 'ground_measurement_error_rayleigh_response',
-                'reference_pulse_error_mie_response'
+                'reference_pulse_error_mie_response',
+                'rayleigh_channel_A_response', 'rayleigh_channel_B_response',
+                'fizeau_transmission','mie_response','mean_laser_energy_mie',
+                'mean_laser_energy_rayleigh','FWHM_mie_core_2'
                 // 'measurement_response_valid','reference_pulse_response_valid',
 
             ],
@@ -563,9 +566,25 @@
             'reference_pulse_response', 'reference_pulse_error_rayleigh_response',
             'reference_pulse_response_valid', 'ground_measurement_response',
             'ground_measurement_error_rayleigh_response'
+          ].join(),
+          'AUX_ISR_1B': [
+            'rayleigh_channel_A_response', 'rayleigh_channel_B_response',
+            'laser_frequency_offset',
+            'fizeau_transmission','mie_response','mean_laser_energy_mie',
+            'mean_laser_energy_rayleigh','FWHM_mie_core_2'
+          ].join(),
+          'AUX_ZWC_1B': [
+            'lat_of_DEM_intersection', 'lon_of_DEM_intersection',
+            'mie_ground_correction_velocity',
+            'rayleigh_ground_correction_velocity',
+            'roll_angle', 'pitch_angle','yaw_angle','num_of_mie_ground_bins',
+            'rayleigh_avg_ground_echo_bin_thickness',
+            'mie_avg_ground_echo_bin_thickness_above_DEM', 'rayleigh_avg_ground_echo_bin_thickness_above_DEM',
+            'rayleigh_channel_A_ground_SNR_meas'
+            // issue 'min_avg_ground_echo_thickness', 'mie_channel_A_ground_SNR_meas'
+            // 2D 'mie_range', 'rayleigh_range',
           ].join()
 
-           
         }
 
         if(collectionId === 'AEOLUS'){

@@ -112,8 +112,8 @@ define(['backbone.marionette',
                     colorAxis: [ null ]
                 },
                 AUX_ISR_1B: {
-                    xAxis: ['time_freq_step', 'time_freq_step'],
-                    yAxis: ['Rayleigh_A_Response', 'Rayleigh_B_Response'],
+                    xAxis: 'laser_frequency_offset',
+                    yAxis: ['rayleigh_channel_A_response', 'rayleigh_channel_B_response'],
                     colorAxis: [ null, null ]
                 }
             };

@@ -60,6 +60,13 @@
                     trigger: 'manual'
                 });
 
+                // If this model parameters is empty remove settings button
+                var par = this.model.get('parameters');
+                if(typeof par === 'undefined' || 
+                    Object.keys(par).length === 0 && par.constructor === Object){
+                    this.$el.find('.fa-sliders').hide();
+                }
+
                 var that = this;
 
                 if(this.model.get("containerproduct")){

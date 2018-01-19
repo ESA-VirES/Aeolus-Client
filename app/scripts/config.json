@@ -328,14 +328,14 @@
             },
             "process" : "aeolus:level1B:AUX",
             "parameters": {
-                "Mie_Ground_Correction_Velocity": {
+                "mie_ground_correction_velocity": {
                     "selected": true,
                     "range": [0, 1],
                     "uom": "m/s",
                     "colorscale": "redblue",
                     "name": "Mie Ground Correction Velocity"
                 },
-                "Rayleigh_Ground_Correction_Velocity": {
+                "rayleigh_ground_correction_velocity": {
                     "selected": true,
                     "range": [0, 1],
                     "uom": "m/s",
