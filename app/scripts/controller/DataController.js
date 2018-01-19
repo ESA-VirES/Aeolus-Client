@@ -24,6 +24,7 @@
         this.activeWPSproducts = [];
         this.activeModels = [];
         this.selected_time = null;
+        this.previousCollection = '';
 
         this.dataSettings = globals.dataSettings;
 
@@ -599,9 +600,14 @@
             var ds = data[collectionId];
 
             if($.isEmptyObject(ds)){
-                globals.swarm.set({data: {}});
-                return;
-              }
+              globals.swarm.set({data: {}});
+              return;
+            }
+
+            if(that.previousCollection !== collectionId){
+              that.previousCollection = collectionId;
+              that.filterManager.resetManager();
+            }
 
             if(collectionId === 'AEOLUS'){
 
@@ -743,7 +749,7 @@
               //resData[collectionId] = ds;
               globals.swarm.set({data: tmpdata});
               // TODO: Merge data for filtermanager?
-              //that.filterManager.loadData(tmpdata);
+              that.filterManager.loadData(tmpdata[collectionId]);
 
             }
         };

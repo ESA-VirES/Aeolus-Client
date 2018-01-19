@@ -183,12 +183,16 @@ define(['backbone.marionette',
                     $('#graph_2').show();
                     this.graph1.loadData(data['AEOLUS']);
                     this.graph2.loadData(data['AEOLUS']);
+                    this.graph1.resize();
                     this.graph2.resize();
                     this.graph1.connectGraph(this.graph2);
+                    this.graph2.connectGraph(this.graph1);
                     this.filterManager.loadData(data['AEOLUS']);
 
                 }else /*if(idKeys[0] === 'AUX_MRC_1B')*/{
+                    this.graph2.data = {};
                     this.graph1.connectGraph(false);
+                    this.graph2.connectGraph(false);
                     $('#graph_1').css('height', '60%');
                     $('#graph_2').hide();
                     this.graph1.renderSettings = this.renderSettings[idKeys[0]];
@@ -273,15 +277,23 @@ define(['backbone.marionette',
                     if(idKeys[0] === 'AEOLUS'){
                         this.graph1.renderSettings =  this.renderSettings.mie;
                         this.graph2.renderSettings =  this.renderSettings.rayleigh;
+                        $('#graph_1').css('height', '30%');
+                        $('#graph_2').css('height', '30%');
+                        $('#graph_2').show();
                         this.graph1.loadData(data['AEOLUS']);
                         this.graph2.loadData(data['AEOLUS']);
+                        this.graph1.resize();
+                        this.graph2.resize();
                         this.graph1.connectGraph(this.graph2);
+                        this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['AEOLUS']);
 
                     }else /*if(idKeys[0] === 'AUX_MRC_1B')*/{
-                        this.graph1.connectGraph(false);
+                        this.graph2.data = {};
                         $('#graph_1').css('height', '60%');
                         $('#graph_2').hide();
+                        this.graph1.connectGraph(false);
+                        this.graph2.connectGraph(false);
                         this.graph1.renderSettings = this.renderSettings[idKeys[0]];
                         this.graph1.loadData(data[idKeys[0]]);
                         this.graph1.resize();

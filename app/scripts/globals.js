@@ -81,7 +81,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 uom: 'deg'
             },
             'time_freq_step':{
-                uom: null
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
             },
             'measurement_error_mie_response': {
                 uom: 'ACCD pixel index'

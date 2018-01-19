@@ -114,179 +114,59 @@
             onChange: function(evt){
 
                 var visible = evt.target.checked;
-                var that = this;
-
-                if(this.model.get("containerproduct")){
-
-                    var cs = {};
-                    if(localStorage.getItem('containerSelection') !== null){
-                        cs = JSON.parse(localStorage.getItem('containerSelection'));
-                    }
-                    cs[this.model.get('id')] = visible;
-                    localStorage.setItem('containerSelection', JSON.stringify(cs));
-                    
-
-                    if(visible){
-                        this.model.set("visible", true);
-
-                    }else{
-                        this.model.set("visible", false);
-
-                        var product_keys = _.keys(globals.swarm.products[this.model.get("id")]);
-
-                        for (var i = product_keys.length - 1; i >= 0; i--) {
-                            globals.products.forEach(function(p){
-                                if(p.get("download").id == globals.swarm.products[that.model.get("id")][product_keys[i]]){
-                                    if(p.get("visible")){
-                                        p.set("visible", false);
-                                        Communicator.mediator.trigger('map:layer:change', {
-                                            name: p.get("name"),
-                                            isBaseLayer: false,
-                                            visible: false
-                                        });
-                                        var indexofactiveproduct = globals.swarm.activeProducts.indexOf(p.get("download").id);
-                                        globals.swarm.activeProducts.splice(indexofactiveproduct, 1);
-                                    }
-                                }
-                            });
-                        }
-                    }
-
-                    if(visible){
-
-                        if($('#alphacheck').is(':checked')){
-                            if(globals.swarm.activeProducts.indexOf(globals.swarm.products[this.model.get("id")]['Alpha']) == -1){
-                                globals.swarm.activeProducts.push(globals.swarm.products[this.model.get("id")]['Alpha']);
-                            }
-                        }
-                        if ($('#bravocheck').is(':checked')){
-                            if(globals.swarm.activeProducts.indexOf(globals.swarm.products[this.model.get("id")]['Bravo']) == -1){
-                                globals.swarm.activeProducts.push(globals.swarm.products[this.model.get("id")]['Bravo']);
-                            }
-                        }
-                        if($('#charliecheck').is(':checked')){
-                            if(globals.swarm.activeProducts.indexOf(globals.swarm.products[this.model.get("id")]['Charlie']) == -1){
-                                globals.swarm.activeProducts.push(globals.swarm.products[this.model.get("id")]['Charlie']);
-                            }
-                        }
-                        if($('#nsccheck').is(':checked')){
-                            if(globals.swarm.activeProducts.indexOf(globals.swarm.products[this.model.get("id")]['NSC']) == -1){
-                                globals.swarm.activeProducts.push(globals.swarm.products[this.model.get("id")]['NSC']);
-                            }
-                        }
-                    }
-
-                    // Activate all other layers
-                    for (var i = globals.swarm.activeProducts.length - 1; i >= 0; i--) {
-
-                        globals.products.forEach(function(p){
-
-                            if(p.get("download").id == globals.swarm.activeProducts[i]){
-                                if(!p.get("visible")){
-                                    p.set("visible", true);
-                                    Communicator.mediator.trigger('map:layer:change', {
-                                        name: p.get("name"),
-                                        isBaseLayer: false,
-                                        visible: true
-                                    });
-                                }
-                                
-                            }
-                        });
-                    }
-                    Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
-
-                }else{
-                    var isBaseLayer = false;
-                    if (this.model.get('view').isBaseLayer)
-                        isBaseLayer = true;
-
-                    var options = { name: this.model.get('name'), isBaseLayer: isBaseLayer, visible: visible };
-
-
-                    if( !isBaseLayer && evt.target.checked ){
-
-                        var layer = globals.products.find(function(model) { return model.get('name') == options.name; });
-                        if (layer != -1  && !(typeof layer === 'undefined')) {
-
-                            if(options.visible)
-                                this.model.set("visible", true);
-                            else
-                                this.model.set("visible", false);
-
-                            // TODO: Here we should go through all views, or maybe only url is necessary?
-                            var url = layer.get('views')[0].urls[0]+"?";
-                            
-
-                            if (url.indexOf('https') > -1){
-
-                                var layer = layer.get('views')[0].id;
-                                var req = "LAYERS=" + layer + "&TRANSPARENT=true&FORMAT=image%2Fpng&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&SRS=EPSG%3A4326";
-                                req += "&BBOX=33.75,56.25,33.80,56.50&WIDTH=2&HEIGHT=2";
-                                req = url + req;
-
-                                $.ajax({
-                                    url: req,
-                                    type: "GET",
-                                    suppressErrors: true,
-                                    xhrFields: {
-                                      withCredentials: true
-                                    },
-                                    success: function(xml, textStatus, xhr) {
-                                        Communicator.mediator.trigger('map:layer:change', options);
-                                    },
-                                    error: function(jqXHR, textStatus, errorThrown) {
-                                        if (jqXHR.status == 403){
-                                            showMessage('warning','You are not authorized to access this product.', 20);
-                                        }else{
-                                            this.authview = new av.AuthView({
-                                                model: new am.AuthModel({url:req}),
-                                                template: iFrameTmpl,
-                                                layerprop: options
-                                            });
-                                            Communicator.mediator.trigger("progress:change", false);
-                                            App.optionsBar.show(this.authview);
-                                        }
-                                    }
-                                });
-                            /*}else if(this.model.get('views')[0].protocol == "WPS"){
-                                if(this.model.get('shc')){
-                                    // If an shc file was loaded acticate layer as normal
-                                    Communicator.mediator.trigger('map:layer:change', options);
-                                }else{
-                                    // If an shc file is not loaded open settings and show message to select shc file
-                                    if (_.isUndefined(App.layerSettings.isClosed) || App.layerSettings.isClosed) {
-                                        App.layerSettings.setModel(this.model);
-                                        App.optionsBar.show(App.layerSettings);
-                                    } else {
-                                        if(App.layerSettings.sameModel(this.model)){
-                                            App.optionsBar.close();
-                                        }else{
-                                            App.layerSettings.setModel(this.model);
-                                            App.optionsBar.show(App.layerSettings);
-                                        }
-                                    }
-                                    showMessage('info','Please click on Upload SHC and select a spherical harmonics coefficients file before activating this layer.', 20);
-
-                                    var checkbox = $( "input[type$='checkbox']", this.$el);
-                                    //checkbox.attr('checked', false);
-                                    checkbox.prop( "checked", false );
-                                    //checkbox.disableSelection();
-                                }*/
-
-                            }else{
-                                Communicator.mediator.trigger('map:layer:change', options);
-                            }
-                        }else if (typeof layer === 'undefined'){
-                            Communicator.mediator.trigger('map:layer:change', options);
-                        }
-                    } else if (!evt.target.checked){
-                        Communicator.mediator.trigger('map:layer:change', options);
-
-                    } else if (isBaseLayer && evt.target.checked){
-                        Communicator.mediator.trigger('map:layer:change', options);
-                    }
+                var isBaseLayer = false;
+                if (this.model.get('view').isBaseLayer){
+                    isBaseLayer = true;
                 }
+                var options = { 
+                    name: this.model.get('name'),
+                    isBaseLayer: isBaseLayer,
+                    visible: visible 
+                };
+
+                var product = globals.products.find(
+                    function(p){return p.get('name') === options.name;}
+                );
+                if(product){
+                    // TODO: Think how can manage all different datatype
+                    //       of the aeolus mission
+                    // If a product is being activated we deactivate all
+                    // other products
+                    globals.products.each(function(p) {
+                        if(p.get('download').id !== product.get('download').id &&
+                            p.get('visible')){
+                            p.set('visible', false);
+                            Communicator.mediator.trigger('map:layer:change', { 
+                                name: p.get('name'), isBaseLayer: false, visible: false 
+                            });
+
+                            //p.set('visible', false);
+                            /*Communicator.mediator.trigger(
+                                'layer:activate',  p.get('download').id
+                            );*/
+                        }
+                       
+                    });
+                }
+                if(typeof product === 'undefined'){
+                    product = globals.overlays.find(
+                        function(p){return p.get('name') === options.name;}
+                    );
+                }
+                if(typeof product === 'undefined'){
+                    product = globals.baseLayers.find(
+                        function(p){return p.get('name') === options.name;}
+                    );
+                }
+
+                if(product){
+                    this.model.set('visible', options.visible);
+                    //product.set('visible', options.visible);
+                    Communicator.mediator.trigger('map:layer:change', options);
+                }
+
+                
+
             },
 
             drop: function(event, index) {

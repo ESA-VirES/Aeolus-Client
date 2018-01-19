@@ -158,6 +158,7 @@ define([
                         if(idKeys[i] === 'AEOLUS'){
                             that.createCurtains(data[idKeys[i]], idKeys[i]);
                         } else {
+                            that.graph.data = {};
                             that.createPointCollection(data[idKeys[i]], idKeys[i]);
                         }
                     }
@@ -519,10 +520,10 @@ define([
                     //this.createDataFeatures(data, 'pointcollection', 'band');
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
-                        //this.graph.loadData(data[idKeys[i]]);
                         if(idKeys[i] === 'AEOLUS'){
                             this.createCurtains(data[idKeys[i]], idKeys[i]);
                         } else {
+                            this.graph.data = {};
                             this.createPointCollection(data[idKeys[i]], idKeys[i]);
                         }
                     }
@@ -1110,7 +1111,7 @@ define([
 
                 globals.products.each(function(product) {
                     if(product.get('name') === options.name){
-                        product.set('visible', options.visible);
+                        //product.set('visible', options.visible);
                         this.checkColorscale(product.get('download').id);
 
                         if (product.get('views')[0].protocol === 'WPS'){
