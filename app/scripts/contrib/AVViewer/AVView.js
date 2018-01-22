@@ -103,10 +103,20 @@ define(['backbone.marionette',
                 },
                 AUX_MRC_1B: {
                     xAxis: ['frequency_offset'],
+                    yAxis: ['measurement_response'],
+                    colorAxis: [ null ],
+                },
+                AUX_MRC_1B_error: {
+                    xAxis: ['frequency_offset'],
                     yAxis: ['measurement_error_mie_response'],
                     colorAxis: [ null ],
                 },
                 AUX_RRC_1B: {
+                    xAxis: ['frequency_offset'],
+                    yAxis: ['measurement_response'],
+                    colorAxis: [ null ]
+                },
+                AUX_RRC_1B_error: {
                     xAxis: ['frequency_offset'],
                     yAxis: ['measurement_error_rayleigh_response'],
                     colorAxis: [ null ]
@@ -173,6 +183,9 @@ define(['backbone.marionette',
             var data = globals.swarm.get('data');
 
             if(Object.keys(data).length > 0){
+
+                
+
                 $('#nodataavailable').hide();
                 //this.graph.loadData(data);
                 // TODO: Iterate through all ids and load to corresponding graphs
@@ -180,11 +193,13 @@ define(['backbone.marionette',
                 this.graph1.createHelperObjects();
                 this.graph2.createHelperObjects();
 
-                if(idKeys[0] === 'AEOLUS'){
+                // TODO: Seems this is never called?
+
+                /*if(idKeys[0] === 'AEOLUS'){
                     this.graph1.renderSettings =  this.renderSettings.mie;
                     this.graph2.renderSettings =  this.renderSettings.rayleigh;
-                    $('#graph_1').css('height', '30%');
-                    $('#graph_2').css('height', '30%');
+                    $('#graph_1').css('height', '49%').css('height', '-=131px');
+                    $('#graph_2').css('height', '49%').css('height', '-=131px');
                     $('#graph_2').show();
                     this.graph1.loadData(data['AEOLUS']);
                     this.graph2.loadData(data['AEOLUS']);
@@ -194,17 +209,29 @@ define(['backbone.marionette',
                     this.graph2.connectGraph(this.graph1);
                     this.filterManager.loadData(data['AEOLUS']);
 
-                }else /*if(idKeys[0] === 'AUX_MRC_1B')*/{
+                }else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
+                    this.graph1.renderSettings =  this.renderSettings[idKeys[0]];
+                    this.graph2.renderSettings =  this.renderSettings[(idKeys[0]+'_error')];
+                    $('#graph_1').css('height', '49%').css('height', '-=131px');
+                    $('#graph_2').css('height', '49%').css('height', '-=131px');
+                    $('#graph_2').show();
+                    this.graph1.loadData(data[idKeys[0]]);
+                    this.graph2.loadData(data[idKeys[0]]);
+                    this.graph1.resize();
+                    this.graph2.resize();
+                    this.filterManager.loadData(data[idKeys[0]]);
+
+                }else{
                     this.graph2.data = {};
                     this.graph1.connectGraph(false);
                     this.graph2.connectGraph(false);
-                    $('#graph_1').css('height', '60%');
+                    $('#graph_1').css('height', '99%').css('height', '-=262px');
                     $('#graph_2').hide();
                     this.graph1.renderSettings = this.renderSettings[idKeys[0]];
                     this.graph1.loadData(data[idKeys[0]]);
                     this.graph1.resize();
                     this.filterManager.loadData(data[idKeys[0]]);
-                }
+                }*/
 
             }
             return this;
@@ -282,8 +309,8 @@ define(['backbone.marionette',
                     if(idKeys[0] === 'AEOLUS'){
                         this.graph1.renderSettings =  this.renderSettings.mie;
                         this.graph2.renderSettings =  this.renderSettings.rayleigh;
-                        $('#graph_1').css('height', '30%');
-                        $('#graph_2').css('height', '30%');
+                        $('#graph_1').css('height', '49%').css('height', '-=131px');
+                        $('#graph_2').css('height', '49%').css('height', '-=131px');
                         $('#graph_2').show();
                         this.graph1.loadData(data['AEOLUS']);
                         this.graph2.loadData(data['AEOLUS']);
@@ -293,9 +320,23 @@ define(['backbone.marionette',
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['AEOLUS']);
 
+                     }else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
+                        this.graph1.renderSettings =  this.renderSettings[idKeys[0]];
+                        this.graph2.renderSettings =  this.renderSettings[(idKeys[0]+'_error')];
+                        $('#graph_2').show();
+                        $('#graph_1').css('height', '49%').css('height', '-=131px');
+                        $('#graph_2').css('height', '49%').css('height', '-=131px');
+                        this.graph1.loadData(data[idKeys[0]]);
+                        this.graph2.loadData(data[idKeys[0]]);
+                        this.graph1.resize();
+                        this.graph2.resize();
+                        this.graph1.connectGraph(this.graph2);
+                        this.graph2.connectGraph(this.graph1);
+                        this.filterManager.loadData(data[idKeys[0]]);
+
                     }else /*if(idKeys[0] === 'AUX_MRC_1B')*/{
                         this.graph2.data = {};
-                        $('#graph_1').css('height', '60%');
+                        $('#graph_1').css('height', '99%').css('height', '-=262px');
                         $('#graph_2').hide();
                         this.graph1.connectGraph(false);
                         this.graph2.connectGraph(false);

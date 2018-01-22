@@ -1331,7 +1331,7 @@ define([
             this.dataSettings[band].extent = range;
             this.graph.dataSettings = this.dataSettings;*/
 
-            height = 1000000;
+            height = 0;
             var renderOutlines = defaultFor(currProd.get('outlines'), false);
 
             this.plot.setColorScale(style);
@@ -1345,8 +1345,8 @@ define([
                 var options = {
                     position : new Cesium.Cartesian3.fromDegrees(
                         data['lon_of_DEM_intersection'][i],
-                        data['lat_of_DEM_intersection'][i],
-                        height
+                        data['lat_of_DEM_intersection'][i]/*,
+                        height*/
                     ),
                     color : new Cesium.Color.fromBytes(
                         color[0], color[1], color[2], alpha*255
