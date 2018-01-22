@@ -24,54 +24,9 @@
         this.activeWPSproducts = [];
         this.activeModels = [];
         this.selected_time = null;
+        this.previousCollection = '';
 
-        this.dataSettings = {
-                time: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                rayleigh_HLOS_wind_speed: {
-                    uom: 'm/s',
-                    colorscale: 'viridis',
-                    extent: [-40,40]
-                },
-                rayleigh_time_start: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                rayleigh_time_end: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                rayleigh_altitude:{
-                    name: 'altitude',
-                    uom: 'm'
-                },
-                mie_time_start: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                mie_time_end: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                mie_HLOS_wind_speed: {
-                    uom: 'm/s',
-                    colorscale: 'viridis',
-                    extent: [-20,20]
-                },
-                mie_altitude:{
-                    name: 'altitude',
-                    uom: 'm'
-                },
-                velocity_at_DEM_intersection: {
-                    uom: 'm/s'
-                },
-                geoid_separation: {
-                    uom: 'm'
-                }
-            };
-
+        this.dataSettings = globals.dataSettings;
 
         var filterSettings = {
             parameterMatrix: {
@@ -110,11 +65,32 @@
                 ]
             ],
             visibleFilters: [
+                // L1B
                 'mie_quality_flag_data', 'mie_HLOS_wind_speed',
                 'geoid_separation','velocity_at_DEM_intersection',
-                'rayleigh_quality_flag_data', 'rayleigh_HLOS_wind_speed'
+                'rayleigh_quality_flag_data', 'rayleigh_HLOS_wind_speed',
+                // AUX MRC RRC
+                'measurement_response', 
+                'measurement_error_mie_response',
+                'reference_pulse_response', 
+                'mie_core_measurement_FWHM',
+                'measurement_error_rayleigh_response',
+                'reference_pulse_error_rayleigh_response',
+                'ground_measurement_response',
+                'ground_measurement_error_rayleigh_response',
+                'reference_pulse_error_mie_response',
+                'rayleigh_channel_A_response', 'rayleigh_channel_B_response',
+                'fizeau_transmission','mie_response','mean_laser_energy_mie',
+                'mean_laser_energy_rayleigh','FWHM_mie_core_2',
+                // AUX ZWC
+                'mie_ground_correction_velocity','rayleigh_ground_correction_velocity',
+                'mie_avg_ground_echo_bin_thickness_above_DEM', 'rayleigh_avg_ground_echo_bin_thickness_above_DEM',
+
+
+                // 'measurement_response_valid','reference_pulse_response_valid',
+
             ],
-            //boolParameter: [],
+            boolParameter: [/*'measurement_response_valid','reference_pulse_response_valid'*/],
             maskParameter: {
               'mie_quality_flag_data': {
                   values: [
@@ -306,8 +282,8 @@
 
 
       changeLayer: function(options) {
-        this.activeWPSproducts = [];
         if (!options.isBaseLayer){
+          this.activeWPSproducts = [];
           var product = globals.products.find(function(model) { return model.get('name') == options.name; });
           if (product){
             if(options.visible){
@@ -562,16 +538,75 @@
 
         var urlBase = product.get('download').url;
 
+
+        //http://localhost:8401/ows?service=wps&request=execute&identifier=aeolus:level1B:AUX&DataInputs=collection_ids=[%22AUX_ISR_1B%22];begin_time=2012-10-01T08:08:31.817Z;end_time=2015-10-01T08:09:31.817Z;fields=mie_valid;aux_type=ISR&RawDataOutput=output
+        var collectionId = product.get('download').id;
+        var parameters = '';
+        var fieldsList = {
+          'AEOLUS': [
+              'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
+              'mie_HLOS_wind_speed','mie_altitude','mie_bin_quality_flag',
+              'mie_signal_intensity','mie_ground_velocity',
+              'rayleigh_HLOS_wind_speed','rayleigh_altitude',
+              'rayleigh_bin_quality_flag','rayleigh_signal_channel_A_intensity',
+              'rayleigh_signal_channel_B_intensity','rayleigh_ground_velocity',
+              'geoid_separation','velocity_at_DEM_intersection'
+               //';measurement_fields=time,mie_HLOS_wind_speed,latitude_of_DEM_intersection,mie_altitude,mie_bin_quality_flag'+//'bbox=0,1,2,3,urn:ogc:def:crs:EPSG::3857'+
+              //';measurement_fields=time'+//'bbox=0,1,2,3,urn:ogc:def:crs:EPSG::3857'
+          ].join(),
+          'AUX_MRC_1B': [
+            'lat_of_DEM_intersection', 'lon_of_DEM_intersection', 'time_freq_step',
+            'frequency_offset', 'frequency_valid',
+            'measurement_response', 'measurement_response_valid',
+            'measurement_error_mie_response',
+            'reference_pulse_response', 'reference_pulse_response_valid',
+            'mie_core_measurement_FWHM', 'reference_pulse_error_mie_response'
+          ].join(),
+          'AUX_RRC_1B': [
+            'lat_of_DEM_intersection', 'lon_of_DEM_intersection', 'time_freq_step',
+            'frequency_offset', 'frequency_valid', 'ground_frequency_valid',
+            'measurement_response', 'measurement_response_valid',
+            'measurement_error_rayleigh_response',
+            'ground_measurement_response_valid',
+            'reference_pulse_response', 'reference_pulse_error_rayleigh_response',
+            'reference_pulse_response_valid', 'ground_measurement_response',
+            'ground_measurement_error_rayleigh_response'
+          ].join(),
+          'AUX_ISR_1B': [
+            'rayleigh_channel_A_response', 'rayleigh_channel_B_response',
+            'laser_frequency_offset',
+            'fizeau_transmission','mie_response','mean_laser_energy_mie',
+            'mean_laser_energy_rayleigh','FWHM_mie_core_2'
+          ].join(),
+          'AUX_ZWC_1B': [
+            'lat_of_DEM_intersection', 'lon_of_DEM_intersection',
+            'mie_ground_correction_velocity',
+            'rayleigh_ground_correction_velocity',
+            'roll_angle', 'pitch_angle','yaw_angle','num_of_mie_ground_bins',
+            'rayleigh_avg_ground_echo_bin_thickness',
+            'mie_avg_ground_echo_bin_thickness_above_DEM', 'rayleigh_avg_ground_echo_bin_thickness_above_DEM',
+            'rayleigh_channel_A_ground_SNR_meas', 'mie_DEM_ground_bin'
+            // issue 'min_avg_ground_echo_thickness', 'mie_channel_A_ground_SNR_meas'
+            // 2D 'mie_range', 'rayleigh_range',
+          ].join()
+
+        }
+
+        if(collectionId === 'AEOLUS'){
+          parameters += 
+            'observation_fields='+fieldsList[collectionId]
+        }else{
+          var auxType = collectionId.slice(4, -3);
+          parameters += 
+            'fields='+fieldsList[collectionId]+';'+
+            'aux_type='+ auxType;
+        }
+
         var url = urlBase + '?service=wps&request=execute&identifier='+process.id+
-        '&DataInputs=collection_ids=["AEOLUS"];'+
+        '&DataInputs=collection_ids=["'+collectionId+'"];'+
         'begin_time='+getISODateTimeString(this.selected_time.start)+
         ';end_time='+getISODateTimeString(this.selected_time.end)+
-        ';observation_fields=time,latitude_of_DEM_intersection,longitude_of_DEM_intersection'+
-        ',mie_HLOS_wind_speed,mie_altitude,mie_bin_quality_flag,mie_signal_intensity,mie_ground_velocity'+
-        ',rayleigh_HLOS_wind_speed,rayleigh_altitude,rayleigh_bin_quality_flag,rayleigh_signal_channel_A_intensity,rayleigh_signal_channel_B_intensity,rayleigh_ground_velocity'+
-        ',geoid_separation,velocity_at_DEM_intersection'+
-        //';measurement_fields=time,mie_HLOS_wind_speed,latitude_of_DEM_intersection,mie_altitude,mie_bin_quality_flag'+//'bbox=0,1,2,3,urn:ogc:def:crs:EPSG::3857'+
-        //';measurement_fields=time'+//'bbox=0,1,2,3,urn:ogc:def:crs:EPSG::3857'+
+        ';'+parameters+
         '&RawDataOutput=output';
 
 
@@ -580,137 +615,184 @@
         xhr.open('GET', url, true);
         xhr.responseType = 'arraybuffer';
         var that = this;
-        var collectionId = process.collectionId;
+        //var collectionId = process.collectionId;
 
         xhr.onload = function(e) {
             var tmp = new Uint8Array(this.response);
             var data = msgpack.decode(tmp);
 
-            var ds = data.AEOLUS[0];
+            var ds = data[collectionId];
 
             if($.isEmptyObject(ds)){
               globals.swarm.set({data: {}});
               return;
             }
 
-            // First thing we need to find possible jumps in data and handle them
-            var positions = [];
-            for (var i = 0; i < ds.latitude_of_DEM_intersection.length; i++) {
-              positions.push(ds.longitude_of_DEM_intersection[i]);
-              positions.push(ds.latitude_of_DEM_intersection[i]);
+            if(that.previousCollection !== collectionId){
+              that.previousCollection = collectionId;
+              that.filterManager.resetManager();
             }
 
-            var lonStep = 10;
-            var latStep = 10;
+            if(collectionId === 'AEOLUS'){
+
+              // TODO: Here we need to differentiate between observations and measurements
+              ds = ds[0];
+
+              if($.isEmptyObject(ds)){
+                globals.swarm.set({data: {}});
+                return;
+              }
+
+              // First thing we need to find possible jumps in data and handle them
+              var positions = [];
+              for (var i = 0; i < ds.latitude_of_DEM_intersection.length; i++) {
+                positions.push(ds.longitude_of_DEM_intersection[i]);
+                positions.push(ds.latitude_of_DEM_intersection[i]);
+              }
+
+              var lonStep = 10;
+              var latStep = 10;
 
 
-            var stepPositions = [];
-            for (var i = 2; i < positions.length; i++) {
-              if (i%2===0 && Math.abs(positions[i]-positions[i-2])>=Math.abs(lonStep)+2.5) {
-                stepPositions.push(parseInt(i/2));
-              }else if (i%2===1 && Math.abs(positions[i]-positions[i-2])>=Math.abs(latStep)+2.5) {
-                if(stepPositions.length>0 && stepPositions[stepPositions.length-1]!=parseInt((i-1)/2)){
-                  stepPositions.push(parseInt((i-1)/2));
+              var stepPositions = [];
+              for (var i = 2; i < positions.length; i++) {
+                if (i%2===0 && Math.abs(positions[i]-positions[i-2])>=Math.abs(lonStep)+2.5) {
+                  stepPositions.push(parseInt(i/2));
+                }else if (i%2===1 && Math.abs(positions[i]-positions[i-2])>=Math.abs(latStep)+2.5) {
+                  if(stepPositions.length>0 && stepPositions[stepPositions.length-1]!=parseInt((i-1)/2)){
+                    stepPositions.push(parseInt((i-1)/2));
+                  }
                 }
               }
+
+              var mie_jumps = that.findObservationJumps(ds.mie_altitude, stepPositions);
+
+              // MIE
+              var mie_time = that.proxyFlattenObservationArraySE(ds.time, ds.mie_altitude, stepPositions);
+              var mie_HLOS_wind_speed = that.flattenObservationArray(ds.mie_HLOS_wind_speed, stepPositions);
+              //var mie_latitude = that.flattenMeasurementArraySE(data.AEOLUS[1].mie_latitude);
+              var mie_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
+                ds.latitude_of_DEM_intersection,
+                ds.mie_altitude,
+                stepPositions
+              );
+              
+
+              var mie_altitude = that.flattenObservationArraySE(ds.mie_altitude, stepPositions);
+              var mie_bin_quality_flag = that.flattenObservationArray(ds.mie_bin_quality_flag, stepPositions);
+
+              var mie_geoid_separation = that.proxyFlattenObservationArraySE(
+                ds.geoid_separation,
+                ds.mie_altitude,
+                stepPositions
+              );
+              var mie_velocity_at_DEM_intersection = that.proxyFlattenObservationArraySE(
+                ds.velocity_at_DEM_intersection,
+                ds.mie_altitude,
+                stepPositions
+              );
+
+              // RAYLEIGH
+              var ray_time = that.proxyFlattenObservationArraySE(ds.time, ds.rayleigh_altitude, stepPositions);
+              var ray_HLOS_wind_speed = that.flattenObservationArray(ds.rayleigh_HLOS_wind_speed, stepPositions);
+              //var mie_latitude = that.flattenMeasurementArraySE(data.AEOLUS[1].mie_latitude);
+              var ray_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
+                ds.latitude_of_DEM_intersection,
+                ds.rayleigh_altitude,
+                stepPositions
+              );
+              var ray_altitude = that.flattenObservationArraySE(ds.rayleigh_altitude, stepPositions);
+              var ray_bin_quality_flag = that.flattenObservationArray(ds.rayleigh_bin_quality_flag, stepPositions);
+
+              var ray_geoid_separation = that.proxyFlattenObservationArraySE(
+                ds.geoid_separation,
+                ds.rayleigh_altitude,
+                stepPositions
+              );
+              var ray_velocity_at_DEM_intersection = that.proxyFlattenObservationArraySE(
+                ds.velocity_at_DEM_intersection,
+                ds.rayleigh_altitude,
+                stepPositions
+              );
+
+              var ray_jumps = that.findObservationJumps(ds.rayleigh_altitude, stepPositions);
+
+
+              var tmpdata = {
+                mie_time_start: mie_time[0],
+                mie_time_end: mie_time[1],
+                mie_latitude_of_DEM_intersection_start: mie_latitude_of_DEM_intersection[1],
+                mie_latitude_of_DEM_intersection_end: mie_latitude_of_DEM_intersection[0],
+                mie_HLOS_wind_speed: mie_HLOS_wind_speed,
+                mie_quality_flag_data: mie_bin_quality_flag,
+                mie_altitude_start: mie_altitude[1],
+                mie_altitude_end: mie_altitude[0],
+                mie_geoid_separation:mie_geoid_separation[0],
+                mie_velocity_at_DEM_intersection: mie_velocity_at_DEM_intersection[0],
+                positions: positions,
+                stepPositions: stepPositions,
+                mie_jumps: mie_jumps,
+
+                /*geoid_separation: geoid_separation[0],
+                velocity_at_DEM_intersection: velocity_at_DEM_intersection[0]*/
+                rayleigh_time_start: ray_time[0],
+                rayleigh_time_end: ray_time[1],
+                rayleigh_latitude_of_DEM_intersection_start: ray_latitude_of_DEM_intersection[1],
+                rayleigh_latitude_of_DEM_intersection_end: ray_latitude_of_DEM_intersection[0],
+                rayleigh_HLOS_wind_speed: ray_HLOS_wind_speed,
+                rayleigh_quality_flag_data: ray_bin_quality_flag,
+                rayleigh_altitude_start: ray_altitude[1],
+                rayleigh_altitude_end: ray_altitude[0],
+                rayleigh_geoid_separation: ray_geoid_separation[0],
+                rayleigh_velocity_at_DEM_intersection: ray_velocity_at_DEM_intersection[0],
+                rayleigh_jumps: ray_jumps
+              };
+
+              // TODO: Getting the object and setting one parameter does not trigger
+              // change event, need to think about using multiple objects for different
+              // ids instead of one object with multiple parameters 
+              var resData = {};//globals.swarm.get('data');
+              resData[collectionId] = tmpdata;
+
+              globals.swarm.set({data: resData});
+
+              // TODO: Merge data for filtermanager?
+              that.filterManager.loadData(tmpdata);
+
+
+            } else /*if (collectionId === 'AUX_MRC_1B')*/{
+              var resData = {};
+              var keys = Object.keys(ds);
+
+              // RRC, MRC and ISR return a 1 element array which has multiple 
+              // elements, ZWC return directly the n-dimensional array, we 
+              // differentiate here
+              if(ds[keys[0]].length === 1){
+                for (var k = 0; k < keys.length; k++) {
+                  resData[keys[k]] = ds[keys[k]][0];
+                }
+              } else {
+                resData = ds;
+              }
+
+              // We create some additional data for ZWC data
+              if(collectionId === 'AUX_ZWC_1B'){
+                var obsIndex = [];
+                for (var j = 1; j <= resData[keys[0]].length; j++) {
+                  obsIndex.push(j);
+                }
+                resData['observation_index'] = obsIndex;
+              }
+
+              var tmpdata = {};
+              tmpdata[collectionId] = resData;
+
+              //resData[collectionId] = ds;
+              globals.swarm.set({data: tmpdata});
+              // TODO: Merge data for filtermanager?
+              that.filterManager.loadData(tmpdata[collectionId]);
+
             }
-
-
-            var mie_jumps = that.findObservationJumps(ds.mie_altitude, stepPositions);
-
-            // MIE
-            var mie_time = that.proxyFlattenObservationArraySE(ds.time, ds.mie_altitude, stepPositions);
-            var mie_HLOS_wind_speed = that.flattenObservationArray(ds.mie_HLOS_wind_speed, stepPositions);
-            //var mie_latitude = that.flattenMeasurementArraySE(data.AEOLUS[1].mie_latitude);
-            var mie_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
-              ds.latitude_of_DEM_intersection,
-              ds.mie_altitude,
-              stepPositions
-            );
-            
-
-            var mie_altitude = that.flattenObservationArraySE(ds.mie_altitude, stepPositions);
-            var mie_bin_quality_flag = that.flattenObservationArray(ds.mie_bin_quality_flag, stepPositions);
-
-            var mie_geoid_separation = that.proxyFlattenObservationArraySE(
-              ds.geoid_separation,
-              ds.mie_altitude,
-              stepPositions
-            );
-            var mie_velocity_at_DEM_intersection = that.proxyFlattenObservationArraySE(
-              ds.velocity_at_DEM_intersection,
-              ds.mie_altitude,
-              stepPositions
-            );
-
-
-
-            // RAYLEIGH
-            var ray_time = that.proxyFlattenObservationArraySE(ds.time, ds.rayleigh_altitude, stepPositions);
-            var ray_HLOS_wind_speed = that.flattenObservationArray(ds.rayleigh_HLOS_wind_speed, stepPositions);
-            //var mie_latitude = that.flattenMeasurementArraySE(data.AEOLUS[1].mie_latitude);
-            var ray_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
-              ds.latitude_of_DEM_intersection,
-              ds.rayleigh_altitude,
-              stepPositions
-            );
-            var ray_altitude = that.flattenObservationArraySE(ds.rayleigh_altitude, stepPositions);
-            var ray_bin_quality_flag = that.flattenObservationArray(ds.rayleigh_bin_quality_flag, stepPositions);
-
-            var ray_geoid_separation = that.proxyFlattenObservationArraySE(
-              ds.geoid_separation,
-              ds.rayleigh_altitude,
-              stepPositions
-            );
-            var ray_velocity_at_DEM_intersection = that.proxyFlattenObservationArraySE(
-              ds.velocity_at_DEM_intersection,
-              ds.rayleigh_altitude,
-              stepPositions
-            );
-
-            var ray_jumps = that.findObservationJumps(ds.rayleigh_altitude, stepPositions);
-
-
-            var tmpdata = {
-              mie_time_start: mie_time[0],
-              mie_time_end: mie_time[1],
-              mie_latitude_of_DEM_intersection_start: mie_latitude_of_DEM_intersection[1],
-              mie_latitude_of_DEM_intersection_end: mie_latitude_of_DEM_intersection[0],
-              mie_HLOS_wind_speed: mie_HLOS_wind_speed,
-              mie_quality_flag_data: mie_bin_quality_flag,
-              mie_altitude_start: mie_altitude[1],
-              mie_altitude_end: mie_altitude[0],
-              mie_geoid_separation:mie_geoid_separation[0],
-              mie_velocity_at_DEM_intersection: mie_velocity_at_DEM_intersection[0],
-              positions: positions,
-              stepPositions: stepPositions,
-              mie_jumps: mie_jumps,
-
-              /*geoid_separation: geoid_separation[0],
-              velocity_at_DEM_intersection: velocity_at_DEM_intersection[0]*/
-              rayleigh_time_start: ray_time[0],
-              rayleigh_time_end: ray_time[1],
-              rayleigh_latitude_of_DEM_intersection_start: ray_latitude_of_DEM_intersection[1],
-              rayleigh_latitude_of_DEM_intersection_end: ray_latitude_of_DEM_intersection[0],
-              rayleigh_HLOS_wind_speed: ray_HLOS_wind_speed,
-              rayleigh_quality_flag_data: ray_bin_quality_flag,
-              rayleigh_altitude_start: ray_altitude[1],
-              rayleigh_altitude_end: ray_altitude[0],
-              rayleigh_geoid_separation: ray_geoid_separation[0],
-              rayleigh_velocity_at_DEM_intersection: ray_velocity_at_DEM_intersection[0],
-              rayleigh_jumps: ray_jumps
-            };
-
-            // TODO: Getting the object and setting one parameter does not trigger
-            // change event, need to think about using multiple objects for different
-            // ids instead of one object with multiple parameters 
-            var resData = {};//globals.swarm.get('data');
-            resData[collectionId] = tmpdata;
-
-            globals.swarm.set({data: resData});
-
-            // TODO: Merge data for filtermanager?
-            that.filterManager.loadData(tmpdata);
         };
 
         xhr.send();

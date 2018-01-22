@@ -91,7 +91,7 @@
                     constrain: false,
                     brushTooltip: true,
                     debounce: 300,
-                    ticksize: 4,
+                    ticksize: 10,
                     selectionLimit: (60*60*24*30), //15 Days
                     datasets: []
                 };

@@ -39,6 +39,7 @@ define([
             this.activeModels = [];
             this.activeCollections = [];
             this.activeCurtainCollections = [];
+            this.activePointsCollections = [];
             this.differenceImage = null;
             this.dataFilters = {};
             this.colorscales = {};
@@ -126,37 +127,7 @@ define([
 
             };
 
-            this.dataSettings = {
-               
-                mie_time_start: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                mie_time_end: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-
-                time: {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-
-                mie_HLOS_wind_speed: {
-                    uom: 'cm/s',
-                    colorscale: 'viridis',
-                    extent: [-20,20]
-                    //outline: false
-                },
-
-                rayleigh_HLOS_wind_speed: {
-                    uom: 'cm/s',
-                    colorscale: 'viridis',
-                    extent: [-40,40]
-                    //outline: false
-                }
-
-            };
+            this.dataSettings = globals.dataSettings;
 
 
             $('body').append($('<div/>', {
@@ -184,7 +155,12 @@ define([
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
                         //this.graph.loadData(data[idKeys[i]]);
-                        that.createCurtains(data[idKeys[i]], idKeys[i]);
+                        if(idKeys[i] === 'AEOLUS'){
+                            that.createCurtains(data[idKeys[i]], idKeys[i]);
+                        } else {
+                            that.graph.data = {};
+                            that.createPointCollection(data[idKeys[i]], idKeys[i]);
+                        }
                     }
                 }
 
@@ -505,7 +481,11 @@ define([
             if (Object.keys(data).length){
                 var idKeys = Object.keys(data);
                 for (var i = idKeys.length - 1; i >= 0; i--) {
-                    this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    if(idKeys[i] === 'AEOLUS'){
+                        this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    } else {
+                        this.createPointCollection(data[idKeys[i]], idKeys[i]);
+                    }
                 }
             }
 
@@ -540,13 +520,21 @@ define([
                     //this.createDataFeatures(data, 'pointcollection', 'band');
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
-                        //this.graph.loadData(data[idKeys[i]]);
-                        this.createCurtains(data[idKeys[i]], idKeys[i]);
+                        if(idKeys[i] === 'AEOLUS'){
+                            this.createCurtains(data[idKeys[i]], idKeys[i]);
+                        } else {
+                            this.graph.data = {};
+                            this.createPointCollection(data[idKeys[i]], idKeys[i]);
+                        }
                     }
                 }else{
                     for (var i = 0; i < this.activeCurtainCollections.length; i++) {
                         this.activeCurtainCollections[i].removeAll();
                     }
+                    for (var i = 0; i < this.activePointsCollections.length; i++) {
+                        this.activePointsCollections[i].removeAll();
+                    }
+
                     /*for (var i = 0; i < this.activeCollections.length; i++) {
                         if(this.featuresCollection.hasOwnProperty(this.activeCollections[i])){
                             this.map.scene.primitives.remove(
@@ -1003,14 +991,19 @@ define([
 
             if(product){
                 if(product.hasOwnProperty('curtains')){
-                    //product.curtain.appearance.material._textures.image.copyFrom(that.graph.getCanvas());
-
-                    
                     for (var i = 0; i < product.curtains._primitives.length; i++) {
                         product.curtains._primitives[i].appearance.material.uniforms.color.alpha = options.value;//.clone();
                     }
-                    //c.alpha = options.value;
-                    //product.curtain.appearance.material.uniforms.color = c;
+                }
+                if(product.hasOwnProperty('points')){
+                    for (var i = 0; i < product.points._pointPrimitives.length; i++) {
+                        var b = product.points.get(i);
+                        if(b.color){
+                            var c = b.color.clone();
+                            c.alpha = options.value;
+                            b.color = c;
+                        }
+                    }
                 }
             }
 
@@ -1118,7 +1111,7 @@ define([
 
                 globals.products.each(function(product) {
                     if(product.get('name') === options.name){
-                        product.set('visible', options.visible);
+                        //product.set('visible', options.visible);
                         this.checkColorscale(product.get('download').id);
 
                         if (product.get('views')[0].protocol === 'WPS'){
@@ -1278,6 +1271,95 @@ define([
                 var cesLayer = product.get('ces_layer');
                 cesLayer.show = visible;
             } // END of if visible
+        },
+
+
+        createPointCollection: function(data, cov_id, alpha, height){
+
+            if(!data.hasOwnProperty('lon_of_DEM_intersection')){
+                // If data does not have required position information
+                // do not try to render it
+                return;
+            }
+
+            var currProd = globals.products.find(
+                function(p){return p.get('download').id === cov_id;}
+            );
+
+            var pointCollection;
+
+            if(!this.map.scene.context._gl.getExtension('EXT_frag_depth')){
+                pointCollection._rs = 
+                    Cesium.RenderState.fromCache({
+                        depthTest : {
+                            enabled : true,
+                            func : Cesium.DepthFunction.LESS
+                        },
+                        depthMask : false,
+                        blending : Cesium.BlendingState.ALPHA_BLEND
+                    });
+            }
+
+            if(currProd.hasOwnProperty('points')){
+                currProd.points.removeAll();
+                pointCollection = currProd.points;
+                /*this.map.scene.primitives.remove(currProd.curtains);
+                delete currProd.curtains;*/
+            }else{
+                pointCollection = new Cesium.PointPrimitiveCollection();
+                this.activePointsCollections.push(pointCollection);
+                this.map.scene.primitives.add(pointCollection);
+                currProd.points = pointCollection;
+            }
+
+            //alpha = 0.99;
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
+
+            alpha = currProd.get('opacity');
+
+            /*this.dataSettings[band].colorscale = style;
+            this.dataSettings[band].extent = range;
+            this.graph.dataSettings = this.dataSettings;*/
+
+            height = 1000000;
+            var renderOutlines = defaultFor(currProd.get('outlines'), false);
+
+            this.plot.setColorScale(style);
+            this.plot.setDomain(range);
+
+            var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
+            
+
+            for (var i = 0; i < data[band].length; i++) {
+                var color = this.plot.getColor(data[band][i]);
+                var options = {
+                    position : new Cesium.Cartesian3.fromDegrees(
+                        data['lon_of_DEM_intersection'][i],
+                        data['lat_of_DEM_intersection'][i],
+                        height
+                    ),
+                    color : new Cesium.Color.fromBytes(
+                        color[0], color[1], color[2], alpha*255
+                    ),
+                    pixelSize : 8,
+                    scaleByDistance : scaltype
+                };
+
+                pointCollection.add(options);
+            }
+
+            this.map.scene.primitives.add(pointCollection);
+
         },
 
 
@@ -1514,7 +1596,11 @@ define([
             if (Object.keys(data).length){
                 var idKeys = Object.keys(data);
                 for (var i = idKeys.length - 1; i >= 0; i--) {
-                    this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    if(idKeys[i] === 'AEOLUS'){
+                        this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    } else {
+                        this.createPointCollection(data[idKeys[i]], idKeys[i]);
+                    }
                 }
             }
         },
@@ -1546,15 +1632,13 @@ define([
                     var data = globals.swarm.get('data')[covid];
                     this.createCurtains(data, covid);
                     this.checkColorscale(covid);
+                }
 
-                    /*if (Object.keys(data).length){
-                        //this.createDataFeatures(data, 'pointcollection', 'band');
-                        var idKeys = Object.keys(data);
-                        for (var i = idKeys.length - 1; i >= 0; i--) {
-                            //this.graph.loadData(data[idKeys[i]]);
-                            this.createCurtains(data[idKeys[i]], idKeys[i], 'mie');
-                        }
-                    }*/
+                if(product.hasOwnProperty('points')){
+                    var covid = product.get('download').id;
+                    var data = globals.swarm.get('data')[covid];
+                    this.createPointCollection(data, covid);
+                    this.checkColorscale(covid);
                 }
             }
 
@@ -1788,6 +1872,10 @@ define([
                     }
                 });
 
+                if(sel === false){
+                    return;
+                }
+
                 var rangeMin = product.get('parameters')[sel].range[0];
                 var rangeMax = product.get('parameters')[sel].range[1];
                 var uom = product.get('parameters')[sel].uom;
@@ -1805,101 +1893,100 @@ define([
                     .attr('height', 60)
                     .attr('id', 'svgcolorscalecontainer');
 
-                    if(logscale){
-                        axisScale = d3.scale.log();
-                    }else{
-                        axisScale = d3.scale.linear();
+                if(logscale){
+                    axisScale = d3.scale.log();
+                }else{
+                    axisScale = d3.scale.linear();
+                }
+
+                axisScale.domain([rangeMin, rangeMax]);
+                axisScale.range([0, scalewidth]);
+
+                var xAxis = d3.svg.axis()
+                    .scale(axisScale);
+
+                if(logscale){
+                    var numberFormat = d3.format(',f');
+                    function logFormat(d) {
+                        var x = Math.log(d) / Math.log(10) + 1e-6;
+                        return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
                     }
+                     xAxis.tickFormat(logFormat);
 
-                    axisScale.domain([rangeMin, rangeMax]);
-                    axisScale.range([0, scalewidth]);
-
-                    var xAxis = d3.svg.axis()
-                        .scale(axisScale);
-
-                    if(logscale){
-                        var numberFormat = d3.format(',f');
-                        function logFormat(d) {
-                            var x = Math.log(d) / Math.log(10) + 1e-6;
-                            return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
-                        }
-                         xAxis.tickFormat(logFormat);
-
-                    }else{
-                        var step = (rangeMax - rangeMin)/5;
-                        xAxis.tickValues(
-                            d3.range(rangeMin,rangeMax+step, step)
-                        );
-                        xAxis.tickFormat(d3.format('g'));
-                    }
-
-                    var g = svgContainer.append('g')
-                        .attr('class', 'x axis')
-                        .attr('transform', 'translate(' + [margin, 20]+')')
-                        .call(xAxis);
-
-                    // Add layer info
-                    var info = product.get('name');
-                    info += ' - ' + sel;
-                    if(uom){
-                        info += ' ['+uom+']';
-                    }
-
-                     g.append('text')
-                        .style('text-anchor', 'middle')
-                        .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
-                        .attr('font-weight', 'bold')
-                        .text(info);
-
-                    svgContainer.selectAll('text')
-                        .attr('stroke', 'none')
-                        .attr('fill', 'black')
-                        .attr('font-weight', 'bold');
-
-                    svgContainer.selectAll('.tick').select('line')
-                        .attr('stroke', 'black');
-
-                    svgContainer.selectAll('.axis .domain')
-                        .attr('stroke-width', '2')
-                        .attr('stroke', '#000')
-                        .attr('shape-rendering', 'crispEdges')
-                        .attr('fill', 'none');
-
-                    svgContainer.selectAll('.axis path')
-                        .attr('stroke-width', '2')
-                        .attr('shape-rendering', 'crispEdges')
-                        .attr('stroke', '#000');
-
-                    var svgHtml = d3.select('#svgcolorscalecontainer')
-                        .attr('version', 1.1)
-                        .attr('xmlns', 'http://www.w3.org/2000/svg')
-                        .node().innerHTML;
-
-                    var renderHeight = 55;
-                    var renderWidth = width;
-
-                    var index = Object.keys(this.colorscales).length;
-
-                    var prim = this.map.scene.primitives.add(
-                        this.createViewportQuad(
-                            this.renderSVG(svgHtml, renderWidth, renderHeight),
-                            0, index*55+5, renderWidth, renderHeight
-                        )
+                }else{
+                    var step = (rangeMax - rangeMin)/5;
+                    xAxis.tickValues(
+                        d3.range(rangeMin,rangeMax+step, step)
                     );
-                    var csPrim = this.map.scene.primitives.add(
-                        this.createViewportQuad(
-                            colorscaleimage, 20, index*55 +42, scalewidth, 10
-                        )
-                    );
+                    xAxis.tickFormat(d3.format('g'));
+                }
 
-                    this.colorscales[pId] = {
-                        index: index,
-                        prim: prim,
-                        csPrim: csPrim
-                    };
+                var g = svgContainer.append('g')
+                    .attr('class', 'x axis')
+                    .attr('transform', 'translate(' + [margin, 20]+')')
+                    .call(xAxis);
 
-                    svgContainer.remove();
-                
+                // Add layer info
+                var info = product.get('name');
+                info += ' - ' + sel;
+                if(uom){
+                    info += ' ['+uom+']';
+                }
+
+                 g.append('text')
+                    .style('text-anchor', 'middle')
+                    .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
+                    .attr('font-weight', 'bold')
+                    .text(info);
+
+                svgContainer.selectAll('text')
+                    .attr('stroke', 'none')
+                    .attr('fill', 'black')
+                    .attr('font-weight', 'bold');
+
+                svgContainer.selectAll('.tick').select('line')
+                    .attr('stroke', 'black');
+
+                svgContainer.selectAll('.axis .domain')
+                    .attr('stroke-width', '2')
+                    .attr('stroke', '#000')
+                    .attr('shape-rendering', 'crispEdges')
+                    .attr('fill', 'none');
+
+                svgContainer.selectAll('.axis path')
+                    .attr('stroke-width', '2')
+                    .attr('shape-rendering', 'crispEdges')
+                    .attr('stroke', '#000');
+
+                var svgHtml = d3.select('#svgcolorscalecontainer')
+                    .attr('version', 1.1)
+                    .attr('xmlns', 'http://www.w3.org/2000/svg')
+                    .node().innerHTML;
+
+                var renderHeight = 55;
+                var renderWidth = width;
+
+                var index = Object.keys(this.colorscales).length;
+
+                var prim = this.map.scene.primitives.add(
+                    this.createViewportQuad(
+                        this.renderSVG(svgHtml, renderWidth, renderHeight),
+                        0, index*55+5, renderWidth, renderHeight
+                    )
+                );
+                var csPrim = this.map.scene.primitives.add(
+                    this.createViewportQuad(
+                        colorscaleimage, 20, index*55 +42, scalewidth, 10
+                    )
+                );
+
+                this.colorscales[pId] = {
+                    index: index,
+                    prim: prim,
+                    csPrim: csPrim
+                };
+
+                svgContainer.remove();
             }
 
         },

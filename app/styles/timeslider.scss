@@ -5,7 +5,7 @@
   position: relative;
   opacity: 1;
   border: 1px solid black;
-  height: 7em;
+  height: 5em;
   box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.39);
 }
 
@@ -34,4 +34,13 @@
   position: absolute;
   right: 0px;
   top: -260px;
+}
+
+
+.record{
+  stroke: black!important;
+}
+
+#calendarwidgetholder{
+  z-index: 1004;
 }
