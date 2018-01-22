@@ -81,7 +81,12 @@
                 'reference_pulse_error_mie_response',
                 'rayleigh_channel_A_response', 'rayleigh_channel_B_response',
                 'fizeau_transmission','mie_response','mean_laser_energy_mie',
-                'mean_laser_energy_rayleigh','FWHM_mie_core_2'
+                'mean_laser_energy_rayleigh','FWHM_mie_core_2',
+                // AUX ZWC
+                'mie_ground_correction_velocity','rayleigh_ground_correction_velocity',
+                'mie_avg_ground_echo_bin_thickness_above_DEM', 'rayleigh_avg_ground_echo_bin_thickness_above_DEM',
+
+
                 // 'measurement_response_valid','reference_pulse_response_valid',
 
             ],
@@ -580,7 +585,7 @@
             'roll_angle', 'pitch_angle','yaw_angle','num_of_mie_ground_bins',
             'rayleigh_avg_ground_echo_bin_thickness',
             'mie_avg_ground_echo_bin_thickness_above_DEM', 'rayleigh_avg_ground_echo_bin_thickness_above_DEM',
-            'rayleigh_channel_A_ground_SNR_meas'
+            'rayleigh_channel_A_ground_SNR_meas', 'mie_DEM_ground_bin'
             // issue 'min_avg_ground_echo_thickness', 'mie_channel_A_ground_SNR_meas'
             // 2D 'mie_range', 'rayleigh_range',
           ].join()
@@ -758,8 +763,25 @@
             } else /*if (collectionId === 'AUX_MRC_1B')*/{
               var resData = {};
               var keys = Object.keys(ds);
-              for (var k = 0; k < keys.length; k++) {
-                resData[keys[k]] = ds[keys[k]][0];
+
+              // RRC, MRC and ISR return a 1 element array which has multiple 
+              // elements, ZWC return directly the n-dimensional array, we 
+              // differentiate here
+              if(ds[keys[0]].length === 1){
+                for (var k = 0; k < keys.length; k++) {
+                  resData[keys[k]] = ds[keys[k]][0];
+                }
+              } else {
+                resData = ds;
+              }
+
+              // We create some additional data for ZWC data
+              if(collectionId === 'AUX_ZWC_1B'){
+                var obsIndex = [];
+                for (var j = 1; j <= resData[keys[0]].length; j++) {
+                  obsIndex.push(j);
+                }
+                resData['observation_index'] = obsIndex;
               }
 
               var tmpdata = {};

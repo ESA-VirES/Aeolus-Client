@@ -156,17 +156,28 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             // AUX ZWC
             'mie_ground_correction_velocity': {
                 selected: true,
-                range: [0, 1],
+                range: [-0.5, 0.5],
                 uom: 'm/s',
                 colorscale: 'redblue',
+                symbol: 'x',
+                lineConnect: true,
                 name: 'Mie Ground Correction Velocity'
             },
             'rayleigh_ground_correction_velocity': {
                 selected: true,
-                range: [0, 1],
+                range: [-1.6, 2],
                 uom: 'm/s',
                 colorscale: 'redblue',
+                symbol: 'triangle_empty',
+                lineConnect: true,
                 name: 'Rayleigh Ground Correction Velocity'
+            },
+            'mie_avg_ground_echo_bin_thickness_above_DEM':{
+                uom: 'm',
+            },
+            'rayleigh_avg_ground_echo_bin_thickness_above_DEM':{
+                uom: 'm',
+
             }
         }
     };

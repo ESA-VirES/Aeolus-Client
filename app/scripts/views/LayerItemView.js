@@ -64,7 +64,7 @@
                 var par = this.model.get('parameters');
                 if(typeof par === 'undefined' || 
                     Object.keys(par).length === 0 && par.constructor === Object){
-                    this.$el.find('.fa-sliders').hide();
+                    this.$el.find('.fa-sliders').css('visibility', 'hidden');
                 }
 
                 var that = this;

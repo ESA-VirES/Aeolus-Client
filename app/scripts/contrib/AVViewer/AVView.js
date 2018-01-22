@@ -115,6 +115,11 @@ define(['backbone.marionette',
                     xAxis: 'laser_frequency_offset',
                     yAxis: ['rayleigh_channel_A_response', 'rayleigh_channel_B_response'],
                     colorAxis: [ null, null ]
+                },
+                AUX_ZWC_1B: {
+                    xAxis: 'observation_index',
+                    yAxis: ['mie_ground_correction_velocity', 'rayleigh_ground_correction_velocity'],
+                    colorAxis: [ null, null ]
                 }
             };
 
