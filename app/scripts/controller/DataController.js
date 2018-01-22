@@ -85,6 +85,7 @@
                 // AUX ZWC
                 'mie_ground_correction_velocity','rayleigh_ground_correction_velocity',
                 'mie_avg_ground_echo_bin_thickness_above_DEM', 'rayleigh_avg_ground_echo_bin_thickness_above_DEM',
+                'ZWC_result_type'
 
 
                 // 'measurement_response_valid','reference_pulse_response_valid',
@@ -133,7 +134,16 @@
                   ]
               }
           },
-            //choiceParameter: {}
+          choiceParameter: {
+             'ZWC_result_type': {
+                options: [
+                    {'name': 'ZWC_Both', value:'ZWC_Both'},
+                    {'name': 'ZWC_Mie', value:'ZWC_Mie'},
+                    {'name': 'ZWC_Rayleigh', value:'ZWC_Rayleigh'}
+                ],
+                selected: 'ZWC_Both'
+              }
+          }
         };
 
         this.filterManager = new FilterManager({
@@ -585,7 +595,8 @@
             'roll_angle', 'pitch_angle','yaw_angle','num_of_mie_ground_bins',
             'rayleigh_avg_ground_echo_bin_thickness',
             'mie_avg_ground_echo_bin_thickness_above_DEM', 'rayleigh_avg_ground_echo_bin_thickness_above_DEM',
-            'rayleigh_channel_A_ground_SNR_meas', 'mie_DEM_ground_bin'
+            'rayleigh_channel_A_ground_SNR_meas', 'mie_DEM_ground_bin',
+            'ZWC_result_type'
             // issue 'min_avg_ground_echo_thickness', 'mie_channel_A_ground_SNR_meas'
             // 2D 'mie_range', 'rayleigh_range',
           ].join()

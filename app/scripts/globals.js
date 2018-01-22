@@ -85,7 +85,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 timeFormat: 'MJD2000_S'
             },
             'measurement_error_mie_response': {
-                uom: 'ACCD pixel index',
+                uom: 'ACCD pixel',
                 regression: 'polynomial'
             },
             'ground_frequency_valid': {
@@ -111,10 +111,16 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 uom: 'ACCD pixel index'
             },
             'mie_core_measurement_FWHM':{
-                uom: 'ACCD pixel index'
+                uom: 'ACCD pixel'
             },
             'frequency_offset':{
                 uom: 'GHz'
+            },
+            'reference_pulse_error_mie_response':{
+                uom: 'ACCD pixel'
+            },
+            'reference_pulse_error_rayleigh_response':{
+                uom: 'ACCD pixel'
             },
 
             // AUX IRC
