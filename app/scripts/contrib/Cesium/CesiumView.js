@@ -430,8 +430,9 @@ define([
             // Check for possible already available selection
             if(localStorage.getItem('areaSelection') !== null){
                 var bbox = JSON.parse(localStorage.getItem('areaSelection'));
-                if(bbox){
+                if(bbox != null){
                     this.bboxsel = [bbox.s, bbox.w, bbox.n, bbox.e ];
+                    this.onSelectionChanged(bbox);
                 }
             }
 
@@ -733,7 +734,7 @@ define([
                     image : this.graph.getCanvasImage(),
                     color: new Cesium.Color(1, 1, 1, alpha),
                 });
-                newmat.uniforms.repeat.x = -1;
+                newmat.uniforms.repeat.x = 1;
 
 
                 var slicedPosData = data.positions.slice(start, end);
@@ -788,7 +789,7 @@ define([
                 // Check if normal is negative, if it is we need to flip the
                 // direction of the texture to be applied
                 if(wallGeometry.attributes.normal.values[0]<0){
-                    newmat.uniforms.repeat.x = 1;
+                    newmat.uniforms.repeat.x = -1;
                 }
 
                 var sliceAppearance = new Cesium.MaterialAppearance({

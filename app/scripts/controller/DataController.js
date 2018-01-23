@@ -164,6 +164,13 @@
       },
 
       onManualInit: function(){
+
+        // Check if area is saved and selected when loading
+        var bbox = JSON.parse(localStorage.getItem('areaSelection'));
+        if(bbox !== null){
+          this.selection_list.push(bbox);
+        }
+
         // TODO: Check to see if already active products are configured
         for (var i = 0; i < globals.products.models.length; i++) {
           if(globals.products.models[i].get('model') && globals.products.models[i].get('visible')){
@@ -414,22 +421,16 @@
         var start = [];
         var end = [];
         for (var i = 0; i < proxy.length-1; i++) {
-          if(jumps.indexOf(i)!==-1){
+          if(jumps.indexOf(i)!==-1 || jumps.indexOf(i+1)!==-1){
             continue;
           }
           for (var j = 0; j < proxy[i].length-1; j++) {
             if (j===proxy[i].length-1){
-              start.push(input[i]);
-              end.push(input[i+1]);
-              /*if(Math.abs(input[i]-input[i+1])>15){
-                var a=1;
-              }*/
+              /*start.push(input[i]);
+              end.push(input[i+1]);*/
             }else{
               start.push(input[i]);
               end.push(input[i+1]);
-              /*if(Math.abs(input[i]-input[i+1])>15){
-                var a=1;
-              }*/
             }
           }
         }
@@ -440,13 +441,13 @@
         var start = [];
         var end = [];
         for (var i = 0; i < input.length-1; i++) {
-          if(jumps.indexOf(i)!==-1){
+          if(jumps.indexOf(i)!==-1 || jumps.indexOf(i+1)!==-1){
             continue;
           }
           for (var j = 0; j < input[i].length-1; j++) {
             if(j===input[i].length-1){
-              start.push(input[i][j]);
-              end.push(input[i+1][0]);
+              /*start.push(input[i][j]);
+              end.push(input[i+1][0]);*/
             }else{
               start.push(input[i][j]);
               end.push(input[i][j+1]);
@@ -463,8 +464,8 @@
 
           //start and end of jump
           if(jumps.indexOf(i)!==-1 && jumps[jumps.length-1]!==counter){
+            resultJumps.push(counter-input[i].length-1);
             resultJumps.push(counter);
-            resultJumps.push(counter+input[i].length-1);
           }else{
             counter += input[i].length-1;
           }
@@ -476,7 +477,7 @@
       flattenObservationArray: function(input, jumps){
         var output = [];
         for (var i = 0; i < input.length-1; i++) {
-          if(jumps.indexOf(i)!==-1){
+          if(jumps.indexOf(i)!==-1 || jumps.indexOf(i+1)!==-1){
             continue;
           }
           for (var j = 0; j < input[i].length; j++) {
@@ -613,11 +614,18 @@
             'aux_type='+ auxType;
         }
 
+        var bboxFilter = '';
+        if(this.selection_list.length>0){
+          var b = this.selection_list[0];
+          bboxFilter = ';bbox='+b.w+','+b.s+','+b.e+','+b.n+',urn:ogc:def:crs:EPSG::4326'
+        }
+
         var url = urlBase + '?service=wps&request=execute&identifier='+process.id+
         '&DataInputs=collection_ids=["'+collectionId+'"];'+
         'begin_time='+getISODateTimeString(this.selected_time.start)+
         ';end_time='+getISODateTimeString(this.selected_time.end)+
         ';'+parameters+
+         bboxFilter+
         '&RawDataOutput=output';
 
 
@@ -652,7 +660,16 @@
               if($.isEmptyObject(ds)){
                 globals.swarm.set({data: {}});
                 return;
+              } else {
+                // Check if returned parameters are empty (e.g. bbox selection)
+                // over area where no curtain is available
+                var keys = Object.keys(ds);
+                if(ds[keys[0]].length === 0){
+                  globals.swarm.set({data: {}});
+                  return;
+                }
               }
+
 
               // First thing we need to find possible jumps in data and handle them
               var positions = [];
@@ -671,7 +688,9 @@
                   stepPositions.push(parseInt(i/2));
                 }else if (i%2===1 && Math.abs(positions[i]-positions[i-2])>=Math.abs(latStep)+2.5) {
                   if(stepPositions.length>0 && stepPositions[stepPositions.length-1]!=parseInt((i-1)/2)){
-                    stepPositions.push(parseInt((i-1)/2));
+                    stepPositions.push(parseInt((i+1)/2));
+                  }else if(stepPositions.length === 0){
+                    stepPositions.push(parseInt(i/2));
                   }
                 }
               }
@@ -771,28 +790,33 @@
               that.filterManager.loadData(tmpdata);
 
 
-            } else /*if (collectionId === 'AUX_MRC_1B')*/{
+            } else {
               var resData = {};
               var keys = Object.keys(ds);
 
-              // RRC, MRC and ISR return a 1 element array which has multiple 
-              // elements, ZWC return directly the n-dimensional array, we 
-              // differentiate here
-              if(ds[keys[0]].length === 1){
-                for (var k = 0; k < keys.length; k++) {
-                  resData[keys[k]] = ds[keys[k]][0];
-                }
-              } else {
-                resData = ds;
-              }
-
-              // We create some additional data for ZWC data
+              // ZWC data is structured differently to the other 3 AUX types
               if(collectionId === 'AUX_ZWC_1B'){
+                resData = ds;
+                // We create some additional data for ZWC data
                 var obsIndex = [];
                 for (var j = 1; j <= resData[keys[0]].length; j++) {
                   obsIndex.push(j);
                 }
                 resData['observation_index'] = obsIndex;
+              } else {
+                // Flatten structure as we do not need the different leves
+                // to render the data
+                for (var k = 0; k < keys.length; k++) {
+                  for (var l = 0; l < ds[keys[k]].length; l++) {
+                    if(resData.hasOwnProperty(keys[k])){
+                      resData[keys[k]] = resData[keys[k]].concat(ds[keys[k]][l]);
+                    } else {
+                      resData[keys[k]] = ds[keys[k]][l];
+                    }
+                    
+                  }
+                }
+
               }
 
               var tmpdata = {};

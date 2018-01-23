@@ -566,9 +566,9 @@ var VECTOR_BREAKDOWN = {};
                 this.timeSliderView.manualInit();
 
                 // Broadcast possible area selection
-                if(localStorage.getItem('areaSelection') !== null){
+                /*if(localStorage.getItem('areaSelection') !== null){
                     Communicator.mediator.trigger('selection:changed', JSON.parse(localStorage.getItem('areaSelection')));
-                }
+                }*/
 
                 //Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
                 //Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
