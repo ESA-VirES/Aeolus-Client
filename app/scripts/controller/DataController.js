@@ -62,6 +62,18 @@
                     'rayleigh_time_start', 'rayleigh_time_end', 'rayleigh_latitude_of_DEM_intersection_start',
                     'rayleigh_latitude_of_DEM_intersection_end',
                     'rayleigh_geoid_separation','rayleigh_velocity_at_DEM_intersection'
+                ],
+                [
+                    'surface_wind_component_u_off_nadir',
+                    'surface_wind_component_v_off_nadir',
+                    'surface_pressure_off_nadir',
+                    'surface_altitude_off_nadir'
+                ],
+                [
+                    'surface_wind_component_u_nadir',
+                    'surface_wind_component_v_nadir',
+                    'surface_pressure_nadir',
+                    'surface_altitude_nadir'
                 ]
             ],
             visibleFilters: [
@@ -85,7 +97,14 @@
                 // AUX ZWC
                 'mie_ground_correction_velocity','rayleigh_ground_correction_velocity',
                 'mie_avg_ground_echo_bin_thickness_above_DEM', 'rayleigh_avg_ground_echo_bin_thickness_above_DEM',
-                'ZWC_result_type'
+                'ZWC_result_type',
+                // AUX MET
+                'surface_wind_component_u_off_nadir',
+                'surface_wind_component_u_nadir',
+                'surface_wind_component_v_off_nadir',
+                'surface_wind_component_v_nadir',
+                'surface_pressure_off_nadir','surface_pressure_nadir',
+                'surface_altitude_off_nadir', 'surface_altitude_nadir'
 
 
                 // 'measurement_response_valid','reference_pulse_response_valid',
@@ -600,6 +619,16 @@
             'ZWC_result_type'
             // issue 'min_avg_ground_echo_thickness', 'mie_channel_A_ground_SNR_meas'
             // 2D 'mie_range', 'rayleigh_range',
+          ].join(),
+          'AUX_MET_12': [
+            'time_off_nadir', 'time_nadir',
+            'surface_wind_component_u_off_nadir',
+            'surface_wind_component_u_nadir',
+            'surface_wind_component_v_off_nadir',
+            'surface_wind_component_v_nadir',
+            'surface_pressure_off_nadir','surface_pressure_nadir',
+            'surface_altitude_off_nadir', 'surface_altitude_nadir'
+            // TODO: 2D data is very big, how can we handle it?
           ].join()
 
         }
@@ -803,8 +832,10 @@
                   obsIndex.push(j);
                 }
                 resData['observation_index'] = obsIndex;
+              } else if(collectionId === 'AUX_MET_12'){
+                resData = ds;
               } else {
-                // Flatten structure as we do not need the different leves
+                // Flatten structure as we do not need the different levels
                 // to render the data
                 for (var k = 0; k < keys.length; k++) {
                   for (var l = 0; l < ds[keys[k]].length; l++) {
