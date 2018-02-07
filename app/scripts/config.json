@@ -369,22 +369,7 @@
                 "url": "http://localhost:9000/vires00/ows"
             },
             "process" : "aeolus:level1B:AUX",
-            "parameters": {
-                "mie_ground_correction_velocity": {
-                    "selected": true,
-                    "range": [-0.5, 0.2],
-                    "uom": "m/s",
-                    "colorscale": "viridis",
-                    "name": "Mie Ground Correction Velocity"
-                },
-                "rayleigh_ground_correction_velocity": {
-                    "selected": true,
-                    "range": [-1.5, 1.5],
-                    "uom": "m/s",
-                    "colorscale": "plasma",
-                    "name": "Rayleigh Ground Correction Velocity"
-                }
-            },
+            "parameters": {},
             "download_parameters": {
                 "Timestamp": {
                     "uom": null,

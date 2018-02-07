@@ -8,13 +8,14 @@
     'communicator',
     'globals',
     'hbs!tmpl/wps_fetchData',
+    'hbs!tmpl/wps_l1b',
     'app',
     'papaparse',
     'msgpack',
     'graphly'
   ],
 
-  function( Backbone, Communicator, globals, wps_fetchDataTmpl, App, Papa) {
+  function( Backbone, Communicator, globals, wps_fetchDataTmpl, wps_l1bTmpl, App, Papa) {
 
     var DataController = Backbone.Marionette.Controller.extend({
 
@@ -568,21 +569,20 @@
 
         var urlBase = product.get('download').url;
 
-
-        //http://localhost:8401/ows?service=wps&request=execute&identifier=aeolus:level1B:AUX&DataInputs=collection_ids=[%22AUX_ISR_1B%22];begin_time=2012-10-01T08:08:31.817Z;end_time=2015-10-01T08:09:31.817Z;fields=mie_valid;aux_type=ISR&RawDataOutput=output
         var collectionId = product.get('download').id;
         var parameters = '';
         var fieldsList = {
           'AEOLUS': [
               'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-              'mie_HLOS_wind_speed','mie_altitude','mie_bin_quality_flag',
-              'mie_signal_intensity','mie_ground_velocity',
+              'mie_HLOS_wind_speed','mie_altitude', 'mie_range', 'mie_SNR',
+              'mie_bin_quality_flag',
+              'mie_signal_intensity','mie_ground_velocity', 'mie_scattering_ratio',
+              'rayleigh_range', 'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR',
               'rayleigh_HLOS_wind_speed','rayleigh_altitude',
               'rayleigh_bin_quality_flag','rayleigh_signal_channel_A_intensity',
               'rayleigh_signal_channel_B_intensity','rayleigh_ground_velocity',
-              'geoid_separation','velocity_at_DEM_intersection'
-               //';measurement_fields=time,mie_HLOS_wind_speed,latitude_of_DEM_intersection,mie_altitude,mie_bin_quality_flag'+//'bbox=0,1,2,3,urn:ogc:def:crs:EPSG::3857'+
-              //';measurement_fields=time'+//'bbox=0,1,2,3,urn:ogc:def:crs:EPSG::3857'
+              'geoid_separation','velocity_at_DEM_intersection',
+              'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle'
           ].join(),
           'AUX_MRC_1B': [
             'lat_of_DEM_intersection', 'lon_of_DEM_intersection', 'time_freq_step',
@@ -643,24 +643,50 @@
             'aux_type='+ auxType;
         }
 
-        var bboxFilter = '';
+        /*var bboxFilter = '';
         if(this.selection_list.length>0){
           var b = this.selection_list[0];
           bboxFilter = ';bbox='+b.w+','+b.s+','+b.e+','+b.n+',urn:ogc:def:crs:EPSG::4326'
-        }
+        }*/
 
-        var url = urlBase + '?service=wps&request=execute&identifier='+process.id+
+        /*var url = urlBase + '?service=wps&request=execute&identifier='+process.id+
         '&DataInputs=collection_ids=["'+collectionId+'"];'+
         'begin_time='+getISODateTimeString(this.selected_time.start)+
         ';end_time='+getISODateTimeString(this.selected_time.end)+
         ';'+parameters+
          bboxFilter+
-        '&RawDataOutput=output';
+        '&RawDataOutput=output';*/
+
+        var options = {
+          processId: process.id,
+          collection_ids: JSON.stringify([collectionId]),
+          begin_time: getISODateTimeString(this.selected_time.start),
+          end_time: getISODateTimeString(this.selected_time.end),
+        };
+
+        if(this.selection_list.length > 0){
+          var bb = this.selection_list[0];
+          options["bbox"] = bb.w + "," + bb.s + "," + bb.e + "," + bb.n;
+        }
+
+        if(collectionId === 'AEOLUS'){
+          options["observation_fields"] = fieldsList[collectionId];
+          /*options["filters"] = JSON.stringify({
+            mie_bin_quality_flag: {
+              min: 0,
+              max: 0
+            }
+          });*/
+        } else {
+          var auxType = collectionId.slice(4, -3);
+          options["fields"] = fieldsList[collectionId];
+          options['aux_type'] = auxType;
+        }
+
+        var body = wps_l1bTmpl(options);
 
 
-
-
-        xhr.open('GET', url, true);
+        xhr.open('POST', urlBase, true);
         xhr.responseType = 'arraybuffer';
         var that = this;
         //var collectionId = process.collectionId;
@@ -735,7 +761,11 @@
                 ds.mie_altitude,
                 stepPositions
               );
-              
+              var mie_longitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
+                ds.longitude_of_DEM_intersection,
+                ds.mie_altitude,
+                stepPositions
+              );
 
               var mie_altitude = that.flattenObservationArraySE(ds.mie_altitude, stepPositions);
               var mie_bin_quality_flag = that.flattenObservationArray(ds.mie_bin_quality_flag, stepPositions);
@@ -751,12 +781,19 @@
                 stepPositions
               );
 
+
+
               // RAYLEIGH
               var ray_time = that.proxyFlattenObservationArraySE(ds.time, ds.rayleigh_altitude, stepPositions);
               var ray_HLOS_wind_speed = that.flattenObservationArray(ds.rayleigh_HLOS_wind_speed, stepPositions);
               //var mie_latitude = that.flattenMeasurementArraySE(data.AEOLUS[1].mie_latitude);
               var ray_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
                 ds.latitude_of_DEM_intersection,
+                ds.rayleigh_altitude,
+                stepPositions
+              );
+              var ray_longitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
+                ds.longitude_of_DEM_intersection,
                 ds.rayleigh_altitude,
                 stepPositions
               );
@@ -776,12 +813,26 @@
 
               var ray_jumps = that.findObservationJumps(ds.rayleigh_altitude, stepPositions);
 
+            /*  'longitude_of_DEM_intersection', 
+              'mie_HLOS_wind_speed','mie_altitude', 'mie_range', 'mie_SNR',
+              'mie_bin_quality_flag',
+              'mie_signal_intensity','mie_ground_velocity',
+              'rayleigh_range', 'rayleigh_channel_a_SNR', 'rayleigh_channel_b_SNR',
+              'mie_scattering_ratio',
+              'rayleigh_HLOS_wind_speed','rayleigh_altitude',
+              'rayleigh_bin_quality_flag','rayleigh_signal_channel_A_intensity',
+              'rayleigh_signal_channel_B_intensity','rayleigh_ground_velocity',
+              'geoid_separation','velocity_at_DEM_intersection',
+              'AOCS_pitch_angle', 'AOCS_roll_angle', 'APCS_yaw_angle', */
+
 
               var tmpdata = {
                 mie_time_start: mie_time[0],
                 mie_time_end: mie_time[1],
                 mie_latitude_of_DEM_intersection_start: mie_latitude_of_DEM_intersection[1],
                 mie_latitude_of_DEM_intersection_end: mie_latitude_of_DEM_intersection[0],
+                mie_longitude_of_DEM_intersection_start: mie_longitude_of_DEM_intersection[1],
+                mie_longitude_of_DEM_intersection_end: mie_longitude_of_DEM_intersection[0],
                 mie_HLOS_wind_speed: mie_HLOS_wind_speed,
                 mie_quality_flag_data: mie_bin_quality_flag,
                 mie_altitude_start: mie_altitude[1],
@@ -861,7 +912,7 @@
             }
         };
 
-        xhr.send();
+        xhr.send(body);
 
       },
 
