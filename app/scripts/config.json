@@ -172,6 +172,42 @@
             "outlines": true
         },
         {
+            "name": "ADM L2A",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "views": [{
+                "id": "ALD_U_N_2A",
+                "protocol": "WPS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "ALD_U_N_2A",
+                "protocol": "WPS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "process" : "aeolus:level2A",
+            "parameters": {
+                "SCA_extinction": {
+                    "range": [-20, 20],
+                    "uom":"10-6 * m^-1",
+                    "selected": true,
+                    "colorscale": "viridis",
+                    "name": "SCA extinction"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                }
+            },
+            "outlines": true
+        },
+        {
             "name": "AUX MRC",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",

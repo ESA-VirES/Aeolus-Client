@@ -574,15 +574,21 @@
         var fieldsList = {
           'AEOLUS': [
               'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-              'mie_HLOS_wind_speed','mie_altitude', 'mie_range', 'mie_SNR',
+              'mie_HLOS_wind_speed','mie_altitude',// 'mie_range', 'mie_SNR',
               'mie_bin_quality_flag',
-              'mie_signal_intensity','mie_ground_velocity', 'mie_scattering_ratio',
-              'rayleigh_range', 'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR',
+              //'mie_signal_intensity','mie_ground_velocity', 'mie_scattering_ratio',
+              //'rayleigh_range', 'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR',
               'rayleigh_HLOS_wind_speed','rayleigh_altitude',
-              'rayleigh_bin_quality_flag','rayleigh_signal_channel_A_intensity',
-              'rayleigh_signal_channel_B_intensity','rayleigh_ground_velocity',
+              'rayleigh_bin_quality_flag',//'rayleigh_signal_channel_A_intensity',
+              //'rayleigh_signal_channel_B_intensity','rayleigh_ground_velocity',
               'geoid_separation','velocity_at_DEM_intersection',
-              'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle'
+              //'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle'
+          ].join(),
+          'ALD_U_N_2A': [
+              'SCA_time_obs','ICA_time_obs','MCA_time_obs',
+              'SCA_middle_bin_altitude_obs',
+              //'latitude_of_DEM_intersection','longitude_of_DEM_intersection',
+              'SCA_extinction',
           ].join(),
           'AUX_MRC_1B': [
             'lat_of_DEM_intersection', 'lon_of_DEM_intersection', 'time_freq_step',
@@ -669,7 +675,7 @@
           options["bbox"] = bb.w + "," + bb.s + "," + bb.e + "," + bb.n;
         }
 
-        if(collectionId === 'AEOLUS'){
+        if(collectionId === 'AEOLUS' || collectionId === 'ALD_U_N_2A'){
           options["observation_fields"] = fieldsList[collectionId];
           /*options["filters"] = JSON.stringify({
             mie_bin_quality_flag: {

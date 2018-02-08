@@ -54,6 +54,12 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 name: 'altitude',
                 uom: 'm'
             },
+            // L2A
+            'SCA_extinction': {
+                uom: '10-6 * m^-1',
+                colorscale: 'viridis',
+                extent: [-20, 20]
+            },
 
             // AUX MRC and AUX RRC
             'frequency_valid': {
