@@ -183,6 +183,7 @@ define(['backbone.marionette',
                 this.filterManager = globals.swarm.get('filterManager');
                 this.graph1 = new graphly.graphly({
                     el: '#graph_1',
+                    margin: {top: 10, left: 120, bottom: 50, right: 20},
                     dataSettings: this.dataSettings,
                     renderSettings: this.renderSettings.mie,
                     filterManager: globals.swarm.get('filterManager')
@@ -193,6 +194,7 @@ define(['backbone.marionette',
             if (this.graph2 === undefined){
                 this.graph2 = new graphly.graphly({
                     el: '#graph_2',
+                    margin: {top: 10, left: 120, bottom: 50, right: 20},
                     dataSettings: this.dataSettings,
                     renderSettings: this.renderSettings.rayleigh,
                     filterManager: globals.swarm.get('filterManager'),
