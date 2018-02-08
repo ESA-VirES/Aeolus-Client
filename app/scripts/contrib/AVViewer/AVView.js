@@ -43,6 +43,17 @@ define(['backbone.marionette',
             this.plotType = 'scatter';
             this.prevParams = [];
 
+            this.$el.append('<div id="analyticsSavebutton"><i class="fa fa-floppy-o" aria-hidden="true"></i></div>');
+
+            $('#analyticsSavebutton').click(function(){
+                if (that.graph1){
+                    that.graph1.saveImage();
+                }
+                if (that.graph2){
+                    that.graph2.saveImage();
+                }
+            });
+
             if (typeof this.graph1 === 'undefined' && 
                 typeof this.graph2 === 'undefined') {
                 this.$el.append('<div class="d3canvas"></div>');
@@ -130,6 +141,16 @@ define(['backbone.marionette',
                     xAxis: 'observation_index',
                     yAxis: ['mie_ground_correction_velocity', 'rayleigh_ground_correction_velocity'],
                     colorAxis: [ null, null ]
+                },
+                'AUX_MET_12_nadir': {
+                    xAxis: 'time_nadir',
+                    yAxis: ['surface_wind_component_u_nadir'],
+                    colorAxis: [ null, null ]
+                },
+                'AUX_MET_12_off_nadir': {
+                    xAxis: 'time_off_nadir',
+                    yAxis: ['surface_wind_component_u_off_nadir'],
+                    colorAxis: [ null, null ]
                 }
             };
 
@@ -162,6 +183,7 @@ define(['backbone.marionette',
                 this.filterManager = globals.swarm.get('filterManager');
                 this.graph1 = new graphly.graphly({
                     el: '#graph_1',
+                    margin: {top: 10, left: 120, bottom: 50, right: 20},
                     dataSettings: this.dataSettings,
                     renderSettings: this.renderSettings.mie,
                     filterManager: globals.swarm.get('filterManager')
@@ -172,6 +194,7 @@ define(['backbone.marionette',
             if (this.graph2 === undefined){
                 this.graph2 = new graphly.graphly({
                     el: '#graph_2',
+                    margin: {top: 10, left: 120, bottom: 50, right: 20},
                     dataSettings: this.dataSettings,
                     renderSettings: this.renderSettings.rayleigh,
                     filterManager: globals.swarm.get('filterManager'),
@@ -323,6 +346,20 @@ define(['backbone.marionette',
                      }else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
                         this.graph1.renderSettings =  this.renderSettings[idKeys[0]];
                         this.graph2.renderSettings =  this.renderSettings[(idKeys[0]+'_error')];
+                        $('#graph_2').show();
+                        $('#graph_1').css('height', '49%').css('height', '-=131px');
+                        $('#graph_2').css('height', '49%').css('height', '-=131px');
+                        this.graph1.loadData(data[idKeys[0]]);
+                        this.graph2.loadData(data[idKeys[0]]);
+                        this.graph1.resize();
+                        this.graph2.resize();
+                        this.graph1.connectGraph(this.graph2);
+                        this.graph2.connectGraph(this.graph1);
+                        this.filterManager.loadData(data[idKeys[0]]);
+
+                    } else if(idKeys[0] === 'AUX_MET_12'){
+                        this.graph1.renderSettings =  this.renderSettings[(idKeys[0]+'_nadir')];
+                        this.graph2.renderSettings =  this.renderSettings[(idKeys[0]+'_off_nadir')];
                         $('#graph_2').show();
                         $('#graph_1').css('height', '49%').css('height', '-=131px');
                         $('#graph_2').css('height', '49%').css('height', '-=131px');

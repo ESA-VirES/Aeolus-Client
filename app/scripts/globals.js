@@ -184,6 +184,39 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             'rayleigh_avg_ground_echo_bin_thickness_above_DEM':{
                 uom: 'm',
 
+            },
+
+
+            // AUX MET
+            'time_off_nadir': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'time_nadir':{
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'surface_wind_component_u_off_nadir':{
+                uom: 'm/s',
+            },
+            'surface_wind_component_u_nadir':{
+                uom: 'm/s',
+            },
+            'surface_wind_component_v_off_nadir':{
+                uom: 'm/s',
+            },
+            'surface_wind_component_v_nadir':{
+                uom: 'm/s',
+            },
+            'surface_pressure_off_nadir':{
+                uom: 'hPa',
+            },'surface_pressure_nadir':{
+                uom: 'hPa',
+            },
+            'surface_altitude_off_nadir':{
+                uom: 'm',
+            }, 'surface_altitude_nadir':{
+                uom: 'm',
             }
         }
     };

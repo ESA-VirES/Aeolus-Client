@@ -350,6 +350,33 @@
                 }
             },
             "outlines": false
+        },{
+            "name": "AUX MET",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "views": [{
+                "id": "AUX_MET_12",
+                "protocol": "WPS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "AUX_MET_12",
+                "protocol": "WPS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "process" : "aeolus:level1B:AUX",
+            "parameters": {},
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                }
+            },
+            "outlines": false
         }],
         "overlays": [{
             "name": "Coastlines and Countries",
