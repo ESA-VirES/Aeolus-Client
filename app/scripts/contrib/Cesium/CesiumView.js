@@ -1615,16 +1615,6 @@ define([
             );
 
             if(product){
-                /*var parameters = product.get('parameters');
-                var band;
-                var keys = _.keys(parameters);
-                _.each(keys, function(key){
-                    if(parameters[key].selected){
-                        band = key;
-                    }
-                });
-                var style = parameters[band].colorscale;
-                var range = parameters[band].range;*/
                 
                 if(product.hasOwnProperty('curtains')){
                     //product.curtain
@@ -1641,89 +1631,50 @@ define([
                     this.createPointCollection(data, covid);
                     this.checkColorscale(covid);
                 }
-            }
 
-            /*globals.products.each(function(product) {
-                if(product.get('name')===layer){
 
-                    this.checkColorscale(product.get('download').id);
-                    var hexcolor = product.get('color');
-                        hexcolor = hexcolor.substring(1, hexcolor.length);
-                    var parameters = product.get('parameters');
-                    var band;
-                    var keys = _.keys(parameters);
-                    _.each(keys, function(key){
-                        if(parameters[key].selected){
-                            band = key;
+                if(product.get('views')[0].protocol === 'WMS'){
+                    if(product.get('name')===layer){
+                        var parameters = product.get('parameters');
+                        var band;
+                        var keys = _.keys(parameters);
+                        _.each(keys, function(key){
+                            if(parameters[key].selected){
+                                band = key;
+                            }
+                        });
+                        var style = parameters[band].colorscale;
+                        var range = parameters[band].range;
+
+                        var cesLayer = product.get('ces_layer');
+
+                        if(product.get('visible')){
+                            cesLayer.show = true;
                         }
-                    });
-                    var style = parameters[band].colorscale;
-                    var range = parameters[band].range;
-                    var height = product.get('height');
-                    var contours = product.get('contours');
-                    var coeffRange = product.get('coefficients_range');
-                    var cesLayer;
 
-                    if(product.get('views')[0].protocol === 'CZML'){
-                        this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
-                    }else if(product.get('views')[0].protocol === 'WMS'){
-                        if (band === 'Fieldlines' ){
-                            if(product.get('visible')){
-                                cesLayer = product.get('ces_layer');
-                                cesLayer.show = false;
-                                this.map.scene.imageryLayers.remove(cesLayer, false);
-
-                                // When changing height or coefficient range and fieldlienes is selected
-                                // model would be added multiple times, need to check if model already 
-                                // marked as active and avoid adding it to list
-                                if (this.activeFL.indexOf(product.get('download').id)===-1){
-                                    this.activeFL.push(product.get('download').id);
-                                }
-
-                            }else{
-                                if (this.activeFL.indexOf(product.get('download').id)!==-1){
-                                    this.activeFL.splice(this.activeFL.indexOf(product.get('download').id), 1);
-                                }
-                            }
-                            this.checkFieldLines();
-                        }else{
-                            if (this.activeFL.indexOf(product.get('download').id)!==-1){
-                                this.activeFL.splice(this.activeFL.indexOf(product.get('download').id), 1);
-                            }
-                            this.checkFieldLines();
-                            if(product.get('name')===layer){
-                                cesLayer = product.get('ces_layer');
-
-                                if(product.get('visible')){
-                                    cesLayer.show = true;
-                                }
-
-                                cesLayer.imageryProvider.updateProperties('dim_bands', band);
-                                cesLayer.imageryProvider.updateProperties('dim_range', (range[0]+','+range[1]));
-                                cesLayer.imageryProvider.updateProperties('elevation', height);
-                                if(contours){
-                                    cesLayer.imageryProvider.updateProperties('dim_contours', 1);
-                                } else {
-                                    cesLayer.imageryProvider.updateProperties('dim_contours', 0);
-                                }
-                                if(style){
-                                    cesLayer.imageryProvider.updateProperties('styles', style);
-                                }
-                                if(coeffRange){
-                                    cesLayer.imageryProvider.updateProperties('dim_coeff', (coeffRange[0]+','+coeffRange[1]));
-                                }
-                                if (cesLayer.show){
-                                    var index = this.map.scene.imageryLayers.indexOf(cesLayer);
-                                    this.map.scene.imageryLayers.remove(cesLayer, false);
-                                    this.map.scene.imageryLayers.add(cesLayer, index);
-                                }
-                            }
+                        cesLayer.imageryProvider.updateProperties('dim_bands', band);
+                        cesLayer.imageryProvider.updateProperties('dim_range', (range[0]+','+range[1]));
+                        /*cesLayer.imageryProvider.updateProperties('elevation', height);*/
+                        if(style){
+                            cesLayer.imageryProvider.updateProperties('styles', style);
                         }
-                    }else if (product.get('views')[0].protocol === 'WPS'){
-                        //this.checkShc(product, product.get('visible'));
+                        /*if(contours){
+                            cesLayer.imageryProvider.updateProperties('dim_contours', 1);
+                        } else {
+                            cesLayer.imageryProvider.updateProperties('dim_contours', 0);
+                        }*/
+                        
+                        /*if(coeffRange){
+                            cesLayer.imageryProvider.updateProperties('dim_coeff', (coeffRange[0]+','+coeffRange[1]));
+                        }*/
+                        if (cesLayer.show){
+                            var index = this.map.scene.imageryLayers.indexOf(cesLayer);
+                            this.map.scene.imageryLayers.remove(cesLayer, false);
+                            this.map.scene.imageryLayers.add(cesLayer, index);
+                        }
                     }
                 }
-            }, this);*/
+            }
         },
 
 

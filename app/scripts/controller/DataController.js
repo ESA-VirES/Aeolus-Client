@@ -211,6 +211,11 @@
         // Check for already defined data settings
         globals.products.each(function(product) {
 
+            // If the product is a WMS view we can ignore it
+            if(product.get('views')[0].protocol === 'WMS'){
+                return;
+            }
+
             var currProd = globals.products.find(
                 function(p){
                     return p.get('download').id === product.get('download').id;
@@ -369,13 +374,13 @@
         var style = parameters[band].colorscale;
         var range = parameters[band].range;
 
-        //this.filterManager.dataSettings[band].colorscale = style;
-        this.filterManager.dataSettings[band].extent = range;
+        // If layer is not WMS apply normal filter changes
+        if(currProd.get('views')[0].protocol !== 'WMS'){
+          this.filterManager.dataSettings[band].extent = range;
+          this.filterManager._initData();
+          this.filterManager._renderFilters();
+        }
 
-        //this.filterManager.updateDataSettings(this.filterManager.dataSettings);
-        //this.filterManager.updateDataSettings(this.filterManager.dataSettings);
-        this.filterManager._initData();
-        this.filterManager._renderFilters();
 
       },
       
