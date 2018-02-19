@@ -1006,6 +1006,10 @@ define([
                         }
                     }
                 }
+                var cesLayer = product.get('ces_layer');
+                if(cesLayer){
+                    cesLayer.alpha = options.value;
+                }
             }
 
             /*globals.products.each(function(product) {
@@ -1672,6 +1676,7 @@ define([
                             this.map.scene.imageryLayers.remove(cesLayer, false);
                             this.map.scene.imageryLayers.add(cesLayer, index);
                         }
+                        this.checkColorscale(product.get('download').id);
                     }
                 }
             }
