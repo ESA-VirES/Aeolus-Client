@@ -160,6 +160,11 @@ define(['backbone.marionette',
             // Check for already defined data settings
             globals.products.each(function(product) {
 
+                // If the product is a WMS view we can ignore it
+                if(product.get('views')[0].protocol === 'WMS'){
+                    return;
+                }
+
                 var currProd = globals.products.find(
                     function(p){
                         return p.get('download').id === product.get('download').id;

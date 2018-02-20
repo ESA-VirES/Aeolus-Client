@@ -22,7 +22,8 @@
       initialize: function(options){
 
         this.selection_list = [];
-        this.activeWPSproducts = [];
+        this.activeWPSproducts = {};
+        this.wpsProdChange = false;
         this.activeModels = [];
         this.selected_time = null;
         this.previousCollection = '';
@@ -211,6 +212,11 @@
         // Check for already defined data settings
         globals.products.each(function(product) {
 
+            // If the product is a WMS view we can ignore it
+            if(product.get('views')[0].protocol === 'WMS'){
+                return;
+            }
+
             var currProd = globals.products.find(
                 function(p){
                     return p.get('download').id === product.get('download').id;
@@ -320,7 +326,6 @@
 
       changeLayer: function(options) {
         if (!options.isBaseLayer){
-          this.activeWPSproducts = [];
           var product = globals.products.find(function(model) { return model.get('name') == options.name; });
           if (product){
             if(options.visible){
@@ -331,11 +336,8 @@
               }
 
               if (product.get('process')){
-                //this.activeWPSproducts.push(product.get('process'));
-                this.activeWPSproducts.push({
-                  collectionId: product.get('download').id,
-                  id: product.get('process')
-                });
+                this.activeWPSproducts[product.get('download').id] = product.get('process');
+                this.wpsProdChange = true;
               }
 
 
@@ -343,6 +345,10 @@
               if (this.activeModels.indexOf(product.get("download").id)!=-1){
                 this.activeModels.splice(this.activeModels.indexOf(product.get("download").id), 1);
                 this.updateLayerResidualParameters();
+              }
+              if (this.activeWPSproducts.hasOwnProperty(product.get("download").id)){
+                delete this.activeWPSproducts[product.get("download").id];
+                this.wpsProdChange = true;
               }
             }
           }
@@ -369,13 +375,13 @@
         var style = parameters[band].colorscale;
         var range = parameters[band].range;
 
-        //this.filterManager.dataSettings[band].colorscale = style;
-        this.filterManager.dataSettings[band].extent = range;
+        // If layer is not WMS apply normal filter changes
+        if(currProd.get('views')[0].protocol !== 'WMS'){
+          this.filterManager.dataSettings[band].extent = range;
+          this.filterManager._initData();
+          this.filterManager._renderFilters();
+        }
 
-        //this.filterManager.updateDataSettings(this.filterManager.dataSettings);
-        //this.filterManager.updateDataSettings(this.filterManager.dataSettings);
-        this.filterManager._initData();
-        this.filterManager._renderFilters();
 
       },
       
@@ -419,12 +425,15 @@
         if (this.selected_time == null)
           this.selected_time = Communicator.reqres.request('get:time');
 
-        if (this.activeWPSproducts.length > 0 && this.selected_time){
-          for (var i = 0; i < this.activeWPSproducts.length; i++) {
-            this.sendRequest(this.activeWPSproducts[i]);
+        var prodKeys = Object.keys(this.activeWPSproducts);
+
+        if (prodKeys.length > 0 && this.selected_time && this.wpsProdChange){
+          this.wpsProdChange = false;
+          for (var i = 0; i < prodKeys.length; i++) {
+            this.sendRequest(prodKeys[i]);
           }
           //this.sendRequest(id);
-        }else{
+        }else if(this.wpsProdChange){
           globals.swarm.set({data:[]});
           //Communicator.mediator.trigger("map:clear:image");
           //$(".colorlegend").empty();
@@ -432,6 +441,7 @@
       },
 
       onTimeChange: function (time) {
+        this.wpsProdChange = true;
         this.selected_time = time;
         this.checkSelections();
         this.checkModelValidity();
@@ -560,8 +570,13 @@
         return output;
       },
 
-      sendRequest: function(process){
+      sendRequest: function(prodId){
         var xhr = new XMLHttpRequest();
+
+        var process = {
+          collectionId: prodId,
+          id: this.activeWPSproducts[prodId]
+        }
 
         var product = globals.products.find(
             function(p){return p.get('download').id === process.collectionId;}
