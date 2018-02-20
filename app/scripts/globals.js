@@ -61,6 +61,54 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 extent: [-20, 20]
             },
 
+            // L2C
+
+            'rayleigh_wind_result_start_time': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'rayleigh_wind_result_stop_time': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'rayleigh_wind_result_wind_velocity': {
+                uom: 'm/s',
+                colorscale: 'viridis',
+                extent: [-20,20]
+            },
+            'rayleigh_wind_result_bottom_altitude':{
+                name: 'altitude',
+                uom: 'm'
+            },
+            'rayleigh_wind_result_top_altitude':{
+                name: 'altitude',
+                uom: 'm'
+            },
+
+
+
+            'mie_wind_result_start_time': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'mie_wind_result_stop_time': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'mie_wind_result_wind_velocity': {
+                uom: 'm/s',
+                colorscale: 'viridis',
+                extent: [-20,20]
+            },
+            'mie_wind_result_bottom_altitude':{
+                name: 'altitude',
+                uom: 'm'
+            },
+            'mie_wind_result_top_altitude':{
+                name: 'altitude',
+                uom: 'm'
+            },
+
             // AUX MRC and AUX RRC
             'frequency_valid': {
                 extent: [0, 1],

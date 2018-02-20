@@ -605,9 +605,14 @@
               //'latitude_of_DEM_intersection','longitude_of_DEM_intersection',
               'SCA_extinction',
           ].join(),
-           'ALD_U_N_2C': [
-              'rayleigh_profile_lat_of_DEM_intersection'
-          ].join(),
+           'ALD_U_N_2C': {
+              'mie_profile_fields': ['mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection'].join(),
+              'mie_wind_fields': ['mie_wind_result_wind_velocity', 'mie_wind_result_start_time', 'mie_wind_result_stop_time',
+              'mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'].join(),
+              'rayleigh_profile_fields': ['rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection'].join(),
+              'rayleigh_wind_fields': ['rayleigh_wind_result_wind_velocity', 'rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time',
+              'rayleigh_wind_result_bottom_altitude', 'rayleigh_wind_result_top_altitude'].join(),
+           },
           'AUX_MRC_1B': [
             'lat_of_DEM_intersection', 'lon_of_DEM_intersection', 'time_freq_step',
             'frequency_offset', 'frequency_valid',
@@ -701,10 +706,23 @@
               max: 0
             }
           });*/
+        } else if(collectionId === 'ALD_U_N_2C'){
+          options = Object.assign(options, fieldsList[collectionId]);
+          options["filters"] = JSON.stringify({
+            mie_wind_result_validity_flag: {
+              min: 1,
+              max: 1
+            }, 
+            rayleigh_wind_result_validity_flag: {
+              min: 1,
+              max: 1
+            }
+          });
         } else {
           var auxType = collectionId.slice(4, -3);
           options["fields"] = fieldsList[collectionId];
           options['aux_type'] = auxType;
+
         }
 
         var body = wps_l1bTmpl(options);
@@ -909,6 +927,20 @@
                 resData['observation_index'] = obsIndex;
               } else if(collectionId === 'AUX_MET_12'){
                 resData = ds;
+              } else if(collectionId === 'ALD_U_N_2C'){
+                for (var k = 0; k < keys.length; k++) {
+                  var subK = Object.keys(ds[keys[k]]);
+                  for (var l = 0; l < subK.length; l++) {
+                    
+                    if(subK[l] === 'mie_wind_result_wind_velocity' ||
+                       subK[l] === 'rayleigh_wind_result_wind_velocity'){
+                      // Convert from cm/s to m/s
+                      resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 100; });
+                    } else {
+                      resData[subK[l]] = ds[keys[k]][subK[l]];
+                    }
+                  }
+                }
               } else {
                 // Flatten structure as we do not need the different levels
                 // to render the data

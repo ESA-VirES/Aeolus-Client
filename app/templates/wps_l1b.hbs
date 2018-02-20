@@ -50,6 +50,34 @@
       </wps:Data>
     </wps:Input>
     {{/if}}
+    {{#if mie_profile_fields}}
+    <wps:Input>
+      <ows:Identifier>mie_profile_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{mie_profile_fields}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
+    {{#if rayleigh_profile_fields}}
+    <wps:Input>
+      <ows:Identifier>rayleigh_profile_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{rayleigh_profile_fields}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
+    {{#if mie_wind_fields}}
+    <wps:Input>
+      <ows:Identifier>mie_wind_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{mie_wind_fields}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
+    {{#if rayleigh_wind_fields}}
+    <wps:Input>
+      <ows:Identifier>rayleigh_wind_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{rayleigh_wind_fields}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
     {{#if filters}}
     <wps:Input>
       <ows:Identifier>filters</ows:Identifier>
