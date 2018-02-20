@@ -208,6 +208,49 @@
             "outlines": true
         },
         {
+            "name": "ADM L2C",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "visible": false,
+            "views": [{
+                "id": "ALD_U_N_2C",
+                "protocol": "WPS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "ALD_U_N_2C",
+                "protocol": "WPS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "process" : "aeolus:level2C",
+            "parameters": {
+                "mie_HLOS_wind_speed": {
+                    "range": [-20, 20],
+                    "uom":"m/s",
+                    "selected": true,
+                    "colorscale": "viridis",
+                    "name": "Mie HLOS wind speed"
+                },
+                "rayleigh_HLOS_wind_speed": {
+                    "range": [-40, 40],
+                    "uom":"m/s",
+                    "colorscale": "plasma",
+                    "name": "Rayleigh HLOS wind speed"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                }
+            },
+            "outlines": true
+        },
+        {
             "name": "AUX MRC",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",

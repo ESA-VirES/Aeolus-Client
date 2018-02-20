@@ -605,6 +605,9 @@
               //'latitude_of_DEM_intersection','longitude_of_DEM_intersection',
               'SCA_extinction',
           ].join(),
+           'ALD_U_N_2C': [
+              'rayleigh_profile_lat_of_DEM_intersection'
+          ].join(),
           'AUX_MRC_1B': [
             'lat_of_DEM_intersection', 'lon_of_DEM_intersection', 'time_freq_step',
             'frequency_offset', 'frequency_valid',
