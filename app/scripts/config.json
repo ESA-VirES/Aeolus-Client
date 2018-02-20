@@ -377,6 +377,52 @@
                 }
             },
             "outlines": false
+        },{
+            "name": "ADAM_albedo",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "opacity": 0.7,
+            "tileSize":512,
+            "views": [{
+                "id": "ADAM_albedo",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "ADAM_albedo",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "nadir": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "name": "nadir",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "offnadir": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "name": "off nadir",
+                    "colorscale": "jet"
+                }
+            },
+            "download_parameters": {
+                "nadir": {
+                    "uom":null,
+                    "name": "nadir"
+                },
+                "offnadir": {
+                    "uom":null,
+                    "name": "off nadir"
+                }
+            }
         }],
         "overlays": [{
             "name": "Coastlines and Countries",

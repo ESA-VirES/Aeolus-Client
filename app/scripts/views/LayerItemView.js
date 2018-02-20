@@ -138,10 +138,12 @@
                     // TODO: Think how can manage all different datatype
                     //       of the aeolus mission
                     // If a product is being activated we deactivate all
-                    // other products
+                    // other products if they are not WMS
                     globals.products.each(function(p) {
                         if(p.get('download').id !== product.get('download').id &&
-                            p.get('visible')){
+                           p.get('visible') && p.get('views')[0].protocol !== 'WMS' &&
+                           product.get('views')[0].protocol !== 'WMS'){
+
                             p.set('visible', false);
                             Communicator.mediator.trigger('map:layer:change', { 
                                 name: p.get('name'), isBaseLayer: false, visible: false 
