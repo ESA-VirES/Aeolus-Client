@@ -155,7 +155,7 @@ define([
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
                         //this.graph.loadData(data[idKeys[i]]);
-                        if(idKeys[i] === 'AEOLUS'){
+                        if(idKeys[i] === 'ALD_U_N_1B'){
                             that.createCurtains(data[idKeys[i]], idKeys[i]);
                         } else if (idKeys[i] === 'ALD_U_N_2C'){
                             this.createL2Curtains(data[idKeys[i]], idKeys[i]);
@@ -484,7 +484,7 @@ define([
             if (Object.keys(data).length){
                 var idKeys = Object.keys(data);
                 for (var i = idKeys.length - 1; i >= 0; i--) {
-                    if(idKeys[i] === 'AEOLUS'){
+                    if(idKeys[i] === 'ALD_U_N_1B'){
                         this.createCurtains(data[idKeys[i]], idKeys[i]);
                     } else if (idKeys[i] === 'ALD_U_N_2C'){
                         this.createL2Curtains(data[idKeys[i]], idKeys[i]);
@@ -525,7 +525,7 @@ define([
                     //this.createDataFeatures(data, 'pointcollection', 'band');
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
-                        if(idKeys[i] === 'AEOLUS'){
+                        if(idKeys[i] === 'ALD_U_N_1B'){
                             this.createCurtains(data[idKeys[i]], idKeys[i]);
                         } else if (idKeys[i] === 'ALD_U_N_2C'){
                             this.createL2Curtains(data[idKeys[i]], idKeys[i]);
@@ -1922,7 +1922,7 @@ define([
             if (Object.keys(data).length){
                 var idKeys = Object.keys(data);
                 for (var i = idKeys.length - 1; i >= 0; i--) {
-                    if(idKeys[i] === 'AEOLUS'){
+                    if(idKeys[i] === 'ALD_U_N_1B'){
                         this.createCurtains(data[idKeys[i]], idKeys[i]);
                     } else if (idKeys[i] === 'ALD_U_N_2C'){
                         this.createL2Curtains(data[idKeys[i]], idKeys[i]);
@@ -1949,7 +1949,7 @@ define([
                     var covid = product.get('download').id;
                     var data = globals.swarm.get('data')[covid];
 
-                     if(covid === 'AEOLUS'){
+                     if(covid === 'ALD_U_N_1B'){
                         this.createCurtains(data, covid);
                     } else if (covid === 'ALD_U_N_2C'){
                         this.createL2Curtains(data, covid);

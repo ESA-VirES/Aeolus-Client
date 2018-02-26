@@ -587,7 +587,7 @@
         var collectionId = product.get('download').id;
         var parameters = '';
         var fieldsList = {
-          'AEOLUS': [
+          'ALD_U_N_1B': [
               'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
               'mie_HLOS_wind_speed','mie_altitude',// 'mie_range', 'mie_SNR',
               'mie_bin_quality_flag',
@@ -662,7 +662,7 @@
 
         }
 
-        if(collectionId === 'AEOLUS'){
+        if(collectionId === 'ALD_U_N_1B'){
           parameters += 
             'observation_fields='+fieldsList[collectionId]
         }else{
@@ -698,7 +698,7 @@
           options["bbox"] = bb.w + "," + bb.s + "," + bb.e + "," + bb.n;
         }
 
-        if(collectionId === 'AEOLUS' || collectionId === 'ALD_U_N_2A'){
+        if(collectionId === 'ALD_U_N_1B' || collectionId === 'ALD_U_N_2A'){
           options["observation_fields"] = fieldsList[collectionId];
           /*options["filters"] = JSON.stringify({
             mie_bin_quality_flag: {
@@ -749,7 +749,7 @@
               that.filterManager.resetManager();
             }
 
-            if(collectionId === 'AEOLUS'){
+            if(collectionId === 'ALD_U_N_1B'){
 
               // TODO: Here we need to differentiate between observations and measurements
               ds = ds[0];
@@ -797,7 +797,7 @@
               // MIE
               var mie_time = that.proxyFlattenObservationArraySE(ds.time, ds.mie_altitude, stepPositions);
               var mie_HLOS_wind_speed = that.flattenObservationArray(ds.mie_HLOS_wind_speed, stepPositions);
-              //var mie_latitude = that.flattenMeasurementArraySE(data.AEOLUS[1].mie_latitude);
+              //var mie_latitude = that.flattenMeasurementArraySE(data.ALD_U_N_1B[1].mie_latitude);
               var mie_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
                 ds.latitude_of_DEM_intersection,
                 ds.mie_altitude,
@@ -828,7 +828,7 @@
               // RAYLEIGH
               var ray_time = that.proxyFlattenObservationArraySE(ds.time, ds.rayleigh_altitude, stepPositions);
               var ray_HLOS_wind_speed = that.flattenObservationArray(ds.rayleigh_HLOS_wind_speed, stepPositions);
-              //var mie_latitude = that.flattenMeasurementArraySE(data.AEOLUS[1].mie_latitude);
+              //var mie_latitude = that.flattenMeasurementArraySE(data.ALD_U_N_1B[1].mie_latitude);
               var ray_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
                 ds.latitude_of_DEM_intersection,
                 ds.rayleigh_altitude,
@@ -957,7 +957,6 @@
                   }
                 }
                 resData['mie_jumps'] = mieJumpPositions;
-                console.log(mieJumpPositions);
 
                 var rayleighJumpPositions = [];
                 for (var i = 1; i < ds.rayleigh_profile_data.rayleigh_profile_lat_of_DEM_intersection.length; i++) {
@@ -972,9 +971,6 @@
                   }
                 }
                 resData['rayleigh_jumps'] = rayleighJumpPositions;
-                console.log(rayleighJumpPositions);
-
-
               } else {
                 // Flatten structure as we do not need the different levels
                 // to render the data

@@ -243,19 +243,19 @@ define(['backbone.marionette',
 
                 // TODO: Seems this is never called?
 
-                /*if(idKeys[0] === 'AEOLUS'){
+                /*if(idKeys[0] === 'ALD_U_N_1B'){
                     this.graph1.renderSettings =  this.renderSettings.mie;
                     this.graph2.renderSettings =  this.renderSettings.rayleigh;
                     $('#graph_1').css('height', '49%').css('height', '-=131px');
                     $('#graph_2').css('height', '49%').css('height', '-=131px');
                     $('#graph_2').show();
-                    this.graph1.loadData(data['AEOLUS']);
-                    this.graph2.loadData(data['AEOLUS']);
+                    this.graph1.loadData(data['ALD_U_N_1B']);
+                    this.graph2.loadData(data['ALD_U_N_1B']);
                     this.graph1.resize();
                     this.graph2.resize();
                     this.graph1.connectGraph(this.graph2);
                     this.graph2.connectGraph(this.graph1);
-                    this.filterManager.loadData(data['AEOLUS']);
+                    this.filterManager.loadData(data['ALD_U_N_1B']);
 
                 }else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
                     this.graph1.renderSettings =  this.renderSettings[idKeys[0]];
@@ -316,7 +316,7 @@ define(['backbone.marionette',
         onLayerParametersChanged: function(layer){
 
             // Parameters only apply for L1B curtains (possibly L2B)
-            if(layer === 'AEOLUS'){
+            if(layer === 'ALD_U_N_1B'){
                 var currProd = globals.products.find(
                     function(p){return p.get('download').id === layer;}
                 );
@@ -354,19 +354,19 @@ define(['backbone.marionette',
                     $('#nodataavailable').hide();
                     //this.graph.loadData(data);
                     // TODO: Iterate through all ids and load to corresponding graphs
-                    if(idKeys[0] === 'AEOLUS'){
+                    if(idKeys[0] === 'ALD_U_N_1B'){
                         this.graph1.renderSettings =  this.renderSettings.mie;
                         this.graph2.renderSettings =  this.renderSettings.rayleigh;
                         $('#graph_1').css('height', '49%').css('height', '-=131px');
                         $('#graph_2').css('height', '49%').css('height', '-=131px');
                         $('#graph_2').show();
-                        this.graph1.loadData(data['AEOLUS']);
-                        this.graph2.loadData(data['AEOLUS']);
+                        this.graph1.loadData(data['ALD_U_N_1B']);
+                        this.graph2.loadData(data['ALD_U_N_1B']);
                         this.graph1.resize();
                         this.graph2.resize();
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
-                        this.filterManager.loadData(data['AEOLUS']);
+                        this.filterManager.loadData(data['ALD_U_N_1B']);
                      }else if(idKeys[0] === 'ALD_U_N_2C'){
 
                         this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2C_mie;

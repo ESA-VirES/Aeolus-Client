@@ -134,7 +134,7 @@
             "timeSliderProtocol": "WPS",
             "visible": true,
             "views": [{
-                "id": "AEOLUS",
+                "id": "ALD_U_N_1B",
                 "protocol": "WPS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -143,7 +143,7 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "AEOLUS",
+                "id": "ALD_U_N_1B",
                 "protocol": "WPS",
                 "url": "http://localhost:9000/vires00/ows"
             },
