@@ -157,6 +157,8 @@ define([
                         //this.graph.loadData(data[idKeys[i]]);
                         if(idKeys[i] === 'AEOLUS'){
                             that.createCurtains(data[idKeys[i]], idKeys[i]);
+                        } else if (idKeys[i] === 'ALD_U_N_2C'){
+                            this.createL2Curtains(data[idKeys[i]], idKeys[i]);
                         } else {
                             that.graph.data = {};
                             that.createPointCollection(data[idKeys[i]], idKeys[i]);
@@ -484,6 +486,8 @@ define([
                 for (var i = idKeys.length - 1; i >= 0; i--) {
                     if(idKeys[i] === 'AEOLUS'){
                         this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    } else if (idKeys[i] === 'ALD_U_N_2C'){
+                        this.createL2Curtains(data[idKeys[i]], idKeys[i]);
                     } else {
                         this.createPointCollection(data[idKeys[i]], idKeys[i]);
                     }
@@ -523,6 +527,8 @@ define([
                     for (var i = idKeys.length - 1; i >= 0; i--) {
                         if(idKeys[i] === 'AEOLUS'){
                             this.createCurtains(data[idKeys[i]], idKeys[i]);
+                        } else if (idKeys[i] === 'ALD_U_N_2C'){
+                            this.createL2Curtains(data[idKeys[i]], idKeys[i]);
                         } else {
                             this.graph.data = {};
                             this.createPointCollection(data[idKeys[i]], idKeys[i]);
@@ -823,6 +829,321 @@ define([
                 curtainCollection.add(linesPrim);
             }
         },
+
+
+
+        createL2Curtains: function(data, cov_id, alpha, height){
+
+            var currProd = globals.products.find(
+                function(p){return p.get('download').id === cov_id;}
+            );
+
+            var curtainCollection;
+
+            if(currProd.hasOwnProperty('curtains')){
+                currProd.curtains.removeAll();
+                curtainCollection = currProd.curtains;
+            }else{
+                curtainCollection = new Cesium.PrimitiveCollection();
+                this.activeCurtainCollections.push(curtainCollection);
+                this.map.scene.primitives.add(curtainCollection);
+                currProd.curtains = curtainCollection;
+            }
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
+
+            alpha = currProd.get('opacity');
+
+            this.dataSettings[band].colorscale = style;
+            this.dataSettings[band].extent = range;
+            this.graph.dataSettings = this.dataSettings;
+
+            var dataJumps, lats, lons, pStartTimes, pStopTimes;
+
+            if(band === 'mie_wind_result_wind_velocity'){
+                this.graph.renderSettings.combinedParameters = {
+                    mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
+                    time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
+                };
+                this.graph.renderSettings.colorAxis = ['mie_wind_result_wind_velocity'];
+                this.graph.renderSettings.yAxis = ['mie_altitude'];
+                this.graph.renderSettings.xAxis ='time';
+                dataJumps = data.mie_jumps;
+                lats = data.mie_profile_lat_of_DEM_intersection;
+                lons = data.mie_profile_lon_of_DEM_intersection;
+                pStartTimes = data.mie_profile_datetime_start;
+                pStopTimes = data.mie_profile_datetime_stop;
+            }else if(band === 'rayleigh_wind_result_wind_velocity'){
+                this.graph.renderSettings.combinedParameters = {
+                    rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
+                    time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
+                };
+                this.graph.renderSettings.colorAxis = ['rayleigh_wind_result_wind_velocity'];
+                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
+                this.graph.renderSettings.xAxis ='time';
+                dataJumps = data.rayleigh_jumps;
+                lats = data.rayleigh_profile_lat_of_DEM_intersection;
+                lons = data.rayleigh_profile_lon_of_DEM_intersection;
+                pStartTimes = data.rayleigh_profile_datetime_start;
+                pStopTimes = data.rayleigh_profile_datetime_stop;
+            }
+
+
+            height = 1000000;
+            var lineInstances = [];
+            var renderOutlines = defaultFor(currProd.get('outlines'), false);
+
+            
+            //TODO: How to correctly handle multiple curtains with jumps
+            for (var i = 0; i <= dataJumps.length; i++) {
+
+                var startSlice, endSlice;
+                if(dataJumps.length === 0){
+                    this.graph.loadData(data);
+                } else {
+                    // get extent limits for curtain piece
+                    startSlice = 0;
+                    if(i>0){
+                        startSlice = dataJumps[i-1];
+                    }
+                    if(i<dataJumps.length){
+                        endSlice = dataJumps[i];
+                    }else{
+                        endSlice = lats.length-1;
+                    }
+                    var start = new Date('2000-01-01');
+                    start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice]*1000);
+                    var end = new Date('2000-01-01');
+                    end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice]*1000);
+                    this.graph.setXDomain([start, end]);
+                    this.graph.loadData(data);
+                    this.graph.clearXDomain();
+                }
+                var newmat = new Cesium.Material.fromType('Image', {
+                    image : this.graph.getCanvasImage(),
+                    color: new Cesium.Color(1, 1, 1, alpha),
+                });
+                newmat.uniforms.repeat.x = -1;
+
+                var slicedLats, slicedLons;
+
+                if(dataJumps.length > 0){
+                    slicedLats = lats.slice(startSlice, endSlice);
+                    slicedLons = lons.slice(startSlice, endSlice);
+                } else {
+                    slicedLats = lats;
+                    slicedLons = lons;
+                }
+
+                var posDataHeight = [];
+                var posData = [];
+                for (var p = 0; p < slicedLats.length; p+=2) {
+                    posDataHeight.push(slicedLons[p]);
+                    posDataHeight.push(slicedLats[p]);
+                    posDataHeight.push(height);
+                    posData.push(slicedLons[p]);
+                    posData.push(slicedLats[p]);
+                }
+
+                if(renderOutlines){
+                    lineInstances.push(
+                        new Cesium.GeometryInstance({
+                            geometry : new Cesium.PolylineGeometry({
+                                positions : 
+                                Cesium.Cartesian3.fromDegreesArrayHeights(
+                                    posDataHeight
+                                ),
+                                width : 10.0
+                            })
+                        })
+                    );
+
+                    lineInstances.push(
+                        new Cesium.GeometryInstance({
+                            geometry : new Cesium.PolylineGeometry({
+                                positions : 
+                                Cesium.Cartesian3.fromDegreesArray(
+                                    posData
+                                ),
+                                width : 10.0
+                            })
+                        })
+                    );
+                }
+
+                var maxHeights = [];
+                for (var j = 0; j <posData.length; j++) {
+                    maxHeights.push(height);
+                }
+                var wall = new Cesium.WallGeometry({
+                    positions : Cesium.Cartesian3.fromDegreesArrayHeights(
+                        posDataHeight
+                    )
+                });
+                var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
+                var instance = new Cesium.GeometryInstance({
+                  geometry : wallGeometry
+                });
+
+                // Check if normal is negative, if it is we need to flip the
+                // direction of the texture to be applied
+                if(wallGeometry.attributes.normal.values[0]<0){
+                    newmat.uniforms.repeat.x = 1;
+                }
+
+                var sliceAppearance = new Cesium.MaterialAppearance({
+                    translucent : true,
+                    flat: true,
+                    faceForward: true,
+                    //closed: true,
+                    material : newmat
+                });
+
+                //instances.push(instance);
+                var prim = new Cesium.Primitive({
+                  geometryInstances : instance,
+                  appearance : sliceAppearance,
+                  releaseGeometryInstances: false,
+                  //asynchronous: false
+                });
+
+                curtainCollection.add(prim);
+            }
+                /*for (var i = 0; i <= dataJumps.length; i++) {
+
+                    if (i>0){
+                        start = data.stepPositions[i-1]*2+4;
+                        dataStartMie = data.mie_jumps[i*2-1];
+                        dataEndMie = data.mie_jumps[i*2];
+                        dataStartRay = data.rayleigh_jumps[i*2-1];
+                        dataEndRay = data.rayleigh_jumps[i*2];
+                    }
+                    if(i===data.stepPositions.length){
+                        end = data.positions.length;
+                        dataEndMie = data['mie_HLOS_wind_speed'].length;
+                        dataEndRay = data['rayleigh_HLOS_wind_speed'].length;
+                    }
+
+                    var dataSlice = {};
+                    var dataKeys = Object.keys(data);
+                    for (var k = dataKeys.length - 1; k >= 0; k--) {
+                        if (dataKeys[k].indexOf('mie')!==-1){
+                            dataSlice[dataKeys[k]] = 
+                            data[dataKeys[k]].slice(dataStartMie, dataEndMie);
+                        } else if (dataKeys[k].indexOf('ray')!==-1){
+                            dataSlice[dataKeys[k]] = 
+                            data[dataKeys[k]].slice(dataStartRay, dataEndRay);
+                        }
+                    }
+
+                    this.graph.loadData(dataSlice);
+
+                    var newmat = new Cesium.Material.fromType('Image', {
+                        image : this.graph.getCanvasImage(),
+                        color: new Cesium.Color(1, 1, 1, alpha),
+                    });
+                    newmat.uniforms.repeat.x = 1;
+
+
+                    var slicedPosData = data.positions.slice(start, end);
+
+                    if(renderOutlines){
+                        var slicedPosDataWithHeight = [];
+                        for (var p = 0; p < slicedPosData.length; p+=2) {
+                            slicedPosDataWithHeight.push(slicedPosData[p]);
+                            slicedPosDataWithHeight.push(slicedPosData[p+1]);
+                            slicedPosDataWithHeight.push(height);
+                        }
+
+
+                        lineInstances.push(
+                            new Cesium.GeometryInstance({
+                                geometry : new Cesium.PolylineGeometry({
+                                    positions : 
+                                    Cesium.Cartesian3.fromDegreesArrayHeights(
+                                        slicedPosDataWithHeight
+                                    ),
+                                    width : 10.0
+                                })
+                            })
+                        );
+
+                        lineInstances.push(
+                            new Cesium.GeometryInstance({
+                                geometry : new Cesium.PolylineGeometry({
+                                    positions : 
+                                    Cesium.Cartesian3.fromDegreesArray(
+                                        slicedPosData
+                                    ),
+                                    width : 10.0
+                                })
+                            })
+                        );
+                    }
+
+                    var maxHeights = [];
+                    for (var j = 0; j <slicedPosData.length; j++) {
+                        maxHeights.push(height);
+                    }
+                    var wall = new Cesium.WallGeometry({
+                        positions : Cesium.Cartesian3.fromDegreesArray(slicedPosData),
+                        maximumHeights : maxHeights,
+                    });
+                    var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
+                    var instance = new Cesium.GeometryInstance({
+                      geometry : wallGeometry
+                    });
+
+                    // Check if normal is negative, if it is we need to flip the
+                    // direction of the texture to be applied
+                    if(wallGeometry.attributes.normal.values[0]<0){
+                        newmat.uniforms.repeat.x = -1;
+                    }
+
+                    var sliceAppearance = new Cesium.MaterialAppearance({
+                        translucent : true,
+                        flat: true,
+                        faceForward: true,
+                        //closed: true,
+                        material : newmat
+                    });
+
+                    //instances.push(instance);
+                    var prim = new Cesium.Primitive({
+                      geometryInstances : instance,
+                      appearance : sliceAppearance,
+                      releaseGeometryInstances: false,
+                      //asynchronous: false
+                    });
+
+                    curtainCollection.add(prim);
+                }*/
+
+
+
+            if(renderOutlines){
+                var linesPrim = new Cesium.Primitive({
+                    geometryInstances: lineInstances,
+                    appearance: new Cesium.PolylineMaterialAppearance({
+                        material : new Cesium.Material.fromType('PolylineArrow', {
+                            color: new Cesium.Color(0.53, 0.02, 0.65, 1)
+                        })
+                    })
+                });
+                curtainCollection.add(linesPrim);
+            }
+
+        },
+
 
         //method to create layer depending on protocol
         //setting possible description attributes
@@ -1603,6 +1924,8 @@ define([
                 for (var i = idKeys.length - 1; i >= 0; i--) {
                     if(idKeys[i] === 'AEOLUS'){
                         this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    } else if (idKeys[i] === 'ALD_U_N_2C'){
+                        this.createL2Curtains(data[idKeys[i]], idKeys[i]);
                     } else {
                         this.createPointCollection(data[idKeys[i]], idKeys[i]);
                     }
@@ -1625,7 +1948,12 @@ define([
                     //this.updateCurtain(product.get('download').id);
                     var covid = product.get('download').id;
                     var data = globals.swarm.get('data')[covid];
-                    this.createCurtains(data, covid);
+
+                     if(covid === 'AEOLUS'){
+                        this.createCurtains(data, covid);
+                    } else if (covid === 'ALD_U_N_2C'){
+                        this.createL2Curtains(data, covid);
+                    }
                     this.checkColorscale(covid);
                 }
 

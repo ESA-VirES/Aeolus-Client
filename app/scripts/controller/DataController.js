@@ -606,10 +606,10 @@
               'SCA_extinction',
           ].join(),
            'ALD_U_N_2C': {
-              'mie_profile_fields': ['mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection'].join(),
+              'mie_profile_fields': ['mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection', 'mie_profile_datetime_start', 'mie_profile_datetime_stop'].join(),
               'mie_wind_fields': ['mie_wind_result_wind_velocity', 'mie_wind_result_start_time', 'mie_wind_result_stop_time',
               'mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'].join(),
-              'rayleigh_profile_fields': ['rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection'].join(),
+              'rayleigh_profile_fields': ['rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection', 'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop'].join(),
               'rayleigh_wind_fields': ['rayleigh_wind_result_wind_velocity', 'rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time',
               'rayleigh_wind_result_bottom_altitude', 'rayleigh_wind_result_top_altitude'].join(),
            },
@@ -941,6 +941,40 @@
                     }
                   }
                 }
+                var lonStep = 12.5;
+                var latStep = 12.5;
+
+                var mieJumpPositions = [];
+                for (var i = 1; i < ds.mie_profile_data.mie_profile_lat_of_DEM_intersection.length; i++) {
+                  if (Math.abs(
+                      ds.mie_profile_data.mie_profile_lat_of_DEM_intersection[i-1]-
+                      ds.mie_profile_data.mie_profile_lat_of_DEM_intersection[i]) >= Math.abs(latStep)) {
+                    mieJumpPositions.push(i);
+                  }else if (Math.abs(
+                      ds.mie_profile_data.mie_profile_lon_of_DEM_intersection[i-1]-
+                      ds.mie_profile_data.mie_profile_lon_of_DEM_intersection[i]) >= Math.abs(latStep)) {
+                    mieJumpPositions.push(i);
+                  }
+                }
+                resData['mie_jumps'] = mieJumpPositions;
+                console.log(mieJumpPositions);
+
+                var rayleighJumpPositions = [];
+                for (var i = 1; i < ds.rayleigh_profile_data.rayleigh_profile_lat_of_DEM_intersection.length; i++) {
+                  if (Math.abs(
+                      ds.rayleigh_profile_data.rayleigh_profile_lat_of_DEM_intersection[i-1]-
+                      ds.rayleigh_profile_data.rayleigh_profile_lat_of_DEM_intersection[i]) >= Math.abs(latStep)) {
+                    rayleighJumpPositions.push(i);
+                  }else if (Math.abs(
+                      ds.rayleigh_profile_data.rayleigh_profile_lon_of_DEM_intersection[i-1]-
+                      ds.rayleigh_profile_data.rayleigh_profile_lon_of_DEM_intersection[i]) >= Math.abs(latStep)) {
+                    rayleighJumpPositions.push(i);
+                  }
+                }
+                resData['rayleigh_jumps'] = rayleighJumpPositions;
+                console.log(rayleighJumpPositions);
+
+
               } else {
                 // Flatten structure as we do not need the different levels
                 // to render the data
