@@ -132,6 +132,26 @@ define(['backbone.marionette',
                     colorAxis: ['SCA_extinction']
 
                 },
+                'ALD_U_N_2B_mie': {
+                    xAxis: 'time',
+                    yAxis: [ 'mie_altitude'],
+                    combinedParameters: {
+                        mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
+                        time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
+                    },
+                    colorAxis: ['mie_wind_result_wind_velocity']
+
+                },
+                'ALD_U_N_2B_rayleigh': {
+                    xAxis: 'time',
+                    yAxis: [ 'rayleigh_altitude'],
+                    combinedParameters: {
+                        rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
+                        time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
+                    },
+                    colorAxis: ['rayleigh_wind_result_wind_velocity']
+
+                },
                 'ALD_U_N_2C_mie': {
                     xAxis: 'time',
                     yAxis: [ 'mie_altitude'],
@@ -402,6 +422,21 @@ define(['backbone.marionette',
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_2A']);
+
+                     }else if(idKeys[0] === 'ALD_U_N_2B'){
+
+                        this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2B_mie;
+                        this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2B_rayleigh;
+                        $('#graph_1').css('height', '49%').css('height', '-=131px');
+                        $('#graph_2').css('height', '49%').css('height', '-=131px');
+                        $('#graph_2').show();
+                        this.graph1.loadData(data['ALD_U_N_2B']);
+                        this.graph2.loadData(data['ALD_U_N_2B']);
+                        this.graph1.resize();
+                        this.graph2.resize();
+                        this.graph1.connectGraph(this.graph2);
+                        this.graph2.connectGraph(this.graph1);
+                        this.filterManager.loadData(data['ALD_U_N_2B']);
 
                      }else if(idKeys[0] === 'ALD_U_N_2C'){
 

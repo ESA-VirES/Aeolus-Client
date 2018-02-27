@@ -608,7 +608,13 @@
               'MCA_extinction', 'MCA_time_obs', 'MCA_LOD'
             ].join()
           },
-           'ALD_U_N_2C': {
+          'ALD_U_N_2B': {
+              'mie_profile_fields': ['mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection', 'mie_profile_datetime_start', 'mie_profile_datetime_stop'].join(),
+              'mie_wind_fields': ['mie_wind_result_wind_velocity', 'mie_wind_result_start_time', 'mie_wind_result_stop_time', 'mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'].join(),
+              'rayleigh_profile_fields': ['rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection', 'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop'].join(),
+              'rayleigh_wind_fields': ['rayleigh_wind_result_wind_velocity', 'rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time', 'rayleigh_wind_result_bottom_altitude', 'rayleigh_wind_result_top_altitude'].join(),
+          },
+          'ALD_U_N_2C': {
               'mie_profile_fields': ['mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection', 'mie_profile_datetime_start', 'mie_profile_datetime_stop'].join(),
               'mie_wind_fields': ['mie_wind_result_wind_velocity', 'mie_wind_result_start_time', 'mie_wind_result_stop_time',
               'mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'].join(),
@@ -705,7 +711,7 @@
           options["observation_fields"] = fieldsList[collectionId];
         } else if(collectionId === 'ALD_U_N_2A'){
           options = Object.assign(options, fieldsList[collectionId]);
-        } else if(collectionId === 'ALD_U_N_2C'){
+        } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
           options = Object.assign(options, fieldsList[collectionId]);
           options["filters"] = JSON.stringify({
             mie_wind_result_validity_flag: {
@@ -1004,7 +1010,7 @@
                 resData['jumps'] = jumpPos;
                 console.log(jumpPos);
 
-              } else if(collectionId === 'ALD_U_N_2C'){
+              } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
 
                 for (var k = 0; k < keys.length; k++) {
                   var subK = Object.keys(ds[keys[k]]);

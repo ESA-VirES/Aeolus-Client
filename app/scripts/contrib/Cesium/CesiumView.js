@@ -918,7 +918,34 @@ define([
 
                 },
                 'ALD_U_N_2B': {
-
+                    'mie_wind_result_wind_velocity': {
+                        lats: 'mie_profile_lat_of_DEM_intersection',
+                        lons: 'mie_profile_lon_of_DEM_intersection',
+                        timeStart: 'mie_profile_datetime_start',
+                        timeStop: 'mie_profile_datetime_stop',
+                        colorAxis: ['mie_wind_result_wind_velocity'],
+                        xAxis:'time',
+                        yAxis: ['mie_altitude'],
+                        combinedParameters: {
+                            mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
+                            time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
+                        },
+                        jumps: 'mie_jumps'
+                    },
+                    'rayleigh_wind_result_wind_velocity': {
+                        lats: 'rayleigh_profile_lat_of_DEM_intersection',
+                        lons: 'rayleigh_profile_lon_of_DEM_intersection',
+                        timeStart: 'rayleigh_profile_datetime_start',
+                        timeStop: 'rayleigh_profile_datetime_stop',
+                        colorAxis: ['rayleigh_wind_result_wind_velocity'],
+                        xAxis:'time',
+                        yAxis: ['rayleigh_altitude'],
+                        combinedParameters: {
+                            rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
+                            time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
+                        },
+                        jumps: 'rayleigh_jumps'
+                    }
                 },
                 'ALD_U_N_2C': {
                     'mie_wind_result_wind_velocity': {
