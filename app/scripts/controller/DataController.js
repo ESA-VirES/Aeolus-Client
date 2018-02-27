@@ -599,12 +599,15 @@
               'geoid_separation','velocity_at_DEM_intersection',
               //'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle'
           ].join(),
-          'ALD_U_N_2A': [
-              'SCA_time_obs','ICA_time_obs','MCA_time_obs',
-              'SCA_middle_bin_altitude_obs',
-              //'latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-              'SCA_extinction',
-          ].join(),
+          'ALD_U_N_2A': {
+            'observation_fields': [
+              'mie_altitude_obs','rayleigh_altitude_obs',
+              'longitude_of_DEM_intersection_obs', 'latitude_of_DEM_intersection_obs',
+              'altitude_of_DEM_intersection_obs', 
+              'SCA_extinction', 'SCA_time_obs','SCA_backscatter','SCA_LOD',
+              'MCA_extinction', 'MCA_time_obs', 'MCA_LOD'
+            ].join()
+          },
            'ALD_U_N_2C': {
               'mie_profile_fields': ['mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection', 'mie_profile_datetime_start', 'mie_profile_datetime_stop'].join(),
               'mie_wind_fields': ['mie_wind_result_wind_velocity', 'mie_wind_result_start_time', 'mie_wind_result_stop_time',
@@ -698,14 +701,10 @@
           options["bbox"] = bb.w + "," + bb.s + "," + bb.e + "," + bb.n;
         }
 
-        if(collectionId === 'ALD_U_N_1B' || collectionId === 'ALD_U_N_2A'){
+        if(collectionId === 'ALD_U_N_1B'){
           options["observation_fields"] = fieldsList[collectionId];
-          /*options["filters"] = JSON.stringify({
-            mie_bin_quality_flag: {
-              min: 0,
-              max: 0
-            }
-          });*/
+        } else if(collectionId === 'ALD_U_N_2A'){
+          options = Object.assign(options, fieldsList[collectionId]);
         } else if(collectionId === 'ALD_U_N_2C'){
           options = Object.assign(options, fieldsList[collectionId]);
           options["filters"] = JSON.stringify({
@@ -734,6 +733,7 @@
         //var collectionId = process.collectionId;
 
         xhr.onload = function(e) {
+            Communicator.mediator.trigger("progress:change", false);
             var tmp = new Uint8Array(this.response);
             var data = msgpack.decode(tmp);
 
@@ -927,7 +927,85 @@
                 resData['observation_index'] = obsIndex;
               } else if(collectionId === 'AUX_MET_12'){
                 resData = ds;
+              } else if(collectionId === 'ALD_U_N_2A'){
+                for (var k = 0; k < keys.length; k++) {
+                  var subK = Object.keys(ds[keys[k]]);
+                  for (var l = 0; l < subK.length; l++) {
+                    var curArr = ds[keys[k]][subK[l]];
+                    if( Array.isArray(curArr[0]) ){
+                      if(subK[l].includes('altitude')){
+                        // Create bottom and top arrays
+                        var tmpArrBottom = [];
+                        var tmpArrTop = [];
+                        for (var i = 0; i < curArr.length; i++) {
+                          for (var j = 0; j < 24; j++) {
+                            tmpArrBottom.push(curArr[i][j]);
+                            tmpArrTop.push(curArr[i][j+1]);
+                          }
+                        }
+                        resData[subK[l]+'_bottom'] = tmpArrBottom;
+                        resData[subK[l]+'_top'] = tmpArrTop;
+                      } else {
+                        resData[subK[l]] = [].concat.apply([], ds[keys[k]][subK[l]]);
+                      }
+                    }else{
+
+                      var tmpArr = [];
+                      for (var i = 0; i < curArr.length; i++) {
+                        for (var j = 0; j < 24; j++) {
+                          tmpArr.push(curArr[i]);
+                        }
+                      }
+                      resData[subK[l]+'_orig'] = curArr;
+                      resData[subK[l]] = tmpArr;
+                    }
+                  }
+                }
+                // Create new start and stop time to allow rendering
+                resData['SCA_time_obs_start'] = resData['SCA_time_obs'].slice();
+                resData['SCA_time_obs_stop'] = resData['SCA_time_obs'].slice(24, resData['SCA_time_obs'].length);
+                resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
+                resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].slice(24, resData['MCA_time_obs'].length);
+
+                resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
+                resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].slice(1, resData['SCA_time_obs_orig'].length);
+                resData['MCA_time_obs_orig_start'] = resData['MCA_time_obs_orig'].slice();
+                resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].slice(1, resData['MCA_time_obs_orig'].length);
+                // Add element with additional 12ms as it should be the default
+                // time interval between observations
+                // TODO: make sure this is acceptable! As there seems to be some 
+                // minor deviations at start and end of observations
+                var lastValSCA =  resData['SCA_time_obs_orig'].slice(-1)[0]+12;
+                var lastValMCA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
+                for (var i = 0; i < 24; i++) {
+                  resData['SCA_time_obs_stop'].push(lastValSCA);
+                  resData['MCA_time_obs_stop'].push(lastValMCA);
+                }
+                resData['SCA_time_obs_orig_stop'].push(lastValSCA);
+                resData['MCA_time_obs_orig_stop'].push(lastValMCA);
+
+                var lonStep = 12.5;
+                var latStep = 12.5;
+
+
+
+                var jumpPos = [];
+                for (var i = 1; i < resData.latitude_of_DEM_intersection_obs_orig.length; i++) {
+                  if (Math.abs(
+                      resData.latitude_of_DEM_intersection_obs_orig[i-1]-
+                      resData.latitude_of_DEM_intersection_obs_orig[i]) >= Math.abs(latStep)) {
+                    jumpPos.push(i);
+                  }else if (Math.abs(
+                      resData.longitude_of_DEM_intersection_obs_orig[i-1]-
+                      resData.longitude_of_DEM_intersection_obs_orig[i]) >= Math.abs(latStep)) {
+                    jumpPos.push(i);
+                  }
+                }
+                resData['jumps'] = jumpPos;
+                console.log(jumpPos);
+
               } else if(collectionId === 'ALD_U_N_2C'){
+
                 for (var k = 0; k < keys.length; k++) {
                   var subK = Object.keys(ds[keys[k]]);
                   for (var l = 0; l < subK.length; l++) {
@@ -998,6 +1076,7 @@
             }
         };
 
+        Communicator.mediator.trigger("progress:change", true);
         xhr.send(body);
 
       },

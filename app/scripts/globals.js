@@ -57,9 +57,66 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             // L2A
             'SCA_extinction': {
                 uom: '10-6 * m^-1',
+                colorscale: 'plasma',
+                extent: [-20, 20]
+            },
+            'SCA_backscatter': {
+                uom: '10-6 * m^-1* sr^-1',
+                colorscale: 'plasma',
+                extent: [-20, 20]
+            },
+            'SCA_time_obs':{
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'SCA_time_obs_start':{
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'SCA_time_obs_stop':{
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'mie_altitude_obs':{
+                name: 'mie altitude',
+                uom: 'm'
+            },
+            'rayleigh_altitude_obs':{
+                name: 'rayleigh altitude',
+                uom: 'm'
+            },
+            'longitude_of_DEM_intersection_obs':{
+                name: 'longitude',
+                uom: 'deg'
+            },
+             'latitude_of_DEM_intersection_obs':{
+                name: 'altitude',
+                uom: 'deg'
+            },
+             'altitude_of_DEM_intersection_obs':{
+                name: 'altitude',
+                uom: 'm'
+            },
+
+            'MCA_extinction': {
+                uom: '10-6 * m^-1',
                 colorscale: 'viridis',
                 extent: [-20, 20]
             },
+            'MCA_backscatter': {
+                uom: '10-6 * m^-1* sr^-1',
+                colorscale: 'viridis',
+                extent: [-20, 20]
+            },
+            'MCA_time_obs_start': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'MCA_time_obs_stop': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+
 
             // L2C
 

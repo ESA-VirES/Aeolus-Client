@@ -195,8 +195,15 @@
                     "range": [-20, 20],
                     "uom":"10-6 * m^-1",
                     "selected": true,
-                    "colorscale": "viridis",
+                    "colorscale": "plasma",
                     "name": "SCA extinction"
+                },
+                "MCA_extinction": {
+                    "range": [-20, 20],
+                    "uom":"10-6 * m^-1",
+                    "selected": true,
+                    "colorscale": "viridis",
+                    "name": "MCA extinction"
                 }
             },
             "download_parameters": {

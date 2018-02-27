@@ -157,7 +157,7 @@ define([
                         //this.graph.loadData(data[idKeys[i]]);
                         if(idKeys[i] === 'ALD_U_N_1B'){
                             that.createCurtains(data[idKeys[i]], idKeys[i]);
-                        } else if (idKeys[i] === 'ALD_U_N_2C'){
+                        } else if (idKeys[i].includes('ALD_U_N_2')){
                             this.createL2Curtains(data[idKeys[i]], idKeys[i]);
                         } else {
                             that.graph.data = {};
@@ -486,7 +486,7 @@ define([
                 for (var i = idKeys.length - 1; i >= 0; i--) {
                     if(idKeys[i] === 'ALD_U_N_1B'){
                         this.createCurtains(data[idKeys[i]], idKeys[i]);
-                    } else if (idKeys[i] === 'ALD_U_N_2C'){
+                    } else if (idKeys[i].includes('ALD_U_N_2')){
                         this.createL2Curtains(data[idKeys[i]], idKeys[i]);
                     } else {
                         this.createPointCollection(data[idKeys[i]], idKeys[i]);
@@ -527,7 +527,7 @@ define([
                     for (var i = idKeys.length - 1; i >= 0; i--) {
                         if(idKeys[i] === 'ALD_U_N_1B'){
                             this.createCurtains(data[idKeys[i]], idKeys[i]);
-                        } else if (idKeys[i] === 'ALD_U_N_2C'){
+                        } else if (idKeys[i].includes('ALD_U_N_2')){
                             this.createL2Curtains(data[idKeys[i]], idKeys[i]);
                         } else {
                             this.graph.data = {};
@@ -682,16 +682,32 @@ define([
 
             var dataJumps;
 
+            this.graph.renderSettings.combinedParameters = {
+                mie_latitude: ['mie_latitude_start', 'mie_latitude_end'],
+                mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
+                mie_latitude_of_DEM_intersection: [
+                    'mie_latitude_of_DEM_intersection_start',
+                    'mie_latitude_of_DEM_intersection_end'
+                ],
+                mie_time: ['mie_time_start', 'mie_time_end'],
+
+                rayleigh_latitude: ['rayleigh_latitude_start', 'rayleigh_latitude_end'],
+                rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
+                rayleigh_latitude_of_DEM_intersection: [
+                    'rayleigh_latitude_of_DEM_intersection_start',
+                    'rayleigh_latitude_of_DEM_intersection_end'
+                ],
+                rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end'],
+            };
+
             if(band === 'mie_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
                 this.graph.renderSettings.yAxis = ['mie_altitude'];
                 this.graph.renderSettings.xAxis =['mie_time'];
-                //dataJumps = data.mie_jumps;
             }else if(band === 'rayleigh_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
                 this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
                 this.graph.renderSettings.xAxis =['rayleigh_time'];
-                //dataJumps = data.rayleigh_jumps;
             }
 
 
@@ -869,33 +885,83 @@ define([
 
             var dataJumps, lats, lons, pStartTimes, pStopTimes;
 
-            if(band === 'mie_wind_result_wind_velocity'){
-                this.graph.renderSettings.combinedParameters = {
-                    mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
-                    time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
-                };
-                this.graph.renderSettings.colorAxis = ['mie_wind_result_wind_velocity'];
-                this.graph.renderSettings.yAxis = ['mie_altitude'];
-                this.graph.renderSettings.xAxis ='time';
-                dataJumps = data.mie_jumps;
-                lats = data.mie_profile_lat_of_DEM_intersection;
-                lons = data.mie_profile_lon_of_DEM_intersection;
-                pStartTimes = data.mie_profile_datetime_start;
-                pStopTimes = data.mie_profile_datetime_stop;
-            }else if(band === 'rayleigh_wind_result_wind_velocity'){
-                this.graph.renderSettings.combinedParameters = {
-                    rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
-                    time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
-                };
-                this.graph.renderSettings.colorAxis = ['rayleigh_wind_result_wind_velocity'];
-                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
-                this.graph.renderSettings.xAxis ='time';
-                dataJumps = data.rayleigh_jumps;
-                lats = data.rayleigh_profile_lat_of_DEM_intersection;
-                lons = data.rayleigh_profile_lon_of_DEM_intersection;
-                pStartTimes = data.rayleigh_profile_datetime_start;
-                pStopTimes = data.rayleigh_profile_datetime_stop;
-            }
+            var params = {
+                'ALD_U_N_2A': {
+                    'SCA_extinction': {
+                        lats: 'latitude_of_DEM_intersection_obs_orig',
+                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        timeStart: 'SCA_time_obs_orig_start',
+                        timeStop: 'SCA_time_obs_orig_stop',
+                        colorAxis: ['SCA_extinction'],
+                        xAxis:'time',
+                        yAxis: ['rayleigh_altitude'],
+                        combinedParameters: {
+                            rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
+                            time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
+                        },
+                        jumps: 'jumps'
+                    },
+                    'MCA_extinction': {
+                        lats: 'latitude_of_DEM_intersection_obs_orig',
+                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        timeStart: 'MCA_time_obs_orig_start',
+                        timeStop: 'MCA_time_obs_orig_stop',
+                        colorAxis: ['MCA_extinction'],
+                        xAxis:'time',
+                        yAxis: ['mie_altitude'],
+                        combinedParameters: {
+                            mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
+                            time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
+                        },
+                        jumps: 'jumps'
+                    }
+
+                },
+                'ALD_U_N_2B': {
+
+                },
+                'ALD_U_N_2C': {
+                    'mie_wind_result_wind_velocity': {
+                        lats: 'mie_profile_lat_of_DEM_intersection',
+                        lons: 'mie_profile_lon_of_DEM_intersection',
+                        timeStart: 'mie_profile_datetime_start',
+                        timeStop: 'mie_profile_datetime_stop',
+                        colorAxis: ['mie_wind_result_wind_velocity'],
+                        xAxis:'time',
+                        yAxis: ['mie_altitude'],
+                        combinedParameters: {
+                            mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
+                            time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
+                        },
+                        jumps: 'mie_jumps'
+                    },
+                    'rayleigh_wind_result_wind_velocity': {
+                        lats: 'rayleigh_profile_lat_of_DEM_intersection',
+                        lons: 'rayleigh_profile_lon_of_DEM_intersection',
+                        timeStart: 'rayleigh_profile_datetime_start',
+                        timeStop: 'rayleigh_profile_datetime_stop',
+                        colorAxis: ['rayleigh_wind_result_wind_velocity'],
+                        xAxis:'time',
+                        yAxis: ['rayleigh_altitude'],
+                        combinedParameters: {
+                            rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
+                            time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
+                        },
+                        jumps: 'rayleigh_jumps'
+                    }
+                }
+            };
+
+            var currPar = params[cov_id][band];
+            this.graph.renderSettings.combinedParameters = currPar.combinedParameters;
+            this.graph.renderSettings.colorAxis = currPar.colorAxis;
+            this.graph.renderSettings.yAxis = currPar.yAxis;
+            this.graph.renderSettings.xAxis =currPar.xAxis;
+            dataJumps = data[currPar.jumps];
+            lats = data[currPar.lats];
+            lons = data[currPar.lons];
+            pStartTimes = data[currPar.timeStart];
+            pStopTimes = data[currPar.timeStop];
 
 
             height = 1000000;
@@ -1924,7 +1990,7 @@ define([
                 for (var i = idKeys.length - 1; i >= 0; i--) {
                     if(idKeys[i] === 'ALD_U_N_1B'){
                         this.createCurtains(data[idKeys[i]], idKeys[i]);
-                    } else if (idKeys[i] === 'ALD_U_N_2C'){
+                    } else if (idKeys[i].includes('ALD_U_N_2')){
                         this.createL2Curtains(data[idKeys[i]], idKeys[i]);
                     } else {
                         this.createPointCollection(data[idKeys[i]], idKeys[i]);
@@ -1951,7 +2017,7 @@ define([
 
                      if(covid === 'ALD_U_N_1B'){
                         this.createCurtains(data, covid);
-                    } else if (covid === 'ALD_U_N_2C'){
+                    } else if ( covid.includes('ALD_U_N_2') ){
                         this.createL2Curtains(data, covid);
                     }
                     this.checkColorscale(covid);

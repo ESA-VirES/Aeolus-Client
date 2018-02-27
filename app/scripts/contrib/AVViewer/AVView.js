@@ -112,6 +112,26 @@ define(['backbone.marionette',
                     colorAxis: ['mie_HLOS_wind_speed']
 
                 },
+                'ALD_U_N_2A_mie': {
+                    xAxis: 'time',
+                    yAxis: [ 'mie_altitude'],
+                    combinedParameters: {
+                        mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
+                        time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
+                    },
+                    colorAxis: ['MCA_extinction']
+
+                },
+                'ALD_U_N_2A_rayleigh': {
+                    xAxis: 'time',
+                    yAxis: [ 'rayleigh_altitude'],
+                    combinedParameters: {
+                        rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
+                        time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
+                    },
+                    colorAxis: ['SCA_extinction']
+
+                },
                 'ALD_U_N_2C_mie': {
                     xAxis: 'time',
                     yAxis: [ 'mie_altitude'],
@@ -367,6 +387,22 @@ define(['backbone.marionette',
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_1B']);
+
+                     }else if(idKeys[0] === 'ALD_U_N_2A'){
+
+                        this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2A_mie;
+                        this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2A_rayleigh;
+                        $('#graph_1').css('height', '49%').css('height', '-=131px');
+                        $('#graph_2').css('height', '49%').css('height', '-=131px');
+                        $('#graph_2').show();
+                        this.graph1.loadData(data['ALD_U_N_2A']);
+                        this.graph2.loadData(data['ALD_U_N_2A']);
+                        this.graph1.resize();
+                        this.graph2.resize();
+                        this.graph1.connectGraph(this.graph2);
+                        this.graph2.connectGraph(this.graph1);
+                        this.filterManager.loadData(data['ALD_U_N_2A']);
+
                      }else if(idKeys[0] === 'ALD_U_N_2C'){
 
                         this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2C_mie;
@@ -381,7 +417,9 @@ define(['backbone.marionette',
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_2C']);
+
                      }else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
+
                         this.graph1.renderSettings =  this.renderSettings[idKeys[0]];
                         this.graph2.renderSettings =  this.renderSettings[(idKeys[0]+'_error')];
                         $('#graph_2').show();
