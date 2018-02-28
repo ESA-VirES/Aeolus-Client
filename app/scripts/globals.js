@@ -55,15 +55,22 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 uom: 'm'
             },
             // L2A
+
             'SCA_extinction': {
                 uom: '10-6 * m^-1',
                 colorscale: 'plasma',
                 extent: [-20, 20]
             },
+            'SCA_extinction_variance': {
+                uom: 'm^-2'
+            },
             'SCA_backscatter': {
                 uom: '10-6 * m^-1* sr^-1',
                 colorscale: 'plasma',
                 extent: [-20, 20]
+            },
+            'SCA_backscatter_variance': {
+                uom: 'm^-2*sr^-2'
             },
             'SCA_time_obs':{
                 scaleFormat: 'time',
@@ -118,7 +125,23 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             },
 
 
-            // L2C
+            // L2B, L2C
+
+            'mie_wind_result_SNR':{
+                uom: null
+            },
+            'mie_wind_result_HLOS_error':{
+                uom: 'm/s'
+            },
+            'mie_wind_result_COG_range':{
+                uom: 'km'
+            },
+            'rayleigh_wind_result_HLOS_error':{
+                uom: 'm/s'
+            },
+            'rayleigh_wind_result_COG_range':{
+                uom: 'km'
+            },
 
             'rayleigh_wind_result_start_time': {
                 scaleFormat: 'time',
@@ -196,7 +219,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 timeFormat: 'MJD2000_S'
             },
             'measurement_error_mie_response': {
-                uom: 'ACCD pixel',
+                uom: 'ACCD pixel index',
                 regression: 'polynomial'
             },
             'ground_frequency_valid': {
@@ -212,14 +235,14 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 name: 'Ground Measurement Response Valid'
             },
             'measurement_error_rayleigh_response': {
-                uom: 'ACCD pixel index',
+                uom: 'a.u.',
                 regression: 'polynomial'
             },
             'measurement_response':{
-                uom: 'ACCD pixel index'
+                uom: 'a.u.'
             },
             'reference_pulse_response':{
-                uom: 'ACCD pixel index'
+                uom: 'a.u.(rayleigh)/ACCD pixel index(mie)'
             },
             'mie_core_measurement_FWHM':{
                 uom: 'ACCD pixel'
@@ -228,10 +251,10 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 uom: 'GHz'
             },
             'reference_pulse_error_mie_response':{
-                uom: 'ACCD pixel'
+                uom: 'ACCD pixel index'
             },
             'reference_pulse_error_rayleigh_response':{
-                uom: 'ACCD pixel'
+                uom: 'a.u.'
             },
 
             // AUX IRC

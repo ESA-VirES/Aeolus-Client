@@ -633,18 +633,6 @@
             }]
         },
         {
-            "name": "Tutorials",
-            "icon": "fa-book",
-            "subitems": [{
-                "name": "Swarm Analytics",
-                "eventToRaise": "ui:open:storybanner",
-                "template": "UseCase_SwarmAnalytics"
-            }, {
-                "name": "Geomagnetic Field Models",
-                "eventToRaise": "ui:open:storybanner",
-                "template": "UseCase_MagneticModels"
-            }]
-        }, {
             "name": "About",
             "icon": "fa-info-circle",
             "eventToRaise": "dialog:open:about"

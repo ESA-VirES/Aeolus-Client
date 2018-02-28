@@ -158,7 +158,7 @@ define([
                         if(idKeys[i] === 'ALD_U_N_1B'){
                             that.createCurtains(data[idKeys[i]], idKeys[i]);
                         } else if (idKeys[i].includes('ALD_U_N_2')){
-                            this.createL2Curtains(data[idKeys[i]], idKeys[i]);
+                            that.createL2Curtains(data[idKeys[i]], idKeys[i]);
                         } else {
                             that.graph.data = {};
                             that.createPointCollection(data[idKeys[i]], idKeys[i]);
@@ -1020,6 +1020,10 @@ define([
                     }else{
                         endSlice = lats.length-1;
                     }
+                    // If curtain slice is too small we ignore it as it can't be rendered
+                    if(endSlice-startSlice<=2){
+                        continue;
+                    }
                     var start = new Date('2000-01-01');
                     start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice]*1000);
                     var end = new Date('2000-01-01');
@@ -1033,25 +1037,6 @@ define([
                     color: new Cesium.Color(1, 1, 1, alpha),
                 });
 
-                // Change direction of texture depending if curtain beginning 
-                // and end latitude coordinates
-                var lastLats = lats.slice(-2);
-                /*console.log("lon:", lons[0]," lat:", lats[0]);
-                console.log("lon:", lons.slice(-1)[0]," lat:", lats.slice(-1)[0]);*/
-
-                newmat.uniforms.repeat.x = -1;
-                if(lats[2]-lats[0]>=0){
-                    //ascending
-                    if (lats[0]<0 && lastLats[0]<0){
-                        newmat.uniforms.repeat.x = 1;
-                    }
-                }else{
-                    //descending
-                    if (lats[0]<0 && lastLats[0]<0){
-                        newmat.uniforms.repeat.x = 1;
-                    }
-                }
-                
 
                 var slicedLats, slicedLons;
 
@@ -1061,6 +1046,25 @@ define([
                 } else {
                     slicedLats = lats;
                     slicedLons = lons;
+                }
+
+                // Change direction of texture depending if curtain beginning 
+                // and end latitude coordinates
+                var lastLats = slicedLats.slice(-2);
+                /*console.log("lon:", lons[0]," lat:", lats[0]);
+                console.log("lon:", lons.slice(-1)[0]," lat:", lats.slice(-1)[0]);*/
+
+                newmat.uniforms.repeat.x = -1;
+                if(slicedLats[2]-slicedLats[0]>=0){
+                    //ascending
+                    if (slicedLats[0]<0 && lastLats[0]<0){
+                        newmat.uniforms.repeat.x = 1;
+                    }
+                }else{
+                    //descending
+                    if (slicedLats[0]<0 && lastLats[0]<0){
+                        newmat.uniforms.repeat.x = 1;
+                    }
                 }
 
                 var posDataHeight = [];
@@ -1177,117 +1181,6 @@ define([
 
                 curtainCollection.add(prim);
             }
-                /*for (var i = 0; i <= dataJumps.length; i++) {
-
-                    if (i>0){
-                        start = data.stepPositions[i-1]*2+4;
-                        dataStartMie = data.mie_jumps[i*2-1];
-                        dataEndMie = data.mie_jumps[i*2];
-                        dataStartRay = data.rayleigh_jumps[i*2-1];
-                        dataEndRay = data.rayleigh_jumps[i*2];
-                    }
-                    if(i===data.stepPositions.length){
-                        end = data.positions.length;
-                        dataEndMie = data['mie_HLOS_wind_speed'].length;
-                        dataEndRay = data['rayleigh_HLOS_wind_speed'].length;
-                    }
-
-                    var dataSlice = {};
-                    var dataKeys = Object.keys(data);
-                    for (var k = dataKeys.length - 1; k >= 0; k--) {
-                        if (dataKeys[k].indexOf('mie')!==-1){
-                            dataSlice[dataKeys[k]] = 
-                            data[dataKeys[k]].slice(dataStartMie, dataEndMie);
-                        } else if (dataKeys[k].indexOf('ray')!==-1){
-                            dataSlice[dataKeys[k]] = 
-                            data[dataKeys[k]].slice(dataStartRay, dataEndRay);
-                        }
-                    }
-
-                    this.graph.loadData(dataSlice);
-
-                    var newmat = new Cesium.Material.fromType('Image', {
-                        image : this.graph.getCanvasImage(),
-                        color: new Cesium.Color(1, 1, 1, alpha),
-                    });
-                    newmat.uniforms.repeat.x = 1;
-
-
-                    var slicedPosData = data.positions.slice(start, end);
-
-                    if(renderOutlines){
-                        var slicedPosDataWithHeight = [];
-                        for (var p = 0; p < slicedPosData.length; p+=2) {
-                            slicedPosDataWithHeight.push(slicedPosData[p]);
-                            slicedPosDataWithHeight.push(slicedPosData[p+1]);
-                            slicedPosDataWithHeight.push(height);
-                        }
-
-
-                        lineInstances.push(
-                            new Cesium.GeometryInstance({
-                                geometry : new Cesium.PolylineGeometry({
-                                    positions : 
-                                    Cesium.Cartesian3.fromDegreesArrayHeights(
-                                        slicedPosDataWithHeight
-                                    ),
-                                    width : 10.0
-                                })
-                            })
-                        );
-
-                        lineInstances.push(
-                            new Cesium.GeometryInstance({
-                                geometry : new Cesium.PolylineGeometry({
-                                    positions : 
-                                    Cesium.Cartesian3.fromDegreesArray(
-                                        slicedPosData
-                                    ),
-                                    width : 10.0
-                                })
-                            })
-                        );
-                    }
-
-                    var maxHeights = [];
-                    for (var j = 0; j <slicedPosData.length; j++) {
-                        maxHeights.push(height);
-                    }
-                    var wall = new Cesium.WallGeometry({
-                        positions : Cesium.Cartesian3.fromDegreesArray(slicedPosData),
-                        maximumHeights : maxHeights,
-                    });
-                    var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
-                    var instance = new Cesium.GeometryInstance({
-                      geometry : wallGeometry
-                    });
-
-                    // Check if normal is negative, if it is we need to flip the
-                    // direction of the texture to be applied
-                    if(wallGeometry.attributes.normal.values[0]<0){
-                        newmat.uniforms.repeat.x = -1;
-                    }
-
-                    var sliceAppearance = new Cesium.MaterialAppearance({
-                        translucent : true,
-                        flat: true,
-                        faceForward: true,
-                        //closed: true,
-                        material : newmat
-                    });
-
-                    //instances.push(instance);
-                    var prim = new Cesium.Primitive({
-                      geometryInstances : instance,
-                      appearance : sliceAppearance,
-                      releaseGeometryInstances: false,
-                      //asynchronous: false
-                    });
-
-                    curtainCollection.add(prim);
-                }*/
-
-
 
             if(renderOutlines){
                 var linesPrim = new Cesium.Primitive({
