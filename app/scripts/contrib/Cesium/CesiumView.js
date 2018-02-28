@@ -167,9 +167,6 @@ define([
                 }
 
             });
-
-
-            this.connectDataEvents();
         },
 
         createMap: function() {
@@ -756,7 +753,23 @@ define([
                     image : this.graph.getCanvasImage(),
                     color: new Cesium.Color(1, 1, 1, alpha),
                 });
-                newmat.uniforms.repeat.x = 1;
+                
+                // Change direction of texture depending if start and end 
+                // latitudes are both negative
+                var lastpos = data.positions.slice(-2);
+
+                newmat.uniforms.repeat.x = -1;
+                if(data.positions[3]-data.positions[1]>=0){
+                    //ascending
+                    if (data.positions[3]<0 && lastpos[1]<0){
+                        newmat.uniforms.repeat.x = 1;
+                    }
+                }else{
+                    //descending
+                    if (data.positions[3]<0 && lastpos[1]<0){
+                        newmat.uniforms.repeat.x = 1;
+                    }
+                }
 
 
                 var slicedPosData = data.positions.slice(start, end);
@@ -807,12 +820,6 @@ define([
                 var instance = new Cesium.GeometryInstance({
                   geometry : wallGeometry
                 });
-
-                // Check if normal is negative, if it is we need to flip the
-                // direction of the texture to be applied
-                if(wallGeometry.attributes.normal.values[0]<0){
-                    newmat.uniforms.repeat.x = -1;
-                }
 
                 var sliceAppearance = new Cesium.MaterialAppearance({
                     translucent : true,
@@ -1025,7 +1032,26 @@ define([
                     image : this.graph.getCanvasImage(),
                     color: new Cesium.Color(1, 1, 1, alpha),
                 });
+
+                // Change direction of texture depending if curtain beginning 
+                // and end latitude coordinates
+                var lastLats = lats.slice(-2);
+                /*console.log("lon:", lons[0]," lat:", lats[0]);
+                console.log("lon:", lons.slice(-1)[0]," lat:", lats.slice(-1)[0]);*/
+
                 newmat.uniforms.repeat.x = -1;
+                if(lats[2]-lats[0]>=0){
+                    //ascending
+                    if (lats[0]<0 && lastLats[0]<0){
+                        newmat.uniforms.repeat.x = 1;
+                    }
+                }else{
+                    //descending
+                    if (lats[0]<0 && lastLats[0]<0){
+                        newmat.uniforms.repeat.x = 1;
+                    }
+                }
+                
 
                 var slicedLats, slicedLons;
 
@@ -1073,25 +1099,65 @@ define([
                     );
                 }
 
-                var maxHeights = [];
+                /*var maxHeights = [];
+                var minHeights = [];
                 for (var j = 0; j <posData.length; j++) {
                     maxHeights.push(height);
-                }
+                    minHeights.push(0);
+                }*/
+
                 var wall = new Cesium.WallGeometry({
                     positions : Cesium.Cartesian3.fromDegreesArrayHeights(
                         posDataHeight
                     )
+                    /*positions: Cesium.Cartesian3.fromDegreesArray(posData),
+                    maximumHeights: maxHeights,
+                    minimumHeights: minHeights*/
                 });
                 var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
                 var instance = new Cesium.GeometryInstance({
                   geometry : wallGeometry
                 });
 
+
+                // DEBUG
+                /*var wallOutlineInstance = new Cesium.GeometryInstance({
+                    geometry : new Cesium.WallOutlineGeometry({
+                        positions : Cesium.Cartesian3.fromDegreesArrayHeights(
+                            posDataHeight
+                        )
+                    }),
+                    attributes : {
+                        color : new Cesium.ColorGeometryInstanceAttribute(1.0, 0.0, 0.0, 1.0)
+                    }
+                });
+
+                if(this.debugprimitive){
+                    this.map.scene.primitives.remove(this.debugprimitive);
+                }
+
+                this.debugprimitive = this.map.scene.primitives.add(new Cesium.Primitive({
+                    id: 'debug_curtain',
+                    geometryInstances : wallOutlineInstance,
+                    appearance : new Cesium.PerInstanceColorAppearance({
+                        flat : true,
+                        translucent : false,
+                        renderState : {
+                            depthTest : {
+                                enabled : true
+                            },
+                            lineWidth : 2
+                        }
+                    })
+                }));*/
+                //DEBUG
+
+
                 // Check if normal is negative, if it is we need to flip the
                 // direction of the texture to be applied
-                if(wallGeometry.attributes.normal.values[0]<0){
+                /*if(wallGeometry.attributes.normal.values[0]<0){
                     newmat.uniforms.repeat.x = 1;
-                }
+                }*/
 
                 var sliceAppearance = new Cesium.MaterialAppearance({
                     translucent : true,

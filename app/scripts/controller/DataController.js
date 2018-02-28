@@ -738,6 +738,10 @@
         var that = this;
         //var collectionId = process.collectionId;
 
+        xhr.onerror = function(e) {
+            Communicator.mediator.trigger("progress:change", false);
+        }
+
         xhr.onload = function(e) {
             Communicator.mediator.trigger("progress:change", false);
             var tmp = new Uint8Array(this.response);
