@@ -54,6 +54,140 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 name: 'altitude',
                 uom: 'm'
             },
+            // L2A
+
+            'SCA_extinction': {
+                uom: '10-6 * m^-1',
+                colorscale: 'plasma',
+                extent: [-20, 20]
+            },
+            'SCA_extinction_variance': {
+                uom: 'm^-2'
+            },
+            'SCA_backscatter': {
+                uom: '10-6 * m^-1* sr^-1',
+                colorscale: 'plasma',
+                extent: [-20, 20]
+            },
+            'SCA_backscatter_variance': {
+                uom: 'm^-2*sr^-2'
+            },
+            'SCA_time_obs':{
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'SCA_time_obs_start':{
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'SCA_time_obs_stop':{
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'mie_altitude_obs':{
+                name: 'mie altitude',
+                uom: 'm'
+            },
+            'rayleigh_altitude_obs':{
+                name: 'rayleigh altitude',
+                uom: 'm'
+            },
+            'longitude_of_DEM_intersection_obs':{
+                name: 'longitude',
+                uom: 'deg'
+            },
+             'latitude_of_DEM_intersection_obs':{
+                name: 'altitude',
+                uom: 'deg'
+            },
+             'altitude_of_DEM_intersection_obs':{
+                name: 'altitude',
+                uom: 'm'
+            },
+
+            'MCA_extinction': {
+                uom: '10-6 * m^-1',
+                colorscale: 'viridis',
+                extent: [-20, 20]
+            },
+            'MCA_backscatter': {
+                uom: '10-6 * m^-1* sr^-1',
+                colorscale: 'viridis',
+                extent: [-20, 20]
+            },
+            'MCA_time_obs_start': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'MCA_time_obs_stop': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+
+
+            // L2B, L2C
+
+            'mie_wind_result_SNR':{
+                uom: null
+            },
+            'mie_wind_result_HLOS_error':{
+                uom: 'm/s'
+            },
+            'mie_wind_result_COG_range':{
+                uom: 'km'
+            },
+            'rayleigh_wind_result_HLOS_error':{
+                uom: 'm/s'
+            },
+            'rayleigh_wind_result_COG_range':{
+                uom: 'km'
+            },
+
+            'rayleigh_wind_result_start_time': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'rayleigh_wind_result_stop_time': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'rayleigh_wind_result_wind_velocity': {
+                uom: 'm/s',
+                colorscale: 'viridis',
+                extent: [-20,20]
+            },
+            'rayleigh_wind_result_bottom_altitude':{
+                name: 'altitude',
+                uom: 'm'
+            },
+            'rayleigh_wind_result_top_altitude':{
+                name: 'altitude',
+                uom: 'm'
+            },
+
+
+
+            'mie_wind_result_start_time': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'mie_wind_result_stop_time': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'mie_wind_result_wind_velocity': {
+                uom: 'm/s',
+                colorscale: 'viridis',
+                extent: [-20,20]
+            },
+            'mie_wind_result_bottom_altitude':{
+                name: 'altitude',
+                uom: 'm'
+            },
+            'mie_wind_result_top_altitude':{
+                name: 'altitude',
+                uom: 'm'
+            },
 
             // AUX MRC and AUX RRC
             'frequency_valid': {
@@ -85,7 +219,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 timeFormat: 'MJD2000_S'
             },
             'measurement_error_mie_response': {
-                uom: 'ACCD pixel',
+                uom: 'ACCD pixel index',
                 regression: 'polynomial'
             },
             'ground_frequency_valid': {
@@ -101,14 +235,14 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 name: 'Ground Measurement Response Valid'
             },
             'measurement_error_rayleigh_response': {
-                uom: 'ACCD pixel index',
+                uom: 'a.u.',
                 regression: 'polynomial'
             },
             'measurement_response':{
-                uom: 'ACCD pixel index'
+                uom: 'a.u.'
             },
             'reference_pulse_response':{
-                uom: 'ACCD pixel index'
+                uom: 'a.u.(rayleigh)/ACCD pixel index(mie)'
             },
             'mie_core_measurement_FWHM':{
                 uom: 'ACCD pixel'
@@ -117,10 +251,10 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 uom: 'GHz'
             },
             'reference_pulse_error_mie_response':{
-                uom: 'ACCD pixel'
+                uom: 'ACCD pixel index'
             },
             'reference_pulse_error_rayleigh_response':{
-                uom: 'ACCD pixel'
+                uom: 'a.u.'
             },
 
             // AUX IRC

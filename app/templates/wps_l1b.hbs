@@ -50,6 +50,34 @@
       </wps:Data>
     </wps:Input>
     {{/if}}
+    {{#if mie_profile_fields}}
+    <wps:Input>
+      <ows:Identifier>mie_profile_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{mie_profile_fields}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
+    {{#if rayleigh_profile_fields}}
+    <wps:Input>
+      <ows:Identifier>rayleigh_profile_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{rayleigh_profile_fields}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
+    {{#if mie_wind_fields}}
+    <wps:Input>
+      <ows:Identifier>mie_wind_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{mie_wind_fields}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
+    {{#if rayleigh_wind_fields}}
+    <wps:Input>
+      <ows:Identifier>rayleigh_wind_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{rayleigh_wind_fields}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
     {{#if filters}}
     <wps:Input>
       <ows:Identifier>filters</ows:Identifier>
@@ -63,7 +91,10 @@
     <wps:Input>
       <ows:Identifier>bbox</ows:Identifier>
       <wps:Data>
-        <wps:ComplexData>{{bbox}}</wps:ComplexData>
+        <wps:BoundingBoxData crs="http://www.opengis.net/def/crs/EPSG/0/4326">
+          <ows:LowerCorner>{{bbox_lower}}</ows:LowerCorner>
+          <ows:UpperCorner>{{bbox_upper}}</ows:UpperCorner>
+        </wps:BoundingBoxData>
       </wps:Data>
     </wps:Input>{{/if}}
   </wps:DataInputs>

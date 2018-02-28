@@ -155,8 +155,10 @@ define([
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
                         //this.graph.loadData(data[idKeys[i]]);
-                        if(idKeys[i] === 'AEOLUS'){
+                        if(idKeys[i] === 'ALD_U_N_1B'){
                             that.createCurtains(data[idKeys[i]], idKeys[i]);
+                        } else if (idKeys[i].includes('ALD_U_N_2')){
+                            that.createL2Curtains(data[idKeys[i]], idKeys[i]);
                         } else {
                             that.graph.data = {};
                             that.createPointCollection(data[idKeys[i]], idKeys[i]);
@@ -165,9 +167,6 @@ define([
                 }
 
             });
-
-
-            this.connectDataEvents();
         },
 
         createMap: function() {
@@ -482,8 +481,10 @@ define([
             if (Object.keys(data).length){
                 var idKeys = Object.keys(data);
                 for (var i = idKeys.length - 1; i >= 0; i--) {
-                    if(idKeys[i] === 'AEOLUS'){
+                    if(idKeys[i] === 'ALD_U_N_1B'){
                         this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    } else if (idKeys[i].includes('ALD_U_N_2')){
+                        this.createL2Curtains(data[idKeys[i]], idKeys[i]);
                     } else {
                         this.createPointCollection(data[idKeys[i]], idKeys[i]);
                     }
@@ -521,8 +522,10 @@ define([
                     //this.createDataFeatures(data, 'pointcollection', 'band');
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
-                        if(idKeys[i] === 'AEOLUS'){
+                        if(idKeys[i] === 'ALD_U_N_1B'){
                             this.createCurtains(data[idKeys[i]], idKeys[i]);
+                        } else if (idKeys[i].includes('ALD_U_N_2')){
+                            this.createL2Curtains(data[idKeys[i]], idKeys[i]);
                         } else {
                             this.graph.data = {};
                             this.createPointCollection(data[idKeys[i]], idKeys[i]);
@@ -676,16 +679,32 @@ define([
 
             var dataJumps;
 
+            this.graph.renderSettings.combinedParameters = {
+                mie_latitude: ['mie_latitude_start', 'mie_latitude_end'],
+                mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
+                mie_latitude_of_DEM_intersection: [
+                    'mie_latitude_of_DEM_intersection_start',
+                    'mie_latitude_of_DEM_intersection_end'
+                ],
+                mie_time: ['mie_time_start', 'mie_time_end'],
+
+                rayleigh_latitude: ['rayleigh_latitude_start', 'rayleigh_latitude_end'],
+                rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
+                rayleigh_latitude_of_DEM_intersection: [
+                    'rayleigh_latitude_of_DEM_intersection_start',
+                    'rayleigh_latitude_of_DEM_intersection_end'
+                ],
+                rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end'],
+            };
+
             if(band === 'mie_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
                 this.graph.renderSettings.yAxis = ['mie_altitude'];
                 this.graph.renderSettings.xAxis =['mie_time'];
-                //dataJumps = data.mie_jumps;
             }else if(band === 'rayleigh_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
                 this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
                 this.graph.renderSettings.xAxis =['rayleigh_time'];
-                //dataJumps = data.rayleigh_jumps;
             }
 
 
@@ -734,7 +753,23 @@ define([
                     image : this.graph.getCanvasImage(),
                     color: new Cesium.Color(1, 1, 1, alpha),
                 });
-                newmat.uniforms.repeat.x = 1;
+                
+                // Change direction of texture depending if start and end 
+                // latitudes are both negative
+                var lastpos = data.positions.slice(-2);
+
+                newmat.uniforms.repeat.x = -1;
+                if(data.positions[3]-data.positions[1]>=0){
+                    //ascending
+                    if (data.positions[3]<0 && lastpos[1]<0){
+                        newmat.uniforms.repeat.x = 1;
+                    }
+                }else{
+                    //descending
+                    if (data.positions[3]<0 && lastpos[1]<0){
+                        newmat.uniforms.repeat.x = 1;
+                    }
+                }
 
 
                 var slicedPosData = data.positions.slice(start, end);
@@ -786,12 +821,6 @@ define([
                   geometry : wallGeometry
                 });
 
-                // Check if normal is negative, if it is we need to flip the
-                // direction of the texture to be applied
-                if(wallGeometry.attributes.normal.values[0]<0){
-                    newmat.uniforms.repeat.x = -1;
-                }
-
                 var sliceAppearance = new Cesium.MaterialAppearance({
                     translucent : true,
                     flat: true,
@@ -823,6 +852,350 @@ define([
                 curtainCollection.add(linesPrim);
             }
         },
+
+
+
+        createL2Curtains: function(data, cov_id, alpha, height){
+
+            var currProd = globals.products.find(
+                function(p){return p.get('download').id === cov_id;}
+            );
+
+            var curtainCollection;
+
+            if(currProd.hasOwnProperty('curtains')){
+                currProd.curtains.removeAll();
+                curtainCollection = currProd.curtains;
+            }else{
+                curtainCollection = new Cesium.PrimitiveCollection();
+                this.activeCurtainCollections.push(curtainCollection);
+                this.map.scene.primitives.add(curtainCollection);
+                currProd.curtains = curtainCollection;
+            }
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
+
+            alpha = currProd.get('opacity');
+
+            this.dataSettings[band].colorscale = style;
+            this.dataSettings[band].extent = range;
+            this.graph.dataSettings = this.dataSettings;
+
+            var dataJumps, lats, lons, pStartTimes, pStopTimes;
+
+            var params = {
+                'ALD_U_N_2A': {
+                    'SCA_extinction': {
+                        lats: 'latitude_of_DEM_intersection_obs_orig',
+                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        timeStart: 'SCA_time_obs_orig_start',
+                        timeStop: 'SCA_time_obs_orig_stop',
+                        colorAxis: ['SCA_extinction'],
+                        xAxis:'time',
+                        yAxis: ['rayleigh_altitude'],
+                        combinedParameters: {
+                            rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
+                            time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
+                        },
+                        jumps: 'jumps'
+                    },
+                    'MCA_extinction': {
+                        lats: 'latitude_of_DEM_intersection_obs_orig',
+                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        timeStart: 'MCA_time_obs_orig_start',
+                        timeStop: 'MCA_time_obs_orig_stop',
+                        colorAxis: ['MCA_extinction'],
+                        xAxis:'time',
+                        yAxis: ['mie_altitude'],
+                        combinedParameters: {
+                            mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
+                            time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
+                        },
+                        jumps: 'jumps'
+                    }
+
+                },
+                'ALD_U_N_2B': {
+                    'mie_wind_result_wind_velocity': {
+                        lats: 'mie_profile_lat_of_DEM_intersection',
+                        lons: 'mie_profile_lon_of_DEM_intersection',
+                        timeStart: 'mie_profile_datetime_start',
+                        timeStop: 'mie_profile_datetime_stop',
+                        colorAxis: ['mie_wind_result_wind_velocity'],
+                        xAxis:'time',
+                        yAxis: ['mie_altitude'],
+                        combinedParameters: {
+                            mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
+                            time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
+                        },
+                        jumps: 'mie_jumps'
+                    },
+                    'rayleigh_wind_result_wind_velocity': {
+                        lats: 'rayleigh_profile_lat_of_DEM_intersection',
+                        lons: 'rayleigh_profile_lon_of_DEM_intersection',
+                        timeStart: 'rayleigh_profile_datetime_start',
+                        timeStop: 'rayleigh_profile_datetime_stop',
+                        colorAxis: ['rayleigh_wind_result_wind_velocity'],
+                        xAxis:'time',
+                        yAxis: ['rayleigh_altitude'],
+                        combinedParameters: {
+                            rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
+                            time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
+                        },
+                        jumps: 'rayleigh_jumps'
+                    }
+                },
+                'ALD_U_N_2C': {
+                    'mie_wind_result_wind_velocity': {
+                        lats: 'mie_profile_lat_of_DEM_intersection',
+                        lons: 'mie_profile_lon_of_DEM_intersection',
+                        timeStart: 'mie_profile_datetime_start',
+                        timeStop: 'mie_profile_datetime_stop',
+                        colorAxis: ['mie_wind_result_wind_velocity'],
+                        xAxis:'time',
+                        yAxis: ['mie_altitude'],
+                        combinedParameters: {
+                            mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
+                            time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
+                        },
+                        jumps: 'mie_jumps'
+                    },
+                    'rayleigh_wind_result_wind_velocity': {
+                        lats: 'rayleigh_profile_lat_of_DEM_intersection',
+                        lons: 'rayleigh_profile_lon_of_DEM_intersection',
+                        timeStart: 'rayleigh_profile_datetime_start',
+                        timeStop: 'rayleigh_profile_datetime_stop',
+                        colorAxis: ['rayleigh_wind_result_wind_velocity'],
+                        xAxis:'time',
+                        yAxis: ['rayleigh_altitude'],
+                        combinedParameters: {
+                            rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
+                            time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
+                        },
+                        jumps: 'rayleigh_jumps'
+                    }
+                }
+            };
+
+            var currPar = params[cov_id][band];
+            this.graph.renderSettings.combinedParameters = currPar.combinedParameters;
+            this.graph.renderSettings.colorAxis = currPar.colorAxis;
+            this.graph.renderSettings.yAxis = currPar.yAxis;
+            this.graph.renderSettings.xAxis =currPar.xAxis;
+            dataJumps = data[currPar.jumps];
+            lats = data[currPar.lats];
+            lons = data[currPar.lons];
+            pStartTimes = data[currPar.timeStart];
+            pStopTimes = data[currPar.timeStop];
+
+
+            height = 1000000;
+            var lineInstances = [];
+            var renderOutlines = defaultFor(currProd.get('outlines'), false);
+
+            
+            //TODO: How to correctly handle multiple curtains with jumps
+            for (var i = 0; i <= dataJumps.length; i++) {
+
+                var startSlice, endSlice;
+                if(dataJumps.length === 0){
+                    this.graph.loadData(data);
+                } else {
+                    // get extent limits for curtain piece
+                    startSlice = 0;
+                    if(i>0){
+                        startSlice = dataJumps[i-1];
+                    }
+                    if(i<dataJumps.length){
+                        endSlice = dataJumps[i];
+                    }else{
+                        endSlice = lats.length-1;
+                    }
+                    // If curtain slice is too small we ignore it as it can't be rendered
+                    if(endSlice-startSlice<=2){
+                        continue;
+                    }
+                    var start = new Date('2000-01-01');
+                    start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice]*1000);
+                    var end = new Date('2000-01-01');
+                    end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice]*1000);
+                    this.graph.setXDomain([start, end]);
+                    this.graph.loadData(data);
+                    this.graph.clearXDomain();
+                }
+                var newmat = new Cesium.Material.fromType('Image', {
+                    image : this.graph.getCanvasImage(),
+                    color: new Cesium.Color(1, 1, 1, alpha),
+                });
+
+
+                var slicedLats, slicedLons;
+
+                if(dataJumps.length > 0){
+                    slicedLats = lats.slice(startSlice, endSlice);
+                    slicedLons = lons.slice(startSlice, endSlice);
+                } else {
+                    slicedLats = lats;
+                    slicedLons = lons;
+                }
+
+                // Change direction of texture depending if curtain beginning 
+                // and end latitude coordinates
+                var lastLats = slicedLats.slice(-2);
+                /*console.log("lon:", lons[0]," lat:", lats[0]);
+                console.log("lon:", lons.slice(-1)[0]," lat:", lats.slice(-1)[0]);*/
+
+                newmat.uniforms.repeat.x = -1;
+                if(slicedLats[2]-slicedLats[0]>=0){
+                    //ascending
+                    if (slicedLats[0]<0 && lastLats[0]<0){
+                        newmat.uniforms.repeat.x = 1;
+                    }
+                }else{
+                    //descending
+                    if (slicedLats[0]<0 && lastLats[0]<0){
+                        newmat.uniforms.repeat.x = 1;
+                    }
+                }
+
+                var posDataHeight = [];
+                var posData = [];
+                for (var p = 0; p < slicedLats.length; p+=2) {
+                    posDataHeight.push(slicedLons[p]);
+                    posDataHeight.push(slicedLats[p]);
+                    posDataHeight.push(height);
+                    posData.push(slicedLons[p]);
+                    posData.push(slicedLats[p]);
+                }
+
+                if(renderOutlines){
+                    lineInstances.push(
+                        new Cesium.GeometryInstance({
+                            geometry : new Cesium.PolylineGeometry({
+                                positions : 
+                                Cesium.Cartesian3.fromDegreesArrayHeights(
+                                    posDataHeight
+                                ),
+                                width : 10.0
+                            })
+                        })
+                    );
+
+                    lineInstances.push(
+                        new Cesium.GeometryInstance({
+                            geometry : new Cesium.PolylineGeometry({
+                                positions : 
+                                Cesium.Cartesian3.fromDegreesArray(
+                                    posData
+                                ),
+                                width : 10.0
+                            })
+                        })
+                    );
+                }
+
+                /*var maxHeights = [];
+                var minHeights = [];
+                for (var j = 0; j <posData.length; j++) {
+                    maxHeights.push(height);
+                    minHeights.push(0);
+                }*/
+
+                var wall = new Cesium.WallGeometry({
+                    positions : Cesium.Cartesian3.fromDegreesArrayHeights(
+                        posDataHeight
+                    )
+                    /*positions: Cesium.Cartesian3.fromDegreesArray(posData),
+                    maximumHeights: maxHeights,
+                    minimumHeights: minHeights*/
+                });
+                var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
+                var instance = new Cesium.GeometryInstance({
+                  geometry : wallGeometry
+                });
+
+
+                // DEBUG
+                /*var wallOutlineInstance = new Cesium.GeometryInstance({
+                    geometry : new Cesium.WallOutlineGeometry({
+                        positions : Cesium.Cartesian3.fromDegreesArrayHeights(
+                            posDataHeight
+                        )
+                    }),
+                    attributes : {
+                        color : new Cesium.ColorGeometryInstanceAttribute(1.0, 0.0, 0.0, 1.0)
+                    }
+                });
+
+                if(this.debugprimitive){
+                    this.map.scene.primitives.remove(this.debugprimitive);
+                }
+
+                this.debugprimitive = this.map.scene.primitives.add(new Cesium.Primitive({
+                    id: 'debug_curtain',
+                    geometryInstances : wallOutlineInstance,
+                    appearance : new Cesium.PerInstanceColorAppearance({
+                        flat : true,
+                        translucent : false,
+                        renderState : {
+                            depthTest : {
+                                enabled : true
+                            },
+                            lineWidth : 2
+                        }
+                    })
+                }));*/
+                //DEBUG
+
+
+                // Check if normal is negative, if it is we need to flip the
+                // direction of the texture to be applied
+                /*if(wallGeometry.attributes.normal.values[0]<0){
+                    newmat.uniforms.repeat.x = 1;
+                }*/
+
+                var sliceAppearance = new Cesium.MaterialAppearance({
+                    translucent : true,
+                    flat: true,
+                    faceForward: true,
+                    //closed: true,
+                    material : newmat
+                });
+
+                //instances.push(instance);
+                var prim = new Cesium.Primitive({
+                  geometryInstances : instance,
+                  appearance : sliceAppearance,
+                  releaseGeometryInstances: false,
+                  //asynchronous: false
+                });
+
+                curtainCollection.add(prim);
+            }
+
+            if(renderOutlines){
+                var linesPrim = new Cesium.Primitive({
+                    geometryInstances: lineInstances,
+                    appearance: new Cesium.PolylineMaterialAppearance({
+                        material : new Cesium.Material.fromType('PolylineArrow', {
+                            color: new Cesium.Color(0.53, 0.02, 0.65, 1)
+                        })
+                    })
+                });
+                curtainCollection.add(linesPrim);
+            }
+
+        },
+
 
         //method to create layer depending on protocol
         //setting possible description attributes
@@ -1601,8 +1974,10 @@ define([
             if (Object.keys(data).length){
                 var idKeys = Object.keys(data);
                 for (var i = idKeys.length - 1; i >= 0; i--) {
-                    if(idKeys[i] === 'AEOLUS'){
+                    if(idKeys[i] === 'ALD_U_N_1B'){
                         this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    } else if (idKeys[i].includes('ALD_U_N_2')){
+                        this.createL2Curtains(data[idKeys[i]], idKeys[i]);
                     } else {
                         this.createPointCollection(data[idKeys[i]], idKeys[i]);
                     }
@@ -1625,7 +2000,12 @@ define([
                     //this.updateCurtain(product.get('download').id);
                     var covid = product.get('download').id;
                     var data = globals.swarm.get('data')[covid];
-                    this.createCurtains(data, covid);
+
+                     if(covid === 'ALD_U_N_1B'){
+                        this.createCurtains(data, covid);
+                    } else if ( covid.includes('ALD_U_N_2') ){
+                        this.createL2Curtains(data, covid);
+                    }
                     this.checkColorscale(covid);
                 }
 
