@@ -25,10 +25,10 @@
     "papaparse": "~4.1.0",
     "plotty": "santilland/plotty#^0.1.1",
     "jqueryui-touch-punch": "*",
-    "FileSaver.js": "eligrey/FileSaver.js",
+    "FileSaver.js": "eligrey/FileSaver.js#~1.2.0",
     "canvas-toBlob.js": "eligrey/canvas-toBlob.js",
     "Blob.js": "eligrey/Blob.js",
-    "graphly": "EOX-A/graphly#^0.0.20"
+    "graphly": "EOX-A/graphly#^0.0.29"
   },
   "devDependencies": {
     "Keypress": "~2.0.0"

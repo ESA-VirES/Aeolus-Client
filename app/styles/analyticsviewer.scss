@@ -38,6 +38,15 @@
     width: 100%;
 }
 
+#saveRendering{
+    margin-top: 7px;
+    margin-left: 7px;
+    position: absolute;
+    padding: 2px 7px 1px 7px;
+    font-size: 20px;
+    z-index: 20;
+}
+
 /*Rewrite some defaults of bootstrap*/
 .filterContainer label {
     margin-bottom: 0px!important; 
@@ -74,11 +83,11 @@
 }
 
 #graph_1 {
-    //height: calc(49% - 131px);
+    height: calc(49% - 131px);
 }
 
 #graph_2 {
-    //height: calc(49% - 131px);
+    height: calc(49% - 131px);
 }
 
 #filterDivContainer {
