@@ -450,11 +450,25 @@ var VECTOR_BREAKDOWN = {};
                 // Instance timeslider view
                 this.timeSliderView = new v.TimeSliderView(config.timeSlider);
 
-                // Load possible available filter selection
-                /*if(localStorage.getItem('filterSelection') !== null){
-                    globals.swarm.set('filters', JSON.parse(localStorage.getItem('filterSelection')));
-                }*/
+                var compare = function(val){
+                    return val <= this[1] && val >= this[0];
+                };
 
+                // Load possible available filter selection
+                if(localStorage.getItem('filterSelection') !== null){
+                    var filters = JSON.parse(localStorage.getItem('filterSelection'));
+                    var filterfunc = {};
+                    for (var f in filters){
+                        var ext = filters[f];
+                        filterfunc[f] = compare.bind(ext);
+                    }
+                    globals.swarm.set('filters', filterfunc);
+                    Communicator.mediator.trigger('analytics:set:filter', filters);
+                    //globals.swarm.set('filters', JSON.parse(localStorage.getItem('filterSelection')));
+                } else {
+                    localStorage.setItem('filterSelection', {});
+                    globals.swarm.set('filters', {});
+                }
                 
 
 

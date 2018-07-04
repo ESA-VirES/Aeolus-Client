@@ -54,15 +54,18 @@ define(['backbone.marionette',
                 }
             });
 
+            
+
             if (typeof this.graph1 === 'undefined' && 
                 typeof this.graph2 === 'undefined') {
                 this.$el.append('<div class="d3canvas"></div>');
-                this.$('.d3canvas').append('<div id="graph_1"></div>');
-                this.$('.d3canvas').append('<div id="graph_2"></div>');
+                this.$('.d3canvas').append('<div id="graph_container"></div>');
+                this.$('#graph_container').append('<div id="graph_1"></div>');
+                this.$('#graph_container').append('<div id="graph_2"></div>');
                 this.$('.d3canvas').append('<div id="filterDivContainer"></div>');
                 this.$el.append('<div id="nodataavailable"></div>');
                 $('#nodataavailable').text('No data available for current selection');
-                this.$('#filterDivContainer').append('<div id="filters"></div>');
+                this.$('#filterDivContainer').append('<div id="analyticsFilters"></div>');
             }else{
                 if(this.graph1){
                     this.graph1.resize();
@@ -70,6 +73,55 @@ define(['backbone.marionette',
                 if(this.graph2){
                     this.graph2.resize();
                 }
+            }
+
+            this.$('#filterDivContainer').append('<div id="filterSelectDrop"></div>');
+            var filterList = localStorage.getItem('selectedFilterList');
+            if(filterList !== null){
+                filterList = JSON.parse(filterList);
+                this.selectedFilterList = filterList;
+            } else {
+                this.selectedFilterList = [
+                    // L1B
+                    'mie_quality_flag_data', 'mie_HLOS_wind_speed',
+                    'geoid_separation','velocity_at_DEM_intersection',
+                    'rayleigh_quality_flag_data', 'rayleigh_HLOS_wind_speed',
+                    // L2A
+                    'rayleigh_altitude_obs',
+                    'SCA_backscatter','SCA_QC_flag',
+                    'SCA_extinction_variance', 'SCA_backscatter_variance','SCA_LOD_variance',
+                    'mie_altitude_obs','MCA_LOD',
+                    // L2B, L2C
+                    'mie_wind_result_SNR', 'mie_wind_result_HLOS_error',
+                    'mie_wind_result_COG_range',
+                    'mie_wind_result_QC_flags_1',
+                    'rayleigh_wind_result_HLOS_error', 'rayleigh_wind_result_COG_range',
+                    'rayleigh_wind_result_QC_flags_1',
+                    // AUX MRC RRC
+                    'measurement_response', 
+                    'measurement_error_mie_response',
+                    'reference_pulse_response', 
+                    'mie_core_measurement_FWHM',
+                    'measurement_error_rayleigh_response',
+                    'reference_pulse_error_rayleigh_response',
+                    'ground_measurement_response',
+                    'ground_measurement_error_rayleigh_response',
+                    'reference_pulse_error_mie_response',
+                    'rayleigh_channel_A_response', 'rayleigh_channel_B_response',
+                    'fizeau_transmission','mie_response','mean_laser_energy_mie',
+                    'mean_laser_energy_rayleigh','FWHM_mie_core_2',
+                    // AUX ZWC
+                    'mie_ground_correction_velocity','rayleigh_ground_correction_velocity',
+                    'mie_avg_ground_echo_bin_thickness_above_DEM', 'rayleigh_avg_ground_echo_bin_thickness_above_DEM',
+                    'ZWC_result_type',
+                    // AUX MET
+                    'surface_wind_component_u_off_nadir',
+                    'surface_wind_component_u_nadir',
+                    'surface_wind_component_v_off_nadir',
+                    'surface_wind_component_v_nadir',
+                    'surface_pressure_off_nadir','surface_pressure_nadir',
+                    'surface_altitude_off_nadir', 'surface_altitude_nadir'
+                ]
             }
 
             this.renderSettings = {
@@ -245,22 +297,25 @@ define(['backbone.marionette',
             }, this);
 
             if (this.graph1 === undefined){
+
                 this.filterManager = globals.swarm.get('filterManager');
+                this.filterManager.visibleFilters = this.selectedFilterList;
+
                 this.graph1 = new graphly.graphly({
                     el: '#graph_1',
-                    margin: {top: 10, left: 120, bottom: 50, right: 20},
+                    margin: {top: 10, left: 120, bottom: 50, right: 40},
                     dataSettings: this.dataSettings,
                     renderSettings: this.renderSettings.mie,
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false
                 });
-                globals.swarm.get('filterManager').setRenderNode('#filters');
+                globals.swarm.get('filterManager').setRenderNode('#analyticsFilters');
             }
 
             if (this.graph2 === undefined){
                 this.graph2 = new graphly.graphly({
                     el: '#graph_2',
-                    margin: {top: 10, left: 120, bottom: 50, right: 20},
+                    margin: {top: 10, left: 120, bottom: 50, right: 40},
                     dataSettings: this.dataSettings,
                     renderSettings: this.renderSettings.rayleigh,
                     filterManager: globals.swarm.get('filterManager'),
@@ -271,6 +326,37 @@ define(['backbone.marionette',
             }
 
             var data = globals.swarm.get('data');
+
+            if(localStorage.getItem('filterSelection') !== null){
+                var filters = JSON.parse(localStorage.getItem('filterSelection'));
+                this.filterManager.brushes = filters;
+                //this.graph.filters = globals.swarm.get('filters');
+                this.filterManager.filters = globals.swarm.get('filters');
+            }
+
+            this.filterManager.on('filterChange', function(filters){
+                localStorage.setItem('filterSelection', JSON.stringify(this.brushes));
+                Communicator.mediator.trigger('analytics:set:filter', this.brushes);
+                globals.swarm.set({filters: filters});
+
+            });
+
+            this.filterManager.on('removeFilter', function(filter){
+                var index = that.selectedFilterList.indexOf(filter);
+                if(index !== -1){
+                    that.selectedFilterList.splice(index, 1);
+                    // Check if filter was set
+                    if (that.filterManager.filters.hasOwnProperty(filter)){
+                        delete that.filterManager.filters[filter];
+                        delete that.filterManager.brushes[filter];
+                    }
+                    that.filterManager._filtersChanged();
+                    localStorage.setItem(
+                        'selectedFilterList',
+                        JSON.stringify(that.selectedFilterList)
+                    );
+                }
+            });
 
             if(Object.keys(data).length > 0){
                 // This scope is called when data already available when showing
@@ -313,6 +399,165 @@ define(['backbone.marionette',
                     }
                 }
             }
+        },
+
+        handleItemSelected: function handleItemSelected(evt){
+            var selected = $('#inputAnalyticsAddfilter').val();
+            if(selected !== ''){
+                this.selectedFilterList.push(selected);
+                var setts = this.filterManager.filterSettings;
+                setts.visibleFilters = this.selectedFilterList;
+                this.filterManager.updateFilterSettings(setts);
+                localStorage.setItem(
+                    'selectedFilterList',
+                    JSON.stringify(this.selectedFilterList)
+                );
+                this.renderFilterList();
+            }
+        },
+
+        changeFilterDisplayStatus: function changeFilterDisplayStatus(){
+
+            var that = this;
+            var height = '99%';
+            var opacity = 0.0;
+            var direction = 'up';
+
+            if($('#minimizeFilters').hasClass('minimized')){
+                height = ($('#graph_container').height() - 270)+'px';
+                opacity = 1.0;
+                direction = 'down';
+                $('#minimizeFilters').attr('class', 'visible');
+            } else {
+                $('#minimizeFilters').attr('class', 'minimized');
+            }
+
+            $('#filterSelectDrop').animate({ opacity: opacity  }, 1000);
+
+            $('#analyticsFilters').animate({ opacity: opacity  }, 1000);
+
+            $('#graph_container').animate({ height: height  }, {
+                done: function(){
+                    $('#minimizeFilters i').attr('class', 
+                        'fa fa-chevron-circle-'+direction
+                    );
+                    that.graph1.resize();
+                    if(that.graph2){
+                        that.graph2.resize();
+                    }
+                }
+            },1000);
+
+                
+        },
+
+        renderFilterList: function renderFilterList() {
+
+            var that = this;
+            this.$el.find("#filterSelectDrop").empty();
+            var filCon = this.$el.find("#filterSelectDrop");
+
+            $('#resetFilters').off();
+            filCon.append('<button id="resetFilters" type="button" class="btn btn-success darkbutton">Reset filters</button>');
+            $('#resetFilters').click(function(){
+                that.filterManager.resetManager();
+            });
+
+
+            $('#minimizeFilters').off();
+            $('#minimizeFilters').remove();
+            $('#filterDivContainer').append(
+                '<div id="minimizeFilters" class="visible"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></div>'
+            );
+
+            $('#minimizeFilters').click(this.changeFilterDisplayStatus.bind(this));
+
+            filCon.find('.w2ui-field').remove();
+
+            var aUOM = {};
+            // Clone object
+            _.each(globals.swarm.get('uom_set'), function(obj, key){
+                aUOM[key] = obj;
+            });
+
+            // Remove currently visible filters from list
+            for (var i = 0; i < this.selectedFilterList.length; i++) {
+              if(aUOM.hasOwnProperty(this.selectedFilterList[i])){
+                delete aUOM[this.selectedFilterList[i]];
+              }
+            }
+
+            // Show only filters for currently available data
+            for (var key in aUOM) {
+              if(this.currentKeys && this.currentKeys.indexOf(key) === -1){
+                delete aUOM[key];
+              }
+            }
+
+
+            // Remove unwanted parameters
+            if(aUOM.hasOwnProperty('Timestamp')){delete aUOM.Timestamp;}
+            if(aUOM.hasOwnProperty('timestamp')){delete aUOM.timestamp;}
+            if(aUOM.hasOwnProperty('q_NEC_CRF')){delete aUOM.q_NEC_CRF;}
+            if(aUOM.hasOwnProperty('GPS_Position')){delete aUOM.GPS_Position;}
+            if(aUOM.hasOwnProperty('LEO_Position')){delete aUOM.LEO_Position;}
+            if(aUOM.hasOwnProperty('Spacecraft')){delete aUOM.Spacecraft;}
+            if(aUOM.hasOwnProperty('id')){delete aUOM.id;}
+
+            $('#filterSelectDrop').prepend(
+              '<div class="w2ui-field"> <button id="analyticsAddFilter" type="button" class="btn btn-success darkbutton dropdown-toggle">Add filter <span class="caret"></span></button> <input type="list" id="inputAnalyticsAddfilter"></div>'
+            );
+
+            $( "#analyticsAddFilter" ).click(function(){
+                $('.w2ui-field-helper input').css('text-indent', '0em');
+                $("#inputAnalyticsAddfilter").focus();
+            });
+
+            var that = this;
+            $('#inputAnalyticsAddfilter').off();
+
+            $('#inputAnalyticsAddfilter').w2field('list', { 
+              items: _.keys(aUOM).sort(),
+              renderDrop: function (item, options) {
+                var html = '<b>'+that.createSubscript(item.id)+'</b>';
+                if(aUOM[item.id].uom != null){
+                  html += ' ['+aUOM[item.id].uom+']';
+                }
+                if(aUOM[item.id].name != null){
+                  html+= ': '+aUOM[item.id].name;
+                }
+                return html;
+              },
+              compare: function(item){
+                var userIn = $('.w2ui-field-helper input').val();
+                //console.log(item, $('.w2ui-field-helper input').val());
+                if (userIn.length === 0){
+                    return true;
+                } else {
+                    userIn = userIn.toLowerCase();
+                    var par = aUOM[item.id];
+                    var inputInId = item.id.toLowerCase().replace(/[^a-zA-Z0-9]/g, '')
+                        .includes(userIn.replace(/[^a-zA-Z0-9]/g, ''));
+                    var inputInUOM = par.hasOwnProperty('uom') && 
+                        par.uom !== null && 
+                        par.uom.toLowerCase().includes(userIn);
+                    var inputInName = par.hasOwnProperty('name') && 
+                        par.name !== null && 
+                        par.name.toLowerCase().includes(userIn);
+                    if(inputInId || inputInUOM || inputInName){
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                
+              }
+            });
+
+            $('.w2ui-field-helper input').attr('placeholder', 'Type to search');
+
+            $('#inputAnalyticsAddfilter').change(this.handleItemSelected.bind(this));
+
         },
 
         onLayerParametersChanged: function(layer){
@@ -359,9 +604,11 @@ define(['backbone.marionette',
                     if(idKeys[0] === 'ALD_U_N_1B'){
                         this.graph1.renderSettings =  this.renderSettings.mie;
                         this.graph2.renderSettings =  this.renderSettings.rayleigh;
-                        $('#graph_1').css('height', '49%').css('height', '-=131px');
-                        $('#graph_2').css('height', '49%').css('height', '-=131px');
+                        $('#graph_1').css('height', '49%');
+                        $('#graph_2').css('height', '49%');
                         $('#graph_2').show();
+                        this.graph1.debounceActive = true;
+                        this.graph2.debounceActive = true;
                         this.graph1.loadData(data['ALD_U_N_1B']);
                         this.graph2.loadData(data['ALD_U_N_1B']);
                         this.graph1.resize();
@@ -374,9 +621,11 @@ define(['backbone.marionette',
 
                         this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2A_mie;
                         this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2A_rayleigh;
-                        $('#graph_1').css('height', '49%').css('height', '-=131px');
-                        $('#graph_2').css('height', '49%').css('height', '-=131px');
+                        $('#graph_1').css('height', '49%');
+                        $('#graph_2').css('height', '49%');
                         $('#graph_2').show();
+                        this.graph1.debounceActive = true;
+                        this.graph2.debounceActive = true;
                         this.graph1.loadData(data['ALD_U_N_2A']);
                         this.graph2.loadData(data['ALD_U_N_2A']);
                         this.graph1.resize();
@@ -389,9 +638,11 @@ define(['backbone.marionette',
 
                         this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2B_mie;
                         this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2B_rayleigh;
-                        $('#graph_1').css('height', '49%').css('height', '-=131px');
-                        $('#graph_2').css('height', '49%').css('height', '-=131px');
+                        $('#graph_1').css('height', '49%');
+                        $('#graph_2').css('height', '49%');
                         $('#graph_2').show();
+                        this.graph1.debounceActive = true;
+                        this.graph2.debounceActive = true;
                         this.graph1.loadData(data['ALD_U_N_2B']);
                         this.graph2.loadData(data['ALD_U_N_2B']);
                         this.graph1.resize();
@@ -404,9 +655,11 @@ define(['backbone.marionette',
 
                         this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2C_mie;
                         this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2C_rayleigh;
-                        $('#graph_1').css('height', '49%').css('height', '-=131px');
-                        $('#graph_2').css('height', '49%').css('height', '-=131px');
+                        $('#graph_1').css('height', '49%');
+                        $('#graph_2').css('height', '49%');
                         $('#graph_2').show();
+                        this.graph1.debounceActive = true;
+                        this.graph2.debounceActive = true;
                         this.graph1.loadData(data['ALD_U_N_2C']);
                         this.graph2.loadData(data['ALD_U_N_2C']);
                         this.graph1.resize();
@@ -420,8 +673,10 @@ define(['backbone.marionette',
                         this.graph1.renderSettings =  this.renderSettings[idKeys[0]];
                         this.graph2.renderSettings =  this.renderSettings[(idKeys[0]+'_error')];
                         $('#graph_2').show();
-                        $('#graph_1').css('height', '49%').css('height', '-=131px');
-                        $('#graph_2').css('height', '49%').css('height', '-=131px');
+                        $('#graph_1').css('height', '49%');
+                        $('#graph_2').css('height', '49%');
+                        this.graph1.debounceActive = false;
+                        this.graph2.debounceActive = false;
                         this.graph1.loadData(data[idKeys[0]]);
                         this.graph2.loadData(data[idKeys[0]]);
                         this.graph1.resize();
@@ -434,8 +689,10 @@ define(['backbone.marionette',
                         this.graph1.renderSettings =  this.renderSettings[(idKeys[0]+'_nadir')];
                         this.graph2.renderSettings =  this.renderSettings[(idKeys[0]+'_off_nadir')];
                         $('#graph_2').show();
-                        $('#graph_1').css('height', '49%').css('height', '-=131px');
-                        $('#graph_2').css('height', '49%').css('height', '-=131px');
+                        $('#graph_1').css('height', '49%');
+                        $('#graph_2').css('height', '49%');
+                        this.graph1.debounceActive = true;
+                        this.graph2.debounceActive = true;
                         this.graph1.loadData(data[idKeys[0]]);
                         this.graph2.loadData(data[idKeys[0]]);
                         this.graph1.resize();
@@ -446,8 +703,10 @@ define(['backbone.marionette',
 
                     }else /*if(idKeys[0] === 'AUX_MRC_1B')*/{
                         this.graph2.data = {};
-                        $('#graph_1').css('height', '99%').css('height', '-=262px');
+                        $('#graph_1').css('height', '99%');
                         $('#graph_2').hide();
+                        this.graph1.debounceActive = false;
+                        this.graph2.debounceActive = false;
                         this.graph1.connectGraph(false);
                         this.graph2.connectGraph(false);
                         this.graph1.renderSettings = this.renderSettings[idKeys[0]];
@@ -462,6 +721,8 @@ define(['backbone.marionette',
                     $('#filters').empty();*/
 
                 }
+
+                this.renderFilterList();
             }
         },
 
