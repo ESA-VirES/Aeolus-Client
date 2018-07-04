@@ -480,7 +480,7 @@
       },
 
       onAnalyticsFilterChanged: function (filters) {
-        globals.swarm.set({filters: filters});
+        //globals.swarm.set({filters: filters});
       },
 
       checkSelections: function(){

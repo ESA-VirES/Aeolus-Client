@@ -552,7 +552,18 @@ define([
             }, this);
 
             globals.swarm.on('change:filters', function(model, filters) {
-                //this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
+                var data = globals.swarm.get('data');
+                if (Object.keys(data).length){
+                    var idKeys = Object.keys(data);
+                    for (var i = idKeys.length - 1; i >= 0; i--) {
+                        if(idKeys[i] !== 'ALD_U_N_1B' && 
+                           idKeys[i] !== 'ALD_U_N_2A' && 
+                           idKeys[i] !== 'ALD_U_N_2B' && 
+                           idKeys[i] !== 'ALD_U_N_2C'){
+                            this.createPointCollection(data[idKeys[i]], idKeys[i]);
+                        }
+                    }
+                }
             }, this);
         },
 
@@ -1717,8 +1728,24 @@ define([
 
             var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
             
+            var filters = globals.swarm.get('filters');
+            var show = true;
 
             for (var i = 0; i < data[band].length; i++) {
+                var row = {};
+                for(var k in data){
+                    row[k] = data[k][i];
+                }
+                if(filters){
+                    for (var f in filters){
+                        show = filters[f](row[f]);
+                        if(!show){break;}
+                    }
+                }
+                if(!show){
+                    continue;
+                }
+
                 var color = this.plot.getColor(data[band][i]);
                 var options = {
                     position : new Cesium.Cartesian3.fromDegrees(

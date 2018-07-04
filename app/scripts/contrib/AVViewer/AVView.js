@@ -716,9 +716,6 @@ define(['backbone.marionette',
                     }
                 }else{
                     $('#nodataavailable').show();
-                    /*$('#graph_1').append('div').text('No data available for selection');
-                    $('#graph_2').empty();
-                    $('#filters').empty();*/
 
                 }
 
