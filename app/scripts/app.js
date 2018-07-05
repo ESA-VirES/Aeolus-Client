@@ -176,10 +176,15 @@ var VECTOR_BREAKDOWN = {};
                             // If length of config is longer then user config new data was apended
                             product_config.push(m_p[i]);
                         }
+
+                         // Make sure download parameters are always loaded from script
+                         product_config[i].download_parameters = m_p[i].download_parameters;
                     }
+
 
                     config.mapConfig.products = product_config;
                 }
+                
 
                 _.each(config.mapConfig.products, function(product) {
                     var p_color = product.color ? product.color : autoColor.getColor();
@@ -464,10 +469,6 @@ var VECTOR_BREAKDOWN = {};
                     }
                     globals.swarm.set('filters', filterfunc);
                     Communicator.mediator.trigger('analytics:set:filter', filters);
-                    //globals.swarm.set('filters', JSON.parse(localStorage.getItem('filterSelection')));
-                } else {
-                    localStorage.setItem('filterSelection', {});
-                    globals.swarm.set('filters', {});
                 }
                 
 

@@ -21,7 +21,7 @@ define(['backbone.marionette',
                 if(this.graph1){
                     this.graph1.resize();
                 }
-                if(this.graph2){
+                if(this.graph2 && $('#graph_2').is(":visible")){
                     this.graph2.resize();
                 }
             }.bind(this));
@@ -44,6 +44,8 @@ define(['backbone.marionette',
             this.prevParams = [];
 
             this.$el.append('<div id="analyticsSavebutton"><i class="fa fa-floppy-o" aria-hidden="true"></i></div>');
+
+            this.reloadUOM();
 
             $('#analyticsSavebutton').click(function(){
                 if (that.graph1){
@@ -330,7 +332,12 @@ define(['backbone.marionette',
             if(localStorage.getItem('filterSelection') !== null){
                 var filters = JSON.parse(localStorage.getItem('filterSelection'));
                 this.filterManager.brushes = filters;
-                //this.graph.filters = globals.swarm.get('filters');
+                if(this.graph1){
+                    this.graph1.filters = globals.swarm.get('filters');
+                }
+                if(this.graph2){
+                    this.graph2.filters = globals.swarm.get('filters');
+                }
                 this.filterManager.filters = globals.swarm.get('filters');
             }
 
@@ -356,6 +363,7 @@ define(['backbone.marionette',
                         JSON.stringify(that.selectedFilterList)
                     );
                 }
+                that.renderFilterList();
             });
 
             if(Object.keys(data).length > 0){
@@ -442,7 +450,7 @@ define(['backbone.marionette',
                         'fa fa-chevron-circle-'+direction
                     );
                     that.graph1.resize();
-                    if(that.graph2){
+                    if($('#graph_2').is(":visible")){
                         that.graph2.resize();
                     }
                 }
@@ -496,13 +504,13 @@ define(['backbone.marionette',
 
 
             // Remove unwanted parameters
-            if(aUOM.hasOwnProperty('Timestamp')){delete aUOM.Timestamp;}
+            /*if(aUOM.hasOwnProperty('Timestamp')){delete aUOM.Timestamp;}
             if(aUOM.hasOwnProperty('timestamp')){delete aUOM.timestamp;}
             if(aUOM.hasOwnProperty('q_NEC_CRF')){delete aUOM.q_NEC_CRF;}
             if(aUOM.hasOwnProperty('GPS_Position')){delete aUOM.GPS_Position;}
             if(aUOM.hasOwnProperty('LEO_Position')){delete aUOM.LEO_Position;}
             if(aUOM.hasOwnProperty('Spacecraft')){delete aUOM.Spacecraft;}
-            if(aUOM.hasOwnProperty('id')){delete aUOM.id;}
+            if(aUOM.hasOwnProperty('id')){delete aUOM.id;}*/
 
             $('#filterSelectDrop').prepend(
               '<div class="w2ui-field"> <button id="analyticsAddFilter" type="button" class="btn btn-success darkbutton dropdown-toggle">Add filter <span class="caret"></span></button> <input type="list" id="inputAnalyticsAddfilter"></div>'
@@ -519,7 +527,7 @@ define(['backbone.marionette',
             $('#inputAnalyticsAddfilter').w2field('list', { 
               items: _.keys(aUOM).sort(),
               renderDrop: function (item, options) {
-                var html = '<b>'+that.createSubscript(item.id)+'</b>';
+                var html = '<b>'+(item.id)+'</b>';
                 if(aUOM[item.id].uom != null){
                   html += ' ['+aUOM[item.id].uom+']';
                 }
@@ -597,6 +605,58 @@ define(['backbone.marionette',
 
                 //this.filterManager.initManager();
                 var idKeys = Object.keys(data);
+                if(idKeys.length>0){
+                    this.currentKeys = Object.keys(data[idKeys[0]]);
+                }
+
+                var firstLoad = false;
+                if(this.prevParams === null){
+                    // First time loading data we set previous to current data
+                    this.prevParams = idKeys;
+                    firstLoad = true;
+                }
+
+                // If data parameters have changed
+                if (!firstLoad && !_.isEqual(this.prevParams, idKeys)){
+                    // Define which parameters should be selected defaultwise as filtering
+
+                        // Check if configured filters apply to new data
+                        /*for (var fKey in this.filterManager.brushes){
+                            if(idKeys.indexOf(fKey) === -1){
+                                delete this.filterManager.brushes[fKey];
+                            }
+                        }
+
+                        for(var filKey in this.filterManager.filters){
+                            if(idKeys.indexOf(filKey) === -1){
+                                delete this.filterManager.filters[fKey];
+                            }
+                        }
+
+                        for(var filgraphKey in this.filters){
+                            if(idKeys.indexOf(filgraphKey) === -1){
+                                delete this.graph.filters[fKey];
+                            }
+                        }
+
+                        for (var i = filterstouse.length - 1; i >= 0; i--) {
+                            if(this.selectedFilterList.indexOf(filterstouse[i]) === -1){
+                                this.selectedFilterList.push(filterstouse[i]);
+                            }
+                        }*/
+
+                        var setts = this.filterManager.filterSettings;
+                        setts.visibleFilters = this.selectedFilterList;
+
+
+                        this.filterManager.updateFilterSettings(setts);
+                        localStorage.setItem(
+                            'selectedFilterList',
+                            JSON.stringify(this.selectedFilterList)
+                        );
+                        this.renderFilterList();
+                }
+
                 if(idKeys.length > 0){
                     $('#nodataavailable').hide();
                     //this.graph.loadData(data);
@@ -721,6 +781,34 @@ define(['backbone.marionette',
 
                 this.renderFilterList();
             }
+        },
+
+        reloadUOM: function(){
+            // Prepare to create list of available parameters
+            var availableParameters = {};
+            var activeParameters = {};
+            this.sp = {
+                uom_set: {}
+            };
+            globals.products.each(function(prod) {
+                if(prod.get('download_parameters')){
+                    var par = prod.get('download_parameters');
+                    var newKeys = _.keys(par);
+                    _.each(newKeys, function(key){
+                        availableParameters[key] = par[key];
+                        if(prod.get('visible')){
+                            activeParameters[key] = par[key];
+                        }
+                    });
+                    
+                }
+            });
+            this.sp.uom_set = availableParameters;
+            this.activeParameters = activeParameters;
+
+            // TODO: Remove unwanted parameters
+
+            globals.swarm.set('uom_set', this.sp.uom_set);
         },
 
         onChangeAxisParameters: function (selection) {

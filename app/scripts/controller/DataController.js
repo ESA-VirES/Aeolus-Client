@@ -27,6 +27,7 @@
         this.activeModels = [];
         this.selected_time = null;
         this.previousCollection = '';
+        this.firstLoad = true;
 
         this.dataSettings = globals.dataSettings;
 
@@ -230,7 +231,8 @@
         };
 
         this.filterManager = new FilterManager({
-            filterSettings: filterSettings
+            filterSettings: filterSettings,
+            replaceUnderlines: true
         });
 
         globals.swarm.set('filterManager', this.filterManager);
@@ -856,7 +858,11 @@
 
             if(that.previousCollection !== collectionId){
               that.previousCollection = collectionId;
-              that.filterManager.resetManager();
+              if(that.firstLoad){
+                that.firstLoad = false;
+              } else {
+                that.filterManager.resetManager();
+              }
             }
 
             if(collectionId === 'ALD_U_N_1B'){
