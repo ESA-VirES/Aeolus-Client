@@ -342,8 +342,21 @@ define(['backbone.marionette',
             }
 
             this.filterManager.on('filterChange', function(filters){
-                localStorage.setItem('filterSelection', JSON.stringify(this.brushes));
-                Communicator.mediator.trigger('analytics:set:filter', this.brushes);
+                var filterRanges = {};
+                for (var f in this.brushes){
+                    // check if filter is a combined filter
+                    var parM = this.filterSettings.parameterMatrix;
+                    if(parM.hasOwnProperty(f)){
+                        for (var i = 0; i < parM[f].length; i++) {
+                            filterRanges[parM[f][i]] = this.brushes[f];
+                        }
+                    } else {
+                        filterRanges[f] = this.brushes[f];
+                    }
+                }
+                
+                localStorage.setItem('filterSelection', JSON.stringify(filterRanges));
+                Communicator.mediator.trigger('analytics:set:filter', filterRanges);
                 globals.swarm.set({filters: filters});
 
             });
@@ -590,11 +603,18 @@ define(['backbone.marionette',
                 this.dataSettings[band].colorscale = style;
                 this.dataSettings[band].extent = range;
                 //this.graph.dataSettings = this.dataSettings;
-                this.graph1.updateSettings = this.dataSettings;
-                this.graph1.renderData(false);
+                // Reset colorcache
+                for(let k in this.graph1.colorCache){
+                    delete this.graph1.colorCache[k];
+                }
+                for(let k in this.graph2.colorCache){
+                    delete this.graph2.colorCache[k];
+                }
+                this.graph1.dataSettings = this.dataSettings;
+                this.graph1.renderData();
                 this.graph1.createHelperObjects();
                 this.graph2.dataSettings = this.dataSettings;
-                this.graph2.renderData(false);
+                this.graph2.renderData();
                 this.graph2.createHelperObjects();
             }
         },
