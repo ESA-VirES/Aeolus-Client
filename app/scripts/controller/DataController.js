@@ -29,6 +29,8 @@
         this.previousCollection = '';
         this.firstLoad = true;
 
+        this.xhr = null;
+
         this.dataSettings = globals.dataSettings;
 
         var filterSettings = {
@@ -635,8 +637,7 @@
       },
 
       sendRequest: function(prodId){
-        var xhr = new XMLHttpRequest();
-
+       
         var process = {
           collectionId: prodId,
           id: this.activeWPSproducts[prodId]
@@ -824,377 +825,406 @@
 
         var body = wps_l1bTmpl(options);
 
-
-        xhr.open('POST', urlBase, true);
-        xhr.responseType = 'arraybuffer';
-        var that = this;
-        //var collectionId = process.collectionId;
-
-        xhr.onerror = function(e) {
-            Communicator.mediator.trigger("progress:change", false);
+        if(this.xhr !== null){
+          // A request has been sent that is not yet been returned so we need to cancel it
+          Communicator.mediator.trigger("progress:change", false);
+          this.xhr.abort();
+          this.xhr = null;
         }
 
-        xhr.onload = function(e) {
-            Communicator.mediator.trigger("progress:change", false);
-            var tmp = new Uint8Array(this.response);
-            var data = msgpack.decode(tmp);
+        this.xhr = new XMLHttpRequest();
+        this.xhr.open('POST', urlBase, true);
+        this.xhr.responseType = 'arraybuffer';
+        var that = this;
+        var request = this.xhr;
 
-            var ds = data[collectionId];
+        this.xhr.onreadystatechange = function() {
+       
+          if(request.readyState == 4) {
+            if(request.status == 200) {
+                Communicator.mediator.trigger("progress:change", false);
+                var tmp = new Uint8Array(this.response);
+                var data = msgpack.decode(tmp);
 
-            /*if($.isEmptyObject(ds)){
-              globals.swarm.set({data: {}});
-              return;
-            }*/
-            var empty = true;
-            for (var k in ds){
-              if(!$.isEmptyObject(ds[k])){
-                empty = false;
-              }
-            }
-            if (empty){
-              globals.swarm.set({data: {}});
-              return;
-            }
+                var ds = data[collectionId];
 
-            if(that.previousCollection !== collectionId){
-              that.previousCollection = collectionId;
-              if(that.firstLoad){
-                that.firstLoad = false;
-              } else {
-                that.filterManager.resetManager();
-              }
-            }
-
-            if(collectionId === 'ALD_U_N_1B'){
-
-              // TODO: Here we need to differentiate between observations and measurements
-              ds = ds[0];
-
-              if($.isEmptyObject(ds)){
-                globals.swarm.set({data: {}});
-                return;
-              } else {
-                // Check if returned parameters are empty (e.g. bbox selection)
-                // over area where no curtain is available
-                var keys = Object.keys(ds);
-                if(ds[keys[0]].length === 0){
+                /*if($.isEmptyObject(ds)){
+                  globals.swarm.set({data: {}});
+                  return;
+                }*/
+                var empty = true;
+                for (var k in ds){
+                  if(!$.isEmptyObject(ds[k])){
+                    empty = false;
+                  }
+                }
+                if (empty){
                   globals.swarm.set({data: {}});
                   return;
                 }
-              }
 
-
-              // First thing we need to find possible jumps in data and handle them
-              var positions = [];
-              for (var i = 0; i < ds.latitude_of_DEM_intersection.length; i++) {
-                positions.push(ds.longitude_of_DEM_intersection[i]);
-                positions.push(ds.latitude_of_DEM_intersection[i]);
-              }
-
-              var lonStep = 10;
-              var latStep = 10;
-
-
-              var stepPositions = [];
-              for (var i = 2; i < positions.length; i++) {
-                if (i%2===0 && Math.abs(positions[i]-positions[i-2])>=Math.abs(lonStep)+2.5) {
-                  stepPositions.push(parseInt(i/2));
-                }else if (i%2===1 && Math.abs(positions[i]-positions[i-2])>=Math.abs(latStep)+2.5) {
-                  if(stepPositions.length>0 && stepPositions[stepPositions.length-1]!=parseInt((i-1)/2)){
-                    stepPositions.push(parseInt((i+1)/2));
-                  }else if(stepPositions.length === 0){
-                    stepPositions.push(parseInt(i/2));
+                if(that.previousCollection !== collectionId){
+                  that.previousCollection = collectionId;
+                  if(that.firstLoad){
+                    that.firstLoad = false;
+                  } else {
+                    that.filterManager.resetManager();
                   }
                 }
-              }
 
-              var mie_jumps = that.findObservationJumps(ds.mie_altitude, stepPositions);
+                if(collectionId === 'ALD_U_N_1B'){
 
-              // MIE
-              var mie_time = that.proxyFlattenObservationArraySE(ds.time, ds.mie_altitude, stepPositions);
-              var mie_HLOS_wind_speed = that.flattenObservationArray(ds.mie_HLOS_wind_speed, stepPositions);
-              //var mie_latitude = that.flattenMeasurementArraySE(data.ALD_U_N_1B[1].mie_latitude);
-              var mie_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
-                ds.latitude_of_DEM_intersection,
-                ds.mie_altitude,
-                stepPositions
-              );
-              var mie_longitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
-                ds.longitude_of_DEM_intersection,
-                ds.mie_altitude,
-                stepPositions
-              );
+                  // TODO: Here we need to differentiate between observations and measurements
+                  ds = ds[0];
 
-              var mie_altitude = that.flattenObservationArraySE(ds.mie_altitude, stepPositions);
-              var mie_bin_quality_flag = that.flattenObservationArray(ds.mie_bin_quality_flag, stepPositions);
-
-              var mie_geoid_separation = that.proxyFlattenObservationArraySE(
-                ds.geoid_separation,
-                ds.mie_altitude,
-                stepPositions
-              );
-              var mie_velocity_at_DEM_intersection = that.proxyFlattenObservationArraySE(
-                ds.velocity_at_DEM_intersection,
-                ds.mie_altitude,
-                stepPositions
-              );
+                  if($.isEmptyObject(ds)){
+                    globals.swarm.set({data: {}});
+                    return;
+                  } else {
+                    // Check if returned parameters are empty (e.g. bbox selection)
+                    // over area where no curtain is available
+                    var keys = Object.keys(ds);
+                    if(ds[keys[0]].length === 0){
+                      globals.swarm.set({data: {}});
+                      return;
+                    }
+                  }
 
 
+                  // First thing we need to find possible jumps in data and handle them
+                  var positions = [];
+                  for (var i = 0; i < ds.latitude_of_DEM_intersection.length; i++) {
+                    positions.push(ds.longitude_of_DEM_intersection[i]);
+                    positions.push(ds.latitude_of_DEM_intersection[i]);
+                  }
 
-              // RAYLEIGH
-              var ray_time = that.proxyFlattenObservationArraySE(ds.time, ds.rayleigh_altitude, stepPositions);
-              var ray_HLOS_wind_speed = that.flattenObservationArray(ds.rayleigh_HLOS_wind_speed, stepPositions);
-              //var mie_latitude = that.flattenMeasurementArraySE(data.ALD_U_N_1B[1].mie_latitude);
-              var ray_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
-                ds.latitude_of_DEM_intersection,
-                ds.rayleigh_altitude,
-                stepPositions
-              );
-              var ray_longitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
-                ds.longitude_of_DEM_intersection,
-                ds.rayleigh_altitude,
-                stepPositions
-              );
-              var ray_altitude = that.flattenObservationArraySE(ds.rayleigh_altitude, stepPositions);
-              var ray_bin_quality_flag = that.flattenObservationArray(ds.rayleigh_bin_quality_flag, stepPositions);
-
-              var ray_geoid_separation = that.proxyFlattenObservationArraySE(
-                ds.geoid_separation,
-                ds.rayleigh_altitude,
-                stepPositions
-              );
-              var ray_velocity_at_DEM_intersection = that.proxyFlattenObservationArraySE(
-                ds.velocity_at_DEM_intersection,
-                ds.rayleigh_altitude,
-                stepPositions
-              );
-
-              var ray_jumps = that.findObservationJumps(ds.rayleigh_altitude, stepPositions);
-
-            /*  'longitude_of_DEM_intersection', 
-              'mie_HLOS_wind_speed','mie_altitude', 'mie_range', 'mie_SNR',
-              'mie_bin_quality_flag',
-              'mie_signal_intensity','mie_ground_velocity',
-              'rayleigh_range', 'rayleigh_channel_a_SNR', 'rayleigh_channel_b_SNR',
-              'mie_scattering_ratio',
-              'rayleigh_HLOS_wind_speed','rayleigh_altitude',
-              'rayleigh_bin_quality_flag','rayleigh_signal_channel_A_intensity',
-              'rayleigh_signal_channel_B_intensity','rayleigh_ground_velocity',
-              'geoid_separation','velocity_at_DEM_intersection',
-              'AOCS_pitch_angle', 'AOCS_roll_angle', 'APCS_yaw_angle', */
+                  var lonStep = 10;
+                  var latStep = 10;
 
 
-              var tmpdata = {
-                mie_time_start: mie_time[0],
-                mie_time_end: mie_time[1],
-                mie_latitude_of_DEM_intersection_start: mie_latitude_of_DEM_intersection[1],
-                mie_latitude_of_DEM_intersection_end: mie_latitude_of_DEM_intersection[0],
-                mie_longitude_of_DEM_intersection_start: mie_longitude_of_DEM_intersection[1],
-                mie_longitude_of_DEM_intersection_end: mie_longitude_of_DEM_intersection[0],
-                mie_HLOS_wind_speed: mie_HLOS_wind_speed,
-                mie_quality_flag_data: mie_bin_quality_flag,
-                mie_altitude_start: mie_altitude[1],
-                mie_altitude_end: mie_altitude[0],
-                mie_geoid_separation:mie_geoid_separation[0],
-                mie_velocity_at_DEM_intersection: mie_velocity_at_DEM_intersection[0],
-                positions: positions,
-                stepPositions: stepPositions,
-                mie_jumps: mie_jumps,
+                  var stepPositions = [];
+                  for (var i = 2; i < positions.length; i++) {
+                    if (i%2===0 && Math.abs(positions[i]-positions[i-2])>=Math.abs(lonStep)+2.5) {
+                      stepPositions.push(parseInt(i/2));
+                    }else if (i%2===1 && Math.abs(positions[i]-positions[i-2])>=Math.abs(latStep)+2.5) {
+                      if(stepPositions.length>0 && stepPositions[stepPositions.length-1]!=parseInt((i-1)/2)){
+                        stepPositions.push(parseInt((i+1)/2));
+                      }else if(stepPositions.length === 0){
+                        stepPositions.push(parseInt(i/2));
+                      }
+                    }
+                  }
 
-                /*geoid_separation: geoid_separation[0],
-                velocity_at_DEM_intersection: velocity_at_DEM_intersection[0]*/
-                rayleigh_time_start: ray_time[0],
-                rayleigh_time_end: ray_time[1],
-                rayleigh_latitude_of_DEM_intersection_start: ray_latitude_of_DEM_intersection[1],
-                rayleigh_latitude_of_DEM_intersection_end: ray_latitude_of_DEM_intersection[0],
-                rayleigh_HLOS_wind_speed: ray_HLOS_wind_speed,
-                rayleigh_quality_flag_data: ray_bin_quality_flag,
-                rayleigh_altitude_start: ray_altitude[1],
-                rayleigh_altitude_end: ray_altitude[0],
-                rayleigh_geoid_separation: ray_geoid_separation[0],
-                rayleigh_velocity_at_DEM_intersection: ray_velocity_at_DEM_intersection[0],
-                rayleigh_jumps: ray_jumps
-              };
+                  var mie_jumps = that.findObservationJumps(ds.mie_altitude, stepPositions);
 
-              // TODO: Getting the object and setting one parameter does not trigger
-              // change event, need to think about using multiple objects for different
-              // ids instead of one object with multiple parameters 
-              var resData = {};//globals.swarm.get('data');
-              resData[collectionId] = tmpdata;
+                  // MIE
+                  var mie_time = that.proxyFlattenObservationArraySE(ds.time, ds.mie_altitude, stepPositions);
+                  var mie_HLOS_wind_speed = that.flattenObservationArray(ds.mie_HLOS_wind_speed, stepPositions);
+                  //var mie_latitude = that.flattenMeasurementArraySE(data.ALD_U_N_1B[1].mie_latitude);
+                  var mie_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
+                    ds.latitude_of_DEM_intersection,
+                    ds.mie_altitude,
+                    stepPositions
+                  );
+                  var mie_longitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
+                    ds.longitude_of_DEM_intersection,
+                    ds.mie_altitude,
+                    stepPositions
+                  );
 
-              globals.swarm.set({data: resData});
+                  var mie_altitude = that.flattenObservationArraySE(ds.mie_altitude, stepPositions);
+                  var mie_bin_quality_flag = that.flattenObservationArray(ds.mie_bin_quality_flag, stepPositions);
 
-              // TODO: Merge data for filtermanager?
-              that.filterManager.loadData(tmpdata);
+                  var mie_geoid_separation = that.proxyFlattenObservationArraySE(
+                    ds.geoid_separation,
+                    ds.mie_altitude,
+                    stepPositions
+                  );
+                  var mie_velocity_at_DEM_intersection = that.proxyFlattenObservationArraySE(
+                    ds.velocity_at_DEM_intersection,
+                    ds.mie_altitude,
+                    stepPositions
+                  );
 
 
-            } else {
-              var resData = {};
-              var keys = Object.keys(ds);
 
-              // ZWC data is structured differently to the other 3 AUX types
-              if(collectionId === 'AUX_ZWC_1B'){
-                resData = ds;
-                // We create some additional data for ZWC data
-                var obsIndex = [];
-                for (var j = 1; j <= resData[keys[0]].length; j++) {
-                  obsIndex.push(j);
-                }
-                resData['observation_index'] = obsIndex;
-              } else if(collectionId === 'AUX_MET_12'){
-                resData = ds;
-              } else if(collectionId === 'ALD_U_N_2A'){
-                for (var k = 0; k < keys.length; k++) {
-                  var subK = Object.keys(ds[keys[k]]);
-                  for (var l = 0; l < subK.length; l++) {
-                    var curArr = ds[keys[k]][subK[l]];
-                    if( Array.isArray(curArr[0]) ){
-                      if(subK[l].includes('altitude')){
-                        // Create bottom and top arrays
-                        var tmpArrBottom = [];
-                        var tmpArrTop = [];
-                        for (var i = 0; i < curArr.length; i++) {
-                          for (var j = 0; j < 24; j++) {
-                            tmpArrBottom.push(curArr[i][j]);
-                            tmpArrTop.push(curArr[i][j+1]);
+                  // RAYLEIGH
+                  var ray_time = that.proxyFlattenObservationArraySE(ds.time, ds.rayleigh_altitude, stepPositions);
+                  var ray_HLOS_wind_speed = that.flattenObservationArray(ds.rayleigh_HLOS_wind_speed, stepPositions);
+                  //var mie_latitude = that.flattenMeasurementArraySE(data.ALD_U_N_1B[1].mie_latitude);
+                  var ray_latitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
+                    ds.latitude_of_DEM_intersection,
+                    ds.rayleigh_altitude,
+                    stepPositions
+                  );
+                  var ray_longitude_of_DEM_intersection = that.proxyFlattenObservationArraySE(
+                    ds.longitude_of_DEM_intersection,
+                    ds.rayleigh_altitude,
+                    stepPositions
+                  );
+                  var ray_altitude = that.flattenObservationArraySE(ds.rayleigh_altitude, stepPositions);
+                  var ray_bin_quality_flag = that.flattenObservationArray(ds.rayleigh_bin_quality_flag, stepPositions);
+
+                  var ray_geoid_separation = that.proxyFlattenObservationArraySE(
+                    ds.geoid_separation,
+                    ds.rayleigh_altitude,
+                    stepPositions
+                  );
+                  var ray_velocity_at_DEM_intersection = that.proxyFlattenObservationArraySE(
+                    ds.velocity_at_DEM_intersection,
+                    ds.rayleigh_altitude,
+                    stepPositions
+                  );
+
+                  var ray_jumps = that.findObservationJumps(ds.rayleigh_altitude, stepPositions);
+
+                /*  'longitude_of_DEM_intersection', 
+                  'mie_HLOS_wind_speed','mie_altitude', 'mie_range', 'mie_SNR',
+                  'mie_bin_quality_flag',
+                  'mie_signal_intensity','mie_ground_velocity',
+                  'rayleigh_range', 'rayleigh_channel_a_SNR', 'rayleigh_channel_b_SNR',
+                  'mie_scattering_ratio',
+                  'rayleigh_HLOS_wind_speed','rayleigh_altitude',
+                  'rayleigh_bin_quality_flag','rayleigh_signal_channel_A_intensity',
+                  'rayleigh_signal_channel_B_intensity','rayleigh_ground_velocity',
+                  'geoid_separation','velocity_at_DEM_intersection',
+                  'AOCS_pitch_angle', 'AOCS_roll_angle', 'APCS_yaw_angle', */
+
+
+                  var tmpdata = {
+                    mie_time_start: mie_time[0],
+                    mie_time_end: mie_time[1],
+                    mie_latitude_of_DEM_intersection_start: mie_latitude_of_DEM_intersection[1],
+                    mie_latitude_of_DEM_intersection_end: mie_latitude_of_DEM_intersection[0],
+                    mie_longitude_of_DEM_intersection_start: mie_longitude_of_DEM_intersection[1],
+                    mie_longitude_of_DEM_intersection_end: mie_longitude_of_DEM_intersection[0],
+                    mie_HLOS_wind_speed: mie_HLOS_wind_speed,
+                    mie_quality_flag_data: mie_bin_quality_flag,
+                    mie_altitude_start: mie_altitude[1],
+                    mie_altitude_end: mie_altitude[0],
+                    mie_geoid_separation:mie_geoid_separation[0],
+                    mie_velocity_at_DEM_intersection: mie_velocity_at_DEM_intersection[0],
+                    positions: positions,
+                    stepPositions: stepPositions,
+                    mie_jumps: mie_jumps,
+
+                    /*geoid_separation: geoid_separation[0],
+                    velocity_at_DEM_intersection: velocity_at_DEM_intersection[0]*/
+                    rayleigh_time_start: ray_time[0],
+                    rayleigh_time_end: ray_time[1],
+                    rayleigh_latitude_of_DEM_intersection_start: ray_latitude_of_DEM_intersection[1],
+                    rayleigh_latitude_of_DEM_intersection_end: ray_latitude_of_DEM_intersection[0],
+                    rayleigh_HLOS_wind_speed: ray_HLOS_wind_speed,
+                    rayleigh_quality_flag_data: ray_bin_quality_flag,
+                    rayleigh_altitude_start: ray_altitude[1],
+                    rayleigh_altitude_end: ray_altitude[0],
+                    rayleigh_geoid_separation: ray_geoid_separation[0],
+                    rayleigh_velocity_at_DEM_intersection: ray_velocity_at_DEM_intersection[0],
+                    rayleigh_jumps: ray_jumps
+                  };
+
+                  // TODO: Getting the object and setting one parameter does not trigger
+                  // change event, need to think about using multiple objects for different
+                  // ids instead of one object with multiple parameters 
+                  var resData = {};//globals.swarm.get('data');
+                  resData[collectionId] = tmpdata;
+
+                  globals.swarm.set({data: resData});
+
+                  // TODO: Merge data for filtermanager?
+                  that.filterManager.loadData(tmpdata);
+
+
+                } else {
+                  var resData = {};
+                  var keys = Object.keys(ds);
+
+                  // ZWC data is structured differently to the other 3 AUX types
+                  if(collectionId === 'AUX_ZWC_1B'){
+                    resData = ds;
+                    // We create some additional data for ZWC data
+                    var obsIndex = [];
+                    for (var j = 1; j <= resData[keys[0]].length; j++) {
+                      obsIndex.push(j);
+                    }
+                    resData['observation_index'] = obsIndex;
+                  } else if(collectionId === 'AUX_MET_12'){
+                    resData = ds;
+                  } else if(collectionId === 'ALD_U_N_2A'){
+                    for (var k = 0; k < keys.length; k++) {
+                      var subK = Object.keys(ds[keys[k]]);
+                      for (var l = 0; l < subK.length; l++) {
+                        var curArr = ds[keys[k]][subK[l]];
+                        if( Array.isArray(curArr[0]) ){
+                          if(subK[l].includes('altitude')){
+                            // Create bottom and top arrays
+                            var tmpArrBottom = [];
+                            var tmpArrTop = [];
+                            for (var i = 0; i < curArr.length; i++) {
+                              for (var j = 0; j < 24; j++) {
+                                tmpArrBottom.push(curArr[i][j]);
+                                tmpArrTop.push(curArr[i][j+1]);
+                              }
+                            }
+                            resData[subK[l]+'_bottom'] = tmpArrBottom;
+                            resData[subK[l]+'_top'] = tmpArrTop;
+                          } else {
+                            resData[subK[l]] = [].concat.apply([], ds[keys[k]][subK[l]]);
                           }
-                        }
-                        resData[subK[l]+'_bottom'] = tmpArrBottom;
-                        resData[subK[l]+'_top'] = tmpArrTop;
-                      } else {
-                        resData[subK[l]] = [].concat.apply([], ds[keys[k]][subK[l]]);
-                      }
-                    }else{
+                        }else{
 
-                      var tmpArr = [];
-                      for (var i = 0; i < curArr.length; i++) {
-                        for (var j = 0; j < 24; j++) {
-                          tmpArr.push(curArr[i]);
+                          var tmpArr = [];
+                          for (var i = 0; i < curArr.length; i++) {
+                            for (var j = 0; j < 24; j++) {
+                              tmpArr.push(curArr[i]);
+                            }
+                          }
+                          resData[subK[l]+'_orig'] = curArr;
+                          resData[subK[l]] = tmpArr;
                         }
                       }
-                      resData[subK[l]+'_orig'] = curArr;
-                      resData[subK[l]] = tmpArr;
                     }
-                  }
-                }
-                // Create new start and stop time to allow rendering
-                resData['SCA_time_obs_start'] = resData['SCA_time_obs'].slice();
-                resData['SCA_time_obs_stop'] = resData['SCA_time_obs'].slice(24, resData['SCA_time_obs'].length);
-                resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
-                resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].slice(24, resData['MCA_time_obs'].length);
+                    // Create new start and stop time to allow rendering
+                    resData['SCA_time_obs_start'] = resData['SCA_time_obs'].slice();
+                    resData['SCA_time_obs_stop'] = resData['SCA_time_obs'].slice(24, resData['SCA_time_obs'].length);
+                    resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
+                    resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].slice(24, resData['MCA_time_obs'].length);
 
-                resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
-                resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].slice(1, resData['SCA_time_obs_orig'].length);
-                resData['MCA_time_obs_orig_start'] = resData['MCA_time_obs_orig'].slice();
-                resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].slice(1, resData['MCA_time_obs_orig'].length);
-                // Add element with additional 12ms as it should be the default
-                // time interval between observations
-                // TODO: make sure this is acceptable! As there seems to be some 
-                // minor deviations at start and end of observations
-                var lastValSCA =  resData['SCA_time_obs_orig'].slice(-1)[0]+12;
-                var lastValMCA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
-                for (var i = 0; i < 24; i++) {
-                  resData['SCA_time_obs_stop'].push(lastValSCA);
-                  resData['MCA_time_obs_stop'].push(lastValMCA);
-                }
-                resData['SCA_time_obs_orig_stop'].push(lastValSCA);
-                resData['MCA_time_obs_orig_stop'].push(lastValMCA);
-
-                var lonStep = 15;
-                var latStep = 15;
-
-
-
-                var jumpPos = [];
-                for (var i = 1; i < resData.latitude_of_DEM_intersection_obs_orig.length; i++) {
-                  if (Math.abs(
-                      resData.latitude_of_DEM_intersection_obs_orig[i-1]-
-                      resData.latitude_of_DEM_intersection_obs_orig[i]) >= Math.abs(latStep)) {
-                    jumpPos.push(i);
-                  }else if (Math.abs(
-                      resData.longitude_of_DEM_intersection_obs_orig[i-1]-
-                      resData.longitude_of_DEM_intersection_obs_orig[i]) >= Math.abs(latStep)) {
-                    jumpPos.push(i);
-                  }
-                }
-                resData['jumps'] = jumpPos;
-
-              } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
-
-                for (var k = 0; k < keys.length; k++) {
-                  var subK = Object.keys(ds[keys[k]]);
-                  for (var l = 0; l < subK.length; l++) {
-                    
-                    if(subK[l] === 'mie_wind_result_wind_velocity' ||
-                       subK[l] === 'rayleigh_wind_result_wind_velocity' ||
-                       subK[l] === 'mie_wind_result_COG_range' ||
-                       subK[l] === 'rayleigh_wind_result_COG_range'){
-                      // Convert from cm/s to m/s
-                      resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 100; });
-                    } else {
-                      resData[subK[l]] = ds[keys[k]][subK[l]];
+                    resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
+                    resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].slice(1, resData['SCA_time_obs_orig'].length);
+                    resData['MCA_time_obs_orig_start'] = resData['MCA_time_obs_orig'].slice();
+                    resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].slice(1, resData['MCA_time_obs_orig'].length);
+                    // Add element with additional 12ms as it should be the default
+                    // time interval between observations
+                    // TODO: make sure this is acceptable! As there seems to be some 
+                    // minor deviations at start and end of observations
+                    var lastValSCA =  resData['SCA_time_obs_orig'].slice(-1)[0]+12;
+                    var lastValMCA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
+                    for (var i = 0; i < 24; i++) {
+                      resData['SCA_time_obs_stop'].push(lastValSCA);
+                      resData['MCA_time_obs_stop'].push(lastValMCA);
                     }
-                  }
-                }
-                var lonStep = 15;
-                var latStep = 15;
+                    resData['SCA_time_obs_orig_stop'].push(lastValSCA);
+                    resData['MCA_time_obs_orig_stop'].push(lastValMCA);
 
-                var mieJumpPositions = [];
-                for (var i = 1; i < ds.mie_profile_data.mie_profile_lat_of_DEM_intersection.length; i++) {
-                  if (Math.abs(
-                      ds.mie_profile_data.mie_profile_lat_of_DEM_intersection[i-1]-
-                      ds.mie_profile_data.mie_profile_lat_of_DEM_intersection[i]) >= Math.abs(latStep)) {
-                    mieJumpPositions.push(i);
-                  }else if (Math.abs(
-                      ds.mie_profile_data.mie_profile_lon_of_DEM_intersection[i-1]-
-                      ds.mie_profile_data.mie_profile_lon_of_DEM_intersection[i]) >= Math.abs(lonStep)) {
-                    mieJumpPositions.push(i);
-                  }
-                }
-                resData['mie_jumps'] = mieJumpPositions;
+                    var lonStep = 15;
+                    var latStep = 15;
 
-                var rayleighJumpPositions = [];
-                for (var i = 1; i < ds.rayleigh_profile_data.rayleigh_profile_lat_of_DEM_intersection.length; i++) {
-                  if (Math.abs(
-                      ds.rayleigh_profile_data.rayleigh_profile_lat_of_DEM_intersection[i-1]-
-                      ds.rayleigh_profile_data.rayleigh_profile_lat_of_DEM_intersection[i]) >= Math.abs(latStep)) {
-                    rayleighJumpPositions.push(i);
-                  }else if (Math.abs(
-                      ds.rayleigh_profile_data.rayleigh_profile_lon_of_DEM_intersection[i-1]-
-                      ds.rayleigh_profile_data.rayleigh_profile_lon_of_DEM_intersection[i]) >= Math.abs(lonStep)) {
-                    rayleighJumpPositions.push(i);
-                  }
-                }
-                resData['rayleigh_jumps'] = rayleighJumpPositions;
-              } else {
-                // Flatten structure as we do not need the different levels
-                // to render the data
-                for (var k = 0; k < keys.length; k++) {
-                  for (var l = 0; l < ds[keys[k]].length; l++) {
-                    if(resData.hasOwnProperty(keys[k])){
-                      resData[keys[k]] = resData[keys[k]].concat(ds[keys[k]][l]);
-                    } else {
-                      resData[keys[k]] = ds[keys[k]][l];
+
+
+                    var jumpPos = [];
+                    for (var i = 1; i < resData.latitude_of_DEM_intersection_obs_orig.length; i++) {
+                      if (Math.abs(
+                          resData.latitude_of_DEM_intersection_obs_orig[i-1]-
+                          resData.latitude_of_DEM_intersection_obs_orig[i]) >= Math.abs(latStep)) {
+                        jumpPos.push(i);
+                      }else if (Math.abs(
+                          resData.longitude_of_DEM_intersection_obs_orig[i-1]-
+                          resData.longitude_of_DEM_intersection_obs_orig[i]) >= Math.abs(latStep)) {
+                        jumpPos.push(i);
+                      }
                     }
-                    
+                    resData['jumps'] = jumpPos;
+
+                  } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
+
+                    for (var k = 0; k < keys.length; k++) {
+                      var subK = Object.keys(ds[keys[k]]);
+                      for (var l = 0; l < subK.length; l++) {
+                        
+                        if(subK[l] === 'mie_wind_result_wind_velocity' ||
+                           subK[l] === 'rayleigh_wind_result_wind_velocity' ||
+                           subK[l] === 'mie_wind_result_COG_range' ||
+                           subK[l] === 'rayleigh_wind_result_COG_range'){
+                          // Convert from cm/s to m/s
+                          resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 100; });
+                        } else {
+                          resData[subK[l]] = ds[keys[k]][subK[l]];
+                        }
+                      }
+                    }
+                    var lonStep = 15;
+                    var latStep = 15;
+
+                    var mieJumpPositions = [];
+                    for (var i = 1; i < ds.mie_profile_data.mie_profile_lat_of_DEM_intersection.length; i++) {
+                      if (Math.abs(
+                          ds.mie_profile_data.mie_profile_lat_of_DEM_intersection[i-1]-
+                          ds.mie_profile_data.mie_profile_lat_of_DEM_intersection[i]) >= Math.abs(latStep)) {
+                        mieJumpPositions.push(i);
+                      }else if (Math.abs(
+                          ds.mie_profile_data.mie_profile_lon_of_DEM_intersection[i-1]-
+                          ds.mie_profile_data.mie_profile_lon_of_DEM_intersection[i]) >= Math.abs(lonStep)) {
+                        mieJumpPositions.push(i);
+                      }
+                    }
+                    resData['mie_jumps'] = mieJumpPositions;
+
+                    var rayleighJumpPositions = [];
+                    for (var i = 1; i < ds.rayleigh_profile_data.rayleigh_profile_lat_of_DEM_intersection.length; i++) {
+                      if (Math.abs(
+                          ds.rayleigh_profile_data.rayleigh_profile_lat_of_DEM_intersection[i-1]-
+                          ds.rayleigh_profile_data.rayleigh_profile_lat_of_DEM_intersection[i]) >= Math.abs(latStep)) {
+                        rayleighJumpPositions.push(i);
+                      }else if (Math.abs(
+                          ds.rayleigh_profile_data.rayleigh_profile_lon_of_DEM_intersection[i-1]-
+                          ds.rayleigh_profile_data.rayleigh_profile_lon_of_DEM_intersection[i]) >= Math.abs(lonStep)) {
+                        rayleighJumpPositions.push(i);
+                      }
+                    }
+                    resData['rayleigh_jumps'] = rayleighJumpPositions;
+                  } else {
+                    // Flatten structure as we do not need the different levels
+                    // to render the data
+                    for (var k = 0; k < keys.length; k++) {
+                      for (var l = 0; l < ds[keys[k]].length; l++) {
+                        if(resData.hasOwnProperty(keys[k])){
+                          resData[keys[k]] = resData[keys[k]].concat(ds[keys[k]][l]);
+                        } else {
+                          resData[keys[k]] = ds[keys[k]][l];
+                        }
+                        
+                      }
+                    }
+
                   }
+
+                  var tmpdata = {};
+                  tmpdata[collectionId] = resData;
+
+                  //resData[collectionId] = ds;
+                  globals.swarm.set({data: tmpdata});
+                  // TODO: Merge data for filtermanager?
+                  that.filterManager.loadData(tmpdata[collectionId]);
+
                 }
 
-              }
+              } else if(request.status!== 0 && request.responseText != "") {
+                  globals.swarm.set({data: {}});
+                  var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+                  if (error_text && error_text.length > 1) {
+                      error_text = error_text[1];
+                  } else {
+                      error_text = 'Please contact feedback@vires.services if issue persists.'
+                  }
 
-              var tmpdata = {};
-              tmpdata[collectionId] = resData;
+                  showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                  return;
+                }
 
-              //resData[collectionId] = ds;
-              globals.swarm.set({data: tmpdata});
-              // TODO: Merge data for filtermanager?
-              that.filterManager.loadData(tmpdata[collectionId]);
-
+            } else if(request.readyState == 2) {
+                if(request.status == 200) {
+                    request.responseType = 'arraybuffer';
+                } else {
+                    request.responseType = 'text';
+                }
             }
+
+            Communicator.mediator.trigger("progress:change", false);
         };
 
         Communicator.mediator.trigger("progress:change", true);
-        xhr.send(body);
+        this.xhr.send(body);
 
       },
 
