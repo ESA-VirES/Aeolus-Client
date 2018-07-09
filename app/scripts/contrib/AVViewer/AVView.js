@@ -331,7 +331,25 @@ define(['backbone.marionette',
 
             if(localStorage.getItem('filterSelection') !== null){
                 var filters = JSON.parse(localStorage.getItem('filterSelection'));
-                this.filterManager.brushes = filters;
+                var brushes = {};
+                // Check for combined filters
+                for (var f in filters){
+                    var parentFilter = null;
+                    var parM = this.filterManager.filterSettings.parameterMatrix;
+                    for (var rel in parM){
+                        if(parM[rel].indexOf(f)!==-1){
+                            parentFilter = rel;
+                        }
+                    }
+                    if(parentFilter !== null){
+                        brushes[parentFilter] = filters[f];
+                    }else{
+                        brushes[f] = filters[f];
+                    }
+                }
+                
+
+                this.filterManager.brushes = brushes;
                 if(this.graph1){
                     this.graph1.filters = globals.swarm.get('filters');
                 }

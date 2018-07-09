@@ -149,6 +149,12 @@ define([
 
             var that = this;
 
+            if(localStorage.getItem('filterSelection') !== null){               
+                if(this.graph){
+                    this.graph.filters = globals.swarm.get('filters');
+                }
+            }
+
             globals.swarm.get('filterManager').on('filterChange', function(filters){
                 //console.log(filters);
                 var data = globals.swarm.get('data');
@@ -650,7 +656,7 @@ define([
         },*/
 
 
-        createCurtains: function(data, cov_id, alpha, height){
+        createCurtains: function(data, cov_id){
 
             var currProd = globals.products.find(
                 function(p){return p.get('download').id === cov_id;}
@@ -670,9 +676,11 @@ define([
                 currProd.curtains = curtainCollection;
             }
 
+            var alpha = currProd.get('opacity');
+
             //alpha = 0.99;
             if(alpha === 1.0){
-                alpha = 0.999;
+                alpha = 0.99;
             }
 
             var parameters = currProd.get('parameters');
@@ -686,7 +694,7 @@ define([
             var style = parameters[band].colorscale;
             var range = parameters[band].range;
 
-            alpha = currProd.get('opacity');
+            
 
             this.dataSettings[band].colorscale = style;
             this.dataSettings[band].extent = range;
@@ -723,7 +731,7 @@ define([
             }
 
 
-            height = 1000000;
+            var height = 1000000;
             var lineInstances = [];
             var renderOutlines = defaultFor(currProd.get('outlines'), false);
 
@@ -870,7 +878,7 @@ define([
 
 
 
-        createL2Curtains: function(data, cov_id, alpha, height){
+        createL2Curtains: function(data, cov_id){
 
             var currProd = globals.products.find(
                 function(p){return p.get('download').id === cov_id;}
@@ -899,9 +907,9 @@ define([
             var style = parameters[band].colorscale;
             var range = parameters[band].range;
 
-            alpha = currProd.get('opacity');
+            var alpha = currProd.get('opacity');
             if(alpha === 1.0){
-                alpha = 0.999;
+                alpha = 0.99;
             }
 
             this.dataSettings[band].colorscale = style;
@@ -1016,7 +1024,7 @@ define([
             pStopTimes = data[currPar.timeStop];
 
 
-            height = 1000000;
+            var height = 1000000;
             var lineInstances = [];
             var renderOutlines = defaultFor(currProd.get('outlines'), false);
 
@@ -1380,6 +1388,10 @@ define([
             var product = globals.products.find(
                 function(p){return p.get('download').id === options.model.get('download').id;}
             );
+
+            if(options.value === 1.0){
+                options.value = 0.99;
+            }
 
             if(product){
                 if(product.hasOwnProperty('curtains')){

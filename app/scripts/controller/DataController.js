@@ -1198,6 +1198,7 @@
                   that.filterManager.loadData(tmpdata[collectionId]);
 
                 }
+                that.xhr = null;
 
               } else if(request.status!== 0 && request.responseText != "") {
                   globals.swarm.set({data: {}});
@@ -1207,7 +1208,7 @@
                   } else {
                       error_text = 'Please contact feedback@vires.services if issue persists.'
                   }
-
+                  that.xhr = null;
                   showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
                   return;
                 }
@@ -1220,7 +1221,7 @@
                 }
             }
 
-            Communicator.mediator.trigger("progress:change", false);
+            //Communicator.mediator.trigger("progress:change", false);
         };
 
         Communicator.mediator.trigger("progress:change", true);
