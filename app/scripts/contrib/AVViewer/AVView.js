@@ -190,7 +190,7 @@ define(['backbone.marionette',
                     xAxis: 'time',
                     yAxis: [ 'mie_altitude'],
                     combinedParameters: {
-                        mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
+                        mie_altitude: ['mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'],
                         time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
                     },
                     colorAxis: ['mie_wind_result_wind_velocity']
@@ -200,7 +200,7 @@ define(['backbone.marionette',
                     xAxis: 'time',
                     yAxis: [ 'rayleigh_altitude'],
                     combinedParameters: {
-                        rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
+                        rayleigh_altitude: ['rayleigh_wind_result_bottom_altitude', 'rayleigh_wind_result_top_altitude'],
                         time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
                     },
                     colorAxis: ['rayleigh_wind_result_wind_velocity']
@@ -210,7 +210,7 @@ define(['backbone.marionette',
                     xAxis: 'time',
                     yAxis: [ 'mie_altitude'],
                     combinedParameters: {
-                        mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
+                        mie_altitude: ['mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'],
                         time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
                     },
                     colorAxis: ['mie_wind_result_wind_velocity']
@@ -220,7 +220,7 @@ define(['backbone.marionette',
                     xAxis: 'time',
                     yAxis: [ 'rayleigh_altitude'],
                     combinedParameters: {
-                        rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
+                        rayleigh_altitude: ['rayleigh_wind_result_bottom_altitude', 'rayleigh_wind_result_top_altitude'],
                         time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
                     },
                     colorAxis: ['rayleigh_wind_result_wind_velocity']
@@ -445,6 +445,9 @@ define(['backbone.marionette',
             $('#analyticsFilters').animate({ opacity: opacity  }, 1000);
 
             $('#graph_container').animate({ height: height  }, {
+                step: function( now, fx ) {
+                    //that.graph1.resize();
+                },
                 done: function(){
                     $('#minimizeFilters i').attr('class', 
                         'fa fa-chevron-circle-'+direction
