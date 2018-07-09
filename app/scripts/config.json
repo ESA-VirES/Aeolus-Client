@@ -716,6 +716,11 @@
             "icon": "fa-globe",
             "eventToRaise": "ui:open:layercontrol",
             "template": "LayerControl"
+        },
+        {
+            "name": "Download",
+            "icon": "fa-download",
+            "eventToRaise": "dialog:open:download:filter"
         }, 
         {
             "name": "Views",

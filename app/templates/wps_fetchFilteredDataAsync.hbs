@@ -1,21 +1,14 @@
 <wps:Execute version="1.0.0" service="WPS" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1">
-  <ows:Identifier>vires:fetch_filtered_data_async</ows:Identifier>
+  <ows:Identifier>aeolus:level2C</ows:Identifier>
   <wps:DataInputs>
     <wps:Input>
       <ows:Identifier>collection_ids</ows:Identifier>
       <wps:Data>
         <wps:ComplexData mimeType="application/json">
-          <![CDATA[{{{collections_ids}}}]]>
+          <![CDATA[{{{collection_ids}}}]]>
         </wps:ComplexData>
       </wps:Data>
     </wps:Input>
-    {{#if variables}}
-    <wps:Input>
-      <ows:Identifier>variables</ows:Identifier>
-      <wps:Data>
-        <wps:LiteralData>{{variables}}</wps:LiteralData>
-      </wps:Data>
-    </wps:Input>{{/if}}
     <wps:Input>
       <ows:Identifier>begin_time</ows:Identifier>
       <wps:Data>
@@ -28,40 +21,80 @@
         <wps:LiteralData>{{end_time}}</wps:LiteralData>
       </wps:Data>
     </wps:Input>
-    {{#if filters}}<wps:Input>
-      <ows:Identifier>filters</ows:Identifier>
+    <wps:Input>
+      <ows:Identifier>mie_grouping_fields</ows:Identifier>
       <wps:Data>
-        <wps:LiteralData>{{filters}}</wps:LiteralData>
+        <wps:LiteralData>mie_grouping_time</wps:LiteralData>
       </wps:Data>
-    </wps:Input>{{/if}}
-    {{#if model_ids}}<wps:Input>
-      <ows:Identifier>model_ids</ows:Identifier>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>rayleigh_grouping_fields</ows:Identifier>
       <wps:Data>
-        <wps:LiteralData>{{model_ids}}</wps:LiteralData>
+        <wps:LiteralData>rayleigh_grouping_end_obs</wps:LiteralData>
       </wps:Data>
-    </wps:Input>{{/if}}
-    {{#if shc}}<wps:Input>
-      <ows:Identifier>shc</ows:Identifier>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>mie_profile_fields</ows:Identifier>
       <wps:Data>
-        <wps:ComplexData>{{shc}}</wps:ComplexData>
+        <wps:LiteralData>mie_profile_lon_of_DEM_intersection</wps:LiteralData>
       </wps:Data>
-    </wps:Input>{{/if}}
-    {{#if bbox}}<wps:Input>
-      <ows:Identifier>bbox</ows:Identifier>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>rayleigh_profile_fields</ows:Identifier>
       <wps:Data>
-        <wps:ComplexData>{{bbox}}</wps:ComplexData>
+        <wps:LiteralData>rayleigh_profile_lat_of_DEM_intersection,rayleigh_profile_lon_of_DEM_intersection</wps:LiteralData>
       </wps:Data>
-    </wps:Input>{{/if}}
-    {{#if time_format}}<wps:Input>
-      <ows:Identifier>csv_time_format</ows:Identifier>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>mie_wind_fields</ows:Identifier>
       <wps:Data>
-        <wps:LiteralData>{{time_format}}</wps:LiteralData>
+        <wps:LiteralData>mie_wind_result_range_bin_number</wps:LiteralData>
       </wps:Data>
-    </wps:Input>{{/if}}
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>rayleigh_wind_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>rayleigh_wind_result_range_bin_number</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>measurement_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>optical_prop_crosstalk_detected</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+
+   <!--  <wps:Input>
+      <ows:Identifier>group_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>group_start_obs</wps:LiteralData>
+      </wps:Data>
+    </wps:Input> -->
+    <!-- <wps:LiteralData>longitude_of_DEM_intersection,mie_longitude</wps:LiteralData> -->
+    <!-- <wps:Input>
+      <ows:Identifier>observation_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>longitude_of_DEM_intersection,mie_longitude</wps:LiteralData>
+      </wps:Data>
+    </wps:Input> -->
   </wps:DataInputs>
-  <wps:ResponseForm>
+
+  <!-- <wps:ResponseForm>
+    <wps:RawDataOutput mimeType="application/msgpack">
+      <ows:Identifier>output</ows:Identifier>
+    </wps:RawDataOutput>
+  </wps:ResponseForm> -->
+
+
+  <!-- <wps:ResponseForm>
+    <wps:RawDataOutput mimeType="application/netcdf">
+      <ows:Identifier>output</ows:Identifier>
+    </wps:RawDataOutput>
+  </wps:ResponseForm> -->
+
+   <wps:ResponseForm>
     <wps:ResponseDocument lineage="true" storeExecuteResponse="true" status="true">
-      <wps:Output mimeType="{{format}}">
+      <wps:Output mimeType="application/netcdf">
         <ows:Identifier>output</ows:Identifier>
       </wps:Output>
     </wps:ResponseDocument>

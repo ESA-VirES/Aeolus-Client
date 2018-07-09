@@ -97,7 +97,7 @@ module.exports = function (grunt) {
             },{
                 context: '/wps',
                 host: 'localhost',
-                port: 8401
+                port: 8400
             }],            
             livereload: {
                 options: {

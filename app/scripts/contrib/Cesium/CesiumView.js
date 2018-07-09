@@ -143,7 +143,8 @@ define([
                 filterManager: globals.swarm.get('filterManager'),
                 fixedSize: true,
                 fixedWidth: 2048,
-                fixedHeigt: 512
+                fixedHeigt: 512,
+                defaultAlpha: 1.0
             });
 
             var that = this;
@@ -670,6 +671,9 @@ define([
             }
 
             //alpha = 0.99;
+            if(alpha === 1.0){
+                alpha = 0.999;
+            }
 
             var parameters = currProd.get('parameters');
             var band;
@@ -896,6 +900,9 @@ define([
             var range = parameters[band].range;
 
             alpha = currProd.get('opacity');
+            if(alpha === 1.0){
+                alpha = 0.999;
+            }
 
             this.dataSettings[band].colorscale = style;
             this.dataSettings[band].extent = range;

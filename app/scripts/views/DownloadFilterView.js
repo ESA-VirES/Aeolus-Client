@@ -457,10 +457,15 @@
           .done(function( processes ){
             $('#download_processes').empty();
 
-            if(processes.hasOwnProperty('vires:fetch_filtered_data_async')){
+            var processObjects = [];
+            for (var pId in processes){
+              processObjects = processObjects.concat(processes[pId]);
+            }
+
+            if(processObjects.length > 0){
 
               var processes_to_save = 2;
-              processes = processes['vires:fetch_filtered_data_async'];
+              processes = processObjects;
 
               // Check if any process is active
               var active_processes = false;
@@ -608,10 +613,7 @@
         // format
         options.format = this.$("#select-output-format").val();
 
-        if (options.format == "application/cdf"){
-          options['time_format'] = "Unix epoch";
-        }
-
+        
         // time
         options.begin_time = this.start_picker.datepicker( "getDate" );
         options.begin_time = new Date(Date.UTC(options.begin_time.getFullYear(), options.begin_time.getMonth(),
@@ -668,10 +670,10 @@
         }, this);
 
 
-        if (retrieve_data.length > 0){
+        //if (retrieve_data.length > 0){
 
-          var collections = {};
-          for (var i = retrieve_data.length - 1; i >= 0; i--) {
+          var collections = [];
+          /*for (var i = retrieve_data.length - 1; i >= 0; i--) {
             var sat = false;
             var product_keys = _.keys(globals.swarm.products);
             for (var j = product_keys.length - 1; j >= 0; j--) {
@@ -695,20 +697,26 @@
           var collection_keys = _.keys(collections);
           for (var i = collection_keys.length - 1; i >= 0; i--) {
             collections[collection_keys[i]] = collections[collection_keys[i]].reverse();
-          }
+          }*/
+          _.each(this.model.get("products"), function(prod){
+              if(prod.get('visible')){
+                collections.push(prod.get('download').id);
+              }
+          },this);
 
-          options["collections_ids"] = JSON.stringify(collections);
-        }
+
+          options["collection_ids"] = JSON.stringify(collections);
+        //}
 
 
         // models
-        options.model_ids = this.models.map(function(m){return m.get("download").id;}).join(",");
+        //options.model_ids = this.models.map(function(m){return m.get("download").id;}).join(",");
 
         // custom model (SHC)
-        var shc_model = _.find(globals.products.models, function(p){return p.get("shc") != null;});
+        /*var shc_model = _.find(globals.products.models, function(p){return p.get("shc") != null;});
         if(shc_model){
           options.shc = shc_model.get("shc");
-        }
+        }*/
 
 
         // filters
@@ -761,12 +769,12 @@
           // product parameters in configuration
           var variables = [];
 
-          // Separate models and Swarm products and add lists to ui
+          
           _.each(this.model.get("products"), function(prod){
-
-              if(prod.get("download_parameters")){
-                var par = prod.get("download_parameters");
-                if(!prod.get("model")){
+              if(prod.get('visible')){
+                if(prod.get("download_parameters")){
+                  var par = prod.get("download_parameters");
+                  
                   var new_keys = _.keys(par);
                   _.each(new_keys, function(key){
                     // Remove unwanted keys
@@ -780,12 +788,14 @@
                   });
                 }
               }
+              
           },this);
           options.variables = variables;
         }
 
         // TODO: Just getting last URL here think of how different urls should be handled
-        var url = this.swarm_prod.map(function(m){return m.get("views")[0].urls[0];})[0];
+        //var url = this.swarm_prod.map(function(m){return m.get("views")[0].urls[0];})[0];
+        var url = "http://localhost:9000/vires00/ows";
         var req_data = wps_fetchFilteredDataAsync(options);
         var that = this;
 
