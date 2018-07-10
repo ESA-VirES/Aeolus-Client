@@ -823,6 +823,8 @@
 
         }
 
+        options.mimeType = 'application/msgpack';
+
         var body = wps_l1bTmpl(options);
 
         if(this.xhr !== null){
@@ -1029,10 +1031,12 @@
                   var resData = {};//globals.swarm.get('data');
                   resData[collectionId] = tmpdata;
 
-                  globals.swarm.set({data: resData});
-
                   // TODO: Merge data for filtermanager?
-                  that.filterManager.loadData(tmpdata);
+                  that.filterManager.loadData(resData);
+                  that.filterManager._initData();
+
+
+                  globals.swarm.set({data: resData});
 
 
                 } else {
@@ -1220,7 +1224,7 @@
                     request.responseType = 'text';
                 }
             }
-
+            that.xhr = null;
             //Communicator.mediator.trigger("progress:change", false);
         };
 

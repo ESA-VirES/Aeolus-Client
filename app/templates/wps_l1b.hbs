@@ -108,7 +108,7 @@
   </wps:ResponseForm>
   {{else}}
   <wps:ResponseForm>
-    <wps:RawDataOutput>
+    <wps:RawDataOutput {{#if mimeType}}mimeType="{{mimeType}}"{{/if}}>
       <ows:Identifier>output</ows:Identifier>
     </wps:RawDataOutput>
   </wps:ResponseForm>
