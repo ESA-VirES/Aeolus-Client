@@ -402,9 +402,6 @@ define(['backbone.marionette',
                 // the analytics panel, normally when switching views
 
                 $('#nodataavailable').hide();
-                this.graph1.createHelperObjects();
-                this.graph2.createHelperObjects();
-
                 this.reloadData(null, data);
 
 
@@ -633,10 +630,8 @@ define(['backbone.marionette',
                 }
                 this.graph1.dataSettings = this.dataSettings;
                 this.graph1.renderData();
-                this.graph1.createHelperObjects();
                 this.graph2.dataSettings = this.dataSettings;
                 this.graph2.renderData();
-                this.graph2.createHelperObjects();
             }
         },
 
