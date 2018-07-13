@@ -161,6 +161,10 @@
     margin-left: -275px!important;
 }
 
+.w2ui-overlay>div{
+    min-height: 58px!important;
+}
+
 #filterSelectDrop .w2ui-field{
     margin-left: 5px;
 }
@@ -211,6 +215,30 @@
     left: 5px;
     cursor: pointer;
     font-size: 1.8em;
+}
+
+#additionalProductInfo {
+    position: absolute;
+    height: 25px;
+    width: 25px;
+    top: 30px;
+    z-index: 5;
+    left: 5px;
+    cursor: pointer;
+    font-size: 1.8em;
+}
+
+#analyticsProductTooltip{
+    position: absolute;
+    background-color: white;
+    font-size: 0.85em;
+    overflow-y: auto;
+    overflow-x: auto;
+    max-height: 500px;
+    max-width: 400px;
+    z-index: 20;
+    box-shadow: 5px 5px 2px lightgrey;
+    padding: 5px;
 }
 
 .eraserIcon {
@@ -302,4 +330,12 @@
     font-size: 1.9em;
     color: #444;
     text-align: center;
+}
+
+/*.choices__item.choices__item--choice.choices__item--selectable{
+    font-size: 11px!important;
+}*/
+
+#ySettings, #y2Settings, #xSettings{
+    width: 285px!important;
 }

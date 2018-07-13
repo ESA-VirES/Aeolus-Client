@@ -409,13 +409,13 @@
                    item.id == "Timestamp" || item.id == "Radius"){
                   remove = "";
                 }
-                var html = remove + that.createSubscript(item.id);
+                var html = remove + item.id;
                 return html;
             },
             renderDrop: function (item, options) {
               $("#w2ui-overlay").addClass("downloadsection");
 
-              var html = '<b>'+that.createSubscript(item.id)+'</b>';
+              var html = '<b>'+item.id+'</b>';
               if(item.uom != null){
                 html += ' ['+item.uom+']';
               }
@@ -514,21 +514,6 @@
           });
 
 
-      },
-
-      createSubscript: function(string){
-        // Adding subscript elements to string which contain underscores
-        var newkey = "";
-        var parts = string.split("_");
-        if (parts.length>1){
-          newkey = parts[0];
-          for (var i=1; i<parts.length; i++){
-            newkey+=(" "+parts[i]).sub();
-          }
-        }else{
-          newkey = string;
-        }
-        return newkey;
       },
 
       renderFilterList: function(filters) {
