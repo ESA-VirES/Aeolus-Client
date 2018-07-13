@@ -124,7 +124,10 @@
                   'rayleigh_wind_result_HLOS_error', 'rayleigh_wind_result_COG_altitude',
                   'rayleigh_wind_result_COG_range', 'rayleigh_wind_result_QC_flags_1',
                   'rayleigh_wind_result_QC_flags_2', 'rayleigh_wind_result_QC_flags_3',
-                ]
+                ],
+                // TODO: Add some way to ignore fata keys in analytics, for now
+                // we can separete it here to be ignored by other filters
+                ['singleValues']
             ],
             visibleFilters: [
                 // L1B
