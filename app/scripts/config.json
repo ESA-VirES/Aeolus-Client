@@ -568,12 +568,43 @@
             },
             "process" : "aeolus:level1B:AUX",
             "parameters": {
+                "time": {"uom": null, "name":"Start of observation time of the first BRC (UTC)"},
+                "freq_mie_USR_closest_to_rayleigh_filter_centre": {"uom": "GHz", "name":"Frequency offset of the Mie Channel USR (pixel = 8.5) closest to the Rayleigh filter centre"},
+                "frequency_rayleigh_filter_centre": {"uom": "GHz", "name":"Frequency offset of Rayleigh filter centre (crossing of A and B curves)"},
+                "num_of_valid_mie_results": {"uom": null, "name":"Number of valid Mie ISR results"},
+                "num_of_valid_rayleigh_results": {"uom": null, "name":"Number of valid Rayleigh ISR results"},
+                "laser_frequency_offset": {"uom": "GHz", "name":"Frequency offset"},
+                "mie_valid": {"uom": null, "name":"TRUE if Mie data is available to compute the ISR result. FALSE only when ALL Mie pulses were eliminated due to corruption or invalid pulse for ALL Mie pulses"},
+                "rayleigh_valid": {"uom": null, "name":"TRUE if Rayleigh data is available to compute the ISR result. FALSE only when ALL Mie pulses were eliminated due to corruption or invalid pulse for ALL Rayleigh pulses"},
+                "fizeau_transmission": {"uom": "a.u.", "name":"Sum of signal over all pulses and columns on the internal Mie reference scaled with laser energy "},
+                "mie_response": {"uom": "ACCD pixel index", "name":"Mie channel spectral response of mean reference"},
+                "rayleigh_channel_A_response": {"uom": "a.u.", "name":"Rayleigh channel A spectral response of mean reference pulse"},
+                "rayleigh_channel_B_response": {"uom": "a.u.", "name":"Rayleigh channel B spectral response of mean reference pulse"},
+                "num_of_raw_reference_pulses": {"uom": null, "name":"Number of raw reference pulses in input"},
+                "num_of_mie_reference_pulses": {"uom": null, "name":"Number of Mie reference pulses used"},
+                "num_of_rayleigh_reference_pulses": {"uom": null, "name":"Number of Rayleigh reference pulses used"},
+                "accumulated_laser_energy_mie": {"uom": "mJ", "name":"Accumulated laser energy of all valid Mie pulses"},
+                "mean_laser_energy_mie": {"uom": "mJ", "name":"Accumulated laser energy Mie / Num. of Mie reference pulses"},
+                "accumulated_laser_energy_rayleigh": {"uom": "mJ", "name":"Accumulated laser energy of all valid Rayleigh pulses"},
+                "mean_laser_energy_rayleigh": {"uom": "mJ", "name":"Accumulated laser energy Rayleigh/ Num. of Rayleigh reference pulses"},
+                "laser_energy_drift": {"uom": null, "name":"Ratio of Mean laser energy Rayleigh of first frequency step to Mean laser energy Rayleigh"},
+                "downhill_simplex_used": {"uom": null, "name":"Flag indicating if Mie Core algorithm 1 or Mie Core algorithm 2 (Downhill Simplex) was used"},
+                "num_of_iterations_mie_core_1": {"uom": null, "name":"Number of Gaussian iterations perfomed "},
+                "last_peak_difference_mie_core_1": {"uom": "ACCD pixel", "name":"Difference of residual errors from the finally detected to the previous detected peak during Lorentzian iteration"},
+                "FWHM_mie_core_2": {"uom": "ACCD pixel", "name":"Resulting FWHM"},
+                "num_of_iterations_mie_core_2": {"uom": "ACCD counts", "name":"Number of Lorentzian iteratons performed"},
+                "downhill_simplex_quality_flag": {"uom": "ACCD counts", "name":"1 byte bit packed field"},
+                "rayleigh_spectrometer_temperature_9": {"uom": "°C", "name":"Sensor RSP etalon temperature "},
+                "rayleigh_spectrometer_temperature_10": {"uom": "°C", "name":"Sensor RSP etalon temperature "},
+                "rayleigh_spectrometer_temperature_11": {"uom": "°C", "name":"Sensor RSP etalon temperature "},
+                "rayleigh_thermal_hood_temperature_1": {"uom": "°C", "name":"Sensor RSPT average temperature "},
+                "rayleigh_thermal_hood_temperature_2": {"uom": "°C", "name":"Sensor RSPT average temperature "},
+                "rayleigh_thermal_hood_temperature_3": {"uom": "°C", "name":"Sensor RSPT average temperature "},
+                "rayleigh_thermal_hood_temperature_4": {"uom": "°C", "name":"Sensor RSPT average temperature "},
+                "rayleigh_optical_baseplate_avg_temperature": {"uom": "°C", "name":"Sensor Optical Baseplate Rayleigh average temperature"}
             },
             "download_parameters": {
-                "Timestamp": {
-                    "uom": null,
-                    "name": "Time of observation"
-                }
+                
             },
             "outlines": false
         },{
@@ -612,10 +643,40 @@
                 }
             },
             "download_parameters": {
-                "Timestamp": {
-                    "uom": null,
-                    "name": "Time of observation"
-                }
+                "time": {"uom": null, "name": "Start of observation time (UTC) for each frequency step"},
+                "lat_of_DEM_intersection": {"uom": "10-6DegN", "name": "Latitude of the intersection of DEM and the line-of-sight for each frequency step"},
+                "lon_of_DEM_intersection": {"uom": "10-6DegE", "name": "Longitude of the intersection of DEM and the line-of-sight for each frequency step"},
+                "roll_angle": {"uom": "Deg", "name": "Instrument roll angle in ECEF frame at the centre of the observation"},
+                "pitch_angle": {"uom": "Deg", "name": "Instrument pitch angle in ECEF frame at the centre of the observation"},
+                "yaw_angle": {"uom": "Deg", "name": "Instrument yaw angle in ECEF frame at the centre of the observation"},
+                "mie_range": {"uom": "m", "name": "Mie range"},
+                "rayleigh_range": {"uom": "m", "name": "Rayleigh range"},
+                "ZWC_result_type": {"uom": null, "name": "Enum indicating ZWC result type"},
+                "mie_ground_correction_velocity": {"uom": "m/s", "name": "Mie ground correction velocity"},
+                "rayleigh_ground_correction_velocity": {"uom": "m/s", "name": "Rayleigh ground correction factor"},
+                "num_of_mie_ground_bins": {"uom": null, "name": "Number of Mie measurements per observation where ground echo was detected"},
+                "mie_avg_ground_echo_bin_thickness": {"uom": "m", "name": "Average of measurement ground wind bin altitudes for Mie"},
+                "rayleigh_avg_ground_echo_bin_thickness": {"uom": "m", "name": "Average of measurement ground wind bin altitudes for Rayleigh"},
+                "mie_avg_ground_echo_bin_thickness_above_DEM": {"uom": "m", "name": "Average ground wind bin thickness (air column height) for Mie"},
+                "rayleigh_avg_ground_echo_bin_thickness_above_DEM": {"uom": "m", "name": "Average ground wind bin thickness (air column height) for Rayleigh"},
+                "mie_top_ground_bin_obs": {"uom": null, "name": "Highest of all the ground bins detected in all the measurements"},
+                "rayleigh_top_ground_bin_obs": {"uom": null, "name": "Highest of all the ground bins detected in all the measurements used"},
+                "mie_bottom_ground_bin_obs": {"uom": null, "name": "Lowest of all the ground bins detected in all the measurements used"},
+                "rayleigh_bottom_ground_bin_obs": {"uom": null, "name": "Lowest of all the ground bins detected in all the measurements used"},
+                "mie_measurements_used": {"uom": null, "name": "TRUE if measurement ground bin was detected"},
+                "mie_top_ground_bin_meas": {"uom": null, "name": "Highest detected bin with ground return signal"},
+                "mie_bottom_ground_bin_meas": {"uom": null, "name": "Lowest detected bin with ground return signal"},
+                "mie_DEM_ground_bin": {"uom": null, "name": "Expected DEM ground bin"},
+                "mie_height_difference_top_to_DEM_ground_bin": {"uom": "m", "name": "Height difference between detected top ground bin and expected ground bin, with reference to centre altitude of bins"},
+                "mie_ground_bin_SNR_meas": {"uom": null, "name": "Mean SNR over SNR values of detected ground bins"},
+                "rayleigh_measurements_used": {"uom": null, "name": "TRUE if measurement ground bin was detected"},
+                "rayleigh_top_ground_bin_meas": {"uom": null, "name": "Highest detected bin with ground return signal"},
+                "rayleigh_bottom_ground_bin_meas": {"uom": null, "name": "Highest detected bin with ground return signal"},
+                "rayleigh_DEM_ground_bin": {"uom": null, "name": "Expected DEM ground bin"},
+                "rayleigh_height_difference_top_to_DEM_ground_bin": {"uom": null, "name": "Height difference between detected top ground bin and expected ground bin, with reference to centre altitude of bins"},
+                "rayleigh_channel_A_ground_SNR_meas": {"uom": null, "name": "Mean SNR over SNR values of detected ground bins for Rayleigh channel A"},
+                "rayleigh_channel_B_ground_SNR_meas": {"uom": null, "name": "Mean SNR over SNR values of detected ground bins for Rayleigh channel B"},
+                "DEM_height": {"uom": "m", "name": "N_Meas of the observation"}
             },
             "outlines": false
         },{

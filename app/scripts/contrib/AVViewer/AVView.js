@@ -694,6 +694,11 @@ define(['backbone.marionette',
                 }
 
                 if(idKeys.length > 0){
+                    // Cleanup info button
+                    $('#additionalProductInfo').off();
+                    $('#additionalProductInfo').remove();
+                    $('#analyticsProductTooltip').remove();
+
                     $('#nodataavailable').hide();
                     //this.graph.loadData(data);
                     // TODO: Iterate through all ids and load to corresponding graphs
@@ -780,29 +785,6 @@ define(['backbone.marionette',
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data[idKeys[0]]);
-                        // Add additional info of single values of products
-                        $('#additionalProductInfo').off();
-                        $('#additionalProductInfo').remove();
-                        $('#analyticsProductTooltip').remove();
-
-                        this.$el.append('<div id="additionalProductInfo"><i class="fa fa-info-circle" aria-hidden="true"></i></div>');
-                        var that = this;
-                        $('#additionalProductInfo').click(function(){
-                            if($('#analyticsProductTooltip').length){
-                                $('#analyticsProductTooltip').remove();
-                            }else {
-                                $('#analyticsProductTooltip').remove();
-                                that.$el.append('<div id="analyticsProductTooltip"></div>');
-                                var singleValues = data[idKeys[0]].singleValues;
-                                for (var k in singleValues){
-                                    $('#analyticsProductTooltip').append('<div>'+'<b>'+k.replace(/_/g, " ")+'</b>'+': '+singleValues[k]+'</div>');
-                                }
-                                var pos = $('#additionalProductInfo').position();
-                                $('#analyticsProductTooltip').css('top', pos.top+'px');
-                                $('#analyticsProductTooltip').css('left', (pos.left+30)+'px' );
-                            }
-                            
-                        });
 
                     } else if(idKeys[0] === 'AUX_MET_12'){
                         this.graph1.renderSettings =  this.renderSettings[(idKeys[0]+'_nadir')];
@@ -833,10 +815,34 @@ define(['backbone.marionette',
                         this.graph1.resize();
                         this.filterManager.loadData(data[idKeys[0]]);
                     }
+
+                    if(data[idKeys[0]].hasOwnProperty('singleValues')){
+                        // Add additional info of single values of products
+                        this.$el.append('<div id="additionalProductInfo"><i class="fa fa-info-circle" aria-hidden="true"></i></div>');
+                        var that = this;
+                        $('#additionalProductInfo').click(function(){
+                            if($('#analyticsProductTooltip').length){
+                                $('#analyticsProductTooltip').remove();
+                            }else {
+                                $('#analyticsProductTooltip').remove();
+                                that.$el.append('<div id="analyticsProductTooltip"></div>');
+                                var singleValues = data[idKeys[0]].singleValues;
+                                for (var k in singleValues){
+                                    $('#analyticsProductTooltip').append('<div>'+'<b>'+k.replace(/_/g, " ")+'</b>'+': '+singleValues[k]+'</div>');
+                                }
+                                var pos = $('#additionalProductInfo').position();
+                                $('#analyticsProductTooltip').css('top', pos.top+'px');
+                                $('#analyticsProductTooltip').css('left', (pos.left+30)+'px' );
+                            }
+                            
+                        });
+                    }
+                
                 }else{
                     $('#nodataavailable').show();
 
                 }
+
 
                 this.renderFilterList();
             }

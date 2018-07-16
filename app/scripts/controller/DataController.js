@@ -866,20 +866,76 @@
             'rayleigh_optical_baseplate_avg_temperature'
           ].join(),
           'AUX_ISR_1B': [
-            'rayleigh_channel_A_response', 'rayleigh_channel_B_response',
+            'time',
+            'freq_mie_USR_closest_to_rayleigh_filter_centre',
+            'frequency_rayleigh_filter_centre',
+            'num_of_valid_mie_results',
+            'num_of_valid_rayleigh_results',
             'laser_frequency_offset',
-            'fizeau_transmission','mie_response','mean_laser_energy_mie',
-            'mean_laser_energy_rayleigh','FWHM_mie_core_2'
+            'mie_valid',
+            'rayleigh_valid',
+            'fizeau_transmission',
+            'mie_response',
+            'rayleigh_channel_A_response',
+            'rayleigh_channel_B_response',
+            'num_of_raw_reference_pulses',
+            'num_of_mie_reference_pulses',
+            'num_of_rayleigh_reference_pulses',
+            'accumulated_laser_energy_mie',
+            'mean_laser_energy_mie',
+            'accumulated_laser_energy_rayleigh',
+            'mean_laser_energy_rayleigh',
+            'laser_energy_drift',
+            'downhill_simplex_used',
+            'num_of_iterations_mie_core_1',
+            'last_peak_difference_mie_core_1',
+            'FWHM_mie_core_2',
+            'num_of_iterations_mie_core_2',
+            'downhill_simplex_quality_flag',
+            'rayleigh_spectrometer_temperature_9',
+            'rayleigh_spectrometer_temperature_10',
+            'rayleigh_spectrometer_temperature_11',
+            'rayleigh_thermal_hood_temperature_1',
+            'rayleigh_thermal_hood_temperature_2',
+            'rayleigh_thermal_hood_temperature_3',
+            'rayleigh_thermal_hood_temperature_4',
+            'rayleigh_optical_baseplate_avg_temperature'
           ].join(),
           'AUX_ZWC_1B': [
-            'lat_of_DEM_intersection', 'lon_of_DEM_intersection',
+            'time',
+            'lat_of_DEM_intersection',
+            'lon_of_DEM_intersection',
+            'roll_angle',
+            'pitch_angle',
+            'yaw_angle',
+            'mie_range',
+            'rayleigh_range',
+            'ZWC_result_type',
             'mie_ground_correction_velocity',
             'rayleigh_ground_correction_velocity',
-            'roll_angle', 'pitch_angle','yaw_angle','num_of_mie_ground_bins',
+            'num_of_mie_ground_bins',
+            'mie_avg_ground_echo_bin_thickness',
             'rayleigh_avg_ground_echo_bin_thickness',
-            'mie_avg_ground_echo_bin_thickness_above_DEM', 'rayleigh_avg_ground_echo_bin_thickness_above_DEM',
-            'rayleigh_channel_A_ground_SNR_meas', 'mie_DEM_ground_bin',
-            'ZWC_result_type'
+            'mie_avg_ground_echo_bin_thickness_above_DEM',
+            'rayleigh_avg_ground_echo_bin_thickness_above_DEM',
+            'mie_top_ground_bin_obs',
+            'rayleigh_top_ground_bin_obs',
+            'mie_bottom_ground_bin_obs',
+            'rayleigh_bottom_ground_bin_obs',
+            'mie_measurements_used',
+            'mie_top_ground_bin_meas',
+            'mie_bottom_ground_bin_meas',
+            'mie_DEM_ground_bin',
+            'mie_height_difference_top_to_DEM_ground_bin',
+            'mie_ground_bin_SNR_meas',
+            'rayleigh_measurements_used',
+            'rayleigh_top_ground_bin_meas',
+            'rayleigh_bottom_ground_bin_meas',
+            'rayleigh_DEM_ground_bin',
+            'rayleigh_height_difference_top_to_DEM_ground_bin',
+            'rayleigh_channel_A_ground_SNR_meas',
+            'rayleigh_channel_B_ground_SNR_meas',
+            'DEM_height'
             // issue 'min_avg_ground_echo_thickness', 'mie_channel_A_ground_SNR_meas'
             // 2D 'mie_range', 'rayleigh_range',
           ].join(),
@@ -1192,7 +1248,32 @@
 
                   // ZWC data is structured differently to the other 3 AUX types
                   if(collectionId === 'AUX_ZWC_1B'){
-                    resData = ds;
+
+                    resData = {};
+                    for (var k = 0; k < keys.length; k++) {
+                      if(!Array.isArray(ds[keys[k]])){
+                        // Single value property save to be displayed as text 
+                        if(resData.hasOwnProperty('singleValues')){
+                          resData.singleValues[keys[k]] = ds[keys[k]];
+                        } else {
+                          var obj = {};
+                          obj[keys[k]] = ds[keys[k]];
+                          resData.singleValues = obj;
+                        }
+                      }else {
+                        if(!Array.isArray(ds[keys[k]][0])){
+                          if(resData.hasOwnProperty(keys[k])){
+                            resData[keys[k]] = resData[keys[k]].concat(ds[keys[k]]);
+                          } else {
+                            resData[keys[k]] = ds[keys[k]];
+                          }
+                        } else {
+                          // TODO: Handle 2D AUX Data
+                        }
+                      }
+                    }
+
+                    //resData = ds;
                     // We create some additional data for ZWC data
                     var obsIndex = [];
                     for (var j = 1; j <= resData[keys[0]].length; j++) {
