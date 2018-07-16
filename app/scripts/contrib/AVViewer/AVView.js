@@ -828,7 +828,7 @@ define(['backbone.marionette',
                                 that.$el.append('<div id="analyticsProductTooltip"></div>');
                                 var singleValues = data[idKeys[0]].singleValues;
                                 for (var k in singleValues){
-                                    $('#analyticsProductTooltip').append('<div>'+'<b>'+k.replace(/_/g, " ")+'</b>'+': '+singleValues[k]+'</div>');
+                                    $('#analyticsProductTooltip').append('<div>'+k.replace(/_/g, " ")+': <b>'+singleValues[k]+'</b></div>');
                                 }
                                 var pos = $('#additionalProductInfo').position();
                                 $('#analyticsProductTooltip').css('top', pos.top+'px');
@@ -837,7 +837,7 @@ define(['backbone.marionette',
                             
                         });
                     }
-                
+
                 }else{
                     $('#nodataavailable').show();
 

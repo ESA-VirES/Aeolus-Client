@@ -759,8 +759,8 @@
             'lat_of_DEM_intersection',
             'lon_of_DEM_intersection',
             'time_freq_step',
-            'altitude',
-            'satellite_range',
+            // 'altitude', //2D data
+            // 'satellite_range', //2D data
             'frequency_offset',
             'frequency_valid',
             'measurement_response',
@@ -769,8 +769,8 @@
             'reference_pulse_response',
             'reference_pulse_response_valid',
             'reference_pulse_error_mie_response',
-            'normalised_useful_signal',
-            'mie_scattering_ratio',
+            // 'normalised_useful_signal', //2D data
+            // 'mie_scattering_ratio', //2D data
             'num_measurements_usable',
             'num_valid_measurements',
             'num_reference_pulses_usable',
@@ -803,8 +803,8 @@
             'lat_of_DEM_intersection',
             'lon_of_DEM_intersection',
             'time_freq_step',
-            'altitude',
-            'satellite_range',
+            // 'altitude', //2D data
+            // 'satellite_range', //2D data
             //'geoid_separation_obs',
             //'geoid_separation_freq_step',
             'frequency_offset',
@@ -819,7 +819,7 @@
             'ground_measurement_response',
             'ground_measurement_response_valid',
             'ground_measurement_error_rayleigh_response',
-            'normalised_useful_signal',
+            // 'normalised_useful_signal', //2D data
             'num_measurements_usable',
             'num_valid_measurements',
             'num_reference_pulses_usable',
@@ -828,17 +828,17 @@
             'measurement_zero_frequency',
             'measurement_error_rayleigh_response_std_dev',
             'measurement_offset_frequency',
-            //'measurement_error_fit_coefficient',  // Out of bounds error
+            'measurement_error_fit_coefficient',
             'reference_pulse_mean_sensitivity',
             'reference_pulse_zero_frequency',
             'reference_pulse_error_rayleigh_response_std_dev',
             'reference_pulse_offset_frequency',
-            //'reference_pulse_error_fit_coefficient', // Out of bounds error
+            'reference_pulse_error_fit_coefficient',
             'ground_measurement_mean_sensitivity',
             'ground_measurement_zero_frequency',
             'ground_measurement_error_rayleigh_response_std_dev',
             'ground_measurement_offset_frequency',
-            //'ground_measurement_error_fit_coefficient', // Out of bounds error
+            'ground_measurement_error_fit_coefficient', 
             'satisfied_min_valid_freq_steps_per_cal',
             'satisfied_min_valid_ground_freq_steps_per_cal',
             'freq_offset_data_monotonic',
@@ -908,8 +908,8 @@
             'roll_angle',
             'pitch_angle',
             'yaw_angle',
-            'mie_range',
-            'rayleigh_range',
+            //'mie_range',
+            //'rayleigh_range',
             'ZWC_result_type',
             'mie_ground_correction_velocity',
             'rayleigh_ground_correction_velocity',
@@ -922,22 +922,21 @@
             'rayleigh_top_ground_bin_obs',
             'mie_bottom_ground_bin_obs',
             'rayleigh_bottom_ground_bin_obs',
-            'mie_measurements_used',
-            'mie_top_ground_bin_meas',
-            'mie_bottom_ground_bin_meas',
-            'mie_DEM_ground_bin',
-            'mie_height_difference_top_to_DEM_ground_bin',
-            'mie_ground_bin_SNR_meas',
-            'rayleigh_measurements_used',
-            'rayleigh_top_ground_bin_meas',
-            'rayleigh_bottom_ground_bin_meas',
-            'rayleigh_DEM_ground_bin',
-            'rayleigh_height_difference_top_to_DEM_ground_bin',
-            'rayleigh_channel_A_ground_SNR_meas',
-            'rayleigh_channel_B_ground_SNR_meas',
-            'DEM_height'
-            // issue 'min_avg_ground_echo_thickness', 'mie_channel_A_ground_SNR_meas'
-            // 2D 'mie_range', 'rayleigh_range',
+            // Commented out pseudo 2D data for now
+            //'mie_measurements_used',
+            //'mie_top_ground_bin_meas',
+            //'mie_bottom_ground_bin_meas',
+            //'mie_DEM_ground_bin',
+            //'mie_height_difference_top_to_DEM_ground_bin',
+            //'mie_ground_bin_SNR_meas',
+            //'rayleigh_measurements_used',
+            //'rayleigh_top_ground_bin_meas',
+            //'rayleigh_bottom_ground_bin_meas',
+            //'rayleigh_DEM_ground_bin',
+            //'rayleigh_height_difference_top_to_DEM_ground_bin',
+            //'rayleigh_channel_A_ground_SNR_meas',
+            //'rayleigh_channel_B_ground_SNR_meas',
+            //'DEM_height'
           ].join(),
           'AUX_MET_12': [
             'time_off_nadir', 'time_nadir',
@@ -1268,6 +1267,7 @@
                             resData[keys[k]] = ds[keys[k]];
                           }
                         } else {
+                          console.log(keys[k]);
                           // TODO: Handle 2D AUX Data
                         }
                       }
@@ -1431,6 +1431,7 @@
                               resData[keys[k]] = ds[keys[k]][l];
                             }
                           } else {
+                            console.log(keys[k]);
                             // TODO: Handle 2D AUX Data
                           }
 
