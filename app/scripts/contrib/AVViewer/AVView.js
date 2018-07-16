@@ -622,10 +622,10 @@ define(['backbone.marionette',
                 this.dataSettings[band].extent = range;
                 //this.graph.dataSettings = this.dataSettings;
                 // Reset colorcache
-                for(let k in this.graph1.colorCache){
+                for(var k in this.graph1.colorCache){
                     delete this.graph1.colorCache[k];
                 }
-                for(let k in this.graph2.colorCache){
+                for(var k in this.graph2.colorCache){
                     delete this.graph2.colorCache[k];
                 }
                 this.graph1.dataSettings = this.dataSettings;
