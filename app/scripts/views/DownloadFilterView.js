@@ -487,18 +487,11 @@
 
         _.each(_.keys(filters), function(key){
 
-          var extent = filters[key].map(this.round);
-          var name = "";
-          var parts = key.split("_");
-          if (parts.length>1){
-            name = parts[0];
-            for (var i=1; i<parts.length; i++){
-              name+=(" "+parts[i]).sub();
-            }
-          }else{
-            name = key;
-          }
-
+          var extent = [
+            Number(filters[key][0].toFixed(6)),
+            Number(filters[key][1].toFixed(6))
+          ];
+          var name = key.replace(/_/g, " ");
           var $html = $(FilterTmpl({
               id: key,
               name: name,
@@ -631,7 +624,7 @@
 
 
         // filters
-        var filters = [];
+        var filters = {};
         var filter_elem = $('#filters').find(".input-group");
 
         _.each(filter_elem, function(fe){
@@ -647,27 +640,12 @@
           // Make sure smaller value is first item
           extent.sort(function (a, b) { return a-b; });
 
-          // Check to see if filter is on a vector component
-          var original = false;
-          var index = -1;
-          _.each(VECTOR_BREAKDOWN, function(v, key){
-            for (var i = 0; i < v.length; i++) {
-              if(v[i] === fe.id){
-                index = i;
-                original = key;
-              }
-            }
-            
-          });
-
-          if (original) {
-            filters.push(original+"["+index+"]:"+ extent.join(","));
-          }else{
-            filters.push(fe.id+":"+ extent.join(","));
+          filters[extent_elem.context.id] = {
+            min: extent[0], max: extent[1]
           }
         });
 
-        options.filters = filters.join(";");
+        options["filters"] = JSON.stringify(filters);
 
         // Custom variables
         if ($('#custom_parameter_cb').is(':checked')) {
