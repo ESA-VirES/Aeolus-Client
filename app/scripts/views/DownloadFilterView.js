@@ -1000,9 +1000,15 @@
 
         options.async = true;
 
-        // TODO: Just getting last URL here think of how different urls should be handled
-        //var url = this.swarm_prod.map(function(m){return m.get("views")[0].urls[0];})[0];
-        var url = "http://localhost:9000/vires00/ows";
+        // TODO: Just getting URL of last active product need to think of 
+        // how different urls should be handled
+        var url;
+        _.each(this.model.get("products"), function(prod){
+          if(prod.get('visible')){
+            url = prod.get('download').url;
+          }   
+        },this);
+
         var req_data = wps_fetchFilteredDataAsync(options);
         var that = this;
 
