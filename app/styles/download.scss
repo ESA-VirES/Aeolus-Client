@@ -10,6 +10,10 @@
     position: relative !important;
 }
 
+#w2ui-overlay.downloadsection{
+    margin-left: -18px!important;
+}
+
 #validationwarning{
     font-size: 0.8em;
     float: right;
@@ -109,4 +113,12 @@
 
 .ui-datepicker-trigger:hover{
     border-color: rgb(110, 110, 110) !important;
+}
+
+#custom_download .w2ui-field-helper{
+    width: 100%!important;
+}
+
+.w2ui-field-helper.w2ui-list input{
+    width: 120px!important;
 }

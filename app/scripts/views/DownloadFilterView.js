@@ -349,46 +349,24 @@
 
         });
 
-        var selected = [];
-        // Check if latitude available
-        if(_.find(available_parameters, function(item){return item.id == "Latitude";})){
-          selected.push({id: "Latitude"});
-        }
-        //Check if Longitude available
-        if(_.find(available_parameters, function(item){return item.id == "Longitude";})){
-          selected.push({id: "Longitude"});
-        }
-        //Check if timestamp available
-        if(_.find(available_parameters, function(item){return item.id == "Timestamp";})){
-          selected.push({id: "Timestamp"});
-        }
-        //Check if radius available
-        if(_.find(available_parameters, function(item){return item.id == "Radius";})){
-          selected.push({id: "Radius"});
-        }
+        var available_parameters = [];
 
-        // See if magnetic data actually selected if not remove residuals
-          var magdata = false;
-          _.each(products, function(p, key){
-            if(key.indexOf("MAG")!=-1){
-              magdata = true;
+        globals.products.each(function(prod) {
+          if (prod.get('visible')) {
+            var downPars = prod.get('download_parameters');
+            for(var id in downPars){
+              available_parameters.push({
+                'id': id, 
+                'uom': downPars[id].uom,
+                'description': downPars[id].name
+              });
             }
-          });
-
-          if(!magdata){
-            available_parameters = _.filter(available_parameters, function(v){
-              if(v.id.indexOf("_res_")!=-1){
-                return false;
-              }else{
-                return true;
-              }
-            })
           }
+        }, this);       
 
         $('#param_enum').w2field('enum', { 
             items: _.sortBy(available_parameters, 'id'), // Sort parameters alphabetically 
             openOnFocus: true,
-            selected: selected,
             renderItem: function (item, index, remove) {
                 if(item.id == "Latitude" || item.id == "Longitude" ||
                    item.id == "Timestamp" || item.id == "Radius"){
@@ -448,6 +426,9 @@
             }
 
             if(processObjects.length > 0){
+
+              // Sort processes by time
+              processObjects.sort(function(a, b){return new Date(a.created).getTime() - new Date(b.created).getTime()});
 
               var processes_to_save = 2;
               processes = processObjects;
@@ -690,10 +671,26 @@
 
         // Custom variables
         if ($('#custom_parameter_cb').is(':checked')) {
-          var variables = $('#param_enum').data('selected');
-          variables = variables.map(function(item) {return item.id;});
-          variables = variables.join(',');
-          options.variables = variables;
+          _.each(this.model.get("products"), function(prod){
+            if(prod.get('visible')){
+              var collectionId = prod.get("download").id;
+
+              // TODO: This only takes into account having one product selected
+              options.processId = prod.get('process');
+
+              if(collectionId.indexOf('AUX')!==-1) {
+                var auxType = collectionId.slice(4, -3);
+                options['aux_type'] = auxType;
+
+              }
+            }
+
+            var variables = $('#param_enum').data('selected');
+            variables = variables.map(function(item) {return item.id;});
+            variables = variables.join(',');
+            options.fields = variables;
+
+          },this);
         }else{
           // Use default parameters as described by download
           // product parameters in configuration
@@ -981,21 +978,6 @@
           _.each(this.model.get("products"), function(prod){
             if(prod.get('visible')){
               var collectionId = prod.get("download").id;
-              /*if(prod.get("download_parameters")){
-                var par = prod.get("download_parameters");
-                
-                var new_keys = _.keys(par);
-                _.each(new_keys, function(key){
-                  // Remove unwanted keys
-                  if(key != "QDLat" && key != "QDLon" && key != "MLT"){
-                    if(!_.find(variables, function(item){
-                      return item == key;
-                    })){
-                      variables.push(key);
-                    }
-                  }
-
-                });*/
 
               // TODO: This only takes into account having one product selected
               options.processId = prod.get('process');
@@ -1013,7 +995,8 @@
               }
             }   
           },this);
-        }
+        } 
+       
 
         options.async = true;
 
