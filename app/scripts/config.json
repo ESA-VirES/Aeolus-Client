@@ -567,7 +567,8 @@
                 "url": "http://localhost:9000/vires00/ows"
             },
             "process" : "aeolus:level1B:AUX",
-            "parameters": {
+            "parameters": {},
+            "download_parameters": {
                 "time": {"uom": null, "name":"Start of observation time of the first BRC (UTC)"},
                 "freq_mie_USR_closest_to_rayleigh_filter_centre": {"uom": "GHz", "name":"Frequency offset of the Mie Channel USR (pixel = 8.5) closest to the Rayleigh filter centre"},
                 "frequency_rayleigh_filter_centre": {"uom": "GHz", "name":"Frequency offset of Rayleigh filter centre (crossing of A and B curves)"},
@@ -602,9 +603,6 @@
                 "rayleigh_thermal_hood_temperature_3": {"uom": "°C", "name":"Sensor RSPT average temperature "},
                 "rayleigh_thermal_hood_temperature_4": {"uom": "°C", "name":"Sensor RSPT average temperature "},
                 "rayleigh_optical_baseplate_avg_temperature": {"uom": "°C", "name":"Sensor Optical Baseplate Rayleigh average temperature"}
-            },
-            "download_parameters": {
-                
             },
             "outlines": false
         },{
