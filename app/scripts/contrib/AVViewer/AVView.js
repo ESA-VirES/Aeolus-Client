@@ -699,6 +699,24 @@ define(['backbone.marionette',
                     $('#additionalProductInfo').remove();
                     $('#analyticsProductTooltip').remove();
 
+                    // Use descriptions and uom from download parameters
+                    var mergedDataSettings = globals.dataSettings;
+
+                    globals.products.each(function(prod) {
+                        if(prod.get('visible') && prod.get('download_parameters')) {
+                            var params = prod.get('download_parameters');
+                            for(var par in params){
+                                if(mergedDataSettings.hasOwnProperty(par)){
+                                    mergedDataSettings[par].uom = params[par].uom;
+                                    mergedDataSettings[par].name = params[par].name;
+                                } else{
+                                    mergedDataSettings[par] = params[par];
+                                }
+                            }
+                        }
+                    });
+                    
+
                     $('#nodataavailable').hide();
                     //this.graph.loadData(data);
                     // TODO: Iterate through all ids and load to corresponding graphs
@@ -710,6 +728,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
+                        this.graph1.dataSettings = mergedDataSettings;
+                        this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_1B']);
                         this.graph2.loadData(data['ALD_U_N_1B']);
                         this.graph1.resize();
@@ -727,6 +747,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
+                        this.graph1.dataSettings = mergedDataSettings;
+                        this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_2A']);
                         this.graph2.loadData(data['ALD_U_N_2A']);
                         this.graph1.resize();
@@ -744,6 +766,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
+                        this.graph1.dataSettings = mergedDataSettings;
+                        this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_2B']);
                         this.graph2.loadData(data['ALD_U_N_2B']);
                         this.graph1.resize();
@@ -761,6 +785,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
+                        this.graph1.dataSettings = mergedDataSettings;
+                        this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_2C']);
                         this.graph2.loadData(data['ALD_U_N_2C']);
                         this.graph1.resize();
@@ -778,6 +804,8 @@ define(['backbone.marionette',
                         $('#graph_2').css('height', '49%');
                         this.graph1.debounceActive = false;
                         this.graph2.debounceActive = false;
+                        this.graph1.dataSettings = mergedDataSettings;
+                        this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data[idKeys[0]]);
                         this.graph2.loadData(data[idKeys[0]]);
                         this.graph1.resize();
@@ -793,6 +821,8 @@ define(['backbone.marionette',
                         $('#graph_1').css('height', '49%');
                         $('#graph_2').css('height', '49%');
                         this.graph1.debounceActive = true;
+                        this.graph1.dataSettings = mergedDataSettings;
+                        this.graph2.dataSettings = mergedDataSettings;
                         this.graph2.debounceActive = true;
                         this.graph1.loadData(data[idKeys[0]]);
                         this.graph2.loadData(data[idKeys[0]]);
@@ -810,6 +840,7 @@ define(['backbone.marionette',
                         this.graph2.debounceActive = false;
                         this.graph1.connectGraph(false);
                         this.graph2.connectGraph(false);
+                        this.graph1.dataSettings = mergedDataSettings;
                         this.graph1.renderSettings = this.renderSettings[idKeys[0]];
                         this.graph1.loadData(data[idKeys[0]]);
                         this.graph1.resize();
