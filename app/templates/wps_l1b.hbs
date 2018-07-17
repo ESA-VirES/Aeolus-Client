@@ -98,9 +98,19 @@
       </wps:Data>
     </wps:Input>{{/if}}
   </wps:DataInputs>
+  {{#if async}}
   <wps:ResponseForm>
-    <wps:RawDataOutput>
+    <wps:ResponseDocument lineage="true" storeExecuteResponse="true" status="true">
+      <wps:Output mimeType="{{format}}">
+        <ows:Identifier>output</ows:Identifier>
+      </wps:Output>
+    </wps:ResponseDocument>
+  </wps:ResponseForm>
+  {{else}}
+  <wps:ResponseForm>
+    <wps:RawDataOutput {{#if mimeType}}mimeType="{{mimeType}}"{{/if}}>
       <ows:Identifier>output</ows:Identifier>
     </wps:RawDataOutput>
   </wps:ResponseForm>
+  {{/if}}
 </wps:Execute>
