@@ -253,7 +253,14 @@
             }
           }
         });
-        this.start_picker.datepicker("setDate", timeinterval.start);
+
+        var begin_time;
+        begin_time = timeinterval.start;
+        begin_time = new Date(Date.UTC(begin_time.getFullYear(), begin_time.getMonth(),
+          begin_time.getUTCDate(), begin_time.getUTCHours(), 
+          begin_time.getUTCMinutes(), begin_time.getUTCSeconds())
+        );
+        this.start_picker.datepicker("setDate", begin_time);
 
         this.end_picker = this.$('#endtime').datepicker({
           onSelect: function() {
@@ -264,14 +271,20 @@
             }
           }
         });
-        this.end_picker.datepicker("setDate", timeinterval.end);
+        var end_time;
+        end_time = timeinterval.end;
+        end_time = new Date(Date.UTC(end_time.getFullYear(), end_time.getMonth(),
+          end_time.getUTCDate(), end_time.getUTCHours(), 
+          end_time.getUTCMinutes(), end_time.getUTCSeconds())
+        );
+        this.end_picker.datepicker("setDate", end_time);
 
         // Prepare to create list of available parameters
         var available_parameters = [];
 
         var collections = [];
         _.each(this.model.get("products"), function(prod){
-            if(prod.get('visible')){
+            if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
               collections.push(prod.get('download').id);
             }
         },this);
@@ -615,7 +628,7 @@
 
         var collections = [];
         _.each(this.model.get("products"), function(prod){
-            if(prod.get('visible')){
+            if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
               collections.push(prod.get('download').id);
             }
         },this);
@@ -650,7 +663,7 @@
         // Custom variables
         if ($('#custom_parameter_cb').is(':checked')) {
           _.each(this.model.get("products"), function(prod){
-            if(prod.get('visible')){
+            if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
               var collectionId = prod.get("download").id;
 
               // TODO: This only takes into account having one product selected
@@ -954,7 +967,7 @@
 
           var variables = [];
           _.each(this.model.get("products"), function(prod){
-            if(prod.get('visible')){
+            if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
               var collectionId = prod.get("download").id;
 
               // TODO: This only takes into account having one product selected
