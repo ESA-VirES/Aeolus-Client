@@ -95,6 +95,11 @@
                 that.$el.append('<div id="downloadProductTooltip"></div>');
                 var idKeys = Object.keys(data);
                 var products = data[idKeys[0]].dsd;
+                if($.isEmptyObject(products)){
+                  var currDiv = $('<div><b>No source information was found for the products in this process</b></div>');
+                  $('#downloadProductTooltip').append(currDiv);
+                  return;
+                }
                 for (var p in products){
                   var currDiv = $('<div><b>'+p+'</b></div>');
                   $('#downloadProductTooltip').append(currDiv);
