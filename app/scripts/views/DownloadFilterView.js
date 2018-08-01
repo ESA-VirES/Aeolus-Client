@@ -569,7 +569,12 @@
               }
 
               if(processes.length>0){
+                if(processes.length>0){
                 $('#download_processes').append('<div><b>Download links</b> (Process runs in background, panel can be closed and reopened at any time)</div>');
+                $('#download_processes').append('<div style="float: left; margin-left:32px;"><b>Process started</b></div>');
+                $('#download_processes').append('<div style="float: left; margin-left:142px;"><b>Status</b></div>');
+                
+              }
               }
 
               for (var i = processes.length - 1; i >= 0; i--) {
