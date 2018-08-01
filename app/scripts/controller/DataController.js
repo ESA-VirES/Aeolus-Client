@@ -1042,7 +1042,7 @@
                 if(collectionId === 'ALD_U_N_1B'){
 
                   // TODO: Here we need to differentiate between observations and measurements
-                  ds = ds[0];
+                  ds = ds['observation_data'];
 
                   if($.isEmptyObject(ds)){
                     globals.swarm.set({data: {}});
@@ -1453,6 +1453,7 @@
                 that.xhr = null;
 
               } else if(request.status!== 0 && request.responseText != "") {
+                  Communicator.mediator.trigger("progress:change", false);
                   globals.swarm.set({data: {}});
                   var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
                   if (error_text && error_text.length > 1) {

@@ -97,6 +97,13 @@
         </wps:BoundingBoxData>
       </wps:Data>
     </wps:Input>{{/if}}
+    {{#if dsdInfo}}
+    <wps:Input>
+      <ows:Identifier>dsd_info</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>true</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
   </wps:DataInputs>
   {{#if async}}
   <wps:ResponseForm>

@@ -122,3 +122,36 @@
 .w2ui-field-helper.w2ui-list input{
     width: 120px!important;
 }
+
+
+.downloadProductTooltip{
+    overflow: auto;
+}
+
+
+
+
+
+#download_processes table {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size: 0.9em;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#download_processes table td, #download_processes table th {
+    border: 1px solid #ddd;
+    padding: 3px;
+}
+
+#download_processes table tr:nth-child(even){background-color: #f2f2f2;}
+
+#download_processes table tr:hover {background-color: #ddd;}
+
+#download_processes table th {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    text-align: left;
+    background-color: #589359;
+    color: white;
+}

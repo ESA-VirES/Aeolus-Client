@@ -49,6 +49,108 @@
           $('#collapse-'+this.model.get('id')).addClass('in');
           $('#'+this.model.get('id')+' a').removeClass('collapsed');
         }
+        var that = this;
+
+        $("#dsdDownload-"+this.model.get('id')).click(function(){
+          var el = this;
+          var di = that.model.get('datainputs');
+          di.Products = di.Products.replace(/['"]+/g, '')
+          var options = {
+            begin_time: di['Start time'],
+            end_time: di['End time'],
+            collection_ids: JSON.stringify([di.Products]),
+            dsdInfo: true
+          };
+          var pid = {
+            'ALD_U_N_1B': 'aeolus:level1B',
+            'ALD_U_N_2A': 'aeolus:level2A',
+            'ALD_U_N_2B': 'aeolus:level2B',
+            'ALD_U_N_2C': 'aeolus:level2C',
+            'AUX_MRC_1B': 'aeolus:level1B:AUX',
+            'AUX_RRC_1B': 'aeolus:level1B:AUX',
+            'AUX_ISR_1B': 'aeolus:level1B:AUX',
+            'AUX_ZWC_1B': 'aeolus:level1B:AUX',
+            'AUX_MET_12': 'aeolus:level1B:AUX'
+          };
+          options.processId = pid[di.Products];
+          var req_data = wps_fetchFilteredDataAsync(options);
+          var url = "/ows?"  
+
+          this.xhr = new XMLHttpRequest();
+          this.xhr.open('POST', url, true);
+          this.xhr.responseType = 'arraybuffer';
+
+          //var that = this;
+          var request = this.xhr;
+
+          this.xhr.onreadystatechange = function() {
+         
+            if(request.readyState == 4) {
+              if(request.status == 200) {
+                Communicator.mediator.trigger("progress:change", false);
+                var tmp = new Uint8Array(this.response);
+                var data = msgpack.decode(tmp);
+                
+                $('#downloadProductTooltip').remove();
+                that.$el.append('<div id="downloadProductTooltip"></div>');
+                var idKeys = Object.keys(data);
+                var products = data[idKeys[0]].dsd;
+                for (var p in products){
+                  var currDiv = $('<div><b>'+p+'</b></div>');
+                  $('#downloadProductTooltip').append(currDiv);
+                  var table = $('<table></table>');
+                  currDiv.append(table);
+                  
+                  //var headers = Object.keys(products[p][0]);
+                  var headers = [
+                    'ds_name', 'ds_offset', 'ds_type', 'dsr_size', 'byte_order',
+                    'ds_size', 'num_dsr', 'filename'
+                  ];
+                  var tr = $('<tr></tr>');
+                  for (var i = 0; i < headers.length; i++) {
+                    tr.append('<th>'+headers[i]+'</th>');
+                  }
+                  table.append(tr);
+                  for (var j = 0; j < products[p].length; j++) {
+                    tr = $('<tr></tr>');
+                    for (var k = 0; k < headers.length; k++) {
+                      tr.append('<td>'+products[p][j][headers[k]]+'</td>');
+                    }
+                    table.append(tr);
+                  }
+                }
+                
+              } else if(request.status!== 0 && request.responseText != "") {
+                Communicator.mediator.trigger("progress:change", false);
+                var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+                if (error_text && error_text.length > 1) {
+                    error_text = error_text[1];
+                } else {
+                    error_text = 'Please contact feedback@vires.services if issue persists.'
+                }
+                showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                return;
+              }
+            } else if(request.readyState == 2) {
+              if(request.status == 200) {
+                request.responseType = 'arraybuffer';
+              } else {
+                request.responseType = 'text';
+              }
+            }
+          };
+
+          
+
+          if($(that.el).find('#downloadProductTooltip').length){
+            $('#downloadProductTooltip').remove();
+          } else {
+            Communicator.mediator.trigger("progress:change", true);
+            this.xhr.send(req_data);
+          }
+
+
+          });
       },
 
       initialize: function(options) {},
@@ -467,7 +569,12 @@
               }
 
               if(processes.length>0){
+                if(processes.length>0){
                 $('#download_processes').append('<div><b>Download links</b> (Process runs in background, panel can be closed and reopened at any time)</div>');
+                $('#download_processes').append('<div style="float: left; margin-left:32px;"><b>Process started</b></div>');
+                $('#download_processes').append('<div style="float: left; margin-left:142px;"><b>Status</b></div>');
+                
+              }
               }
 
               for (var i = processes.length - 1; i >= 0; i--) {
