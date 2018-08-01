@@ -342,7 +342,7 @@
         // Initialise datepickers
         $.datepicker.setDefaults({
           showOn: "both",
-          dateFormat: "dd.mm.yy"
+          dateFormat: "dd.m.yy"
         });
 
         var that = this;
@@ -363,11 +363,10 @@
 
         var begin_time;
         begin_time = timeinterval.start;
-        begin_time = new Date(Date.UTC(begin_time.getFullYear(), begin_time.getMonth(),
-          begin_time.getUTCDate(), begin_time.getUTCHours(), 
-          begin_time.getUTCMinutes(), begin_time.getUTCSeconds())
-        );
-        this.start_picker.datepicker("setDate", begin_time);
+        var beginTimeString = begin_time.getUTCDate()+'.'+
+          (begin_time.getUTCMonth()+1)+'.'+
+          begin_time.getUTCFullYear();
+        this.start_picker.datepicker("setDate", beginTimeString);
 
         this.end_picker = this.$('#endtime').datepicker({
           onSelect: function() {
@@ -380,11 +379,10 @@
         });
         var end_time;
         end_time = timeinterval.end;
-        end_time = new Date(Date.UTC(end_time.getFullYear(), end_time.getMonth(),
-          end_time.getUTCDate(), end_time.getUTCHours(), 
-          end_time.getUTCMinutes(), end_time.getUTCSeconds())
-        );
-        this.end_picker.datepicker("setDate", end_time);
+        var endTimeString = end_time.getUTCDate()+'.'+
+          (end_time.getUTCMonth()+1)+'.'+
+          end_time.getUTCFullYear();
+        this.end_picker.datepicker("setDate", endTimeString);
 
         // Prepare to create list of available parameters
         var available_parameters = [];
