@@ -1021,7 +1021,7 @@
                 }*/
                 var empty = true;
                 for (var k in ds){
-                  if(!$.isEmptyObject(ds[k])){
+                  if(!$.isEmptyObject(ds[k]) && ds[k].length !== 0){
                     empty = false;
                   }
                 }
