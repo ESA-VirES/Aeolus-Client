@@ -858,9 +858,40 @@ define(['backbone.marionette',
                                 $('#analyticsProductTooltip').remove();
                                 that.$el.append('<div id="analyticsProductTooltip"></div>');
                                 var singleValues = data[idKeys[0]].singleValues;
-                                for (var k in singleValues){
-                                    $('#analyticsProductTooltip').append('<div>'+k.replace(/_/g, " ")+': <b>'+singleValues[k]+'</b></div>');
+
+                                
+                                var currDiv = $('<div class="paramTable"></div>');
+                                $('#analyticsProductTooltip').append(currDiv);
+                                var table = $('<table></table>');
+                                currDiv.append(table);
+
+                                //var headers = Object.keys(products[p][0]);
+                                var headers = [
+                                    'Paramter name', 'Value', 'Unit'
+                                ];
+                                var tr = $('<tr></tr>');
+                                for (var i = 0; i < headers.length; i++) {
+                                    tr.append('<th>'+headers[i]+'</th>');
                                 }
+                                table.append(tr);
+                                
+                                    
+                                for (var k in singleValues){
+                                    tr = $('<tr></tr>');
+                                    tr.append('<td>'+k+'</td>');
+                                    tr.append('<td>'+singleValues[k]+'</td>');
+                                    if(that.dataSettings.hasOwnProperty(k) && 
+                                        that.dataSettings[k].hasOwnProperty('uom') &&
+                                        that.dataSettings[k].uom!==null){
+                                        tr.append('<td>'+that.dataSettings[k].uom+'</td>');
+                                    }else{
+                                        tr.append('<td>-</td>');
+                                    }
+                                    table.append(tr);
+                                }
+                                
+
+                                
                                 var pos = $('#additionalProductInfo').position();
                                 $('#analyticsProductTooltip').css('top', pos.top+'px');
                                 $('#analyticsProductTooltip').css('left', (pos.left+30)+'px' );

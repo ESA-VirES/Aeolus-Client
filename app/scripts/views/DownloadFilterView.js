@@ -101,7 +101,7 @@
                   return;
                 }
                 for (var p in products){
-                  var currDiv = $('<div><b>'+p+'</b></div>');
+                  var currDiv = $('<div class="paramTable"><b>'+p+'</b></div>');
                   $('#downloadProductTooltip').append(currDiv);
                   var table = $('<table></table>');
                   currDiv.append(table);

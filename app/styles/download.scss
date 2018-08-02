@@ -132,23 +132,23 @@
 
 
 
-#download_processes table {
+.paramTable table {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     font-size: 0.9em;
     border-collapse: collapse;
     width: 100%;
 }
 
-#download_processes table td, #download_processes table th {
+.paramTable table td, .paramTable table th {
     border: 1px solid #ddd;
     padding: 3px;
 }
 
-#download_processes table tr:nth-child(even){background-color: #f2f2f2;}
+.paramTable table tr:nth-child(even){background-color: #f2f2f2;}
 
-#download_processes table tr:hover {background-color: #ddd;}
+.paramTable table tr:hover {background-color: #ddd;}
 
-#download_processes table th {
+.paramTable table th {
     padding-top: 3px;
     padding-bottom: 3px;
     text-align: left;
