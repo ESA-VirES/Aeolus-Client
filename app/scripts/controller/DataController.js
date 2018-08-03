@@ -673,35 +673,174 @@
         var collectionId = product.get('download').id;
         var parameters = '';
         var fieldsList = {
-          'ALD_U_N_1B': [
-              'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-              'mie_altitude', 'rayleigh_altitude',
-              'mie_range', 'rayleigh_range', 'velocity_at_DEM_intersection',
-              'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
-              'mie_HLOS_wind_speed', 'rayleigh_HLOS_wind_speed',
-              'mie_signal_intensity', 'rayleigh_signal_channel_A_intensity',
-              'rayleigh_signal_channel_B_intensity', /*'rayleigh_signal_intensity',*/
-              'mie_ground_velocity', 'rayleigh_ground_velocity', 'mie_scattering_ratio',
-              'mie_bin_quality_flag', 'mie_HBE_ground_velocity', 'rayleigh_HBE_ground_velocity',
-              'mie_total_ZWC', 'rayleigh_total_ZWC',
+          'ALD_U_N_1B': {
+            'observation_fields': [
+              'time',
+              'longitude_of_DEM_intersection',
+              'latitude_of_DEM_intersection',
+              'altitude_of_DEM_intersection',
+              'mie_longitude',
+              'mie_latitude',
+              'rayleigh_longitude',
+              'rayleigh_latitude',
+              'mie_altitude',
+              'rayleigh_altitude',
+              'mie_range',
+              'rayleigh_range',
+              'geoid_separation',
+              'velocity_at_DEM_intersection',
+              'AOCS_pitch_angle',
+              'AOCS_roll_angle',
+              'AOCS_yaw_angle',
+              'mie_HLOS_wind_speed',
+              'rayleigh_HLOS_wind_speed',
+              'mie_signal_intensity',
+              'rayleigh_signal_channel_A_intensity',
+              'rayleigh_signal_channel_B_intensity',
+              //'rayleigh_signal_intensity',
+              'mie_ground_velocity',
+              'rayleigh_ground_velocity',
+              'mie_HBE_ground_velocity',
+              'rayleigh_HBE_ground_velocity',
+              'mie_total_ZWC',
+              'rayleigh_total_ZWC',
+              'mie_scattering_ratio',
               'mie_SNR',
-              'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', /*'rayleigh_SNR',*/
-              'mie_error_quantifier', 
-              'rayleigh_bin_quality_flag', 'rayleigh_error_quantifier',
-              'average_laser_energy', 'laser_frequency', 
-              'rayleigh_bin_quality_flag','mie_bin_quality_flag',
-              'rayleigh_reference_pulse_quality_flag','mie_reference_pulse_quality_flag'
-          ].join(),
+              'rayleigh_channel_A_SNR',
+              'rayleigh_channel_B_SNR',
+              //'rayleigh_SNR',
+              'mie_error_quantifier',
+              'rayleigh_error_quantifier',
+              'average_laser_energy',
+              'laser_frequency',
+              'rayleigh_bin_quality_flag',
+              'mie_bin_quality_flag',
+              'rayleigh_reference_pulse_quality_flag',
+              'mie_reference_pulse_quality_flag'
+            ].join(),
+            'measurement_fields': [
+              'time',
+              'longitude_of_DEM_intersection',
+              'latitude_of_DEM_intersection',
+              'altitude_of_DEM_intersection',
+              'mie_longitude',
+              'mie_latitude',
+              'rayleigh_longitude',
+              'rayleigh_latitude',
+              'mie_altitude',
+              'rayleigh_altitude',
+              'velocity_at_DEM_intersection',
+              'AOCS_pitch_angle',
+              'AOCS_roll_angle',
+              'AOCS_yaw_angle',
+              'mie_HLOS_wind_speed',
+              'rayleigh_HLOS_wind_speed',
+              //'mie_signal_intensity',
+              //'rayleigh_signal_channel_A_intensity',
+              //'rayleigh_signal_channel_B_intensity',
+              //'rayleigh_signal_intensity',
+              'mie_ground_velocity',
+              'rayleigh_ground_velocity',
+              'mie_scattering_ratio',
+              /*'mie_SNR',
+              'rayleigh_channel_A_SNR',
+              'rayleigh_channel_B_SNR',
+              'rayleigh_SNR',*/
+              'average_laser_energy',
+              'laser_frequency',
+              'rayleigh_bin_quality_flag',
+              'mie_bin_quality_flag',
+              'rayleigh_reference_pulse_quality_flag',
+              'mie_reference_pulse_quality_flag'
+            ].join()
+          },
           'ALD_U_N_2A': {
             'observation_fields': [
-              'mie_altitude_obs','rayleigh_altitude_obs',
-              'longitude_of_DEM_intersection_obs', 'latitude_of_DEM_intersection_obs',
-              'altitude_of_DEM_intersection_obs', 
-              'SCA_extinction', 'SCA_time_obs','SCA_backscatter','SCA_LOD', 
-              'SCA_extinction_variance', 'SCA_backscatter_variance','SCA_LOD_variance', 
-              'MCA_extinction', 'MCA_time_obs', 'MCA_LOD',
-              'SCA_QC_flag'
-            ].join()
+              'L1B_start_time_obs',
+              'L1B_centroid_time_obs',
+              'SCA_time_obs',
+              'ICA_time_obs',
+              'MCA_time_obs',
+              'longitude_of_DEM_intersection_obs',
+              'latitude_of_DEM_intersection_obs',
+              'altitude_of_DEM_intersection_obs',
+              'geoid_separation_obs',
+              'mie_altitude_obs',
+              'rayleigh_altitude_obs',
+              'SCA_middle_bin_altitude_obs',
+              'L1B_num_of_meas_per_obs',
+              'SCA_QC_flag',
+              'SCA_extinction_variance',
+              'SCA_backscatter_variance',
+              'SCA_LOD_variance',
+              'SCA_middle_bin_extinction_variance',
+              'SCA_middle_bin_backscatter_variance',
+              'SCA_middle_bin_LOD_variance',
+              'SCA_middle_bin_BER_variance',
+              'ICA_QC_flag',
+              'SCA_extinction',
+              'SCA_backscatter',
+              'SCA_LOD',
+              'SCA_SR',
+              'SCA_middle_bin_extinction',
+              'SCA_middle_bin_backscatter',
+              'SCA_middle_bin_LOD',
+              'SCA_middle_bin_BER',
+              'ICA_filling_case',
+              'ICA_extinction',
+              'ICA_backscatter',
+              'ICA_LOD',
+              'MCA_clim_BER',
+              'MCA_extinction',
+              'MCA_LOD'
+            ].join(),
+            'measurement_fields': [
+              'L1B_time_meas',
+              'longitude_of_DEM_intersection_meas',
+              'latitude_of_DEM_intersection_meas',
+              'altitude_of_DEM_intersection_meas',
+              'mie_altitude_meas',
+              'rayleigh_altitude_meas',
+              //'albedo_off_nadir'
+            ].join(),
+            'group_fields': [
+              'group_start_time',
+              'group_end_time',
+              'group_centroid_time',
+              'group_middle_bin_start_altitude',
+              'group_middle_bin_stop_altitude',
+              'group_start_obs',
+              'group_start_meas_obs',
+              'group_end_obs',
+              'group_end_meas_obs',
+              'group_height_bin_index',
+              'group_extinction_variance',
+              'group_backscatter_variance',
+              'group_LOD_variance',
+              'group_middle_bin_extinction_variance_top',
+              'group_middle_bin_backscatter_variance_top',
+              'group_middle_bin_LOD_variance_top',
+              'group_middle_bin_BER_variance_top',
+              'group_middle_bin_extinction_variance_bottom',
+              'group_middle_bin_backscatter_variance_bottom',
+              'group_middle_bin_LOD_variance_bottom',
+              'group_middle_bin_BER_variance_bottom',
+              'group_extinction',
+              'group_backscatter',
+              'group_LOD',
+              'group_SR',
+              'group_middle_bin_extinction_top',
+              'group_middle_bin_backscatter_top',
+              'group_middle_bin_LOD_top',
+              'group_middle_bin_BER_top',
+              'group_middle_bin_extinction_bottom',
+              'group_middle_bin_backscatter_bottom',
+              'group_middle_bin_LOD_bottom',
+              'group_middle_bin_BER_bottom',
+              //'scene_classification_aladin_cloud_flag',
+              'scene_classification_NWP_cloud_flag',
+              'scene_classification_group_class_reliability'
+            ].join(),
           },
           'ALD_U_N_2B': {
               'mie_profile_fields': [
@@ -965,8 +1104,13 @@
           options["bbox_upper"] = bb.e + " " + bb.n;
         }
 
-        if(collectionId === 'ALD_U_N_1B'){
-          options["observation_fields"] = fieldsList[collectionId];
+        
+        if(collectionId.indexOf('AUX')===-1){
+          var fields = product.get('granularity')+'_fields';
+          options[fields] = fieldsList[collectionId][fields];
+        }
+        /*if(collectionId === 'ALD_U_N_1B'){
+          options[fields] = fieldsList[collectionId][fields];
         } else if(collectionId === 'ALD_U_N_2A'){
           options = Object.assign(options, fieldsList[collectionId]);
         } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
@@ -981,7 +1125,7 @@
               max: 1
             }
           });
-        } else {
+        }*/ else {
           var auxType = collectionId.slice(4, -3);
           options["fields"] = fieldsList[collectionId];
           options['aux_type'] = auxType;
@@ -1042,7 +1186,30 @@
                 if(collectionId === 'ALD_U_N_1B'){
 
                   // TODO: Here we need to differentiate between observations and measurements
-                  ds = ds['observation_data'];
+                  //ds = ds['observation_data'];
+                  var data = product.get('granularity')+'_data';
+                  ds = ds[data];
+
+                  if(product.get('granularity') === 'measurement'){
+                    // Flatten everything equally, ignore empty arrays
+                    var tmpdata = {};
+                    for(var key in ds){
+                      for (var i = 0; i < ds[key].length; i++) {
+                        
+                        if(tmpdata.hasOwnProperty(key)){
+                          if(ds[key][i].length>0){
+                            tmpdata[key] = tmpdata[key].concat(ds[key][i]);
+                          }
+                        }else{
+                          if(ds[key][i].length>0){
+                            tmpdata[key] = ds[key][i];
+                          }
+                        }
+                      }
+                      
+                    }
+                    ds = tmpdata;
+                  }
 
                   if($.isEmptyObject(ds)){
                     globals.swarm.set({data: {}});
@@ -1103,10 +1270,10 @@
                     'rayleigh_altitude', 'rayleigh_range', 'velocity_at_DEM_intersection',
                     'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
                     'rayleigh_HLOS_wind_speed', 'rayleigh_signal_channel_A_intensity',
-                    'rayleigh_signal_channel_B_intensity', /*'rayleigh_signal_intensity',*/
+                    'rayleigh_signal_channel_B_intensity', //'rayleigh_signal_intensity',
                     'rayleigh_ground_velocity', 'rayleigh_HBE_ground_velocity',
                     'rayleigh_total_ZWC',
-                    'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', /*'rayleigh_SNR',*/
+                    'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', //'rayleigh_SNR',
                     'rayleigh_bin_quality_flag', 'rayleigh_error_quantifier',
                     'average_laser_energy', 'laser_frequency', 
                     'rayleigh_bin_quality_flag', 'rayleigh_reference_pulse_quality_flag'
@@ -1137,6 +1304,9 @@
                   var pseudoKey = null;
 
                   for (var i = 0; i < mieVars.length; i++) {
+                    if(!ds.hasOwnProperty(mieVars[i])){
+                      continue;
+                    }
                     if(mieVars[i].indexOf('mie')!==-1){
                       pseudoKey = mieVars[i];
                     } else {
@@ -1186,6 +1356,9 @@
 
 
                   for (var i = 0; i < rayleighVars.length; i++) {
+                    if(!ds.hasOwnProperty(rayleighVars[i])){
+                      continue;
+                    }
                     if(rayleighVars[i].indexOf('rayleigh')!==-1){
                       pseudoKey = rayleighVars[i];
                     } else {

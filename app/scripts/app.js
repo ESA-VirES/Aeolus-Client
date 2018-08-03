@@ -177,8 +177,12 @@ var VECTOR_BREAKDOWN = {};
                             product_config.push(m_p[i]);
                         }
 
-                         // Make sure download parameters are always loaded from script
-                         product_config[i].download_parameters = m_p[i].download_parameters;
+                        // Make sure download parameters are always loaded from script
+                        // as well as granularity options
+                        product_config[i].download_parameters = m_p[i].download_parameters
+                        if(m_p[i].hasOwnProperty('granularity_options')){
+                            product_config[i].granularity_options = m_p[i].granularity_options;
+                        }
                     }
 
 
@@ -218,6 +222,11 @@ var VECTOR_BREAKDOWN = {};
                         validity: product.validity,
                         showColorscale: defaultFor(product.showColorscale, true)
                     });
+
+                    if(product.hasOwnProperty('granularity_options')){
+                        lm.set('granularity_options', product.granularity_options);
+                        lm.set('granularity', defaultFor(product.granularity, product.granularity_options[0]));
+                    }
 
                     if(lm.get('model')){
                         lm.set('contours', defaultFor( product.contours,false));

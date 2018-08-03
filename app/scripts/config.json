@@ -208,7 +208,9 @@
                 "mie_reference_pulse_quality_flag": {"uom": null, "name": "Mie internal reference quality flag", "granularity":["obs", "mea"]},
                 "albedo_off_nadir": {"uom": null, "name": "Albedo off-nadir value", "granularity":["obs"]}                     
             },
-            "outlines": true
+            "outlines": true,
+            "granularity": "observation",
+            "granularity_options": ["observation", "measurement"]
         },
         {
             "name": "ADM L2A",
@@ -251,7 +253,9 @@
                     "name": "Time of observation"
                 }
             },
-            "outlines": true
+            "outlines": true,
+            "granularity": "observation",
+            "granularity_options": ["observation", "group"]
         },
         {
             "name": "ADM L2B",
@@ -294,7 +298,9 @@
                     "name": "Time of observation"
                 }
             },
-            "outlines": true
+            "outlines": true,
+            "granularity": "observation",
+            "granularity_options": ["observation", "measurement", "wind-accumulation-result", "group"]
         },
         {
             "name": "ADM L2C",
@@ -337,7 +343,9 @@
                     "name": "Time of observation"
                 }
             },
-            "outlines": true
+            "outlines": true,
+            "granularity": "observation",
+            "granularity_options": ["observation", "measurement", "wind-accumulation-result", "group"]
         },
         {
             "name": "AUX MRC",
