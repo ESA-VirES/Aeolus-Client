@@ -279,7 +279,7 @@
             onShow: function(view){
                 var that = this;
                 var granularity = this.model.get("granularity");
-                if(granularity !== null){
+                if(granularity){
                     // Add options for three satellites
                     $("#granularity_selection").off();
                     $("#granularity_selection").empty();
@@ -287,26 +287,23 @@
                     $("#granularity_selection").append('<select style="margin-left:4px;" name="granularity_selec" id="granularity_selec"></select>');
 
                    
-                    var options = ["observation", "measurement", "group"];
-
-                    for (var i = 0; i < options.length; i++) {
-                        var selected = '';
-                        if (options[i] == this.model.get('granularity')){
-                            selected = 'selected';
+                    var granOpts = this.model.get('granularity_options');
+                    if(granOpts){
+                        for (var i = 0; i < granOpts.length; i++) {
+                            var selected = '';
+                            if (granOpts[i] == this.model.get('granularity')){
+                                selected = 'selected';
+                            }
+                            $('#granularity_selec').append('<option value="'+granOpts[i]+'"'+selected+'>'+granOpts[i]+'</option>');
                         }
-                        $('#granularity_selec').append('<option value="'+options[i]+'"'+selected+'>'+options[i]+'</option>');
+                        
+                        $("#granularity_selection").on('change', function(){
+                            var granularity = $("#granularity_selection").find("option:selected").val();
+                            that.model.set('granularity', granularity);
+                            Communicator.mediator.trigger("layer:granularity:changed", that.model.get("download").id);
+                            Communicator.mediator.trigger("layer:parameters:changed", that.model.get("download").id);
+                        });
                     }
-                    
-
-                    //$("#granularity_selec option[value="+this.selected_satellite+"]").prop("selected", "selected");
-
-
-                    $("#granularity_selection").on('change', function(){
-                        var granularity = $("#granularity_selection").find("option:selected").val();
-                        that.model.set('granularity', granularity);
-                        Communicator.mediator.trigger("layer:parameters:changed", that.model.get("download").id);
-                    });
-
                 }
 
                 if(this.model.get("containerproduct")){

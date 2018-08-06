@@ -268,6 +268,8 @@
 
         this.listenTo(Communicator.mediator, "analytics:set:filter", this.onAnalyticsFilterChanged);
         this.listenTo(Communicator.mediator, 'layer:parameters:changed', this.onLayerParametersChanged);
+        this.listenTo(Communicator.mediator, 'layer:granularity:changed', this.onLayerGranularityChanged);
+        
        
       },
 
@@ -470,6 +472,11 @@
         }
 
 
+      },
+
+      onLayerGranularityChanged: function(layer){
+        this.wpsProdChange = true;
+        this.checkSelections();
       },
       
 
@@ -755,11 +762,12 @@
             ].join()
           },
           'ALD_U_N_2A': {
+            // ICA have different size, for now disabled
             'observation_fields': [
               'L1B_start_time_obs',
               'L1B_centroid_time_obs',
               'SCA_time_obs',
-              'ICA_time_obs',
+              //'ICA_time_obs',
               'MCA_time_obs',
               'longitude_of_DEM_intersection_obs',
               'latitude_of_DEM_intersection_obs',
@@ -777,7 +785,7 @@
               'SCA_middle_bin_backscatter_variance',
               'SCA_middle_bin_LOD_variance',
               'SCA_middle_bin_BER_variance',
-              'ICA_QC_flag',
+              //'ICA_QC_flag',
               'SCA_extinction',
               'SCA_backscatter',
               'SCA_LOD',
@@ -786,10 +794,10 @@
               'SCA_middle_bin_backscatter',
               'SCA_middle_bin_LOD',
               'SCA_middle_bin_BER',
-              'ICA_filling_case',
+              /*'ICA_filling_case',
               'ICA_extinction',
               'ICA_backscatter',
-              'ICA_LOD',
+              'ICA_LOD',*/
               'MCA_clim_BER',
               'MCA_extinction',
               'MCA_LOD'
@@ -1284,16 +1292,7 @@
                     'rayleigh_altitude', 'mie_altitude'
                   ];
 
-                  // Mie 
-                  /*var mieNSize = 0;
-                  for (var i = 0; i < mieVars.length; i++) {
-                    if(Array.isArray(ds[mieVars[i]][0])){
-                      var arrLen = ds[mieVars[i]][0].length-1;
-                      if(mieNSize < arrLen){
-                        mieNSize = arrLen;
-                      }
-                    }
-                  }*/
+
                   // Three data structures possible:
                   // 1: 1D flat array (each "profile")
                   // 2: Array of n-sized arrays (2D) containing "bin" values

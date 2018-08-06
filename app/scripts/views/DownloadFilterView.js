@@ -166,9 +166,13 @@
       if(!activate){
         $('#btn-start-download').prop('disabled', true);
         $('#btn-start-download').attr('title', 'Please wait until previous process is finished');
+        $('#origDownload').prop('disabled', true);
+        $('#origDownload').attr('title', 'Please wait until previous process is finished');
       }else{
         $('#btn-start-download').prop('disabled', false);
         $('#btn-start-download').removeAttr('title');
+        $('#origDownload').prop('disabled', false);
+        $('#origDownload').removeAttr('title');
       }
       
     },
@@ -305,6 +309,7 @@
         });
 
         this.$('#btn-start-download').on("click", _.bind(this.onStartDownloadClicked, this));
+        this.$('#origDownload').on("click", _.bind(this.onStartOrigDownloadClicked, this));
 
         $('#validationwarning').remove();
 
@@ -659,6 +664,113 @@
           };
         });
         return valid;
+
+      },
+
+
+      onStartOrigDownloadClicked: function() {
+        $('#validationwarning').remove();
+        // First validate fields
+        if(!this.fieldsValid()){
+          // Show ther eis an issue in the fields and return
+          $('.panel-footer').append('<div id="validationwarning">There is an issue with the provided filters, please look for the red marked fields.</div>');
+          return;
+        }
+
+        var $downloads = $("#div-downloads");
+        var options = {};
+
+        // format
+        options.format = "application/zip";
+
+        options.processId = 'aeolus:download:raw';
+
+        // time
+        options.begin_time = this.start_picker.datepicker( "getDate" );
+        options.begin_time = new Date(Date.UTC(options.begin_time.getFullYear(), options.begin_time.getMonth(),
+        options.begin_time.getDate(), options.begin_time.getHours(), 
+        options.begin_time.getMinutes(), options.begin_time.getSeconds()));
+        options.begin_time.setUTCHours(0,0,0,0);
+       
+
+        options.end_time = this.end_picker.datepicker( "getDate" );
+        options.end_time = new Date(Date.UTC(options.end_time.getFullYear(), options.end_time.getMonth(),
+        options.end_time.getDate(), options.end_time.getHours(), 
+        options.end_time.getMinutes(), options.end_time.getSeconds()));
+        //options.end_time.setUTCHours(23,59,59,999);
+        options.end_time.setUTCHours(0,0,0,0);
+        
+        
+        // Rewrite time for start and end date if custom time is active
+        if($("#timefilter").length!=0) {
+          var s = parseTime($($("#timefilter").find('textarea')[1]).val());
+          var e = parseTime($($("#timefilter").find('textarea')[0]).val());
+          options.begin_time.setUTCHours(s[0],s[1],s[2],s[3]);
+          options.end_time.setUTCHours(e[0],e[1],e[2],e[3]);
+        }else{
+          options.end_time.setDate(options.end_time.getDate() + 1);
+        }
+
+        var bt_obj = options.begin_time;
+        var et_obj = options.end_time;
+        options.begin_time = getISODateTimeString(options.begin_time);
+        options.end_time = getISODateTimeString(options.end_time);
+
+
+        var collections = [];
+        _.each(this.model.get("products"), function(prod){
+            if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
+              collections.push(prod.get('download').id);
+            }
+        },this);
+
+        options["collection_ids"] = JSON.stringify(collections);
+
+        options.async = true;
+
+        // TODO: Just getting URL of last active product need to think of 
+        // how different urls should be handled
+        var url;
+        _.each(this.model.get("products"), function(prod){
+          if(prod.get('visible')){
+            url = prod.get('download').url;
+          }   
+        },this);
+
+        var req_data = wps_fetchFilteredDataAsync(options);
+        var that = this;
+
+        // Do some sanity checks before starting process
+
+        // Calculate the difference in milliseconds
+        var difference_ms = et_obj.getTime() - bt_obj.getTime();
+        var days = Math.round(difference_ms/(1000*60*60*24));
+
+        var sendProcessingRequest = function(){
+          toggleDownloadButton(false);
+          $.post( url, req_data, 'xml' )
+            .done(function( response ) {
+              that.updateJobs();
+            })
+            .error(function(resp){
+              toggleDownloadButton(true);
+            });
+        };
+
+        if (days>50 && filters.length==0){
+          w2confirm('The current selection will most likely exceed the download limit, please make sure to add filters to further subset your selection. <br> Would you still like to proceed?')
+            .yes(function () {
+              sendProcessingRequest();
+            });
+
+        }else if (days>50){
+          w2confirm('The current selected time interval is large and could result in a large download file if filters are not restrictive. The process runs in the background and the browser does not need to be open.<br>Are you sure you want to proceed?')
+            .yes(function () {
+              sendProcessingRequest();
+            });
+        }else{
+          sendProcessingRequest();
+        }
 
       },
 
