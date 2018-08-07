@@ -39,6 +39,11 @@
                 }
                 this.model.set('products', products);
             }
+
+            var bbox = JSON.parse(localStorage.getItem('areaSelection'));
+            if(bbox !== null){
+              this.model.set('AoI', bbox);
+            }
         },
 
         onChangeLayer: function (options) {

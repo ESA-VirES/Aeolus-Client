@@ -321,12 +321,15 @@
         var filters = this.model.get("filter");
 
         var aoi = this.model.get("AoI");
-        if (aoi){
+        if (aoi && aoi !== null){
           if (typeof filters === 'undefined') {
             filters = {};
           }
-          filters["Longitude"] = [aoi.w, aoi.e];
-          filters["Latitude"] = [aoi.s, aoi.n];
+          filters["Longitude"] = [aoi.e, aoi.w];
+          filters["Latitude"] = [aoi.n, aoi.s];
+        } else{
+          delete filters["Longitude"];
+          delete filters["Latitude"];
         }
 
         if (!$.isEmptyObject(filters)){
@@ -861,11 +864,22 @@
         // filters
         var filters = {};
         var filter_elem = $('#filters').find(".input-group");
+        var bboxFilter = {};
 
         _.each(filter_elem, function(fe){
 
           var extent_elem = $(fe).find("textarea");
-          if(extent_elem.context.id == 'timefilter'){
+          var filterId = extent_elem.context.id;
+          if(filterId == 'Longitude' || filterId == 'Latitude'){
+            var extent = [];
+            for (var i = extent_elem.length - 1; i >= 0; i--) {
+              extent[i] = parseFloat(extent_elem[i].value);
+            };
+            bboxFilter[filterId] = extent;
+            return;
+          }
+         
+          if(filterId == 'timefilter'){
             return;
           }
           var extent = [];
@@ -875,10 +889,16 @@
           // Make sure smaller value is first item
           extent.sort(function (a, b) { return a-b; });
 
-          filters[extent_elem.context.id] = {
+          filters[filterId] = {
             min: extent[0], max: extent[1]
           }
         });
+
+        if(!$.isEmptyObject(bboxFilter)){
+          options["bbox"] = true;
+          options["bbox_lower"] = bboxFilter['Longitude'][0] + " " + bboxFilter['Latitude'][0];
+          options["bbox_upper"] = bboxFilter['Longitude'][1] + " " + bboxFilter['Latitude'][1];
+        }
 
         options["filters"] = JSON.stringify(filters);
 
