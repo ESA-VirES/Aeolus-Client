@@ -955,10 +955,10 @@ define([
                 },
                 'ALD_U_N_2B': {
                     'mie_wind_result_wind_velocity': {
-                        lats: 'mie_profile_lat_of_DEM_intersection',
-                        lons: 'mie_profile_lon_of_DEM_intersection',
-                        timeStart: 'mie_profile_datetime_start',
-                        timeStop: 'mie_profile_datetime_stop',
+                        lats: 'mie_wind_result_lat_of_DEM_intersection',
+                        lons: 'mie_wind_result_lon_of_DEM_intersection',
+                        timeStart: 'mie_wind_result_start_time',
+                        timeStop: 'mie_wind_result_stop_time',
                         colorAxis: ['mie_wind_result_wind_velocity'],
                         xAxis:'time',
                         yAxis: ['mie_altitude'],
@@ -969,10 +969,10 @@ define([
                         jumps: 'mie_jumps'
                     },
                     'rayleigh_wind_result_wind_velocity': {
-                        lats: 'rayleigh_profile_lat_of_DEM_intersection',
-                        lons: 'rayleigh_profile_lon_of_DEM_intersection',
-                        timeStart: 'rayleigh_profile_datetime_start',
-                        timeStop: 'rayleigh_profile_datetime_stop',
+                        lats: 'rayleigh_wind_result_lat_of_DEM_intersection',
+                        lons: 'rayleigh_wind_result_lon_of_DEM_intersection',
+                        timeStart: 'rayleigh_wind_result_start_time',
+                        timeStop: 'rayleigh_wind_result_stop_time',
                         colorAxis: ['rayleigh_wind_result_wind_velocity'],
                         xAxis:'time',
                         yAxis: ['rayleigh_altitude'],
@@ -985,10 +985,10 @@ define([
                 },
                 'ALD_U_N_2C': {
                     'mie_wind_result_wind_velocity': {
-                        lats: 'mie_profile_lat_of_DEM_intersection',
-                        lons: 'mie_profile_lon_of_DEM_intersection',
-                        timeStart: 'mie_profile_datetime_start',
-                        timeStop: 'mie_profile_datetime_stop',
+                        lats: 'mie_wind_result_lat_of_DEM_intersection',
+                        lons: 'mie_wind_result_lon_of_DEM_intersection',
+                        timeStart: 'mie_wind_result_start_time',
+                        timeStop: 'mie_wind_result_stop_time',
                         colorAxis: ['mie_wind_result_wind_velocity'],
                         xAxis:'time',
                         yAxis: ['mie_altitude'],
@@ -999,9 +999,9 @@ define([
                         jumps: 'mie_jumps'
                     },
                     'rayleigh_wind_result_wind_velocity': {
-                        lats: 'rayleigh_profile_lat_of_DEM_intersection',
-                        lons: 'rayleigh_profile_lon_of_DEM_intersection',
-                        timeStart: 'rayleigh_profile_datetime_start',
+                        lats: 'rayleigh_wind_result_lat_of_DEM_intersection',
+                        lons: 'rayleigh_wind_result_lon_of_DEM_intersection',
+                        timeStart: 'rayleigh_wind_result_start_time',
                         timeStop: 'rayleigh_profile_datetime_stop',
                         colorAxis: ['rayleigh_wind_result_wind_velocity'],
                         xAxis:'time',
@@ -1090,14 +1090,14 @@ define([
                     stepsize = 3;
                 }*/
                 if(slicedLats.length > 30){
-                    stepsize = 5;
+                    stepsize = 20;
                 }
                 if(slicedLats.length <5){
                     stepsize = 2;
                 }
                 var cleanLats = [];
                 for (var p = 0; p < slicedLats.length; p+=stepsize){
-                    if(slicedLats[p-1] !== slicedLats[p]){
+                    if(slicedLats[p] !== cleanLats[cleanLats.length-1]){
                         cleanLats.push(slicedLats[p]);
                     }
                 }
@@ -1106,10 +1106,10 @@ define([
                         cleanLats.push(slicedLats[slicedLats.length-1]);
                     }
                 }
-                // Remove duplicates
+
                 var cleanLons = [];
                 for (var p = 0; p < slicedLons.length; p+=stepsize){
-                    if(slicedLons[p-1] !== slicedLons[p]){
+                    if(slicedLons[p] !== cleanLons[cleanLons.length-1]){
                         cleanLons.push(slicedLons[p]);
                     }
                 }
@@ -1117,8 +1117,46 @@ define([
                     if(cleanLons[cleanLons.length-1] !== slicedLons[slicedLons.length-1]){
                         cleanLons.push(slicedLons.slice(-1)[0]);
                     }
-                    
+
                 }
+
+                var itemsToRemove = [];
+                // Check lats to make sure direction does not change
+                for (var i = cleanLats.length - 1; i >= 0; i--) {
+                    if(i>3){
+                        if( (cleanLats[i]-cleanLats[i-2] <= 0 && 
+                            cleanLats[i-1]-cleanLats[i-2] >= 0 ) ||
+                            (cleanLats[i]-cleanLats[i-2] >= 0 && 
+                            cleanLats[i-1]-cleanLats[i-2] <= 0)){
+                            itemsToRemove.push(i-1);
+                        }
+                    }
+                }
+
+                for (var i = 0; i < itemsToRemove.length; i++) {
+                    cleanLats.splice(itemsToRemove[i],1);
+                    cleanLons.splice(itemsToRemove[i],1);
+                }
+
+                itemsToRemove = [];
+                // Check lons to make sure direction does not change
+                for (var i = cleanLons.length - 1; i >= 0; i--) {
+                    if(i>3){
+                        if( (cleanLons[i]-cleanLons[i-2] <= 0 && 
+                            cleanLons[i-1]-cleanLons[i-2] >= 0 ) ||
+                            (cleanLons[i]-cleanLons[i-2] >= 0 && 
+                            cleanLons[i-1]-cleanLons[i-2] <= 0)){
+                            itemsToRemove.push(i-1);
+                        }
+                    }
+                }
+
+                for (var i = 0; i < itemsToRemove.length; i++) {
+                    cleanLats.splice(itemsToRemove[i],1);
+                    cleanLons.splice(itemsToRemove[i],1);
+                }
+
+                // Check lons to make sure direction does not change
 
 
                 /*var cleanLats = [];

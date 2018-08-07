@@ -856,25 +856,81 @@
                 'mie_profile_datetime_start', 'mie_profile_datetime_stop'
               ].join(),
               'mie_wind_fields': [
-                'mie_wind_result_wind_velocity', 'mie_wind_result_start_time',
-                'mie_wind_result_stop_time', 'mie_wind_result_bottom_altitude',
+                'mie_wind_result_id',
+                'mie_wind_result_range_bin_number',
+                'mie_wind_result_start_time',
+                'mie_wind_result_COG_time',
+                'mie_wind_result_stop_time',
+                'mie_wind_result_bottom_altitude',
+                'mie_wind_result_COG_altitude',
                 'mie_wind_result_top_altitude',
-                'mie_wind_result_SNR', 'mie_wind_result_HLOS_error', 'mie_wind_result_COG_altitude',
-                'mie_wind_result_COG_range', 'mie_wind_result_QC_flags_1',
-                'mie_wind_result_QC_flags_2', 'mie_wind_result_QC_flags_3',
+                'mie_wind_result_bottom_range',
+                'mie_wind_result_COG_range',
+                'mie_wind_result_top_range',
+                'mie_wind_result_start_latitude',
+                'mie_wind_result_COG_latitude',
+                'mie_wind_result_stop_latitude',
+                'mie_wind_result_start_longitude',
+                'mie_wind_result_COG_longitude',
+                'mie_wind_result_stop_longitude',
+                'mie_wind_result_lat_of_DEM_intersection',
+                'mie_wind_result_lon_of_DEM_intersection',
+                'mie_wind_result_geoid_separation',
+                'mie_wind_result_alt_of_DEM_intersection',
+                'mie_wind_result_HLOS_error',
+                'mie_wind_result_QC_flags_1',
+                'mie_wind_result_QC_flags_2',
+                'mie_wind_result_QC_flags_3',
+                'mie_wind_result_SNR',
+                'mie_wind_result_scattering_ratio',
+                'mie_wind_result_observation_type',
+                'mie_wind_result_validity_flag',
+                'mie_wind_result_wind_velocity',
+                'mie_wind_result_integration_length',
+                'mie_wind_result_num_of_measurements',
+                //'mie_wind_result_albedo_off_nadir'
+              ].join(),
+              'rayleigh_wind_fields': [
+                'rayleigh_wind_result_id',
+                'rayleigh_wind_result_range_bin_number',
+                'rayleigh_wind_result_start_time',
+                'rayleigh_wind_result_COG_time',
+                'rayleigh_wind_result_stop_time',
+                'rayleigh_wind_result_bottom_altitude',
+                'rayleigh_wind_result_COG_altitude',
+                'rayleigh_wind_result_top_altitude',
+                'rayleigh_wind_result_bottom_range',
+                'rayleigh_wind_result_COG_range',
+                'rayleigh_wind_result_top_range',
+                'rayleigh_wind_result_start_latitude',
+                'rayleigh_wind_result_COG_latitude',
+                'rayleigh_wind_result_stop_latitude',
+                'rayleigh_wind_result_start_longitude',
+                'rayleigh_wind_result_COG_longitude',
+                'rayleigh_wind_result_stop_longitude',
+                'rayleigh_wind_result_lat_of_DEM_intersection',
+                'rayleigh_wind_result_lon_of_DEM_intersection',
+                'rayleigh_wind_result_geoid_separation',
+                'rayleigh_wind_result_alt_of_DEM_intersection',
+                'rayleigh_wind_result_HLOS_error',
+                'rayleigh_wind_result_QC_flags_1',
+                'rayleigh_wind_result_QC_flags_2',
+                'rayleigh_wind_result_QC_flags_3',
+                'rayleigh_wind_result_scattering_ratio',
+                'rayleigh_wind_result_observation_type',
+                'rayleigh_wind_result_validity_flag',
+                'rayleigh_wind_result_wind_velocity',
+                'rayleigh_wind_result_integration_length',
+                'rayleigh_wind_result_num_of_measurements',
+                'rayleigh_wind_result_reference_pressure',
+                'rayleigh_wind_result_reference_temperature',
+                'rayleigh_wind_result_reference_backscatter_ratio',
+                //'rayleigh_wind_result_albedo_off_nadir'
               ].join(),
               'rayleigh_profile_fields': [
                 'rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection',
                 'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop'
-              ].join(),
-              'rayleigh_wind_fields': [
-                'rayleigh_wind_result_wind_velocity', 'rayleigh_wind_result_start_time',
-                'rayleigh_wind_result_stop_time', 'rayleigh_wind_result_bottom_altitude',
-                'rayleigh_wind_result_top_altitude',
-                'rayleigh_wind_result_HLOS_error', 'rayleigh_wind_result_COG_altitude',
-                'rayleigh_wind_result_COG_range', 'rayleigh_wind_result_QC_flags_1',
-                'rayleigh_wind_result_QC_flags_2', 'rayleigh_wind_result_QC_flags_3',
-              ].join(),
+              ].join()
           },
           'ALD_U_N_2C': {
                'mie_profile_fields': [
@@ -882,24 +938,120 @@
                 'mie_profile_datetime_start', 'mie_profile_datetime_stop'
               ].join(),
               'mie_wind_fields': [
-                'mie_wind_result_wind_velocity', 'mie_wind_result_start_time',
-                'mie_wind_result_stop_time', 'mie_wind_result_bottom_altitude',
+                'mie_wind_result_id',
+                'mie_wind_result_range_bin_number',
+                'mie_wind_result_start_time',
+                'mie_wind_result_COG_time',
+                'mie_wind_result_stop_time',
+                'mie_wind_result_bottom_altitude',
+                'mie_wind_result_COG_altitude',
                 'mie_wind_result_top_altitude',
-                'mie_wind_result_SNR', 'mie_wind_result_HLOS_error', 'mie_wind_result_COG_altitude',
-                'mie_wind_result_COG_range', 'mie_wind_result_QC_flags_1',
-                'mie_wind_result_QC_flags_2', 'mie_wind_result_QC_flags_3',
+                'mie_wind_result_bottom_range',
+                'mie_wind_result_COG_range',
+                'mie_wind_result_top_range',
+                'mie_wind_result_start_latitude',
+                'mie_wind_result_COG_latitude',
+                'mie_wind_result_stop_latitude',
+                'mie_wind_result_start_longitude',
+                'mie_wind_result_COG_longitude',
+                'mie_wind_result_stop_longitude',
+                'mie_wind_result_lat_of_DEM_intersection',
+                'mie_wind_result_lon_of_DEM_intersection',
+                'mie_wind_result_geoid_separation',
+                'mie_wind_result_alt_of_DEM_intersection',
+                'mie_wind_result_HLOS_error',
+                'mie_wind_result_QC_flags_1',
+                'mie_wind_result_QC_flags_2',
+                'mie_wind_result_QC_flags_3',
+                'mie_wind_result_SNR',
+                'mie_wind_result_scattering_ratio',
+                'mie_assimilation_L2B_QC',
+                'mie_assimilation_persistence_error',
+                'mie_assimilation_representativity_error',
+                'mie_assimilation_final_error',
+                'mie_assimilation_est_L2B_bias',
+                'mie_assimilation_background_HLOS_error',
+                'mie_assimilation_L2B_HLOS_reliability',
+                'mie_assimilation_u_wind_background_error',
+                'mie_assimilation_v_wind_background_error',
+                'mie_wind_result_observation_type',
+                'mie_wind_result_validity_flag',
+                'mie_wind_result_wind_velocity',
+                'mie_wind_result_integration_length',
+                'mie_wind_result_num_of_measurements',
+                'mie_assimilation_validity_flag',
+                'mie_assimilation_background_HLOS',
+                'mie_assimilation_background_u_wind_velocity',
+                'mie_assimilation_background_v_wind_velocity',
+                'mie_assimilation_background_horizontal_wind_velocity',
+                'mie_assimilation_background_wind_direction',
+                'mie_assimilation_analysis_HLOS',
+                'mie_assimilation_analysis_u_wind_velocity',
+                'mie_assimilation_analysis_v_wind_velocity',
+                'mie_assimilation_analysis_horizontal_wind_velocity',
+                'mie_assimilation_analysis_wind_direction',
+                //'mie_wind_result_albedo_off_nadir'
               ].join(),
               'rayleigh_profile_fields': [
                 'rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection',
                 'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop'
               ].join(),
               'rayleigh_wind_fields': [
-                'rayleigh_wind_result_wind_velocity', 'rayleigh_wind_result_start_time',
-                'rayleigh_wind_result_stop_time', 'rayleigh_wind_result_bottom_altitude',
+                'rayleigh_wind_result_id',
+                'rayleigh_wind_result_range_bin_number',
+                'rayleigh_wind_result_start_time',
+                'rayleigh_wind_result_COG_time',
+                'rayleigh_wind_result_stop_time',
+                'rayleigh_wind_result_bottom_altitude',
+                'rayleigh_wind_result_COG_altitude',
                 'rayleigh_wind_result_top_altitude',
-                'rayleigh_wind_result_HLOS_error', 'rayleigh_wind_result_COG_altitude',
-                'rayleigh_wind_result_COG_range', 'rayleigh_wind_result_QC_flags_1',
-                'rayleigh_wind_result_QC_flags_2', 'rayleigh_wind_result_QC_flags_3',
+                'rayleigh_wind_result_bottom_range',
+                'rayleigh_wind_result_COG_range',
+                'rayleigh_wind_result_top_range',
+                'rayleigh_wind_result_start_latitude',
+                'rayleigh_wind_result_COG_latitude',
+                'rayleigh_wind_result_stop_latitude',
+                'rayleigh_wind_result_start_longitude',
+                'rayleigh_wind_result_COG_longitude',
+                'rayleigh_wind_result_stop_longitude',
+                'rayleigh_wind_result_lat_of_DEM_intersection',
+                'rayleigh_wind_result_lon_of_DEM_intersection',
+                'rayleigh_wind_result_geoid_separation',
+                'rayleigh_wind_result_alt_of_DEM_intersection',
+                'rayleigh_wind_result_HLOS_error',
+                'rayleigh_wind_result_QC_flags_1',
+                'rayleigh_wind_result_QC_flags_2',
+                'rayleigh_wind_result_QC_flags_3',
+                'rayleigh_wind_result_scattering_ratio',
+                'rayleigh_assimilation_L2B_QC',
+                'rayleigh_assimilation_persistence_error',
+                'rayleigh_assimilation_representativity_error',
+                'rayleigh_assimilation_final_error',
+                'rayleigh_assimilation_est_L2B_bias',
+                'rayleigh_assimilation_background_HLOS_error',
+                'rayleigh_assimilation_L2B_HLOS_reliability',
+                'rayleigh_assimilation_u_wind_background_error',
+                'rayleigh_assimilation_v_wind_background_error',
+                'rayleigh_wind_result_observation_type',
+                'rayleigh_wind_result_validity_flag',
+                'rayleigh_wind_result_wind_velocity',
+                'rayleigh_wind_result_integration_length',
+                'rayleigh_wind_result_num_of_measurements',
+                'rayleigh_wind_result_reference_pressure',
+                'rayleigh_wind_result_reference_temperature',
+                'rayleigh_wind_result_reference_backscatter_ratio',
+                'rayleigh_assimilation_validity_flag',
+                'rayleigh_assimilation_background_HLOS',
+                'rayleigh_assimilation_background_u_wind_velocity',
+                'rayleigh_assimilation_background_v_wind_velocity',
+                'rayleigh_assimilation_background_horizontal_wind_velocity',
+                'rayleigh_assimilation_background_wind_direction',
+                'rayleigh_assimilation_analysis_HLOS',
+                'rayleigh_assimilation_analysis_u_wind_velocity',
+                'rayleigh_assimilation_analysis_v_wind_velocity',
+                'rayleigh_assimilation_analysis_horizontal_wind_velocity',
+                'rayleigh_assimilation_analysis_wind_direction',
+                //'rayleigh_wind_result_albedo_off_nadir',
               ].join(),
            },
           'AUX_MRC_1B': [
@@ -1114,8 +1266,14 @@
 
         
         if(collectionId.indexOf('AUX')===-1){
-          var fields = product.get('granularity')+'_fields';
-          options[fields] = fieldsList[collectionId][fields];
+          var gran = product.get('granularity');
+          if(gran === 'wind-accumulation-result'){
+            options['mie_wind_fields'] = fieldsList[collectionId]['mie_wind_fields'];
+            options['rayleigh_wind_fields'] = fieldsList[collectionId]['rayleigh_wind_fields'];
+          } else {
+            var fields = gran+'_fields';
+            options[fields] = fieldsList[collectionId][fields];
+          }
         }
         /*if(collectionId === 'ALD_U_N_1B'){
           options[fields] = fieldsList[collectionId][fields];
@@ -1554,28 +1712,30 @@
                     var latStep = 15;
 
                     var mieJumpPositions = [];
-                    for (var i = 1; i < ds.mie_profile_data.mie_profile_lat_of_DEM_intersection.length; i++) {
+                    var miewindLat = ds.mie_wind_data.mie_wind_result_lat_of_DEM_intersection;
+                    var miewindLon = ds.mie_wind_data.mie_wind_result_lon_of_DEM_intersection;
+                    for (var i = 1; i < miewindLat.length; i++) {
                       if (Math.abs(
-                          ds.mie_profile_data.mie_profile_lat_of_DEM_intersection[i-1]-
-                          ds.mie_profile_data.mie_profile_lat_of_DEM_intersection[i]) >= Math.abs(latStep)) {
+                          miewindLat[i-1]-
+                          miewindLat[i]) >= Math.abs(latStep)) {
                         mieJumpPositions.push(i);
                       }else if (Math.abs(
-                          ds.mie_profile_data.mie_profile_lon_of_DEM_intersection[i-1]-
-                          ds.mie_profile_data.mie_profile_lon_of_DEM_intersection[i]) >= Math.abs(lonStep)) {
+                          miewindLat[i-1]-
+                          miewindLat[i]) >= Math.abs(lonStep)) {
                         mieJumpPositions.push(i);
                       }
                     }
                     resData['mie_jumps'] = mieJumpPositions;
 
                     var rayleighJumpPositions = [];
-                    for (var i = 1; i < ds.rayleigh_profile_data.rayleigh_profile_lat_of_DEM_intersection.length; i++) {
+                    for (var i = 1; i < miewindLon.length; i++) {
                       if (Math.abs(
-                          ds.rayleigh_profile_data.rayleigh_profile_lat_of_DEM_intersection[i-1]-
-                          ds.rayleigh_profile_data.rayleigh_profile_lat_of_DEM_intersection[i]) >= Math.abs(latStep)) {
+                          miewindLon[i-1]-
+                          miewindLon[i]) >= Math.abs(latStep)) {
                         rayleighJumpPositions.push(i);
                       }else if (Math.abs(
-                          ds.rayleigh_profile_data.rayleigh_profile_lon_of_DEM_intersection[i-1]-
-                          ds.rayleigh_profile_data.rayleigh_profile_lon_of_DEM_intersection[i]) >= Math.abs(lonStep)) {
+                          miewindLon[i-1]-
+                          miewindLon[i]) >= Math.abs(lonStep)) {
                         rayleighJumpPositions.push(i);
                       }
                     }
