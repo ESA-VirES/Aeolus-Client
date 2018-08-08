@@ -309,7 +309,8 @@ define(['backbone.marionette',
                     dataSettings: this.dataSettings,
                     renderSettings: this.renderSettings.mie,
                     filterManager: globals.swarm.get('filterManager'),
-                    displayParameterLabel: false
+                    displayParameterLabel: false,
+                    ignoreParameters: [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/]
                 });
                 globals.swarm.get('filterManager').setRenderNode('#analyticsFilters');
             }
@@ -322,7 +323,8 @@ define(['backbone.marionette',
                     renderSettings: this.renderSettings.rayleigh,
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
-                    connectedGraph: this.graph1
+                    connectedGraph: this.graph1,
+                    ignoreParameters: [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/]
                 });
                 this.graph1.connectGraph(this.graph2);
             }
@@ -728,6 +730,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
+                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/];
+                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_1B']);
@@ -747,6 +751,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
+                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/];
+                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_2A']);
@@ -766,6 +772,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
+                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/];
+                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_2B']);
@@ -785,6 +793,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
+                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/];
+                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_2C']);
@@ -804,6 +814,8 @@ define(['backbone.marionette',
                         $('#graph_2').css('height', '49%');
                         this.graph1.debounceActive = false;
                         this.graph2.debounceActive = false;
+                        this.graph1.ignoreParameters = [];
+                        this.graph2.ignoreParameters = [];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data[idKeys[0]]);
@@ -820,6 +832,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         $('#graph_1').css('height', '49%');
                         $('#graph_2').css('height', '49%');
+                        this.graph1.ignoreParameters = [];
+                        this.graph2.ignoreParameters = [];
                         this.graph1.debounceActive = true;
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
@@ -836,6 +850,8 @@ define(['backbone.marionette',
                         this.graph2.data = {};
                         $('#graph_1').css('height', '99%');
                         $('#graph_2').hide();
+                        this.graph1.ignoreParameters = [];
+                        this.graph2.ignoreParameters = [];
                         this.graph1.debounceActive = false;
                         this.graph2.debounceActive = false;
                         this.graph1.connectGraph(false);
