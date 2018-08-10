@@ -418,6 +418,31 @@
           var product = globals.products.find(function(model) { return model.get('name') == options.name; });
           if (product){
             if(options.visible){
+              // Make sure correct albedo map is set for active product
+              var pId = product.get('download').id;
+              var albedoProd = globals.products.find(
+                function(model) { return model.get('download').id == 'ADAM_albedo'; }
+              );
+              var albedoPars = albedoProd.get('parameters');
+              if(pId === 'AUX_MRC_1B' || pId === 'AUX_RRC_1B'){
+                if(albedoPars.offnadir.hasOwnProperty('selected')){
+                  delete albedoPars.offnadir.selected;
+                  albedoPars.nadir.selected = true;
+                  albedoProd.set('parameters', albedoPars);
+                }
+                Communicator.mediator.trigger("layer:parameters:changed", 'ADAM_albedo');
+              }else if(pId === 'ALD_U_N_1B' || pId === 'ALD_U_N_2A' ||
+                       pId === 'ALD_U_N_2B' || pId === 'ALD_U_N_2C' ||
+                       pId === 'AUX_ISR_1B' || pId === 'AUX_ZWC_1B' ||
+                       pId === 'AUX_MET_1B'){
+                if(albedoPars.nadir.hasOwnProperty('selected')){
+                  delete albedoPars.nadir.selected;
+                  albedoPars.offnadir.selected = true;
+                  albedoProd.set('parameters', albedoPars);
+                  Communicator.mediator.trigger("layer:parameters:changed", 'ADAM_albedo');
+                }
+              }
+              
               if (product.get("model")){
                 this.activeModels.push(product.get("download").id);
                 this.updateLayerResidualParameters();
