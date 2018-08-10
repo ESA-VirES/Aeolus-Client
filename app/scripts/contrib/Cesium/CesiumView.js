@@ -1878,6 +1878,8 @@ define([
             var filters = globals.swarm.get('filters');
             var show = true;
 
+            var positions = [];
+
             for (var i = 0; i < data[band].length; i++) {
                 var row = {};
                 for(var k in data){
@@ -1892,6 +1894,9 @@ define([
                 if(!show){
                     continue;
                 }
+
+                positions.push(data['lon_of_DEM_intersection'][i]+1);
+                positions.push(data['lat_of_DEM_intersection'][i]);
 
                 var color = this.plot.getColor(data[band][i]);
                 var options = {
@@ -1908,6 +1913,40 @@ define([
                 };
 
                 pointCollection.add(options);
+            }
+
+            var pointsOutlineColl;
+            if(currProd.hasOwnProperty('pointsOutlineColl') && !renderOutlines){
+                currProd.pointsOutlineColl.removeAll();
+            }else{
+                pointsOutlineColl = new Cesium.PrimitiveCollection();
+                this.map.scene.primitives.add(pointsOutlineColl);
+                currProd.pointsOutlineColl = pointsOutlineColl;
+                this.activePointsCollections.push(pointsOutlineColl);
+            }
+
+            if(renderOutlines){
+                                
+                var geomInstance =  new Cesium.GeometryInstance({
+                    geometry : new Cesium.PolylineGeometry({
+                        positions : Cesium.Cartesian3.fromDegreesArray(
+                            positions
+                        ),
+                        width : 10.0
+                    })
+                });
+
+
+                var linesPrim = new Cesium.Primitive({
+                    geometryInstances: [geomInstance],
+                    appearance: new Cesium.PolylineMaterialAppearance({
+                        material : new Cesium.Material.fromType('PolylineArrow', {
+                            color: new Cesium.Color(0.53, 0.02, 0.65, 1)
+                        })
+                    })
+                });
+
+                pointsOutlineColl.add(linesPrim);
             }
 
             this.map.scene.primitives.add(pointCollection);
