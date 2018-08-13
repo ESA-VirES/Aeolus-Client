@@ -66,11 +66,16 @@
             w2popup: {
                 deps: ['w2utils', 'jquery']
             },
+            graphly: {
+                deps: ['d3', 'plotty', 'msgpack']
+            },
             
         },
 
         paths: {
             analytics: '../bower_components/d3.Graphs/lib/scripts/av.min',
+            msgpack: '../bower_components/msgpack-lite/dist/msgpack.min',
+            graphly: '../bower_components/graphly/dist/graphly.min',
             cesium: "../bower_components/cesium/Build/Cesium",
             drawhelper: "../scripts/vendor/cesium_DrawHelper",
             contrib: 'contrib',
@@ -87,7 +92,7 @@
 
             'canvas-toBlob': '../bower_components/canvas-toBlob.js/canvas-toBlob',
             'Blob': '../bower_components/Blob.js/Blob',
-            'FileSaver': '../bower_components/FileSaver.js/FileSaver.min',
+            'FileSaver': '../bower_components/FileSaver.js/FileSaver',
 
             lm: '../bower_components/lm.js/lm',
 

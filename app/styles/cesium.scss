@@ -66,11 +66,28 @@
 }
 
 .cesium-viewer{
-    padding-bottom: 7em;
+    padding-bottom: 5em;
     background-color: white;
 }
 
 .twipsy{
   pointer-events: none;
   display: none;
+}
+
+#coordinates_label{
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 3px;
+  position: absolute;
+  top:7px;
+  left:7px;
+  height: 32px;
+  width: auto;
+  z-index: 5;
+  font-size: 0.85em;
+  display: none;
+  pointer-events: none;
+  padding-left: 3px;
+  padding-right: 3px;
+  font-family: monospace;
 }

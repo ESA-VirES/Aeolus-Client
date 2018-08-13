@@ -10,6 +10,10 @@
     position: relative !important;
 }
 
+#w2ui-overlay.downloadsection{
+    margin-left: -18px!important;
+}
+
 #validationwarning{
     font-size: 0.8em;
     float: right;
@@ -110,3 +114,48 @@
 .ui-datepicker-trigger:hover{
     border-color: rgb(110, 110, 110) !important;
 }
+
+#custom_download .w2ui-field-helper{
+    width: 100%!important;
+}
+
+.w2ui-field-helper.w2ui-list input{
+    width: 120px!important;
+}
+
+
+.downloadProductTooltip{
+    overflow: auto;
+}
+
+
+
+
+
+.paramTable table {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size: 0.9em;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.paramTable table td, .paramTable table th {
+    border: 1px solid #ddd;
+    padding: 3px;
+}
+
+.paramTable table tr:nth-child(even){background-color: #f2f2f2;}
+
+.paramTable table tr:hover {background-color: #ddd;}
+
+.paramTable table th {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    text-align: left;
+    background-color: #589359;
+    color: white;
+}
+
+#origDownload{
+    margin-right: 10px;
+}   

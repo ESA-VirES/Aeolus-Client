@@ -193,6 +193,7 @@
                             globals.overlays.find(function(model) { return model.get('name') == options.name; }).set("visible", options.visible);
                     }
                 }
+                this.render();
             },
         });
         

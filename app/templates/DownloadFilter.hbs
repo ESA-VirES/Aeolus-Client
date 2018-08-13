@@ -42,11 +42,13 @@
   </div>
   <div style="float:left; padding-top:6px;">
     <select class="input-small" id="select-output-format">
-      <option value="application/cdf" selected>CDF - Common data format</option>
-      <option value="text/csv">CSV - Comma-separated values</option>
+      <option value="application/netcdf" selected>NetCDF</option>
     </select>
   </div>
   <div style="float: right">
     <button style="pointer-events: auto;" type="button" class="btn btn-primary" id="btn-start-download" disabled><i class="fa fa-fw fa-cogs"></i> Process & create link</button>
+  </div>
+  <div style="float: right">
+    <button style="pointer-events: auto;" type="button" class="btn btn-primary" target="_blank" id="origDownload" title="Download all relevant files to current AoI and ToI selection as package"><i class="fa fa-fw fa-download"></i> Package original files</button>
   </div>
 </div>

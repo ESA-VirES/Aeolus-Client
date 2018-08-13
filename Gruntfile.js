@@ -80,9 +80,9 @@ module.exports = function (grunt) {
             },
             proxies: [{
                 context: '/vires00',
-                //host: 'staging.vires.services',
+                //host: 'staging.aeolus.services',
                 host: 'localhost',
-                port: 8300,
+                port: 8401,
                 rewrite: {
                     '^/vires00': '/'
                 },
@@ -93,11 +93,11 @@ module.exports = function (grunt) {
             },{
                 context: '/ows',
                 host: 'localhost',
-                port: 8300
+                port: 8401
             },{
                 context: '/wps',
                 host: 'localhost',
-                port: 8300
+                port: 8400
             }],            
             livereload: {
                 options: {
@@ -216,20 +216,12 @@ module.exports = function (grunt) {
         },*/
         requirejs: {
             dist: {
-                // Options: https://github.com/jrburke/r.js/blob/master/build/example.build.js
                 options: {
-                    // `name` and `out` is set by grunt-usemin
-                    baseUrl: yeomanConfig.app + '/scripts',
+                    baseUrl: '<%= yeoman.app %>',
+                    mainConfigFile: '<%= yeoman.app %>/scripts/init.js',
                     optimize: 'none',
-                    // TODO: Figure out how to make sourcemaps work with grunt-usemin
-                    // https://github.com/yeoman/grunt-usemin/issues/30
-                    //generateSourceMaps: true,
-                    // required to support SourceMaps
-                    // http://requirejs.org/docs/errors.html#sourcemapcomments
-                    preserveLicenseComments: false,
-                    useStrict: true,
-                    wrap: true
-                    //uglify2: {} // https://github.com/mishoo/UglifyJS2
+                    include: [ 'scripts/main.js' ],
+                    out: '.tmp/concat/js/main.js',
                 }
             }
         },
@@ -354,7 +346,7 @@ module.exports = function (grunt) {
                         'bower_components/d3/d3.min.js',
                         'bower_components/d3.TimeSlider/d3.timeslider.min.js',
                         'bower_components/libcoverage/libcoverage.min.js',
-                        'bower_components/FileSaver.js/FileSaver.min.js',
+                        'bower_components/FileSaver.js/FileSaver.js',
                         'bower_components/canvas-toBlob.js/canvas-toBlob.js',
                         'bower_components/Blob.js/Blob.js',
                         'bower_components/backbone.marionette/lib/core/amd/backbone.marionette.min.js',
@@ -379,6 +371,8 @@ module.exports = function (grunt) {
                         'bower_components/w2ui/dist/w2ui-fields.min.js',
                         'bower_components/w2ui/src/w2popup.js',
                         'bower_components/w2ui/src/w2utils.js',
+                        'bower_components/msgpack-lite/dist/msgpack.min.js',
+                        'bower_components/graphly/dist/graphly.min.js',
                         'scripts/vendor/**',
                     ]
                 },{

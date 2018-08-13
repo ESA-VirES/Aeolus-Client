@@ -1,71 +1,112 @@
 @import "defaults";
-@import "nv.d3";
+
 
 .d3canvas {
     background-color: white;
 
     width: 100%;
     height: 100%;
+    padding-bottom: 100px;
 
-    margin: 0;
-    padding: 0;
+    /*margin: 0;
+    padding: 0;*/
 }
 
-text.nvd3.nv-noData {
-    fill: #6B6868;
-}
 
 .analytics {
     width: 100%;
     height: 100%;
-    padding-top: 50px;
-    padding-left: 5px;
-    padding-bottom: 8.9em;
-    padding-right: 0px;
-    float: left;
-    background-color: white;
-}
-
-.analytics .gui {
-    top:220px;
-}
-
-//nvd3 needs this
-.analytics svg{
-    /* Trying to get SVG to act like a greedy block in all browsers */
-    display: block;
-    width:100%;
-    height:100%;
-}
-
-.analytics .disabled{
-    display: inline;
-}
-
-.analytics .highlight {
-    padding: 1px;
-    margin-top: 2px;
 }
 
 
-.analytics .outer {
-    display: table;
+.filterContainer{
+-webkit-box-sizing: content-box!important; 
+    -moz-box-sizing: content-box!important;
+    box-sizing: content-box!important;
+}
+
+
+
+#nodatainfo{
+    text-align: center;
+    color: grey;
+    font-size: 2em;
+    font-weight: bold;
+    opacity: 0.6;
+    bottom: 20px;
     position: absolute;
-    height: 100%;
     width: 100%;
 }
 
-.analytics .middle {
-    display: table-cell;
-    vertical-align: middle;
+#saveRendering{
+    margin-top: 7px;
+    margin-left: 7px;
+    position: absolute;
+    padding: 2px 7px 1px 7px;
+    font-size: 20px;
+    z-index: 20;
 }
 
-.analytics .inner {
-    margin-left: auto;
-    margin-right: auto; 
-    width: auto;
+/*Rewrite some defaults of bootstrap*/
+.filterContainer label {
+    margin-bottom: 0px!important; 
+    font-weight: normal!important;
 }
 
+.filterContainer input {
+    margin: 1px 4px 0!important;
+
+}
+
+.filterContainer .editButton{
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box; 
+}
+
+
+
+
+
+#filterDivContainer{
+   text-align: center;
+}
+
+
+
+
+.d3canvas {
+    position:absolute;
+}
+
+#graph_1 {
+    height: 49%;
+}
+
+#graph_2 {
+    height: 49%;
+}
+
+#graph_container {
+    height: calc(100% - 270px);
+}
+
+#filterDivContainer {
+    height:262px;
+}
+
+#nodataavailable{
+    height:100%;
+    width:100%;
+    position:absolute;
+    z-index:500;
+    display:none;
+    background-color:white;
+    text-align: center;
+    padding-top: 35%;
+    font-size: 2em;
+    color: grey;
+}
 
 #tmp_download_button, #save, #grid, #download_button, #reset_filters, #reset, #toggle_filters {
     background-color: #333 !important;
@@ -114,19 +155,18 @@ text.nvd3.nv-noData {
     top: -27px !important;
 }
 
-#scatterdiv{
-    position: relative;
-}
-
-#parallelsdiv{
-    position: relative;
-    margin-top: 27px;
-    margin-left: -55px;
-}
 
 .w2ui-overlay {
-//position: relative!important;
     min-width: 565px!important;
+    margin-left: -275px!important;
+}
+
+.w2ui-overlay>div{
+    min-height: 58px!important;
+}
+
+#filterSelectDrop .w2ui-field{
+    margin-left: 5px;
 }
 
 .parallels .tick text{
@@ -164,4 +204,138 @@ text.nvd3.nv-noData {
     bottom: 20px;
     position: absolute;
     width: 100%;
+}
+
+
+#analyticsSavebutton {
+    position: absolute;
+    height: 25px;
+    width: 25px;
+    z-index: 5;
+    left: 5px;
+    cursor: pointer;
+    font-size: 1.8em;
+}
+
+#additionalProductInfo {
+    position: absolute;
+    height: 25px;
+    width: 25px;
+    top: 30px;
+    z-index: 5;
+    left: 5px;
+    cursor: pointer;
+    font-size: 1.8em;
+}
+
+#analyticsProductTooltip{
+    position: absolute;
+    background-color: white;
+    font-size: 0.85em;
+    overflow-y: auto;
+    overflow-x: auto;
+    max-height: 500px;
+    max-width: 700px;
+    z-index: 20;
+    box-shadow: 5px 5px 2px lightgrey;
+    padding: 5px;
+}
+
+.eraserIcon {
+    right: 10px!important;
+    top: 1px;
+}
+
+.parameterLabel {
+    word-break: break-all;
+}
+
+.choiceParameterContainer select{
+    font-size: 0.8em;
+}
+
+#filterSelectDrop{
+    position: absolute;
+    margin-top: -40px;
+    margin-left: 20px;
+    top: 0px;
+}
+
+#filterDivContainer{
+    position: absolute;
+    margin-top: 30px;
+    width: 100%;
+    padding-right: 10px;
+}
+
+
+#analyticsFilters {
+    max-height: 265px;
+    overflow-y: auto;
+    overflow-x: none;
+    margin: auto 1.5em; display: inline-block;
+    text-align: left;
+}
+
+
+.w2ui-field-helper input {
+    padding-left: 10px!important;
+    margin-top: 3px!important;
+}
+
+.parameterClose.cross.filterClose{
+    position: absolute;
+    top: 14px!important;
+    right: 3px!important;
+    z-index: 20;
+}
+
+
+#resetFilters{
+    float: left;
+}
+
+
+#minimizeFilters{
+    position: absolute;
+    right: 60px;
+    font-size: 2em;
+    top: 0px;
+    cursor: pointer;
+    margin-top: -40px;
+}
+
+
+#filterSelectDrop .w2ui-field-helper{
+    margin-right: 35px;
+}
+
+#filterSelectDrop > .w2ui-field{
+    display: inline;
+}
+
+#inputAnalyticsAddfilter {
+    margin-left: 5px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#ySettings, #y2Settings, #xSettings{
+    box-sizing: content-box!important;
+}
+
+#nodataavailable{
+    width: 100%;
+    position: absolute;
+    font-size: 1.9em;
+    color: #444;
+    text-align: center;
+}
+
+/*.choices__item.choices__item--choice.choices__item--selectable{
+    font-size: 11px!important;
+}*/
+
+#ySettings, #y2Settings, #xSettings{
+    width: 285px!important;
 }

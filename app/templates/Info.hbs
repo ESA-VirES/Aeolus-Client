@@ -5,66 +5,83 @@
       <h3 class="panel-title" id="about-title"><i class="fa fa-fw fa-info-circle"></i> About </h3>
     </div>
     <div class="modal-body modal-body-about">
-		<p style="font-size:1.4em">The Virtual Research Environment</p>
-		<p>
-			VirES for Swarm is the visual interface to the <a href="https://earth.esa.int/swarm" target="_blank">Swarm mission</a> products officially released by the European Space Agency. It includes tools for studying various geomagnetic models by comparing them to the Swarm satellite measurements at given space weather and ionospheric conditions.
-		</p>
-		<p style="font-size:1.4em">The Data</p>
-		<p>The following products are taken from all three Swarm Satellites:</p>
+        <p style="font-size:1.4em">The Virtual Research Environment (VirES)</p>
+        <p>
+          VirES for Aeolus is a highly interactive data manipulation and retrieval interface for <a target="_blank" rel="noopener" href="http://www.esa.int/Our_Activities/Observing_the_Earth/Aeolus/Introducing_Aeolus">ESA's Aeolus mission</a> baseline products, officially released by the European Space Agency. It includes tools for studying various atmospheric parameters, in space and time, measured by the Aeolus satellite. 
+        </p>
+        <p>
+          VirES for Aeolus allows the interactive, online examination and analysis of the Aeolus datasets, utilizing VirES' peculiar filtering and subsetting mechanisms. <br>
+        </p>
+    <p style="font-size:1.4em">Data</p>
+        <p>
+          The data accessible on VirES consists of the newest baseline products available and any new data will appear within 4 hours of generation. 
+        </p>
+        <p>
+          The following Aeolus derived baselines products will be made availabe:
+        </p>
+        <p>
           <ul>
             <li style="list-style-type: circle;"> 
-            The magnetic vector and scalar data at a 1 Hz at exact UTC seconds (<a target="_blank" href="http://swarm-wiki.spacecenter.dk/mediawiki-1.21.1/index.php/Level_1b_Product_Definitions#MAGX_LR_1B_Product">Swarm MAGX_LR_1B</a>).
+              L1B products (<a target="_blank" rel="noopener" href="https://earth.esa.int/files/ADM_AeolusCALVAL_RehearsalWorkshop2017prod_doclist">Aeolus L1B</a>).
             </li>
-            <li style="list-style-type: circle;">
-            The official plasma data including electron temperature and density at 2 Hz (<a target="_blank" href="http://swarm-wiki.spacecenter.dk/mediawiki-1.21.1/index.php/Level_1b_Product_Definitions#EFIX_PL_1B_Product">Swarm EFIX_PL_1B</a>).
-            <li style="list-style-type: circle;">
-            The ionospheric bubble index data (<a target="_blank" href="http://swarm-wiki.spacecenter.dk/mediawiki-1.21.1/index.php/Level_2_Product_Definitions">Swarm IBIxTMS_2F</a>).
+            <li style="list-style-type: circle;"> 
+              L2A products (<a target="_blank" rel="noopener" href="https://earth.esa.int/files/ADM_AeolusCALVAL_RehearsalWorkshop2017prod_doclist">Aeolus L2A</a>).
             </li>
-            <li style="list-style-type: circle;">The ionospheric total electron content data (Swarm TECxTMS_2F)</li>
-            <li style="list-style-type: circle;">The single and combined S/C solution for the current density data (Swarm FACxTMS_2F and FAC_TMS)</li>
-            <li style="list-style-type: circle;">The dayside equatorial electric field data (Swarm EEFxTMS_2F)</li>
+            <li style="list-style-type: circle;"> 
+              L2B products (<a target="_blank" rel="noopener" href="https://earth.esa.int/files/ADM_AeolusCALVAL_RehearsalWorkshop2017prod_doclist">Aeolus L2B</a>).
+            </li>
+            <li style="list-style-type: circle;"> 
+              L2C products (<a target="_blank" rel="noopener" href="https://earth.esa.int/files/ADM_AeolusCALVAL_RehearsalWorkshop2017prod_doclist">Aeolus L2C</a>).
+            </li>
+            <li style="list-style-type: circle;"> 
+              AUX_MET products (<a target="_blank" rel="noopener" href="https://earth.esa.int/files/ADM_AeolusCALVAL_RehearsalWorkshop2017prod_doclist">Aeolus AUX_MET</a>).
+            </li>
+            <li style="list-style-type: circle;"> 
+              a subset of other auxiliary files (e.g. AUX_MRC, AUX_RRC) (<a target="_blank" rel="noopener" href="https://earth.esa.int/files/ADM_AeolusCALVAL_RehearsalWorkshop2017prod_doclist">Aeolus AUX_MRC &amp; Aeolus AUX_RRC </a>).
+            </li>
+            <li style="list-style-type: circle;"> 
+              Response Calibration mode (IRC) products (<a target="_blank" rel="noopener" href="https://earth.esa.int/files/ADM_AeolusCALVAL_RehearsalWorkshop2017prod_doclist">Aeolus AUX_IRC</a>).
+            </li>
           </ul>
-          
-          <p>The following models of the Earth's magnetic field and its time variation are pre-loaded:</p>
+        </p>
+        <p>
+          In addition:
           <ul>
-            <li style="list-style-type: circle;"> 
-              The Swarm Initial Field Model for 2014 derived from the first year of data from the Swarm satellite trio (<a target="_blank" href="http://onlinelibrary.wiley.com/doi/10.1002/2014GL062659/abstract">SIFM</a>)
-            </li>
-            <li style="list-style-type: circle;"> 
-              The 12th Generation International Geomagnetic Reference Field (<a target="_blank" href="http://earth-planets-space.springeropen.com/articles/10.1186/s40623-015-0228-9">IGRF 12</a>) released in 2015 by the International Association of Geomagnetism and Aeronomy
-            </li>
-            <li style="list-style-type: circle;"> 
-              The CHAOS-5 high resolution geomagnetic field model, derived primarily from Swarm, CHAMP, and Ørsted satellite magnetic data along with ground observatory data (<a target="_blank" href="http://www.spacecenter.dk/files/magnetic-models/CHAOS-5/">CHAOS-5x_v4</a>)
-            </li>
-          </ul>
-          <p>Users can also work with Custom Models and upload Spherical Harmonic Expansion coefficients (<a target="_blank" href="http://www.spacecenter.dk/files/magnetic-models/CHAOS-5/SHC-Format-Decsription.pdf">SHC file format</a>)</p>
-          <p>The global context of space weather is provided in form of:</p>
-          <ul>
-            <li style="list-style-type: circle;"> 
-              The Disturbance storm time index (<a target="_blank" href="https://en.wikipedia.org/wiki/Disturbance_storm_time_index">Dst Index</a>)
-            </li>
             <li style="list-style-type: circle;">
-              The disturbances in the horizontal component of the Earth's magnetic field (<a target="_blank" href="https://en.wikipedia.org/wiki/K-index">planetary Kp Index</a>)
+              the time-corresponding surface albedo in the UV, as 1-month climatology with 0.1° resolution, derived from the <a target="_blank" rel="noopener" href="http://adam.noveltis.com/">ADAM project</a>, is pre-loaded as backplane map. 
             </li>
           </ul>
-          
-          <p>
-            The data accessible on VirES consists of the newest versions available and any new data will appear within 4 hours of generation.
-          </p>
-		<p style="font-size:1.4em">Questions?</p>
-		<p>Have a look at our <a target="_blank" href="/accounts/faq">Frequently asked Questions</a>. For any further questions or ideas on how we can improve feel free to contact us at <a href="mailto:feedback@vires.services">feedback@vires.services</a></p>
-	   	<div class="row" style="margin-top:30px;">
-	   		<div class="col-md-3" style="text-align:center;"><a target="_blank" href="//eox.at"><img style="height:32px;vertical-align: center" src="/eoxs_static/workspace/images/logos/EOX_Logo.png" alt="EOX IT Services GmbH logo"></a></div>
-	   		<div class="col-md-3" style="text-align:center;"></div>
-	   		<div class="col-md-3" style="text-align:center;"></div>
-	   		<div class="col-md-3" style="text-align:center;"><a target="_blank" href="http://esa.int"><img style="height:80px; margin-top:-22px; vertical-align: center" src="/eoxs_static/workspace/images/logos/esa.png" alt="European Space Agency Logo"></a></div>
-	   	</div>
-	</div>
-	<div class="text-muted" style="text-align: center; margin-top:-2em; position: relative;">
-		<a style="display:inline; margin-right:5px;" href="/eoxs_static/other/T%26C_for_ESA_Dataset-v1.pdf" target="_blank_">ESA Data Terms</a> | 
-		<a style="display:inline; margin-left:5px;" href="/accounts/servicetc" target="_blank_">VirES Service Terms</a> |
-		<a style="display:inline; margin-left:5px;" href="/accounts/changelog" target="_blank_">New release information</a>
-	</div>
+        </p>
+
+    <p style="font-size:1.4em">Service Information</p>
+        <p>
+          Detailed information about the Aeolus data and the presented paramters, about the calculation of new parameters, and about the algorithms used in the VirES-Aeolus context can be found in <a href="/eoxs_static/other/VirES-Aeolus_System_Information_0.2.pdf" target="_blank" rel="noopener">this document</a>.
+        </p>
+
+
+        <p style="font-size:1.4em">Questions?</p>
+        <p>
+          Have a look at our <a target="_blank" href="/accounts/faq">Frequently asked Questions</a>. For any further questions or ideas on how we can improve feel free to contact us at <a href="mailto:feedback@vires.services?subject=[VirES-Aeolus]:&nbsp;">feedback@vires.services</a>
+        </p>
+        <div class="row" style="margin-top:30px;">
+          <div class="col-md-3" style="text-align:center;"><a target="_blank" href="//eox.at"><img style="height:32px;vertical-align: center" src="/eoxs_static/workspace/images/logos/EOX_Logo.png" alt="EOX IT Services GmbH logo"></a></div>
+          <div class="col-md-3" style="text-align:center;"></div>
+          <div class="col-md-3" style="text-align:center;"></div>
+          <div class="col-md-3" style="text-align:center;"><a target="_blank" href="http://esa.int"><img style="height:80px; margin-top:-22px; vertical-align: center" src="/eoxs_static/workspace/images/logos/esa.png" alt="European Space Agency Logo"></a></div>
+        </div>
+        <div class="row" style="margin-top:3px;margin-bottom:20px">
+          <div class="col-md-3" style="text-align:center;"> Scientific partners:</div>
+          <div class="col-md-3" style="text-align:center;"><a target="_blank" href="//dlr.de"><img style="height:70px; margin-top:-2px;vertical-align: center" src="/eoxs_static/workspace/images/logos/DLR_logo.gif" alt="DLR logo"></a></div>
+          <div class="col-md-3" style="text-align:center;"><img style="height:70px; margin-top:-2px; vertical-align: center" src="/eoxs_static/workspace/images/logos/DoRIT-Logo.png" alt="DoRIT Logo"></a></div>
+          <div class="col-md-3" style="text-align:center;"></div>
+        </div>
+    </div>	
+	<p> </p>
+    <div class="text-muted" style="text-align: center; margin-top:-2em; position: relative;">
+        <a style="display:inline; margin-right:5px;" href="/eoxs_static/other/T%26C_for_ESA_Dataset-v1.pdf" target="_blank" rel="noopener">ESA Data Terms</a> | 
+        <a style="display:inline; margin-left:5px;" href="/accounts/servicetc" target="_blank" rel="noopener">VirES Service Terms</a> |
+        <a style="display:inline; margin-left:5px;" href="/accounts/changelog" target="_blank" rel="noopener">New release information</a>
+    </div>
     <p style="text-align:right;margin-right:1em;">Service version: {{ version }}</p>
   </div>
 </div>

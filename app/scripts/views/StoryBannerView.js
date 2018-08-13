@@ -193,8 +193,8 @@
                 
                 product.set("parameters", options);
 
-                Communicator.mediator.trigger("layer:parameters:changed", product.get("name"));
-                Communicator.mediator.trigger("layer:settings:changed", product.get("name"));
+                Communicator.mediator.trigger("layer:parameters:changed", product.get("download").id);
+                Communicator.mediator.trigger("layer:settings:changed", product.get("download").id);
 
               }, this);
 
@@ -222,8 +222,8 @@
                 options[config[1]].selected = true;
               }
 
-              Communicator.mediator.trigger("layer:parameters:changed", product.get("name"));
-              Communicator.mediator.trigger("layer:settings:changed", product.get("name"));
+              Communicator.mediator.trigger("layer:parameters:changed", product.get("download").id);
+              Communicator.mediator.trigger("layer:settings:changed", product.get("download").id);
 
 
           }

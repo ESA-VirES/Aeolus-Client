@@ -37,13 +37,15 @@ var VECTOR_BREAKDOWN = {};
 
             configure: function(config) {
 
+                //localStorage.clear();
 
-                $("body").tooltip({ 
+
+                /*$("body").tooltip({ 
                     selector: '[data-toggle=tooltip]',
                     position: { my: "left+5 center", at: "right center" },
                     hide: { effect: false, duration: 0 },
                     show:{ effect: false, delay: 700}
-                });
+                });*/
 
                 var imagerenderercanvas = $('<canvas/>',{id: 'imagerenderercanvas'});
                 $('body').append(imagerenderercanvas);
@@ -142,7 +144,7 @@ var VECTOR_BREAKDOWN = {};
                     colors : d3.scale.category10(),
                     index : 0,
                     getColor: function () { return this.colors(this.index++) }
-                }
+                };
 
 
                 //Productsare loaded and added to the global collection
@@ -151,7 +153,7 @@ var VECTOR_BREAKDOWN = {};
                 var range = [];
 
                 // Remove three first colors as they are used by the products
-                autoColor.getColor();autoColor.getColor();autoColor.getColor();
+                //autoColor.getColor();autoColor.getColor();autoColor.getColor();
 
                 // If there are already saved product config in the local
                 // storage use that instead
@@ -174,10 +176,19 @@ var VECTOR_BREAKDOWN = {};
                             // If length of config is longer then user config new data was apended
                             product_config.push(m_p[i]);
                         }
+
+                        // Make sure download parameters are always loaded from script
+                        // as well as granularity options
+                        product_config[i].download_parameters = m_p[i].download_parameters
+                        if(m_p[i].hasOwnProperty('granularity_options')){
+                            product_config[i].granularity_options = m_p[i].granularity_options;
+                        }
                     }
+
 
                     config.mapConfig.products = product_config;
                 }
+                
 
                 _.each(config.mapConfig.products, function(product) {
                     var p_color = product.color ? product.color : autoColor.getColor();
@@ -198,7 +209,7 @@ var VECTOR_BREAKDOWN = {};
                             protocol: product.download.protocol,
                             url: product.download.url
                         },
-                        processes: product.processes,
+                        process: product.process,
                         unit: product.unit,
                         parameters: product.parameters,
                         download_parameters: product.download_parameters,
@@ -209,8 +220,13 @@ var VECTOR_BREAKDOWN = {};
                         satellite: product.satellite,
                         tileSize: (product.tileSize) ? product.tileSize : 256,
                         validity: product.validity,
-                        showColorscale: true
+                        showColorscale: defaultFor(product.showColorscale, true)
                     });
+
+                    if(product.hasOwnProperty('granularity_options')){
+                        lm.set('granularity_options', product.granularity_options);
+                        lm.set('granularity', defaultFor(product.granularity, product.granularity_options[0]));
+                    }
 
                     if(lm.get('model')){
                         lm.set('contours', defaultFor( product.contours,false));
@@ -448,11 +464,21 @@ var VECTOR_BREAKDOWN = {};
                 // Instance timeslider view
                 this.timeSliderView = new v.TimeSliderView(config.timeSlider);
 
-                // Load possible available filter selection
-                /*if(localStorage.getItem('filterSelection') !== null){
-                    globals.swarm.set('filters', JSON.parse(localStorage.getItem('filterSelection')));
-                }*/
+                var compare = function(val){
+                    return val <= this[1] && val >= this[0];
+                };
 
+                // Load possible available filter selection
+                if(localStorage.getItem('filterSelection') !== null){
+                    var filters = JSON.parse(localStorage.getItem('filterSelection'));
+                    var filterfunc = {};
+                    for (var f in filters){
+                        var ext = filters[f];
+                        filterfunc[f] = compare.bind(ext);
+                    }
+                    globals.swarm.set('filters', filterfunc);
+                    Communicator.mediator.trigger('analytics:set:filter', filters);
+                }
                 
 
 
@@ -552,22 +578,23 @@ var VECTOR_BREAKDOWN = {};
 
           // The tooltip is called twice at beginning and end, it seems to show the style of the
           // tooltips more consistently, there is some problem where sometimes no style is shown for tooltips
-          $("body").tooltip({ 
+          /*$("body").tooltip({ 
                     selector: '[data-toggle=tooltip]',
                     position: { my: "left+5 center", at: "right center" },
                     hide: { effect: false, duration: 0 },
                     show:{ effect: false, delay: 700}
-                });
+                });*/
 
               // Now that products and data are loaded make sure datacontroller is correctly initialized
                 Communicator.mediator.trigger('manual:init');
                 this.timeSliderView.manualInit();
 
                 // Broadcast possible area selection
-                if(localStorage.getItem('areaSelection') !== null){
+                /*if(localStorage.getItem('areaSelection') !== null){
                     Communicator.mediator.trigger('selection:changed', JSON.parse(localStorage.getItem('areaSelection')));
-                }
+                }*/
 
+                //Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
                 //Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
 
                 // Remove loading screen when this point is reached in the script

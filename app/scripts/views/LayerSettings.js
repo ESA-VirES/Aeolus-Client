@@ -8,13 +8,11 @@
         'communicator',
         'globals',
         'hbs!tmpl/LayerSettings',
-        'hbs!tmpl/wps_eval_model_GET',
-        'hbs!tmpl/wps_eval_model',
         'underscore',
         'plotty'
     ],
 
-    function( Backbone, Communicator, globals, LayerSettingsTmpl, evalModelTmpl, evalModelTmpl_POST ) {
+    function( Backbone, Communicator, globals, LayerSettingsTmpl ) {
 
         var LayerSettings = Backbone.Marionette.Layout.extend({
 
@@ -25,7 +23,7 @@
                 'blackwhite','viridis','inferno', 'hsv','hot','cool',
                 'spring', 'summer','autumn','winter','bone','copper','yignbu',
                 'greens','yiorrd','bluered', 'portland', 'blackbody','earth',
-                'electric','magma','plasma'
+                'electric','magma','plasma', 'redblue'
             ],
 
             initialize: function(options) {
@@ -62,6 +60,7 @@
                 var keys = _.keys(options);
                 var option = '';
                 var contours = this.current_model.get("contours");
+                var granularity = this.current_model.get("granularity");
                 //var 
 
                 var that = this;
@@ -136,7 +135,7 @@
                         else
                             that.createScale();
 
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"));
+                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
                     });
 
                     this.$("#opacitysilder").unbind();
@@ -179,8 +178,8 @@
                         $("#showColorscale").empty();
                         this.$("#showColorscale").append(
                             '<form style="vertical-align: middle;">'+
-                            '<label class="valign" for="outlines" style="width: 120px; margin">Legend </label>'+
-                            '<input class="valign" style="margin-top: -5px;" type="checkbox" name="outlines" value="outlines" ' + checked + '></input>'+
+                            '<label class="valign" for="showColorscale" style="width: 120px; margin">Legend </label>'+
+                            '<input class="valign" style="margin-top: -5px;" type="checkbox" name="showColorscale" value="showColorscale" ' + checked + '></input>'+
                             '</form>'
                         );
 
@@ -214,7 +213,7 @@
                         
                     }   
 
-                    if (protocol == "WPS"){
+                    /*if (protocol == "WPS"){
                         this.$("#shc").empty();
                         this.$("#shc").append(
                             '<p>Spherical Harmonics Coefficients</p>'+
@@ -233,7 +232,7 @@
                             that.$("#shc").append('<p id="filename" style="font-size:.9em;">Selected File: '+this.current_model.get('shc_name')+'</p>');
                         }
                         
-                    }
+                    }*/
 
                     if(options[this.selected].hasOwnProperty("logarithmic"))
                         this.createScale(options[that.selected].logarithmic);
@@ -263,7 +262,7 @@
                     this.$("#contours input").change(function(evt){
                         var contours = !that.current_model.get("contours");
                         that.current_model.set("contours", contours);
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"));
+                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
                     });
                 }*/
 
@@ -278,6 +277,34 @@
             },
 
             onShow: function(view){
+                var that = this;
+                var granularity = this.model.get("granularity");
+                if(granularity){
+                    // Add options for three satellites
+                    $("#granularity_selection").off();
+                    $("#granularity_selection").empty();
+                    $("#granularity_selection").append('<label for="granularity_selection" style="width:70px;">Granularity </label>');
+                    $("#granularity_selection").append('<select style="margin-left:4px;" name="granularity_selec" id="granularity_selec"></select>');
+
+                   
+                    var granOpts = this.model.get('granularity_options');
+                    if(granOpts){
+                        for (var i = 0; i < granOpts.length; i++) {
+                            var selected = '';
+                            if (granOpts[i] == this.model.get('granularity')){
+                                selected = 'selected';
+                            }
+                            $('#granularity_selec').append('<option value="'+granOpts[i]+'"'+selected+'>'+granOpts[i]+'</option>');
+                        }
+                        
+                        $("#granularity_selection").on('change', function(){
+                            var granularity = $("#granularity_selection").find("option:selected").val();
+                            that.model.set('granularity', granularity);
+                            Communicator.mediator.trigger("layer:granularity:changed", that.model.get("download").id);
+                            Communicator.mediator.trigger("layer:parameters:changed", that.model.get("download").id);
+                        });
+                    }
+                }
 
                 if(this.model.get("containerproduct")){
                     // Add options for three satellites
@@ -389,8 +416,10 @@
                     $("#opacitysilder").parent().show();
                 }
 
+                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
+
                 // request range for selected parameter if layer is of type model
-                if(this.current_model.get("model") && this.selected != "Fieldlines"){
+                /*if(this.current_model.get("model") && this.selected != "Fieldlines"){
 
                     var that = this;
 
@@ -449,8 +478,8 @@
                             .always(this.handleRangeChange.bind(this));
                     }
                 }else{
-                    Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
-                }
+                    Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
+                }*/
 
             },
 
@@ -496,7 +525,7 @@
                 options[this.selected].range = range;
                 this.current_model.set("parameters", options);
                 this.createScale();
-                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
             },
 
             handleRangeResponseError: function(response){
@@ -518,7 +547,7 @@
                 else
                     this.createScale();
 
-                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
             },
 
             applyChanges: function(){
@@ -634,7 +663,7 @@
                     }else{
                         //Apply changes
                         this.current_model.set("parameters", options);
-                        Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                        Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
                     }
                 }
             },
@@ -661,7 +690,7 @@
             },
 
             onUploadSelectionChanged: function(evt) {
-                var that = this;
+                /*var that = this;
                 var reader = new FileReader();
                 var filename = evt.target.files[0].name;
                 reader.onloadend = function(evt) {
@@ -707,7 +736,7 @@
                             options[that.selected].range = range;
                             that.current_model.set("parameters", options);
                             that.createScale();
-                            //Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                            //Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
                             Communicator.mediator.trigger("file:shc:loaded", evt.target.result);
 
                             var params = { name: that.current_model.get("name"), isBaseLayer: false, visible: false };
@@ -722,7 +751,7 @@
 
                 }
 
-                reader.readAsText(evt.target.files[0]);
+                reader.readAsText(evt.target.files[0]);*/
             },
 
             addLogOption: function(options){
@@ -746,7 +775,7 @@
                         options[that.selected].logarithmic = !options[that.selected].logarithmic;
                         
                         that.current_model.set("parameters", options);
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"));
+                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
 
                         if(options[that.selected].hasOwnProperty("logarithmic"))
                             that.createScale(options[that.selected].logarithmic);

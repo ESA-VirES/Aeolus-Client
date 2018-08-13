@@ -7,15 +7,13 @@ define([
     'models/MapModel',
     'globals',
     'papaparse',
-    'hbs!tmpl/wps_eval_model',
-    'hbs!tmpl/wps_eval_model_diff',
     'hbs!tmpl/wps_get_field_lines',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
     'plotty'
 ], function( Marionette, Communicator, App, MapModel, globals, Papa,
-             tmplEvalModel, tmplEvalModelDiff, tmplGetFieldLines) {
+             tmplGetFieldLines) {
     'use strict';
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
@@ -40,18 +38,21 @@ define([
             this.extentPrimitive = null;
             this.activeModels = [];
             this.activeCollections = [];
+            this.activeCurtainCollections = [];
+            this.activePointsCollections = [];
             this.differenceImage = null;
             this.dataFilters = {};
             this.colorscales = {};
             this.beginTime = null;
             this.endTime = null;
             this.plot = null;
+            this.curtainPrimitive = null;
 
-            $(window).resize(function() {
+            /*$(window).resize(function() {
                 if (this.map) {
                     this.onResize();
                 }
-            },this);
+            },this);*/
 
             plotty.addColorScale('redblue', ['#ff0000', '#0000ff'], [0, 1]);
             plotty.addColorScale('coolwarm', 
@@ -96,7 +97,83 @@ define([
             );
             plotty.addColorScale('blackwhite', ['#000000', '#ffffff'], [0, 1]);
 
-            this.connectDataEvents();
+            
+             var renderSettings = {
+                xAxis: [
+                    'mie_time'
+                ],
+                yAxis: [
+                    'mie_altitude'
+                ],
+                //y2Axis: [],
+                combinedParameters: {
+                    mie_latitude: ['mie_latitude_start', 'mie_latitude_end'],
+                    mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
+                    mie_latitude_of_DEM_intersection: [
+                        'mie_latitude_of_DEM_intersection_start',
+                        'mie_latitude_of_DEM_intersection_end'
+                    ],
+                    mie_time: ['mie_time_start', 'mie_time_end'],
+
+                    rayleigh_latitude: ['rayleigh_latitude_start', 'rayleigh_latitude_end'],
+                    rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
+                    rayleigh_latitude_of_DEM_intersection: [
+                        'rayleigh_latitude_of_DEM_intersection_start',
+                        'rayleigh_latitude_of_DEM_intersection_end'
+                    ],
+                    rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end'],
+                },
+                colorAxis: ['mie_HLOS_wind_speed']
+
+            };
+
+            this.dataSettings = globals.dataSettings;
+
+
+            $('body').append($('<div/>', {
+                id: 'hiddenRenderArea' ,
+                style: 'height:100px; width:100px;visibility:hidden;'
+            }));
+
+
+            this.graph = new graphly.graphly({
+                el: '#hiddenRenderArea',
+                dataSettings: this.dataSettings,
+                renderSettings: renderSettings,
+                filterManager: globals.swarm.get('filterManager'),
+                fixedSize: true,
+                fixedWidth: 2048,
+                fixedHeigt: 512,
+                defaultAlpha: 1.0
+            });
+
+            var that = this;
+
+            if(localStorage.getItem('filterSelection') !== null){               
+                if(this.graph){
+                    this.graph.filters = globals.swarm.get('filters');
+                }
+            }
+
+            globals.swarm.get('filterManager').on('filterChange', function(filters){
+                //console.log(filters);
+                var data = globals.swarm.get('data');
+                if (Object.keys(data).length){
+                    var idKeys = Object.keys(data);
+                    for (var i = idKeys.length - 1; i >= 0; i--) {
+                        //this.graph.loadData(data[idKeys[i]]);
+                        if(idKeys[i] === 'ALD_U_N_1B'){
+                            that.createCurtains(data[idKeys[i]], idKeys[i]);
+                        } else if (idKeys[i].includes('ALD_U_N_2')){
+                            that.createL2Curtains(data[idKeys[i]], idKeys[i]);
+                        } else {
+                            that.graph.data = {};
+                            that.createPointCollection(data[idKeys[i]], idKeys[i]);
+                        }
+                    }
+                }
+
+            });
         },
 
         createMap: function() {
@@ -122,6 +199,7 @@ define([
                 }
             };
 
+            this.$el.append('<div id="coordinates_label"></div>');
             this.$el.append('<div id="cesium_attribution"></div>');
             this.$el.append('<div id="cesium_custom_attribution"></div>');
             $('#cesium_custom_attribution').append(
@@ -176,6 +254,7 @@ define([
                     terrainProvider : new Cesium.CesiumTerrainProvider({
                         url : '//tiles.maps.eox.at/dem'
                     }),
+                    terrainExaggeration: 20.0,
                     creditContainer: 'cesium_attribution',
                     contextOptions: {webgl: {preserveDrawingBuffer: true}},
                     clock: clock
@@ -187,6 +266,9 @@ define([
                 this.map = new Cesium.Viewer(this.el, options);
                 var initialCesiumLayer = this.map.imageryLayers.get(0);
             }
+
+            // disable fxaa
+            this.map.scene.fxaa = false;
 
             if(localStorage.getItem('cameraPosition') !== null){
                 var c = JSON.parse(localStorage.getItem('cameraPosition'));
@@ -236,6 +318,22 @@ define([
                 //hide the selectionIndicator
                 this.map.selectionIndicator.viewModel.selectionIndicatorElement.style.visibility = 'hidden'; 
             }.bind(this), Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+            handler.setInputAction(function(movement) {
+                var ellipsoid = Cesium.Ellipsoid.WGS84;
+                var position = this.map.scene.camera.pickEllipsoid(movement.endPosition, ellipsoid);
+                $('#coordinates_label').hide();
+                if (Cesium.defined(position)) {
+                    var cartographic = ellipsoid.cartesianToCartographic(position);
+                    var lat = Cesium.Math.toDegrees(cartographic.latitude);
+                    var lon = Cesium.Math.toDegrees(cartographic.longitude);
+                    //var height = cartographic.height;
+                    $('#coordinates_label').show();
+                    $('#coordinates_label').html(
+                        'Lat: ' + lat.toFixed(4) + '</br>Lon: '+lon.toFixed(4)
+                    );
+                }
+            }.bind(this), Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
             this.billboards = this.map.scene.primitives.add(
                 new Cesium.BillboardCollection()
@@ -338,8 +436,9 @@ define([
             // Check for possible already available selection
             if(localStorage.getItem('areaSelection') !== null){
                 var bbox = JSON.parse(localStorage.getItem('areaSelection'));
-                if(bbox){
+                if(bbox != null){
                     this.bboxsel = [bbox.s, bbox.w, bbox.n, bbox.e ];
+                    this.onSelectionChanged(bbox);
                 }
             }
 
@@ -381,10 +480,23 @@ define([
             this.connectDataEvents();
 
             // Redraw to make sure we are at current selection
-            this.createDataFeatures(
+            /*this.createDataFeatures(
                 globals.swarm.get('data'),
                 'pointcollection', 'band'
-            );
+            );*/
+            var data = globals.swarm.get('data');
+            if (Object.keys(data).length){
+                var idKeys = Object.keys(data);
+                for (var i = idKeys.length - 1; i >= 0; i--) {
+                    if(idKeys[i] === 'ALD_U_N_1B'){
+                        this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    } else if (idKeys[i].includes('ALD_U_N_2')){
+                        this.createL2Curtains(data[idKeys[i]], idKeys[i]);
+                    } else {
+                        this.createPointCollection(data[idKeys[i]], idKeys[i]);
+                    }
+                }
+            }
 
             $('#bb_selection').unbind('click');
             $('#bb_selection').click(function(){
@@ -412,10 +524,29 @@ define([
 
         connectDataEvents: function(){
             globals.swarm.on('change:data', function(model, data) {
-                if (data.length && data.length>0){
-                    this.createDataFeatures(data, 'pointcollection', 'band');
+                if (Object.keys(data).length){
+                    
+                    //this.createDataFeatures(data, 'pointcollection', 'band');
+                    var idKeys = Object.keys(data);
+                    for (var i = idKeys.length - 1; i >= 0; i--) {
+                        if(idKeys[i] === 'ALD_U_N_1B'){
+                            this.createCurtains(data[idKeys[i]], idKeys[i]);
+                        } else if (idKeys[i].includes('ALD_U_N_2')){
+                            this.createL2Curtains(data[idKeys[i]], idKeys[i]);
+                        } else {
+                            this.graph.data = {};
+                            this.createPointCollection(data[idKeys[i]], idKeys[i]);
+                        }
+                    }
                 }else{
-                    for (var i = 0; i < this.activeCollections.length; i++) {
+                    for (var i = 0; i < this.activeCurtainCollections.length; i++) {
+                        this.activeCurtainCollections[i].removeAll();
+                    }
+                    for (var i = 0; i < this.activePointsCollections.length; i++) {
+                        this.activePointsCollections[i].removeAll();
+                    }
+
+                    /*for (var i = 0; i < this.activeCollections.length; i++) {
                         if(this.featuresCollection.hasOwnProperty(this.activeCollections[i])){
                             this.map.scene.primitives.remove(
                                 this.featuresCollection[this.activeCollections[i]]
@@ -423,12 +554,23 @@ define([
                             delete this.featuresCollection[this.activeCollections[i]];
                         }
                     }
-                    this.activeCollections = [];
+                    this.activeCollections = [];*/
                 }
             }, this);
 
             globals.swarm.on('change:filters', function(model, filters) {
-                this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
+                var data = globals.swarm.get('data');
+                if (Object.keys(data).length){
+                    var idKeys = Object.keys(data);
+                    for (var i = idKeys.length - 1; i >= 0; i--) {
+                        if(idKeys[i] !== 'ALD_U_N_1B' && 
+                           idKeys[i] !== 'ALD_U_N_2A' && 
+                           idKeys[i] !== 'ALD_U_N_2B' && 
+                           idKeys[i] !== 'ALD_U_N_2C'){
+                            this.createPointCollection(data[idKeys[i]], idKeys[i]);
+                        }
+                    }
+                }
             }, this);
         },
 
@@ -441,6 +583,773 @@ define([
                 this.map._sceneModePicker = modepicker;
             }
         },
+
+        /*updateCurtain: function(id){
+
+            var data = globals.swarm.get('data')[id];
+            var product = globals.products.find(
+                function(p){return p.get('download').id === id;}
+            );
+
+            if(product && product.hasOwnProperty('curtain')){
+                var curtain = product.curtain;
+                var parameters = product.get('parameters');
+                var band;
+                var keys = _.keys(parameters);
+                _.each(keys, function(key){
+                    if(parameters[key].selected){
+                        band = key;
+                    }
+                });
+                var style = parameters[band].colorscale;
+                var range = parameters[band].range;
+
+
+                //this.graph.setColorScale(style);
+                //this.graph.onSetExtent(range);
+                this.dataSettings[band].colorscale = style;
+                this.dataSettings[band].extent = range;
+                this.graph.dataSettings = this.dataSettings;
+                
+                if(band === 'mie_HLOS_wind_speed'){
+                    this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
+                    this.graph.renderSettings.yAxis = ['mie_altitude'];
+                    this.graph.renderSettings.xAxis =['mie_time'];
+                }else if(band === 'rayleigh_HLOS_wind_speed'){
+                    this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
+                    this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
+                    this.graph.renderSettings.xAxis =['rayleigh_time'];
+                }
+                this.graph.loadData(data);
+
+                var alpha = 0.99;
+
+                var newmat = new Cesium.Material({
+                    fabric : {
+                        uniforms : {
+                            image : this.graph.getCanvasImage(),
+                            repeat : new Cesium.Cartesian2(-1.0, 1.0),
+                            alpha : alpha
+                        },
+                        components : {
+                            diffuse : 'texture2D(image, fract(repeat * materialInput.st)).rgb',
+                            alpha : 'texture2D(image, fract(repeat * materialInput.st)).a * alpha'
+                        }
+                    },
+                    flat: true,
+                    translucent : true
+                });
+
+                var sliceAppearance = new Cesium.MaterialAppearance({
+                    translucent : true,
+                    flat: true,
+                    material : newmat
+                });
+
+                if(curtain && curtain.hasOwnProperty('_appearance') && curtain._appearance){
+                    curtain.appearance.material._textures.image.copyFrom(this.graph.getCanvas());
+                }
+
+                this.checkColorscale(id);
+            }
+
+        },*/
+
+
+        createCurtains: function(data, cov_id){
+
+            var currProd = globals.products.find(
+                function(p){return p.get('download').id === cov_id;}
+            );
+
+            var curtainCollection;
+
+            if(currProd.hasOwnProperty('curtains')){
+                currProd.curtains.removeAll();
+                curtainCollection = currProd.curtains;
+                /*this.map.scene.primitives.remove(currProd.curtains);
+                delete currProd.curtains;*/
+            }else{
+                curtainCollection = new Cesium.PrimitiveCollection();
+                this.activeCurtainCollections.push(curtainCollection);
+                this.map.scene.primitives.add(curtainCollection);
+                currProd.curtains = curtainCollection;
+            }
+
+            var alpha = currProd.get('opacity');
+
+            //alpha = 0.99;
+            if(alpha === 1.0){
+                alpha = 0.99;
+            }
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
+
+            
+
+            this.dataSettings[band].colorscale = style;
+            this.dataSettings[band].extent = range;
+            this.graph.dataSettings = this.dataSettings;
+
+            var dataJumps;
+
+            this.graph.renderSettings.combinedParameters = {
+                mie_latitude: ['mie_latitude_start', 'mie_latitude_end'],
+                mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
+                mie_latitude_of_DEM_intersection: [
+                    'mie_latitude_of_DEM_intersection_start',
+                    'mie_latitude_of_DEM_intersection_end'
+                ],
+                mie_time: ['mie_time_start', 'mie_time_end'],
+
+                rayleigh_latitude: ['rayleigh_latitude_start', 'rayleigh_latitude_end'],
+                rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
+                rayleigh_latitude_of_DEM_intersection: [
+                    'rayleigh_latitude_of_DEM_intersection_start',
+                    'rayleigh_latitude_of_DEM_intersection_end'
+                ],
+                rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end'],
+            };
+
+            if(band === 'mie_HLOS_wind_speed'){
+                this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
+                this.graph.renderSettings.yAxis = ['mie_altitude'];
+                this.graph.renderSettings.xAxis =['mie_time'];
+            }else if(band === 'rayleigh_HLOS_wind_speed'){
+                this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
+                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
+            }
+
+
+            var height = 1000000;
+            var lineInstances = [];
+            var renderOutlines = defaultFor(currProd.get('outlines'), false);
+
+            //TODO: How to correctly handle multiple curtains with jumps
+
+            for (var i = 0; i <= data.stepPositions.length; i++) {
+
+                var start = 0;
+                var end = data.stepPositions[i]*2;
+                var dataStartMie = 0;
+                var dataEndMie = data.mie_jumps[0];
+                var dataStartRay = 0;
+                var dataEndRay = data.rayleigh_jumps[0];
+                if (i>0){
+                    start = data.stepPositions[i-1]*2+4;
+                    dataStartMie = data.mie_jumps[i*2-1];
+                    dataEndMie = data.mie_jumps[i*2];
+                    dataStartRay = data.rayleigh_jumps[i*2-1];
+                    dataEndRay = data.rayleigh_jumps[i*2];
+                }
+                if(i===data.stepPositions.length){
+                    end = data.positions.length;
+                    dataEndMie = data['mie_HLOS_wind_speed'].length;
+                    dataEndRay = data['rayleigh_HLOS_wind_speed'].length;
+                }
+
+                var dataSlice = {};
+                var dataKeys = Object.keys(data);
+                for (var k = dataKeys.length - 1; k >= 0; k--) {
+                    if (dataKeys[k].indexOf('mie')!==-1){
+                        dataSlice[dataKeys[k]] = 
+                        data[dataKeys[k]].slice(dataStartMie, dataEndMie);
+                    } else if (dataKeys[k].indexOf('ray')!==-1){
+                        dataSlice[dataKeys[k]] = 
+                        data[dataKeys[k]].slice(dataStartRay, dataEndRay);
+                    }
+                }
+
+
+                this.graph.loadData(dataSlice);
+
+
+                var newmat = new Cesium.Material.fromType('Image', {
+                    image : this.graph.getCanvasImage(),
+                    color: new Cesium.Color(1, 1, 1, alpha),
+                });
+                
+                // Change direction of texture depending if start and end 
+                // latitudes are both negative
+                var lastpos = data.positions.slice(-2);
+
+                newmat.uniforms.repeat.x = -1;
+                if(data.positions[3]-data.positions[1]>=0){
+                    //ascending
+                    if (data.positions[3]<0 && lastpos[1]<0){
+                        newmat.uniforms.repeat.x = 1;
+                    }
+                }else{
+                    //descending
+                    if (data.positions[3]<0 && lastpos[1]<0){
+                        newmat.uniforms.repeat.x = 1;
+                    }
+                }
+
+
+                var slicedPosData = data.positions.slice(start, end);
+
+                if(renderOutlines){
+                    var slicedPosDataWithHeight = [];
+                    for (var p = 0; p < slicedPosData.length; p+=2) {
+                        slicedPosDataWithHeight.push(slicedPosData[p]);
+                        slicedPosDataWithHeight.push(slicedPosData[p+1]);
+                        slicedPosDataWithHeight.push(height);
+                    }
+
+
+                    lineInstances.push(
+                        new Cesium.GeometryInstance({
+                            geometry : new Cesium.PolylineGeometry({
+                                positions : 
+                                Cesium.Cartesian3.fromDegreesArrayHeights(
+                                    slicedPosDataWithHeight
+                                ),
+                                width : 10.0
+                            })
+                        })
+                    );
+
+                    lineInstances.push(
+                        new Cesium.GeometryInstance({
+                            geometry : new Cesium.PolylineGeometry({
+                                positions : 
+                                Cesium.Cartesian3.fromDegreesArray(
+                                    slicedPosData
+                                ),
+                                width : 10.0
+                            })
+                        })
+                    );
+                }
+
+                var maxHeights = [];
+                var carPos = Cesium.Cartesian3.fromDegreesArray(slicedPosData);
+                for (var j = 0; j <carPos.length; j++) {
+                    maxHeights.push(height);
+                }
+                var wall = new Cesium.WallGeometry({
+                    positions : carPos,
+                    maximumHeights : maxHeights,
+                });
+                var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
+                var instance = new Cesium.GeometryInstance({
+                  geometry : wallGeometry
+                });
+
+                var sliceAppearance = new Cesium.MaterialAppearance({
+                    translucent : true,
+                    flat: true,
+                    faceForward: true,
+                    //closed: true,
+                    material : newmat
+                });
+
+                //instances.push(instance);
+                var prim = new Cesium.Primitive({
+                  geometryInstances : instance,
+                  appearance : sliceAppearance,
+                  releaseGeometryInstances: false,
+                  asynchronous: false
+                });
+
+                curtainCollection.add(prim);
+            }
+
+            if(renderOutlines){
+                var linesPrim = new Cesium.Primitive({
+                    geometryInstances: lineInstances,
+                    appearance: new Cesium.PolylineMaterialAppearance({
+                        material : new Cesium.Material.fromType('PolylineArrow', {
+                            color: new Cesium.Color(0.53, 0.02, 0.65, 1)
+                        })
+                    })
+                });
+                curtainCollection.add(linesPrim);
+            }
+        },
+
+
+
+        createL2Curtains: function(data, cov_id){
+
+            var currProd = globals.products.find(
+                function(p){return p.get('download').id === cov_id;}
+            );
+
+            var curtainCollection;
+
+            if(currProd.hasOwnProperty('curtains')){
+                currProd.curtains.removeAll();
+                curtainCollection = currProd.curtains;
+            }else{
+                curtainCollection = new Cesium.PrimitiveCollection();
+                this.activeCurtainCollections.push(curtainCollection);
+                this.map.scene.primitives.add(curtainCollection);
+                currProd.curtains = curtainCollection;
+            }
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
+
+            var alpha = currProd.get('opacity');
+            if(alpha === 1.0){
+                alpha = 0.99;
+            }
+
+            this.dataSettings[band].colorscale = style;
+            this.dataSettings[band].extent = range;
+            this.graph.dataSettings = this.dataSettings;
+
+            var dataJumps, lats, lons, pStartTimes, pStopTimes;
+
+            var params = {
+                'ALD_U_N_2A': {
+                    'SCA_extinction': {
+                        lats: 'latitude_of_DEM_intersection_obs_orig',
+                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        timeStart: 'SCA_time_obs_orig_start',
+                        timeStop: 'SCA_time_obs_orig_stop',
+                        colorAxis: ['SCA_extinction'],
+                        xAxis:'time',
+                        yAxis: ['rayleigh_altitude'],
+                        combinedParameters: {
+                            rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
+                            time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
+                        },
+                        jumps: 'jumps'
+                    },
+                    'MCA_extinction': {
+                        lats: 'latitude_of_DEM_intersection_obs_orig',
+                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        timeStart: 'MCA_time_obs_orig_start',
+                        timeStop: 'MCA_time_obs_orig_stop',
+                        colorAxis: ['MCA_extinction'],
+                        xAxis:'time',
+                        yAxis: ['mie_altitude'],
+                        combinedParameters: {
+                            mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
+                            time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
+                        },
+                        jumps: 'jumps'
+                    }
+
+                },
+                'ALD_U_N_2B': {
+                    'mie_wind_result_wind_velocity': {
+                        lats: 'mie_wind_result_lat_of_DEM_intersection',
+                        lons: 'mie_wind_result_lon_of_DEM_intersection',
+                        timeStart: 'mie_wind_result_start_time',
+                        timeStop: 'mie_wind_result_stop_time',
+                        colorAxis: ['mie_wind_result_wind_velocity'],
+                        xAxis:'time',
+                        yAxis: ['mie_altitude'],
+                        combinedParameters: {
+                            mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
+                            time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
+                        },
+                        jumps: 'mie_jumps'
+                    },
+                    'rayleigh_wind_result_wind_velocity': {
+                        lats: 'rayleigh_wind_result_lat_of_DEM_intersection',
+                        lons: 'rayleigh_wind_result_lon_of_DEM_intersection',
+                        timeStart: 'rayleigh_wind_result_start_time',
+                        timeStop: 'rayleigh_wind_result_stop_time',
+                        colorAxis: ['rayleigh_wind_result_wind_velocity'],
+                        xAxis:'time',
+                        yAxis: ['rayleigh_altitude'],
+                        combinedParameters: {
+                            rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
+                            time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
+                        },
+                        jumps: 'rayleigh_jumps'
+                    }
+                },
+                'ALD_U_N_2C': {
+                    'mie_wind_result_wind_velocity': {
+                        lats: 'mie_wind_result_lat_of_DEM_intersection',
+                        lons: 'mie_wind_result_lon_of_DEM_intersection',
+                        timeStart: 'mie_wind_result_start_time',
+                        timeStop: 'mie_wind_result_stop_time',
+                        colorAxis: ['mie_wind_result_wind_velocity'],
+                        xAxis:'time',
+                        yAxis: ['mie_altitude'],
+                        combinedParameters: {
+                            mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
+                            time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
+                        },
+                        jumps: 'mie_jumps'
+                    },
+                    'rayleigh_wind_result_wind_velocity': {
+                        lats: 'rayleigh_wind_result_lat_of_DEM_intersection',
+                        lons: 'rayleigh_wind_result_lon_of_DEM_intersection',
+                        timeStart: 'rayleigh_wind_result_start_time',
+                        timeStop: 'rayleigh_profile_datetime_stop',
+                        colorAxis: ['rayleigh_wind_result_wind_velocity'],
+                        xAxis:'time',
+                        yAxis: ['rayleigh_altitude'],
+                        combinedParameters: {
+                            rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
+                            time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
+                        },
+                        jumps: 'rayleigh_jumps'
+                    }
+                }
+            };
+
+            var currPar = params[cov_id][band];
+            this.graph.renderSettings.combinedParameters = currPar.combinedParameters;
+            this.graph.renderSettings.colorAxis = currPar.colorAxis;
+            this.graph.renderSettings.yAxis = currPar.yAxis;
+            this.graph.renderSettings.xAxis =currPar.xAxis;
+            dataJumps = data[currPar.jumps];
+            lats = data[currPar.lats];
+            lons = data[currPar.lons];
+            pStartTimes = data[currPar.timeStart];
+            pStopTimes = data[currPar.timeStop];
+
+
+            var height = 1000000;
+            var lineInstances = [];
+            var renderOutlines = defaultFor(currProd.get('outlines'), false);
+
+            
+            //TODO: How to correctly handle multiple curtains with jumps
+            for (var i = 0; i <= dataJumps.length; i++) {
+
+                var startSlice, endSlice;
+                if(dataJumps.length === 0){
+                    this.graph.loadData(data);
+                } else {
+                    // get extent limits for curtain piece
+                    startSlice = 0;
+                    if(i>0){
+                        startSlice = dataJumps[i-1];
+                    }
+                    if(i<dataJumps.length){
+                        endSlice = dataJumps[i];
+                    }else{
+                        endSlice = lats.length-1;
+                    }
+                    // If curtain slice is too small we ignore it as it can't be rendered
+                    if(endSlice-startSlice<=2){
+                        continue;
+                    }
+                    var start = new Date('2000-01-01');
+                    start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice]*1000);
+                    var end = new Date('2000-01-01');
+                    end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice]*1000);
+                    this.graph.setXDomain([start, end]);
+                    this.graph.loadData(data);
+                    this.graph.clearXDomain();
+                }
+                var newmat = new Cesium.Material.fromType('Image', {
+                    image : this.graph.getCanvasImage(),
+                    color: new Cesium.Color(1, 1, 1, alpha),
+                });
+
+
+                var slicedLats, slicedLons;
+
+                if(dataJumps.length > 0){
+                    slicedLats = lats.slice(startSlice, endSlice);
+                    slicedLons = lons.slice(startSlice, endSlice);
+                } else {
+                    slicedLats = lats;
+                    slicedLons = lons;
+                }
+
+
+                var posDataHeight = [];
+                var posData = [];
+                
+                // Data provided has jumps back an forth in lat and long, trying
+                // to avoid the issue we take every third element which hopefully
+                // should hit not repeating or ascending/descending inverted values
+                // TODO: re-evaluate a correct method to handle this
+                var stepsize = 3;/*Math.floor(slicedLats.length/10);
+                if(stepsize<3){
+                    stepsize = 3;
+                }*/
+                if(slicedLats.length > 30){
+                    stepsize = 20;
+                }
+                if(slicedLats.length <5){
+                    stepsize = 2;
+                }
+                var cleanLats = [];
+                for (var p = 0; p < slicedLats.length; p+=stepsize){
+                    if(slicedLats[p] !== cleanLats[cleanLats.length-1]){
+                        cleanLats.push(slicedLats[p]);
+                    }
+                }
+                if((slicedLats.length-1)%stepsize !== 0){
+                    if(cleanLats[cleanLats.length-1] !== slicedLats[slicedLats.length-1]){
+                        cleanLats.push(slicedLats[slicedLats.length-1]);
+                    }
+                }
+
+                var cleanLons = [];
+                for (var p = 0; p < slicedLons.length; p+=stepsize){
+                    if(slicedLons[p] !== cleanLons[cleanLons.length-1]){
+                        cleanLons.push(slicedLons[p]);
+                    }
+                }
+                if((slicedLons.length-1)%stepsize !== 0){
+                    if(cleanLons[cleanLons.length-1] !== slicedLons[slicedLons.length-1]){
+                        cleanLons.push(slicedLons.slice(-1)[0]);
+                    }
+
+                }
+
+                var itemsToRemove = [];
+                // Check lats to make sure direction does not change
+                for (var i = cleanLats.length - 1; i >= 0; i--) {
+                    if(i>3){
+                        if( (cleanLats[i]-cleanLats[i-2] <= 0 && 
+                            cleanLats[i-1]-cleanLats[i-2] >= 0 ) ||
+                            (cleanLats[i]-cleanLats[i-2] >= 0 && 
+                            cleanLats[i-1]-cleanLats[i-2] <= 0)){
+                            itemsToRemove.push(i-1);
+                        }
+                    }
+                }
+
+                for (var i = 0; i < itemsToRemove.length; i++) {
+                    cleanLats.splice(itemsToRemove[i],1);
+                    cleanLons.splice(itemsToRemove[i],1);
+                }
+
+                itemsToRemove = [];
+                // Check lons to make sure direction does not change
+                for (var i = cleanLons.length - 1; i >= 0; i--) {
+                    if(i>3){
+                        if( (cleanLons[i]-cleanLons[i-2] <= 0 && 
+                            cleanLons[i-1]-cleanLons[i-2] >= 0 ) ||
+                            (cleanLons[i]-cleanLons[i-2] >= 0 && 
+                            cleanLons[i-1]-cleanLons[i-2] <= 0)){
+                            itemsToRemove.push(i-1);
+                        }
+                    }
+                }
+
+                for (var i = 0; i < itemsToRemove.length; i++) {
+                    cleanLats.splice(itemsToRemove[i],1);
+                    cleanLons.splice(itemsToRemove[i],1);
+                }
+
+                // Check lons to make sure direction does not change
+
+
+                /*var cleanLats = [];
+                for (var p = 1; p < slicedLats.length; p++){
+                    if(slicedLats[p-1] !== slicedLats[p]){
+                        cleanLats.push(slicedLats[p]);
+                    }
+                }
+                // Remove duplicates
+                var cleanLons = [];
+                for (var p = 1; p < slicedLons.length; p++){
+                    if(slicedLons[p-1] !== slicedLons[p]){
+                        cleanLons.push(slicedLons[p]);
+                    }
+                }*/
+
+                // Change direction of texture depending if curtain beginning 
+                // and end latitude coordinates
+                var lastLats = cleanLats.slice(-2);
+                //console.log("lon:", lons[0]," lat:", lats[0]);
+                //console.log("lon:", lons.slice(-1)[0]," lat:", lats.slice(-1)[0]);
+
+                newmat.uniforms.repeat.x = -1;
+                // Check if ascending/descending change
+                if(cleanLats[0]-cleanLats[1]<0 && cleanLats[cleanLats.length-2]-cleanLats[cleanLats.length-1]>0){
+                    newmat.uniforms.repeat.x = -1;
+                } else if(cleanLats[0]-cleanLats[1]>0 && cleanLats[cleanLats.length-2]-cleanLats[cleanLats.length-1]<0){
+                    newmat.uniforms.repeat.x = 1;
+                }
+                // Check for switch from positive to negative or other way around
+                /*if(cleanLats[0]<0 && cleanLats[cleanLats.length-1]>0){
+                    newmat.uniforms.repeat.x = -1;
+                }else if (cleanLats[0]>0 && cleanLats[cleanLats.length-1]<0){
+                    if( (cleanLats[cleanLats.length-1]<0 && cleanLats[cleanLats.length-2]<0) && // if there is no pole crossing in the last two values
+                        cleanLats[cleanLats.length-1]<cleanLats[cleanLats.length-2]){
+                        newmat.uniforms.repeat.x = 1;
+                    }
+                }*/
+                /*if(slicedLats[2]-slicedLats[0]>=0){
+                    //ascending
+                    if (slicedLats[0]<0 && lastLats[0]<0){
+                        newmat.uniforms.repeat.x = 1;
+                    }
+                }else{
+                    //descending
+                    if (slicedLats[0]<0 && lastLats[0]<0){
+                        newmat.uniforms.repeat.x = 1;
+                    }
+                }*/
+                // It seems when only two values are available for curtain creation
+                // the texture is swapped in direction so we swap it beforehand here
+                if(cleanLats.length == 2){
+                    newmat.uniforms.repeat.x = 1;
+                }
+
+                for (var p = 0; p < cleanLats.length; p++) {
+                    posDataHeight.push(cleanLons[p]);
+                    posDataHeight.push(cleanLats[p]);
+                    posDataHeight.push(height);
+                    posData.push(cleanLons[p]);
+                    posData.push(cleanLats[p]);
+                }
+
+                if(renderOutlines){
+                    lineInstances.push(
+                        new Cesium.GeometryInstance({
+                            geometry : new Cesium.PolylineGeometry({
+                                positions : 
+                                Cesium.Cartesian3.fromDegreesArrayHeights(
+                                    posDataHeight
+                                ),
+                                width : 10.0
+                            })
+                        })
+                    );
+
+                    lineInstances.push(
+                        new Cesium.GeometryInstance({
+                            geometry : new Cesium.PolylineGeometry({
+                                positions : 
+                                Cesium.Cartesian3.fromDegreesArray(
+                                    posData
+                                ),
+                                width : 10.0
+                            })
+                        })
+                    );
+                }
+
+                /*var maxHeights = [];
+                var minHeights = [];
+                for (var j = 0; j <posData.length; j++) {
+                    maxHeights.push(height);
+                    minHeights.push(0);
+                }*/
+                if(posDataHeight.length === 6){
+                    if (posDataHeight[0] === posDataHeight[3] &&
+                        posDataHeight[1] === posDataHeight[4]){
+                        console.log('Warning curtain geometry has equal start and end point, geometry creation was skipped');
+                        continue;
+                    }
+                }
+
+                var wall = new Cesium.WallGeometry({
+                    positions : Cesium.Cartesian3.fromDegreesArrayHeights(
+                        posDataHeight
+                    )
+                    /*positions: Cesium.Cartesian3.fromDegreesArray(posData),
+                    maximumHeights: maxHeights,
+                    minimumHeights: minHeights*/
+                });
+                var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
+                if(wallGeometry){
+                    var instance = new Cesium.GeometryInstance({
+                      geometry : wallGeometry
+                    }); 
+                } else {
+                    console.log("CesiumView.js: Wallgeometry not created correctly!");
+                }
+
+
+                // DEBUG
+                /*var wallOutlineInstance = new Cesium.GeometryInstance({
+                    geometry : new Cesium.WallOutlineGeometry({
+                        positions : Cesium.Cartesian3.fromDegreesArrayHeights(
+                            posDataHeight
+                        )
+                    }),
+                    attributes : {
+                        color : new Cesium.ColorGeometryInstanceAttribute(1.0, 0.0, 0.0, 1.0)
+                    }
+                });
+
+                if(this.debugprimitive){
+                    this.map.scene.primitives.remove(this.debugprimitive);
+                }
+
+                this.debugprimitive = this.map.scene.primitives.add(new Cesium.Primitive({
+                    id: 'debug_curtain',
+                    geometryInstances : wallOutlineInstance,
+                    appearance : new Cesium.PerInstanceColorAppearance({
+                        flat : true,
+                        translucent : false,
+                        renderState : {
+                            depthTest : {
+                                enabled : true
+                            },
+                            lineWidth : 2
+                        }
+                    })
+                }));*/
+                //DEBUG
+
+
+                // Check if normal is negative, if it is we need to flip the
+                // direction of the texture to be applied
+                /*if(wallGeometry.attributes.normal.values[0]<0){
+                    newmat.uniforms.repeat.x = 1;
+                }*/
+
+                var sliceAppearance = new Cesium.MaterialAppearance({
+                    translucent : true,
+                    flat: true,
+                    faceForward: true,
+                    //closed: true,
+                    material : newmat
+                });
+
+                //instances.push(instance);
+                var prim = new Cesium.Primitive({
+                  geometryInstances : instance,
+                  appearance : sliceAppearance,
+                  releaseGeometryInstances: false,
+                  asynchronous: false
+                });
+
+                curtainCollection.add(prim);
+            }
+
+            if(renderOutlines){
+                var linesPrim = new Cesium.Primitive({
+                    geometryInstances: lineInstances,
+                    appearance: new Cesium.PolylineMaterialAppearance({
+                        material : new Cesium.Material.fromType('PolylineArrow', {
+                            color: new Cesium.Color(0.53, 0.02, 0.65, 1)
+                        })
+                    })
+                });
+                curtainCollection.add(linesPrim);
+            }
+
+        },
+
 
         //method to create layer depending on protocol
         //setting possible description attributes
@@ -604,7 +1513,37 @@ define([
 
         onUpdateOpacity: function(options) {
 
-            globals.products.each(function(product) {
+            var product = globals.products.find(
+                function(p){return p.get('download').id === options.model.get('download').id;}
+            );
+
+            if(options.value === 1.0){
+                options.value = 0.99;
+            }
+
+            if(product){
+                if(product.hasOwnProperty('curtains')){
+                    for (var i = 0; i < product.curtains._primitives.length; i++) {
+                        product.curtains._primitives[i].appearance.material.uniforms.color.alpha = options.value;//.clone();
+                    }
+                }
+                if(product.hasOwnProperty('points')){
+                    for (var i = 0; i < product.points._pointPrimitives.length; i++) {
+                        var b = product.points.get(i);
+                        if(b.color){
+                            var c = b.color.clone();
+                            c.alpha = options.value;
+                            b.color = c;
+                        }
+                    }
+                }
+                var cesLayer = product.get('ces_layer');
+                if(cesLayer){
+                    cesLayer.alpha = options.value;
+                }
+            }
+
+            /*globals.products.each(function(product) {
                 if(product.get('download').id === options.model.get('download').id){
                     var cesLayer = product.get('ces_layer');
                     // Find active parameter and satellite
@@ -651,7 +1590,7 @@ define([
                         cesLayer.alpha = options.value;
                     }
                 }
-            }, this);
+            }, this);*/
         },
 
         addCustomAttribution: function(view) {
@@ -708,11 +1647,11 @@ define([
 
                 globals.products.each(function(product) {
                     if(product.get('name') === options.name){
-                        product.set('visible', options.visible);
+                        //product.set('visible', options.visible);
                         this.checkColorscale(product.get('download').id);
 
                         if (product.get('views')[0].protocol === 'WPS'){
-                            this.checkShc(product, options.visible);
+                            //this.checkShc(product, options.visible);
 
                         }else if (product.get('views')[0].protocol === 'WMS' ||
                                   product.get('views')[0].protocol === 'WMTS' ){
@@ -842,7 +1781,7 @@ define([
                     var map = this.map;
                     var customModelLayer = this.customModelLayer;
 
-                    $.post(url, tmplEvalModel(options))
+                    /*$.post(url, tmplEvalModel(options))
                         .done(function( data ) {
                             var imageURI = 'data:image/gif;base64,'+data;
                             var layerOptions = {url: imageURI};
@@ -862,12 +1801,157 @@ define([
                                 map.scene.imageryLayers.addImageryProvider(imagelayer, index);
                             product.set('ces_layer', customModelLayer);
                             customModelLayer.show = true;
-                        });
+                        });*/
                 } // END if product has shc
             }else{ 
                 var cesLayer = product.get('ces_layer');
                 cesLayer.show = visible;
             } // END of if visible
+        },
+
+
+        createPointCollection: function(data, cov_id, alpha, height){
+
+            if(!data.hasOwnProperty('lon_of_DEM_intersection')){
+                // If data does not have required position information
+                // do not try to render it
+                return;
+            }
+
+            var currProd = globals.products.find(
+                function(p){return p.get('download').id === cov_id;}
+            );
+
+            var pointCollection;
+
+            if(!this.map.scene.context._gl.getExtension('EXT_frag_depth')){
+                pointCollection._rs = 
+                    Cesium.RenderState.fromCache({
+                        depthTest : {
+                            enabled : true,
+                            func : Cesium.DepthFunction.LESS
+                        },
+                        depthMask : false,
+                        blending : Cesium.BlendingState.ALPHA_BLEND
+                    });
+            }
+
+            if(currProd.hasOwnProperty('points')){
+                currProd.points.removeAll();
+                pointCollection = currProd.points;
+                /*this.map.scene.primitives.remove(currProd.curtains);
+                delete currProd.curtains;*/
+            }else{
+                pointCollection = new Cesium.PointPrimitiveCollection();
+                this.activePointsCollections.push(pointCollection);
+                this.map.scene.primitives.add(pointCollection);
+                currProd.points = pointCollection;
+            }
+
+            //alpha = 0.99;
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
+
+            alpha = currProd.get('opacity');
+
+            /*this.dataSettings[band].colorscale = style;
+            this.dataSettings[band].extent = range;
+            this.graph.dataSettings = this.dataSettings;*/
+
+            height = 0;
+            var renderOutlines = defaultFor(currProd.get('outlines'), false);
+
+            this.plot.setColorScale(style);
+            this.plot.setDomain(range);
+
+            var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
+            
+            var filters = globals.swarm.get('filters');
+            var show = true;
+
+            var positions = [];
+
+            for (var i = 0; i < data[band].length; i++) {
+                var row = {};
+                for(var k in data){
+                    row[k] = data[k][i];
+                }
+                if(filters){
+                    for (var f in filters){
+                        show = filters[f](row[f]);
+                        if(!show){break;}
+                    }
+                }
+                if(!show){
+                    continue;
+                }
+
+                positions.push(data['lon_of_DEM_intersection'][i]+1);
+                positions.push(data['lat_of_DEM_intersection'][i]);
+
+                var color = this.plot.getColor(data[band][i]);
+                var options = {
+                    position : new Cesium.Cartesian3.fromDegrees(
+                        data['lon_of_DEM_intersection'][i],
+                        data['lat_of_DEM_intersection'][i]/*,
+                        height*/
+                    ),
+                    color : new Cesium.Color.fromBytes(
+                        color[0], color[1], color[2], alpha*255
+                    ),
+                    pixelSize : 8,
+                    scaleByDistance : scaltype
+                };
+
+                pointCollection.add(options);
+            }
+
+            var pointsOutlineColl;
+            if(currProd.hasOwnProperty('pointsOutlineColl')){
+                currProd.pointsOutlineColl.removeAll();
+                pointsOutlineColl = currProd.pointsOutlineColl;
+            }else if(renderOutlines){
+                pointsOutlineColl = new Cesium.PrimitiveCollection();
+                this.map.scene.primitives.add(pointsOutlineColl);
+                currProd.pointsOutlineColl = pointsOutlineColl;
+                this.activePointsCollections.push(pointsOutlineColl);
+            }
+
+            if(renderOutlines){
+                                
+                var geomInstance =  new Cesium.GeometryInstance({
+                    geometry : new Cesium.PolylineGeometry({
+                        positions : Cesium.Cartesian3.fromDegreesArray(
+                            positions
+                        ),
+                        width : 10.0
+                    })
+                });
+
+
+                var linesPrim = new Cesium.Primitive({
+                    geometryInstances: [geomInstance],
+                    appearance: new Cesium.PolylineMaterialAppearance({
+                        material : new Cesium.Material.fromType('PolylineArrow', {
+                            color: new Cesium.Color(0.53, 0.02, 0.65, 1)
+                        })
+                    })
+                });
+
+                pointsOutlineColl.add(linesPrim);
+            }
+
+            this.map.scene.primitives.add(pointCollection);
+
         },
 
 
@@ -1099,91 +2183,97 @@ define([
         },
 
         onLayerOutlinesChanged: function(collection){
-            this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
+            //this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
+            var data = globals.swarm.get('data');
+            if (Object.keys(data).length){
+                var idKeys = Object.keys(data);
+                for (var i = idKeys.length - 1; i >= 0; i--) {
+                    if(idKeys[i] === 'ALD_U_N_1B'){
+                        this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    } else if (idKeys[i].includes('ALD_U_N_2')){
+                        this.createL2Curtains(data[idKeys[i]], idKeys[i]);
+                    } else {
+                        this.createPointCollection(data[idKeys[i]], idKeys[i]);
+                    }
+                }
+            }
         },
 
         OnLayerParametersChanged: function(layer){
-            globals.products.each(function(product) {
-                if(product.get('name')===layer){
 
-                    this.checkColorscale(product.get('download').id);
-                    var hexcolor = product.get('color');
-                        hexcolor = hexcolor.substring(1, hexcolor.length);
-                    var parameters = product.get('parameters');
-                    var band;
-                    var keys = _.keys(parameters);
-                    _.each(keys, function(key){
-                        if(parameters[key].selected){
-                            band = key;
+            // TODO: Rewrite all references to change layer to use download id and not name!
+
+            var product = globals.products.find(
+                function(p){return p.get('download').id === layer;}
+            );
+
+            if(product){
+                
+                if(product.hasOwnProperty('curtains')){
+                    //product.curtain
+                    //this.updateCurtain(product.get('download').id);
+                    var covid = product.get('download').id;
+                    var data = globals.swarm.get('data')[covid];
+
+                     if(covid === 'ALD_U_N_1B'){
+                        this.createCurtains(data, covid);
+                    } else if ( covid.includes('ALD_U_N_2') ){
+                        this.createL2Curtains(data, covid);
+                    }
+                    this.checkColorscale(covid);
+                }
+
+                if(product.hasOwnProperty('points')){
+                    var covid = product.get('download').id;
+                    var data = globals.swarm.get('data')[covid];
+                    this.createPointCollection(data, covid);
+                    this.checkColorscale(covid);
+                }
+
+
+                if(product.get('views')[0].protocol === 'WMS'){
+                    if(product.get('name')===layer){
+                        var parameters = product.get('parameters');
+                        var band;
+                        var keys = _.keys(parameters);
+                        _.each(keys, function(key){
+                            if(parameters[key].selected){
+                                band = key;
+                            }
+                        });
+                        var style = parameters[band].colorscale;
+                        var range = parameters[band].range;
+
+                        var cesLayer = product.get('ces_layer');
+
+                        if(product.get('visible')){
+                            cesLayer.show = true;
                         }
-                    });
-                    var style = parameters[band].colorscale;
-                    var range = parameters[band].range;
-                    var height = product.get('height');
-                    var contours = product.get('contours');
-                    var coeffRange = product.get('coefficients_range');
-                    var cesLayer;
 
-                    if(product.get('views')[0].protocol === 'CZML'){
-                        this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
-                    }else if(product.get('views')[0].protocol === 'WMS'){
-                        if (band === 'Fieldlines' ){
-                            if(product.get('visible')){
-                                cesLayer = product.get('ces_layer');
-                                cesLayer.show = false;
-                                this.map.scene.imageryLayers.remove(cesLayer, false);
-
-                                // When changing height or coefficient range and fieldlienes is selected
-                                // model would be added multiple times, need to check if model already 
-                                // marked as active and avoid adding it to list
-                                if (this.activeFL.indexOf(product.get('download').id)===-1){
-                                    this.activeFL.push(product.get('download').id);
-                                }
-
-                            }else{
-                                if (this.activeFL.indexOf(product.get('download').id)!==-1){
-                                    this.activeFL.splice(this.activeFL.indexOf(product.get('download').id), 1);
-                                }
-                            }
-                            this.checkFieldLines();
-                        }else{
-                            if (this.activeFL.indexOf(product.get('download').id)!==-1){
-                                this.activeFL.splice(this.activeFL.indexOf(product.get('download').id), 1);
-                            }
-                            this.checkFieldLines();
-                            if(product.get('name')===layer){
-                                cesLayer = product.get('ces_layer');
-
-                                if(product.get('visible')){
-                                    cesLayer.show = true;
-                                }
-
-                                cesLayer.imageryProvider.updateProperties('dim_bands', band);
-                                cesLayer.imageryProvider.updateProperties('dim_range', (range[0]+','+range[1]));
-                                cesLayer.imageryProvider.updateProperties('elevation', height);
-                                if(contours){
-                                    cesLayer.imageryProvider.updateProperties('dim_contours', 1);
-                                } else {
-                                    cesLayer.imageryProvider.updateProperties('dim_contours', 0);
-                                }
-                                if(style){
-                                    cesLayer.imageryProvider.updateProperties('styles', style);
-                                }
-                                if(coeffRange){
-                                    cesLayer.imageryProvider.updateProperties('dim_coeff', (coeffRange[0]+','+coeffRange[1]));
-                                }
-                                if (cesLayer.show){
-                                    var index = this.map.scene.imageryLayers.indexOf(cesLayer);
-                                    this.map.scene.imageryLayers.remove(cesLayer, false);
-                                    this.map.scene.imageryLayers.add(cesLayer, index);
-                                }
-                            }
+                        cesLayer.imageryProvider.updateProperties('dim_bands', band);
+                        cesLayer.imageryProvider.updateProperties('dim_range', (range[0]+','+range[1]));
+                        /*cesLayer.imageryProvider.updateProperties('elevation', height);*/
+                        if(style){
+                            cesLayer.imageryProvider.updateProperties('styles', style);
                         }
-                    }else if (product.get('views')[0].protocol === 'WPS'){
-                        this.checkShc(product, product.get('visible'));
+                        /*if(contours){
+                            cesLayer.imageryProvider.updateProperties('dim_contours', 1);
+                        } else {
+                            cesLayer.imageryProvider.updateProperties('dim_contours', 0);
+                        }*/
+                        
+                        /*if(coeffRange){
+                            cesLayer.imageryProvider.updateProperties('dim_coeff', (coeffRange[0]+','+coeffRange[1]));
+                        }*/
+                        if (cesLayer.show){
+                            var index = this.map.scene.imageryLayers.indexOf(cesLayer);
+                            this.map.scene.imageryLayers.remove(cesLayer, false);
+                            this.map.scene.imageryLayers.add(cesLayer, index);
+                        }
+                        this.checkColorscale(product.get('download').id);
                     }
                 }
-            }, this);
+            }
         },
 
 
@@ -1209,7 +2299,8 @@ define([
         },
 
         getMapExtent: function(){
-            var ellipsoid = this.map.scene.globe.ellipsoid;
+            // TODO: repair get map extent
+            /*var ellipsoid = this.map.scene.globe.ellipsoid;
             var c2 = new Cesium.Cartesian2(0, 0);
             var leftTop = this.map.scene.camera.pickEllipsoid(c2, ellipsoid);
             c2 = new Cesium.Cartesian2(this.map.scene.canvas.width, this.map.scene.canvas.height);
@@ -1243,7 +2334,7 @@ define([
                     // If everything fails assume whole world is visible which is wrong
                     return {left: -180, bottom: -90, right: 180, top: 90};
                 }
-            }
+            }*/
         },
 
         renderSVG: function(svg, width, height){
@@ -1332,6 +2423,10 @@ define([
                     }
                 });
 
+                if(sel === false){
+                    return;
+                }
+
                 var rangeMin = product.get('parameters')[sel].range[0];
                 var rangeMax = product.get('parameters')[sel].range[1];
                 var uom = product.get('parameters')[sel].uom;
@@ -1349,101 +2444,100 @@ define([
                     .attr('height', 60)
                     .attr('id', 'svgcolorscalecontainer');
 
-                    if(logscale){
-                        axisScale = d3.scale.log();
-                    }else{
-                        axisScale = d3.scale.linear();
+                if(logscale){
+                    axisScale = d3.scale.log();
+                }else{
+                    axisScale = d3.scale.linear();
+                }
+
+                axisScale.domain([rangeMin, rangeMax]);
+                axisScale.range([0, scalewidth]);
+
+                var xAxis = d3.svg.axis()
+                    .scale(axisScale);
+
+                if(logscale){
+                    var numberFormat = d3.format(',f');
+                    function logFormat(d) {
+                        var x = Math.log(d) / Math.log(10) + 1e-6;
+                        return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
                     }
+                     xAxis.tickFormat(logFormat);
 
-                    axisScale.domain([rangeMin, rangeMax]);
-                    axisScale.range([0, scalewidth]);
-
-                    var xAxis = d3.svg.axis()
-                        .scale(axisScale);
-
-                    if(logscale){
-                        var numberFormat = d3.format(',f');
-                        function logFormat(d) {
-                            var x = Math.log(d) / Math.log(10) + 1e-6;
-                            return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
-                        }
-                         xAxis.tickFormat(logFormat);
-
-                    }else{
-                        var step = (rangeMax - rangeMin)/5;
-                        xAxis.tickValues(
-                            d3.range(rangeMin,rangeMax+step, step)
-                        );
-                        xAxis.tickFormat(d3.format('g'));
-                    }
-
-                    var g = svgContainer.append('g')
-                        .attr('class', 'x axis')
-                        .attr('transform', 'translate(' + [margin, 20]+')')
-                        .call(xAxis);
-
-                    // Add layer info
-                    var info = product.get('name');
-                    info += ' - ' + sel;
-                    if(uom){
-                        info += ' ['+uom+']';
-                    }
-
-                     g.append('text')
-                        .style('text-anchor', 'middle')
-                        .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
-                        .attr('font-weight', 'bold')
-                        .text(info);
-
-                    svgContainer.selectAll('text')
-                        .attr('stroke', 'none')
-                        .attr('fill', 'black')
-                        .attr('font-weight', 'bold');
-
-                    svgContainer.selectAll('.tick').select('line')
-                        .attr('stroke', 'black');
-
-                    svgContainer.selectAll('.axis .domain')
-                        .attr('stroke-width', '2')
-                        .attr('stroke', '#000')
-                        .attr('shape-rendering', 'crispEdges')
-                        .attr('fill', 'none');
-
-                    svgContainer.selectAll('.axis path')
-                        .attr('stroke-width', '2')
-                        .attr('shape-rendering', 'crispEdges')
-                        .attr('stroke', '#000');
-
-                    var svgHtml = d3.select('#svgcolorscalecontainer')
-                        .attr('version', 1.1)
-                        .attr('xmlns', 'http://www.w3.org/2000/svg')
-                        .node().innerHTML;
-
-                    var renderHeight = 55;
-                    var renderWidth = width;
-
-                    var index = Object.keys(this.colorscales).length;
-
-                    var prim = this.map.scene.primitives.add(
-                        this.createViewportQuad(
-                            this.renderSVG(svgHtml, renderWidth, renderHeight),
-                            0, index*55+5, renderWidth, renderHeight
-                        )
+                }else{
+                    var step = (rangeMax - rangeMin)/5;
+                    xAxis.tickValues(
+                        d3.range(rangeMin,rangeMax+step, step)
                     );
-                    var csPrim = this.map.scene.primitives.add(
-                        this.createViewportQuad(
-                            colorscaleimage, 20, index*55 +42, scalewidth, 10
-                        )
-                    );
+                    xAxis.tickFormat(d3.format('g'));
+                }
 
-                    this.colorscales[pId] = {
-                        index: index,
-                        prim: prim,
-                        csPrim: csPrim
-                    };
+                var g = svgContainer.append('g')
+                    .attr('class', 'x axis')
+                    .attr('transform', 'translate(' + [margin, 20]+')')
+                    .call(xAxis);
 
-                    svgContainer.remove();
-                
+                // Add layer info
+                var info = product.get('name');
+                info += ' - ' + sel;
+                if(uom){
+                    info += ' ['+uom+']';
+                }
+
+                 g.append('text')
+                    .style('text-anchor', 'middle')
+                    .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
+                    .attr('font-weight', 'bold')
+                    .text(info);
+
+                svgContainer.selectAll('text')
+                    .attr('stroke', 'none')
+                    .attr('fill', 'black')
+                    .attr('font-weight', 'bold');
+
+                svgContainer.selectAll('.tick').select('line')
+                    .attr('stroke', 'black');
+
+                svgContainer.selectAll('.axis .domain')
+                    .attr('stroke-width', '2')
+                    .attr('stroke', '#000')
+                    .attr('shape-rendering', 'crispEdges')
+                    .attr('fill', 'none');
+
+                svgContainer.selectAll('.axis path')
+                    .attr('stroke-width', '2')
+                    .attr('shape-rendering', 'crispEdges')
+                    .attr('stroke', '#000');
+
+                var svgHtml = d3.select('#svgcolorscalecontainer')
+                    .attr('version', 1.1)
+                    .attr('xmlns', 'http://www.w3.org/2000/svg')
+                    .node().innerHTML;
+
+                var renderHeight = 55;
+                var renderWidth = width;
+
+                var index = Object.keys(this.colorscales).length;
+
+                var prim = this.map.scene.primitives.add(
+                    this.createViewportQuad(
+                        this.renderSVG(svgHtml, renderWidth, renderHeight),
+                        0, index*55+5, renderWidth, renderHeight
+                    )
+                );
+                var csPrim = this.map.scene.primitives.add(
+                    this.createViewportQuad(
+                        colorscaleimage, 20, index*55 +42, scalewidth, 10
+                    )
+                );
+
+                this.colorscales[pId] = {
+                    index: index,
+                    prim: prim,
+                    csPrim: csPrim
+                };
+
+                svgContainer.remove();
             }
 
         },
@@ -1516,9 +2610,9 @@ define([
             }
 
             globals.products.each(function(product) {
-                if (product.get('views')[0].protocol === 'WPS'){
+                /*if (product.get('views')[0].protocol === 'WPS'){
                     this.checkShc(product, product.get('visible'));
-                }
+                }*/
             },this);
         },
 
@@ -1672,7 +2766,7 @@ define([
             this.beginTime = time.start;
             this.endTime = time.end;
             globals.products.each(function(product) {
-                if(product.get('timeSlider')){
+                if(product.get('timeSlider') && product.get('views')[0].protocol === 'WMS'){
                     product.set('time',string);
                     var cesLayer = product.get('ces_layer');
                     if(cesLayer){
@@ -1684,7 +2778,7 @@ define([
                         }
                     }
                 }else if (product.get('views')[0].protocol === 'WPS'){
-                    this.checkShc(product, product.get('visible'));
+                    //this.checkShc(product, product.get('visible'));
                 }
             }, this);
             this.checkFieldLines();
@@ -1707,6 +2801,7 @@ define([
 
 
         onClose: function(){
+            //this.graph.destroy();
             this.isClosed = true;
         },
 
