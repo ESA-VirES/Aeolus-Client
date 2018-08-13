@@ -1916,9 +1916,10 @@ define([
             }
 
             var pointsOutlineColl;
-            if(currProd.hasOwnProperty('pointsOutlineColl') && !renderOutlines){
+            if(currProd.hasOwnProperty('pointsOutlineColl')){
                 currProd.pointsOutlineColl.removeAll();
-            }else{
+                pointsOutlineColl = currProd.pointsOutlineColl;
+            }else if(renderOutlines){
                 pointsOutlineColl = new Cesium.PrimitiveCollection();
                 this.map.scene.primitives.add(pointsOutlineColl);
                 currProd.pointsOutlineColl = pointsOutlineColl;
