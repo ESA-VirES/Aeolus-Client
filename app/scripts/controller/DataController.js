@@ -1444,6 +1444,7 @@
 
                   var mieVars = [
                     'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
+                    'altitude_of_DEM_intersection',
                     'mie_altitude', 'mie_range', 'velocity_at_DEM_intersection',
                     'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
                     'mie_HLOS_wind_speed', 'mie_signal_intensity',
@@ -1458,6 +1459,7 @@
 
                   var rayleighVars = [
                     'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
+                    'altitude_of_DEM_intersection',
                     'rayleigh_altitude', 'rayleigh_range', 'velocity_at_DEM_intersection',
                     'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
                     'rayleigh_HLOS_wind_speed', 'rayleigh_signal_channel_A_intensity',
