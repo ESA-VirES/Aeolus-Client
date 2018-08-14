@@ -202,6 +202,24 @@
                     }
                 });
                 $('.timeslider .brush').attr('fill', '#333');
+
+
+                // Add possible user collections
+                var USERVARIABLE = 'admin';
+                var collectionId = 'user_collection_'+ USERVARIABLE;
+                var attrs = {
+                    id: collectionId,
+                    url: '/ows'
+                };
+                  
+                this.slider.addDataset({
+                    id: collectionId,
+                    color: '#1122ff',
+                    records: null,
+                    source: {fetch: this.fetchWPS.bind(attrs)}
+                });
+
+
             }, // END of onShow
 
             onChangeTime: function(evt){

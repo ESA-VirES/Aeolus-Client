@@ -50,6 +50,20 @@ var VECTOR_BREAKDOWN = {};
                 var imagerenderercanvas = $('<canvas/>',{id: 'imagerenderercanvas'});
                 $('body').append(imagerenderercanvas);
 
+                var uploadDialogContainer = $('<div/>',{id: 'uploadDialogContainer'});
+                $('body').append(uploadDialogContainer);
+                //uploadDialogContainer.style('visibility', 'hidden');
+
+                // Create a multi file upload component
+                const pond = FilePond.create({
+                    allowMultiple: true,
+                    name: 'filepond',
+                    server: 'upload/'
+                });
+
+                // Add it to the DOM
+                $(uploadDialogContainer)[0].appendChild(pond.element);
+
 
                 var v = {}; //views
                 var m = {}; //models
