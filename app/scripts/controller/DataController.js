@@ -247,7 +247,7 @@
                     {'name': 'original', value:'original'},
                     {'name': 'user_upload', value:'user_upload'}
                 ],
-                selected: 'user_upload'
+                selected: -1
               },
               'ZWC_result_type': {
                 options: [
@@ -1282,7 +1282,7 @@
           ].join()
 
         }
-        var USERVARIABLE = 'admin';
+        //var USERVARIABLE = 'admin';
 
         var collections = [collectionId];
         if(typeof USERVARIABLE !== 'undefined'){
