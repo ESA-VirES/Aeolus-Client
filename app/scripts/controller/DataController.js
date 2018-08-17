@@ -249,7 +249,15 @@
                     {'name': 'ZWC_Rayleigh', value:'ZWC_Rayleigh'}
                 ],
                 selected: 'ZWC_Both'
+              },
+              'origin': {
+                options: [
+                    {'name': 'original', value:'original'},
+                    {'name': 'uploaded by user', value:'user_upload'}
+                ],
+                selected: -1
               }
+
           }
         };
 
@@ -703,6 +711,7 @@
         var urlBase = product.get('download').url;
 
         var collectionId = product.get('download').id;
+
         var parameters = '';
         var fieldsList = {
           'ALD_U_N_1B': {
@@ -1274,10 +1283,16 @@
           ].join()
 
         }
+        //var USERVARIABLE = 'admin';
+
+        var collections = [collectionId];
+        if(typeof USERVARIABLE !== 'undefined'){
+            collections.push('user_collection_'+ USERVARIABLE);
+        }
 
         var options = {
           processId: process.id,
-          collection_ids: JSON.stringify([collectionId]),
+          collection_ids: JSON.stringify(collections),
           begin_time: getISODateTimeString(this.selected_time.start),
           end_time: getISODateTimeString(this.selected_time.end),
         };
@@ -1767,6 +1782,40 @@
                     resData['rayleigh_jumps'] = rayleighJumpPositions;
 
                   } else {
+                    // We land here for MRC, RRC and ISR
+
+                    // Check for possible user uploaded data
+                    if(typeof USERVARIABLE !== 'undefined'){
+                      var userCollId = 'user_collection_'+ USERVARIABLE;
+                      if(data.hasOwnProperty(userCollId)) {
+                        // Check fo max length of data, for MRC and RRC we can look at frequency offset
+                        var origLength, userLength;
+                        if(ds.hasOwnProperty('frequency_offset')){
+                          origLength = ds.frequency_offset[0].length;
+                        }
+                        if(data[userCollId].hasOwnProperty('frequency_offset')){
+                          userLength = ds.frequency_offset[0].length;
+                        }
+                        if(typeof origLength !== 'undefined' && typeof userLength !== 'undefined'){
+                          // Add identifier array for data
+                          ds['origin'] = [[]];
+                          data[userCollId]['origin'] = [[]];
+                          for (var i = 0; i < origLength; i++) {
+                            ds.origin[0].push('original');
+                          }
+                          for (var i = 0; i < userLength; i++) {
+                            data[userCollId].origin[0].push('user_upload');
+                          }
+                          for (var param in ds){
+                            if(data[userCollId].hasOwnProperty(param)){
+                              ds[param] = ds[param].concat(data[userCollId][param]);
+                            }
+                          }
+                          keys.push('origin');
+                        }
+                        
+                      }
+                    }
                     // Flatten structure as we do not need the different levels
                     // to render the data
                     for (var k = 0; k < keys.length; k++) {
