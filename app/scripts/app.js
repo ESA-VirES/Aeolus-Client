@@ -16,7 +16,7 @@ var VECTOR_BREAKDOWN = {};
             'layouts/ToolControlLayout',
             'layouts/OptionsLayout',
             'core/SplitView/WindowView',
-            'communicator',
+            'communicator', 'filepond',
             'jquery', 'backbone.marionette',
             'controller/ContentController',
             'controller/DownloadController',
@@ -29,7 +29,8 @@ var VECTOR_BREAKDOWN = {};
         ],
 
         function(Backbone, globals, DialogRegion,
-            UIRegion, LayerControlLayout, ToolControlLayout, OptionsLayout, WindowView, Communicator) {
+            UIRegion, LayerControlLayout, ToolControlLayout, OptionsLayout,
+            WindowView, Communicator, FilePond) {
 
         var Application = Backbone.Marionette.Application.extend({
             initialize: function(options) {
