@@ -38,15 +38,6 @@ var VECTOR_BREAKDOWN = {};
 
             configure: function(config) {
 
-                //localStorage.clear();
-
-
-                /*$("body").tooltip({ 
-                    selector: '[data-toggle=tooltip]',
-                    position: { my: "left+5 center", at: "right center" },
-                    hide: { effect: false, duration: 0 },
-                    show:{ effect: false, delay: 700}
-                });*/
 
                 var imagerenderercanvas = $('<canvas/>',{id: 'imagerenderercanvas'});
                 $('body').append(imagerenderercanvas);
