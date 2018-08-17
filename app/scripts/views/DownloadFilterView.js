@@ -319,17 +319,21 @@
 
         // Check for filters
         var filters = this.model.get("filter");
+        if (typeof filters === 'undefined') {
+          filters = {};
+        }
 
-        var aoi = this.model.get("AoI");
+        var aoi = this.model.get('AoI');
         if (aoi && aoi !== null){
-          if (typeof filters === 'undefined') {
-            filters = {};
-          }
-          filters["Longitude"] = [aoi.e, aoi.w];
-          filters["Latitude"] = [aoi.n, aoi.s];
+          filters['Longitude'] = [aoi.e, aoi.w];
+          filters['Latitude'] = [aoi.n, aoi.s];
         } else{
-          delete filters["Longitude"];
-          delete filters["Latitude"];
+          if(filters.hasOwnProperty('Longitude')){
+            delete filters['Longitude'];
+          }
+          if(filters.hasOwnProperty('Latitude')){
+            delete filters['Latitude'];
+          }
         }
 
         if (!$.isEmptyObject(filters)){
