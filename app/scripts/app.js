@@ -57,8 +57,14 @@ var VECTOR_BREAKDOWN = {};
                 // Create a multi file upload component
                 const pond = FilePond.create({
                     allowMultiple: true,
-                    name: 'filepond',
-                    server: 'upload/'
+                    name: 'file',
+                    server: 'upload/',
+                    onprocessfile: function(error, file){
+                        window.setTimeout(
+                            function(){Communicator.mediator.trigger('user:collection:change');},
+                            1000
+                        );
+                    }
                 });
 
                 // Add it to the DOM

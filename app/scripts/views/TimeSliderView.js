@@ -47,6 +47,12 @@
                     Communicator.mediator, 'date:selection:change',
                     this.onDateSelectionChange
                 );
+                this.listenTo(
+                    Communicator.mediator, 'user:collection:change',
+                    this.onUpdateUserCollection
+                );
+
+                
 
                 Communicator.reqres.setHandler('get:time', this.returnTime);
 
@@ -92,7 +98,7 @@
                     brushTooltip: true,
                     debounce: 300,
                     ticksize: 10,
-                    selectionLimit: (60*60*24*30), //15 Days
+                    selectionLimit: (60*60*24), //1 Days
                     datasets: []
                 };
 
@@ -205,8 +211,13 @@
 
 
                 // Add possible user collections
-                var USERVARIABLE = 'admin';
-                var collectionId = 'user_collection_'+ USERVARIABLE;
+                var collectionId;
+                if(typeof USERVARIABLE !== 'undefined'){
+                    collectionId = 'user_collection_'+ USERVARIABLE;
+                } else {
+                    collectionId = 'user_collection_admin';
+                }
+                
                 var attrs = {
                     id: collectionId,
                     url: '/ows'
@@ -221,6 +232,16 @@
 
 
             }, // END of onShow
+
+            onUpdateUserCollection: function(){
+                var collectionId;
+                if(typeof USERVARIABLE !== 'undefined'){
+                    collectionId = 'user_collection_'+ USERVARIABLE;
+                } else {
+                    collectionId = 'user_collection_admin';
+                }
+                this.slider.reloadDataset(collectionId);
+            },
 
             onChangeTime: function(evt){
                 // Check if start and end time is equal if yes increse end time by 1 minute
