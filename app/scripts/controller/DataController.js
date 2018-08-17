@@ -242,22 +242,21 @@
               }
           },
           choiceParameter: {
-             'ZWC_result_type': {
+              'origin': {
+                options: [
+                    {'name': 'original', value:'original'},
+                    {'name': 'user_upload', value:'user_upload'}
+                ],
+                selected: 'user_upload'
+              },
+              'ZWC_result_type': {
                 options: [
                     {'name': 'ZWC_Both', value:'ZWC_Both'},
                     {'name': 'ZWC_Mie', value:'ZWC_Mie'},
                     {'name': 'ZWC_Rayleigh', value:'ZWC_Rayleigh'}
                 ],
                 selected: 'ZWC_Both'
-              },
-              'origin': {
-                options: [
-                    {'name': 'original', value:'original'},
-                    {'name': 'uploaded by user', value:'user_upload'}
-                ],
-                selected: -1
               }
-
           }
         };
 
@@ -1283,7 +1282,7 @@
           ].join()
 
         }
-        //var USERVARIABLE = 'admin';
+        var USERVARIABLE = 'admin';
 
         var collections = [collectionId];
         if(typeof USERVARIABLE !== 'undefined'){
@@ -1332,10 +1331,7 @@
             }
           });
         }*/ else {
-          var auxType = collectionId.slice(4, -3);
           options["fields"] = fieldsList[collectionId];
-          options['aux_type'] = auxType;
-
         }
 
         options.mimeType = 'application/msgpack';

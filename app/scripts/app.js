@@ -191,10 +191,12 @@ var VECTOR_BREAKDOWN = {};
 
                         // Make sure download parameters are always loaded from script
                         // as well as granularity options
-                        product_config[i].download_parameters = m_p[i].download_parameters
+                        product_config[i].download_parameters = m_p[i].download_parameters;
                         if(m_p[i].hasOwnProperty('granularity_options')){
                             product_config[i].granularity_options = m_p[i].granularity_options;
                         }
+                        // Make sure process id is also always downloaded from config
+                        product_config[i].process = m_p[i].process;
                     }
 
 

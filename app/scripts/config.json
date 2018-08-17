@@ -678,7 +678,7 @@
                 "protocol": "WPS",
                 "url": "http://localhost:9000/vires00/ows"
             },
-            "process" : "aeolus:level1B:AUX",
+            "process" : "aeolus:level1B:AUX:MRC",
             "parameters": {
                 "frequency_valid": {
                     "selected": true,
@@ -765,7 +765,7 @@
                 "protocol": "WPS",
                 "url": "http://localhost:9000/vires00/ows"
             },
-            "process" : "aeolus:level1B:AUX",
+            "process" : "aeolus:level1B:AUX:RRC",
             "parameters": {
                 "frequency_valid": {
                     "selected": true,
@@ -865,7 +865,7 @@
                 "rayleigh_thermal_hood_temperature_3": { "uom": "°C", "name": "Sensor RSPT average temperature" },
                 "rayleigh_thermal_hood_temperature_4": { "uom": "°C", "name": "Sensor RSPT average temperature" },
                 "rayleigh_optical_baseplate_avg_temperature": { "uom": "°C", "name": "Sensor RSPT average temperature" },
-                "albedo_nadir": { "uom": null, "name": "xxx" }
+                "albedo_nadir": { "uom": null, "name": "Albedo nadir value" }
             },
             "outlines": false
         },
@@ -887,7 +887,7 @@
                 "protocol": "WPS",
                 "url": "http://localhost:9000/vires00/ows"
             },
-            "process" : "aeolus:level1B:AUX",
+            "process" : "aeolus:level1B:AUX:ISR",
             "parameters": {},
             "download_parameters": {
                 "time": {"uom": null, "name":"Start of observation time of the first BRC (UTC)"},
@@ -944,7 +944,7 @@
                 "protocol": "WPS",
                 "url": "http://localhost:9000/vires00/ows"
             },
-            "process" : "aeolus:level1B:AUX",
+            "process" : "aeolus:level1B:AUX:ZWC",
             "parameters": {
                 "mie_ground_correction_velocity": {
                     "selected": true,
@@ -1016,7 +1016,7 @@
                 "protocol": "WPS",
                 "url": "http://localhost:9000/vires00/ows"
             },
-            "process" : "aeolus:level1B:AUX",
+            "process" : "aeolus:level1B:AUX:MET",
             "parameters": {},
             "download_parameters": {
                 "Timestamp": {
