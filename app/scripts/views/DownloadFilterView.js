@@ -66,11 +66,11 @@
             'ALD_U_N_2A': 'aeolus:level2A',
             'ALD_U_N_2B': 'aeolus:level2B',
             'ALD_U_N_2C': 'aeolus:level2C',
-            'AUX_MRC_1B': 'aeolus:level1B:AUX',
-            'AUX_RRC_1B': 'aeolus:level1B:AUX',
-            'AUX_ISR_1B': 'aeolus:level1B:AUX',
-            'AUX_ZWC_1B': 'aeolus:level1B:AUX',
-            'AUX_MET_12': 'aeolus:level1B:AUX'
+            'AUX_MRC_1B': 'aeolus:level1B:AUX:MRC',
+            'AUX_RRC_1B': 'aeolus:level1B:AUX:RRC',
+            'AUX_ISR_1B': 'aeolus:level1B:AUX:ISR',
+            'AUX_ZWC_1B': 'aeolus:level1B:AUX:ZWC',
+            'AUX_MET_12': 'aeolus:level1B:AUX:MET'
           };
           options.processId = pid[di.Products];
           var req_data = wps_fetchFilteredDataAsync(options);
@@ -319,17 +319,21 @@
 
         // Check for filters
         var filters = this.model.get("filter");
+        if (typeof filters === 'undefined') {
+          filters = {};
+        }
 
-        var aoi = this.model.get("AoI");
+        var aoi = this.model.get('AoI');
         if (aoi && aoi !== null){
-          if (typeof filters === 'undefined') {
-            filters = {};
-          }
-          filters["Longitude"] = [aoi.e, aoi.w];
-          filters["Latitude"] = [aoi.n, aoi.s];
+          filters['Longitude'] = [aoi.e, aoi.w];
+          filters['Latitude'] = [aoi.n, aoi.s];
         } else{
-          delete filters["Longitude"];
-          delete filters["Latitude"];
+          if(filters.hasOwnProperty('Longitude')){
+            delete filters['Longitude'];
+          }
+          if(filters.hasOwnProperty('Latitude')){
+            delete filters['Latitude'];
+          }
         }
 
         if (!$.isEmptyObject(filters)){
@@ -910,12 +914,6 @@
 
               // TODO: This only takes into account having one product selected
               options.processId = prod.get('process');
-
-              if(collectionId.indexOf('AUX')!==-1) {
-                var auxType = collectionId.slice(4, -3);
-                options['aux_type'] = auxType;
-
-              }
             }
 
             var variables = $('#param_enum').data('selected');
@@ -1221,10 +1219,7 @@
               } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
                 options = Object.assign(options, fieldsList[collectionId]);
               } else {
-                var auxType = collectionId.slice(4, -3);
                 options["fields"] = fieldsList[collectionId];
-                options['aux_type'] = auxType;
-
               }
             }   
           },this);

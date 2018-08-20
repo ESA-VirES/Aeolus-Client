@@ -68,7 +68,8 @@
                   'mie_scattering_ratio', 'mie_SNR', 'mie_error_quantifier', 
                   'mie_average_laser_energy', 'mie_laser_frequency', 
                   'mie_bin_quality_flag',
-                  'mie_reference_pulse_quality_flag'
+                  'mie_reference_pulse_quality_flag',
+                  'mie_origin'
                 ],
                 [
                   'rayleigh_time_start','rayleigh_time_end',
@@ -84,7 +85,8 @@
                   'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', /*'rayleigh_SNR',*/
                   'rayleigh_bin_quality_flag', 'rayleigh_error_quantifier',
                   'rayleigh_average_laser_energy', 'rayleigh_laser_frequency', 
-                  'rayleigh_bin_quality_flag', 'rayleigh_reference_pulse_quality_flag'
+                  'rayleigh_bin_quality_flag', 'rayleigh_reference_pulse_quality_flag',
+                  'rayleigh_origin'
                 ],
                 [
                   'surface_wind_component_u_off_nadir',
@@ -242,7 +244,28 @@
               }
           },
           choiceParameter: {
-             'ZWC_result_type': {
+              'origin': {
+                options: [
+                    {'name': 'original', value:'original'},
+                    {'name': 'user_upload', value:'user_upload'}
+                ],
+                selected: -1
+              },
+              'mie_origin': {
+                options: [
+                    {'name': 'original', value:'original'},
+                    {'name': 'user_upload', value:'user_upload'}
+                ],
+                selected: -1
+              },
+              'rayleigh_origin': {
+                options: [
+                    {'name': 'original', value:'original'},
+                    {'name': 'user_upload', value:'user_upload'}
+                ],
+                selected: -1
+              },
+              'ZWC_result_type': {
                 options: [
                     {'name': 'ZWC_Both', value:'ZWC_Both'},
                     {'name': 'ZWC_Mie', value:'ZWC_Mie'},
@@ -703,6 +726,7 @@
         var urlBase = product.get('download').url;
 
         var collectionId = product.get('download').id;
+
         var parameters = '';
         var fieldsList = {
           'ALD_U_N_1B': {
@@ -1274,10 +1298,17 @@
           ].join()
 
         }
+        
+        //var USERVARIABLE = 'admin';
+
+        var collections = [collectionId];
+        if(typeof USERVARIABLE !== 'undefined'){
+            collections.push('user_collection_'+ USERVARIABLE);
+        }
 
         var options = {
           processId: process.id,
-          collection_ids: JSON.stringify([collectionId]),
+          collection_ids: JSON.stringify(collections),
           begin_time: getISODateTimeString(this.selected_time.start),
           end_time: getISODateTimeString(this.selected_time.end),
         };
@@ -1317,10 +1348,7 @@
             }
           });
         }*/ else {
-          var auxType = collectionId.slice(4, -3);
           options["fields"] = fieldsList[collectionId];
-          options['aux_type'] = auxType;
-
         }
 
         options.mimeType = 'application/msgpack';
@@ -1350,21 +1378,6 @@
 
                 var ds = data[collectionId];
 
-                /*if($.isEmptyObject(ds)){
-                  globals.swarm.set({data: {}});
-                  return;
-                }*/
-                var empty = true;
-                for (var k in ds){
-                  if(!$.isEmptyObject(ds[k]) && ds[k].length !== 0){
-                    empty = false;
-                  }
-                }
-                if (empty){
-                  globals.swarm.set({data: {}});
-                  return;
-                }
-
                 if(that.previousCollection !== collectionId){
                   that.previousCollection = collectionId;
                   if(that.firstLoad){
@@ -1378,8 +1391,112 @@
 
                   // TODO: Here we need to differentiate between observations and measurements
                   //ds = ds['observation_data'];
-                  var data = product.get('granularity')+'_data';
-                  ds = ds[data];
+                  var dataGranularity = product.get('granularity')+'_data';
+                  ds = ds[dataGranularity];
+
+                  // Check if user data is also available, if yes save sizes for 
+                  // each to be able to create referene objects and concatenate
+                  // user data to registered data
+                  // Check for possible user uploaded data
+                  var mieUserLength = 0;
+                  var mieOrigLength = 0;
+                  var rayleighUserLength = 0;
+                  var rayleighOrigLength = 0;
+
+                  if(typeof USERVARIABLE !== 'undefined'){
+                    var userCollId = 'user_collection_'+ USERVARIABLE;
+                    if(data.hasOwnProperty(userCollId)) {
+                      // Check if only user uploaded data is avaialbe
+                      if($.isEmptyObject(ds)){
+                        ds = data[userCollId][dataGranularity];
+                        keys = Object.keys(ds);
+                      } else {
+
+                        // Check for mie and rayleigh length
+                        var tmpArray = [];
+                        if(ds.hasOwnProperty('mie_HLOS_wind_speed')){
+                          ds['mie_origin'] = [];
+                          for (var i = 0; i < ds.mie_HLOS_wind_speed.length; i++) {
+                            tmpArray = [];
+                            for (var j = 0; j < ds.mie_HLOS_wind_speed[i].length; j++) {
+                              tmpArray.push('original');
+                            }
+                            ds['mie_origin'].push(tmpArray);
+                          }
+                        }
+                        if(ds.hasOwnProperty('rayleigh_HLOS_wind_speed')){
+                          ds['rayleigh_origin'] = [];
+                          for (var i = 0; i < ds.rayleigh_HLOS_wind_speed.length; i++) {
+                            tmpArray = [];
+                            for (var j = 0; j < ds.rayleigh_HLOS_wind_speed[i].length; j++) {
+                              tmpArray.push('original');
+                            }
+                            ds['rayleigh_origin'].push(tmpArray);
+                          }
+                        }
+                        if(data[userCollId][dataGranularity].hasOwnProperty('mie_HLOS_wind_speed')){
+                          data[userCollId][dataGranularity]['mie_origin'] = [];
+                          for (var i = 0; i < data[userCollId][dataGranularity].mie_HLOS_wind_speed.length; i++) {
+                            tmpArray = [];
+                            for (var j = 0; j < data[userCollId][dataGranularity].mie_HLOS_wind_speed[i].length; j++) {
+                              tmpArray.push('user_upload');
+                            }
+                            data[userCollId][dataGranularity]['mie_origin'].push(tmpArray);
+                          }
+                        }
+                        if(data[userCollId][dataGranularity].hasOwnProperty('rayleigh_HLOS_wind_speed')){
+                          data[userCollId][dataGranularity]['rayleigh_origin'] = [];
+                          for (var i = 0; i < data[userCollId][dataGranularity].rayleigh_HLOS_wind_speed.length; i++) {
+                            tmpArray = [];
+                            for (var j = 0; j < data[userCollId][dataGranularity].rayleigh_HLOS_wind_speed[i].length; j++) {
+                              tmpArray.push('user_upload');
+                            }
+                            data[userCollId][dataGranularity]['rayleigh_origin'].push(tmpArray);
+                          }
+                        }
+
+
+
+                        /*if(data[userCollId][dataGranularity].hasOwnProperty('mie_HLOS_wind_speed')){
+                          for (var i = 0; i < data[userCollId][dataGranularity].mie_HLOS_wind_speed.length; i++) {
+                            mieUserLength+=data[userCollId][dataGranularity].mie_HLOS_wind_speed[i].length;
+                          }
+                        }
+                        if(ds.hasOwnProperty('rayleigh_HLOS_wind_speed')){
+                          for (var i = 0; i < ds.rayleigh_HLOS_wind_speed.length; i++) {
+                            rayleighOrigLength+=ds.rayleigh_HLOS_wind_speed[i].length;
+                          }
+                        }
+                        if(data[userCollId][dataGranularity].hasOwnProperty('rayleigh_HLOS_wind_speed')){
+                          for (var i = 0; i < data[userCollId][dataGranularity].rayleigh_HLOS_wind_speed.length; i++) {
+                            rayleighUserLength+=data[userCollId][dataGranularity].rayleigh_HLOS_wind_speed[i].length;
+                          }
+                        }*/
+
+                        /*if(mieUserLength !== 0 && 
+                           mieOrigLength !== 0 &&
+                           rayleighUserLength !== 0 && 
+                           rayleighOrigLength !== 0){
+                          // Add identifier array for data
+                          tmpdata['origin'] = [];
+                          for (var i = 0; i < (mieOrigLength+rayleighOrigLength); i++) {
+                            tmpdata.origin.push('original');
+                          }
+                          for (var i = 0; i < (mieUserLength+rayleighUserLength); i++) {
+                            tmpdata.origin.push('user_upload');
+                          }
+                        }*/
+
+                        for (var param in ds){
+                          if(data[userCollId][dataGranularity].hasOwnProperty(param)){
+                            ds[param] = ds[param].concat(
+                              data[userCollId][dataGranularity][param]
+                            );
+                          }
+                        }
+                      }
+                    }
+                  }
 
                   if(product.get('granularity') === 'measurement'){
                     // Flatten everything equally, ignore empty arrays
@@ -1454,7 +1571,8 @@
                     'mie_scattering_ratio', 'mie_SNR', 'mie_error_quantifier', 
                     'average_laser_energy', 'laser_frequency', 
                     'mie_bin_quality_flag',
-                    'mie_reference_pulse_quality_flag'
+                    'mie_reference_pulse_quality_flag',
+                    'mie_origin'
                   ];
 
                   var rayleighVars = [
@@ -1469,7 +1587,8 @@
                     'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', //'rayleigh_SNR',
                     'rayleigh_bin_quality_flag', 'rayleigh_error_quantifier',
                     'average_laser_energy', 'laser_frequency', 
-                    'rayleigh_bin_quality_flag', 'rayleigh_reference_pulse_quality_flag'
+                    'rayleigh_bin_quality_flag', 'rayleigh_reference_pulse_quality_flag',
+                    'rayleigh_origin'
                   ];
 
                   var startEndVars = [
@@ -1605,6 +1724,58 @@
                   // ZWC data is structured differently to the other 3 AUX types
                   if(collectionId === 'AUX_ZWC_1B'){
 
+                    if(typeof USERVARIABLE !== 'undefined'){
+                      var userCollId = 'user_collection_'+ USERVARIABLE;
+                      if(data.hasOwnProperty(userCollId)) {
+                        // Check if only user uploaded data is avaialbe
+                        if($.isEmptyObject(ds)){
+                          ds = data[userCollId];
+                          keys = Object.keys(ds);
+                           // We create some additional data for ZWC data
+                          var obsIndex = [];
+                          for (var j = 1; j <= ds[keys[0]].length; j++) {
+                            obsIndex.push(j);
+                          }
+                          ds['observation_index'] = obsIndex;
+                        } else {
+                          // Check fo max length of data
+                          var origLength, userLength;
+                          if(ds.hasOwnProperty(keys[0])){
+                            origLength = ds[keys[0]].length;
+                          }
+                          if(data[userCollId].hasOwnProperty(keys[0])){
+                            userLength = data[userCollId][keys[0]].length;
+                          }
+
+                          if(typeof origLength !== 'undefined' && 
+                             typeof userLength !== 'undefined'){
+                            // Add identifier array for data
+                            ds['observation_index'] = [];
+                            data[userCollId]['observation_index'] = [];
+                            ds['origin'] = [];
+                            data[userCollId]['origin'] = [];
+                            for (var i = 0; i < origLength; i++) {
+                              ds.origin.push('original');
+                              ds.observation_index.push(i);
+                            }
+                            for (var i = 0; i < userLength; i++) {
+                              data[userCollId].origin.push('user_upload');
+                              data[userCollId].observation_index.push(i);
+                            }
+                            for (var param in ds){
+                              if(data[userCollId].hasOwnProperty(param)){
+                                ds[param] = ds[param].concat(
+                                  data[userCollId][param]
+                                );
+                              }
+                            }
+                            keys.push('origin');
+                            keys.push('observation_index');
+                          }
+                        }
+                      }
+                    }
+
                     resData = {};
                     for (var k = 0; k < keys.length; k++) {
                       if(!Array.isArray(ds[keys[k]])){
@@ -1629,14 +1800,6 @@
                         }
                       }
                     }
-
-                    //resData = ds;
-                    // We create some additional data for ZWC data
-                    var obsIndex = [];
-                    for (var j = 1; j <= resData[keys[0]].length; j++) {
-                      obsIndex.push(j);
-                    }
-                    resData['observation_index'] = obsIndex;
 
                   } else if(collectionId === 'AUX_MET_12'){
                     resData = ds;
@@ -1769,6 +1932,57 @@
                     resData['rayleigh_jumps'] = rayleighJumpPositions;
 
                   } else {
+                    // We land here for MRC, RRC and ISR
+
+                    // Check for possible user uploaded data
+                    if(typeof USERVARIABLE !== 'undefined'){
+                      var userCollId = 'user_collection_'+ USERVARIABLE;
+                      if(data.hasOwnProperty(userCollId)) {
+                        // Check if only user uploaded data is avaialbe
+                        if($.isEmptyObject(ds)){
+                          ds = data[userCollId];
+                          keys = Object.keys(ds);
+                        } else {
+                          // Check fo max length of data, for MRC and RRC we can 
+                          // look at frequency offset
+                          var origLength, userLength;
+                          if(ds.hasOwnProperty('frequency_offset')){
+                            origLength = ds.frequency_offset[0].length;
+                          }
+                          if(data[userCollId].hasOwnProperty('frequency_offset')){
+                            userLength = ds.frequency_offset[0].length;
+                          }
+
+                          if(ds.hasOwnProperty('laser_frequency_offset')){
+                            origLength = ds.laser_frequency_offset[0].length;
+                          }
+                          if(data[userCollId].hasOwnProperty('laser_frequency_offset')){
+                            userLength = ds.laser_frequency_offset[0].length;
+                          }
+
+                          if(typeof origLength !== 'undefined' && 
+                             typeof userLength !== 'undefined'){
+                            // Add identifier array for data
+                            ds['origin'] = [[]];
+                            data[userCollId]['origin'] = [[]];
+                            for (var i = 0; i < origLength; i++) {
+                              ds.origin[0].push('original');
+                            }
+                            for (var i = 0; i < userLength; i++) {
+                              data[userCollId].origin[0].push('user_upload');
+                            }
+                            for (var param in ds){
+                              if(data[userCollId].hasOwnProperty(param)){
+                                ds[param] = ds[param].concat(
+                                  data[userCollId][param]
+                                );
+                              }
+                            }
+                            keys.push('origin');
+                          }
+                        }
+                      }
+                    }
                     // Flatten structure as we do not need the different levels
                     // to render the data
                     for (var k = 0; k < keys.length; k++) {
@@ -1800,13 +2014,16 @@
 
                   }
 
-                  var tmpdata = {};
+                   var tmpdata = {};
                   tmpdata[collectionId] = resData;
 
-                  //resData[collectionId] = ds;
-                  globals.swarm.set({data: tmpdata});
+                  if($.isEmptyObject(resData)){
+                    globals.swarm.set({data: {}});
+                  } else {
+                    globals.swarm.set({data: tmpdata});
+                  }
                   // TODO: Merge data for filtermanager?
-                  that.filterManager.loadData(tmpdata[collectionId]);
+                  that.filterManager.loadData(resData);
 
                 }
                 that.xhr = null;
