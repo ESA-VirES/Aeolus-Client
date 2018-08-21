@@ -1775,7 +1775,6 @@
                         }
                       }
                     }
-
                     resData = {};
                     for (var k = 0; k < keys.length; k++) {
                       if(!Array.isArray(ds[keys[k]])){
@@ -1799,6 +1798,14 @@
                           // TODO: Handle 2D AUX Data
                         }
                       }
+                    }
+
+                    if(!resData.hasOwnProperty('observation_index')){
+                      var obsIndex = [];
+                      for (var j = 1; j <= resData[keys[0]].length; j++) {
+                        obsIndex.push(j);
+                      }
+                      resData['observation_index'] = obsIndex;
                     }
 
                   } else if(collectionId === 'AUX_MET_12'){
