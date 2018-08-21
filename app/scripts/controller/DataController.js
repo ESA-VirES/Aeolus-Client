@@ -1405,12 +1405,18 @@
 
                   if(typeof USERVARIABLE !== 'undefined'){
                     var userCollId = 'user_collection_'+ USERVARIABLE;
+                    
+
                     if(data.hasOwnProperty(userCollId)) {
+                      var userdataKeys = Object.keys(data[userCollId][dataGranularity]);
                       // Check if only user uploaded data is avaialbe
                       if($.isEmptyObject(ds)){
                         ds = data[userCollId][dataGranularity];
                         keys = Object.keys(ds);
-                      } else {
+
+
+                      } else if(!$.isEmptyObject(data[userCollId][dataGranularity])){
+                        // Only create these groups if userdata contains any data
 
                         // Check for mie and rayleigh length
                         var tmpArray = [];
