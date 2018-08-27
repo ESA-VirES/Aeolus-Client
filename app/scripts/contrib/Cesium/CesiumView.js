@@ -165,7 +165,7 @@ define([
                         if(idKeys[i] === 'ALD_U_N_1B'){
                             that.createCurtains(data[idKeys[i]], idKeys[i]);
                         } else if (idKeys[i] === 'Cloudsat'){
-                            this.createCloudsatCurtains(data[idKeys[i]], idKeys[i]);
+                            that.createCloudsatCurtains(data[idKeys[i]], idKeys[i]);
                         } else if (idKeys[i].includes('ALD_U_N_2')){
                             that.createL2Curtains(data[idKeys[i]], idKeys[i]);
                         } else {
@@ -1599,9 +1599,9 @@ define([
                 //console.log("lon:", lons[0]," lat:", lats[0]);
                 //console.log("lon:", lons.slice(-1)[0]," lat:", lats.slice(-1)[0]);
 
-                newmat.uniforms.repeat.x = -1;
+                //newmat.uniforms.repeat.x = -1;
                 // Check if ascending/descending change
-                if(cleanLats[0]-cleanLats[1]<0 && cleanLats[cleanLats.length-2]-cleanLats[cleanLats.length-1]>0){
+                /*if(cleanLats[0]-cleanLats[1]<0 && cleanLats[cleanLats.length-2]-cleanLats[cleanLats.length-1]>0){
                     newmat.uniforms.repeat.x = -1;
                 } else if(cleanLats[0]-cleanLats[1]>0 && cleanLats[cleanLats.length-2]-cleanLats[cleanLats.length-1]<0){
                     newmat.uniforms.repeat.x = 1;
@@ -1609,7 +1609,7 @@ define([
 
                 if(cleanLats.length == 2){
                     newmat.uniforms.repeat.x = 1;
-                }
+                }*/
 
                 for (var p = 0; p < cleanLats.length; p++) {
                     posDataHeight.push(cleanLons[p]);
