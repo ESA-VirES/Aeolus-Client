@@ -170,7 +170,13 @@
                 'surface_wind_component_v_off_nadir',
                 'surface_wind_component_v_nadir',
                 'surface_pressure_off_nadir','surface_pressure_nadir',
-                'surface_altitude_off_nadir', 'surface_altitude_nadir'
+                'surface_altitude_off_nadir', 'surface_altitude_nadir',
+                // Cloudsat
+                'CPR_Cloud_mask',
+                'Gaseous_Attenuation',
+                'Radar_Reflectivity',
+                'Latitude',
+                'longitude'
 
 
                 // 'measurement_response_valid','reference_pulse_response_valid',
@@ -446,23 +452,26 @@
               var albedoProd = globals.products.find(
                 function(model) { return model.get('download').id == 'ADAM_albedo'; }
               );
-              var albedoPars = albedoProd.get('parameters');
-              if(pId === 'AUX_MRC_1B' || pId === 'AUX_RRC_1B'){
-                if(albedoPars.offnadir.hasOwnProperty('selected')){
-                  delete albedoPars.offnadir.selected;
-                  albedoPars.nadir.selected = true;
-                  albedoProd.set('parameters', albedoPars);
-                }
-                Communicator.mediator.trigger("layer:parameters:changed", 'ADAM_albedo');
-              }else if(pId === 'ALD_U_N_1B' || pId === 'ALD_U_N_2A' ||
-                       pId === 'ALD_U_N_2B' || pId === 'ALD_U_N_2C' ||
-                       pId === 'AUX_ISR_1B' || pId === 'AUX_ZWC_1B' ||
-                       pId === 'AUX_MET_1B'){
-                if(albedoPars.nadir.hasOwnProperty('selected')){
-                  delete albedoPars.nadir.selected;
-                  albedoPars.offnadir.selected = true;
-                  albedoProd.set('parameters', albedoPars);
+              if(albedoProd){
+                var albedoPars = albedoProd.get('parameters');
+
+                if(pId === 'AUX_MRC_1B' || pId === 'AUX_RRC_1B'){
+                  if(albedoPars.offnadir.hasOwnProperty('selected')){
+                    delete albedoPars.offnadir.selected;
+                    albedoPars.nadir.selected = true;
+                    albedoProd.set('parameters', albedoPars);
+                  }
                   Communicator.mediator.trigger("layer:parameters:changed", 'ADAM_albedo');
+                }else if(pId === 'ALD_U_N_1B' || pId === 'ALD_U_N_2A' ||
+                         pId === 'ALD_U_N_2B' || pId === 'ALD_U_N_2C' ||
+                         pId === 'AUX_ISR_1B' || pId === 'AUX_ZWC_1B' ||
+                         pId === 'AUX_MET_1B'){
+                  if(albedoPars.nadir.hasOwnProperty('selected')){
+                    delete albedoPars.nadir.selected;
+                    albedoPars.offnadir.selected = true;
+                    albedoProd.set('parameters', albedoPars);
+                    Communicator.mediator.trigger("layer:parameters:changed", 'ADAM_albedo');
+                  }
                 }
               }
               
@@ -729,6 +738,7 @@
 
         var parameters = '';
         var fieldsList = {
+          'Cloudsat': {},
           'ALD_U_N_1B': {
             'observation_fields': [
               'time',
@@ -1363,7 +1373,7 @@
         }
 
         this.xhr = new XMLHttpRequest();
-        this.xhr.open('POST', urlBase, true);
+        this.xhr.open('GET', urlBase, true);
         this.xhr.responseType = 'arraybuffer';
         var that = this;
         var request = this.xhr;
@@ -1387,7 +1397,18 @@
                   }
                 }
 
-                if(collectionId === 'ALD_U_N_1B'){
+                if(collectionId === 'Cloudsat'){
+                  tmpdata = data;
+                  var resData = {};
+                  resData[collectionId] = tmpdata;
+
+                  // TODO: Merge data for filtermanager?
+                  that.filterManager.loadData(resData);
+                  that.filterManager._initData();
+
+
+                  globals.swarm.set({data: resData});
+                } else if (collectionId === 'ALD_U_N_1B'){
 
                   // TODO: Here we need to differentiate between observations and measurements
                   //ds = ds['observation_data'];

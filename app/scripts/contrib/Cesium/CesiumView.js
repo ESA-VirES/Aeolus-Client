@@ -142,8 +142,8 @@ define([
                 renderSettings: renderSettings,
                 filterManager: globals.swarm.get('filterManager'),
                 fixedSize: true,
-                fixedWidth: 2048,
-                fixedHeigt: 512,
+                fixedWidth: 8192,
+                fixedHeigt: 256,
                 defaultAlpha: 1.0
             });
 
@@ -164,6 +164,8 @@ define([
                         //this.graph.loadData(data[idKeys[i]]);
                         if(idKeys[i] === 'ALD_U_N_1B'){
                             that.createCurtains(data[idKeys[i]], idKeys[i]);
+                        } else if (idKeys[i] === 'Cloudsat'){
+                            this.createCloudsatCurtains(data[idKeys[i]], idKeys[i]);
                         } else if (idKeys[i].includes('ALD_U_N_2')){
                             that.createL2Curtains(data[idKeys[i]], idKeys[i]);
                         } else {
@@ -492,7 +494,9 @@ define([
                         this.createCurtains(data[idKeys[i]], idKeys[i]);
                     } else if (idKeys[i].includes('ALD_U_N_2')){
                         this.createL2Curtains(data[idKeys[i]], idKeys[i]);
-                    } else {
+                    } else if (idKeys[i] === 'Cloudsat'){
+                        this.createCloudsatCurtains(data[idKeys[i]], idKeys[i]);
+                    }else {
                         this.createPointCollection(data[idKeys[i]], idKeys[i]);
                     }
                 }
@@ -531,7 +535,9 @@ define([
                     for (var i = idKeys.length - 1; i >= 0; i--) {
                         if(idKeys[i] === 'ALD_U_N_1B'){
                             this.createCurtains(data[idKeys[i]], idKeys[i]);
-                        } else if (idKeys[i].includes('ALD_U_N_2')){
+                        } else if (idKeys[i] === 'Cloudsat'){
+                            this.createCloudsatCurtains(data[idKeys[i]], idKeys[i]);
+                        }else if (idKeys[i].includes('ALD_U_N_2')){
                             this.createL2Curtains(data[idKeys[i]], idKeys[i]);
                         } else {
                             this.graph.data = {};
@@ -1316,6 +1322,352 @@ define([
                 /*if(wallGeometry.attributes.normal.values[0]<0){
                     newmat.uniforms.repeat.x = 1;
                 }*/
+
+                var sliceAppearance = new Cesium.MaterialAppearance({
+                    translucent : true,
+                    flat: true,
+                    faceForward: true,
+                    //closed: true,
+                    material : newmat
+                });
+
+                //instances.push(instance);
+                var prim = new Cesium.Primitive({
+                  geometryInstances : instance,
+                  appearance : sliceAppearance,
+                  releaseGeometryInstances: false,
+                  asynchronous: false
+                });
+
+                curtainCollection.add(prim);
+            }
+
+            if(renderOutlines){
+                var linesPrim = new Cesium.Primitive({
+                    geometryInstances: lineInstances,
+                    appearance: new Cesium.PolylineMaterialAppearance({
+                        material : new Cesium.Material.fromType('PolylineArrow', {
+                            color: new Cesium.Color(0.53, 0.02, 0.65, 1)
+                        })
+                    })
+                });
+                curtainCollection.add(linesPrim);
+            }
+
+        },
+
+        createCloudsatCurtains: function(data, cov_id){
+
+            var currProd = globals.products.find(
+                function(p){return p.get('download').id === cov_id;}
+            );
+
+            var curtainCollection;
+
+            if(currProd.hasOwnProperty('curtains')){
+                currProd.curtains.removeAll();
+                curtainCollection = currProd.curtains;
+            }else{
+                curtainCollection = new Cesium.PrimitiveCollection();
+                this.activeCurtainCollections.push(curtainCollection);
+                this.map.scene.primitives.add(curtainCollection);
+                currProd.curtains = curtainCollection;
+            }
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
+
+            var alpha = currProd.get('opacity');
+            if(alpha === 1.0){
+                alpha = 0.99;
+            }
+
+            this.dataSettings[band].colorscale = style;
+            this.dataSettings[band].extent = range;
+            this.graph.dataSettings = this.dataSettings;
+
+            var dataJumps, lats, lons, pStartTimes, pStopTimes;
+
+            var params = {
+                'Cloudsat': {
+                    'CPR_Cloud_mask': {
+                        lats: 'lats',
+                        lons: 'lons',
+                        timeStart: 'time_start',
+                        timeStop: 'time_end',
+                        colorAxis: ['CPR_Cloud_mask'],
+                        xAxis:'time',
+                        yAxis: ['altitude'],
+                        combinedParameters: {
+                            altitude: ['altitude_end', 'altitude_start'],
+                            time: ['time_start', 'time_end'],
+                        },
+                        jumps: 'jumps'
+                    },
+                    'Gaseous_Attenuation': {
+                        lats: 'lats',
+                        lons: 'lons',
+                        timeStart: 'time_start',
+                        timeStop: 'time_end',
+                        colorAxis: ['Gaseous_Attenuation'],
+                        xAxis:'time',
+                        yAxis: ['altitude'],
+                        combinedParameters: {
+                            altitude: ['altitude_end', 'altitude_start'],
+                            time: ['time_start', 'time_end'],
+                        },
+                        jumps: 'jumps'
+                    },
+                    'Radar_Reflectivity': {
+                        lats: 'lats',
+                        lons: 'lons',
+                        timeStart: 'time_start',
+                        timeStop: 'time_end',
+                        colorAxis: ['Radar_Reflectivity'],
+                        xAxis:'time',
+                        yAxis: ['altitude'],
+                        combinedParameters: {
+                            altitude: ['altitude_end', 'altitude_start'],
+                            time: ['time_start', 'time_end'],
+                        },
+                        jumps: 'jumps'
+                    }
+                    
+
+                }
+            };
+
+            var currPar = params[cov_id][band];
+            this.graph.renderSettings.combinedParameters = currPar.combinedParameters;
+            this.graph.renderSettings.colorAxis = currPar.colorAxis;
+            this.graph.renderSettings.yAxis = currPar.yAxis;
+            this.graph.renderSettings.xAxis =currPar.xAxis;
+            if(data.hasOwnProperty(currPar.jumps)){
+                dataJumps = data[currPar.jumps];
+            }else{
+                dataJumps = [];
+            }
+            lats = data[currPar.lats];
+            lons = data[currPar.lons];
+            pStartTimes = data[currPar.timeStart];
+            pStopTimes = data[currPar.timeStop];
+
+
+            var height = 1000000;
+            var lineInstances = [];
+            var renderOutlines = defaultFor(currProd.get('outlines'), false);
+
+            
+            //TODO: How to correctly handle multiple curtains with jumps
+            for (var i = 0; i <= dataJumps.length; i++) {
+
+                var startSlice, endSlice;
+                if(dataJumps.length === 0){
+                    this.graph.loadData(data);
+                } else {
+                    // get extent limits for curtain piece
+                    startSlice = 0;
+                    if(i>0){
+                        startSlice = dataJumps[i-1];
+                    }
+                    if(i<dataJumps.length){
+                        endSlice = dataJumps[i];
+                    }else{
+                        endSlice = lats.length-1;
+                    }
+                    // If curtain slice is too small we ignore it as it can't be rendered
+                    if(endSlice-startSlice<=2){
+                        continue;
+                    }
+                    var start = new Date('2000-01-01');
+                    start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice]*1000);
+                    var end = new Date('2000-01-01');
+                    end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice]*1000);
+                    this.graph.setXDomain([start, end]);
+                    this.graph.loadData(data);
+                    this.graph.clearXDomain();
+                }
+                var newmat = new Cesium.Material.fromType('Image', {
+                    image : this.graph.getCanvasImage(),
+                    color: new Cesium.Color(1, 1, 1, alpha),
+                });
+
+
+                var slicedLats, slicedLons;
+
+                if(dataJumps.length > 0){
+                    slicedLats = lats.slice(startSlice, endSlice);
+                    slicedLons = lons.slice(startSlice, endSlice);
+                } else {
+                    slicedLats = lats;
+                    slicedLons = lons;
+                }
+
+
+                var posDataHeight = [];
+                var posData = [];
+                
+                // Data provided has jumps back an forth in lat and long, trying
+                // to avoid the issue we take every third element which hopefully
+                // should hit not repeating or ascending/descending inverted values
+                // TODO: re-evaluate a correct method to handle this
+                var stepsize = 3;/*Math.floor(slicedLats.length/10);
+                if(stepsize<3){
+                    stepsize = 3;
+                }*/
+                if(slicedLats.length > 30){
+                    stepsize = 20;
+                }
+                if(slicedLats.length <5){
+                    stepsize = 2;
+                }
+                var cleanLats = [];
+                for (var p = 0; p < slicedLats.length; p+=stepsize){
+                    if(slicedLats[p] !== cleanLats[cleanLats.length-1]){
+                        cleanLats.push(slicedLats[p]);
+                    }
+                }
+                if((slicedLats.length-1)%stepsize !== 0){
+                    if(cleanLats[cleanLats.length-1] !== slicedLats[slicedLats.length-1]){
+                        cleanLats.push(slicedLats[slicedLats.length-1]);
+                    }
+                }
+
+                var cleanLons = [];
+                for (var p = 0; p < slicedLons.length; p+=stepsize){
+                    if(slicedLons[p] !== cleanLons[cleanLons.length-1]){
+                        cleanLons.push(slicedLons[p]);
+                    }
+                }
+                if((slicedLons.length-1)%stepsize !== 0){
+                    if(cleanLons[cleanLons.length-1] !== slicedLons[slicedLons.length-1]){
+                        cleanLons.push(slicedLons.slice(-1)[0]);
+                    }
+
+                }
+
+                var itemsToRemove = [];
+                // Check lats to make sure direction does not change
+                for (var i = cleanLats.length - 1; i >= 0; i--) {
+                    if(i>3){
+                        if( (cleanLats[i]-cleanLats[i-2] <= 0 && 
+                            cleanLats[i-1]-cleanLats[i-2] >= 0 ) ||
+                            (cleanLats[i]-cleanLats[i-2] >= 0 && 
+                            cleanLats[i-1]-cleanLats[i-2] <= 0)){
+                            itemsToRemove.push(i-1);
+                        }
+                    }
+                }
+
+                for (var i = 0; i < itemsToRemove.length; i++) {
+                    cleanLats.splice(itemsToRemove[i],1);
+                    cleanLons.splice(itemsToRemove[i],1);
+                }
+
+                itemsToRemove = [];
+                // Check lons to make sure direction does not change
+                for (var i = cleanLons.length - 1; i >= 0; i--) {
+                    if(i>3){
+                        if( (cleanLons[i]-cleanLons[i-2] <= 0 && 
+                            cleanLons[i-1]-cleanLons[i-2] >= 0 ) ||
+                            (cleanLons[i]-cleanLons[i-2] >= 0 && 
+                            cleanLons[i-1]-cleanLons[i-2] <= 0)){
+                            itemsToRemove.push(i-1);
+                        }
+                    }
+                }
+
+                for (var i = 0; i < itemsToRemove.length; i++) {
+                    cleanLats.splice(itemsToRemove[i],1);
+                    cleanLons.splice(itemsToRemove[i],1);
+                }
+
+                // Check lons to make sure direction does not change
+
+
+                // Change direction of texture depending if curtain beginning 
+                // and end latitude coordinates
+                var lastLats = cleanLats.slice(-2);
+                //console.log("lon:", lons[0]," lat:", lats[0]);
+                //console.log("lon:", lons.slice(-1)[0]," lat:", lats.slice(-1)[0]);
+
+                newmat.uniforms.repeat.x = -1;
+                // Check if ascending/descending change
+                if(cleanLats[0]-cleanLats[1]<0 && cleanLats[cleanLats.length-2]-cleanLats[cleanLats.length-1]>0){
+                    newmat.uniforms.repeat.x = -1;
+                } else if(cleanLats[0]-cleanLats[1]>0 && cleanLats[cleanLats.length-2]-cleanLats[cleanLats.length-1]<0){
+                    newmat.uniforms.repeat.x = 1;
+                }
+
+                if(cleanLats.length == 2){
+                    newmat.uniforms.repeat.x = 1;
+                }
+
+                for (var p = 0; p < cleanLats.length; p++) {
+                    posDataHeight.push(cleanLons[p]);
+                    posDataHeight.push(cleanLats[p]);
+                    posDataHeight.push(height);
+                    posData.push(cleanLons[p]);
+                    posData.push(cleanLats[p]);
+                }
+
+                if(renderOutlines){
+                    lineInstances.push(
+                        new Cesium.GeometryInstance({
+                            geometry : new Cesium.PolylineGeometry({
+                                positions : 
+                                Cesium.Cartesian3.fromDegreesArrayHeights(
+                                    posDataHeight
+                                ),
+                                width : 10.0
+                            })
+                        })
+                    );
+
+                    lineInstances.push(
+                        new Cesium.GeometryInstance({
+                            geometry : new Cesium.PolylineGeometry({
+                                positions : 
+                                Cesium.Cartesian3.fromDegreesArray(
+                                    posData
+                                ),
+                                width : 10.0
+                            })
+                        })
+                    );
+                }
+
+                if(posDataHeight.length === 6){
+                    if (posDataHeight[0] === posDataHeight[3] &&
+                        posDataHeight[1] === posDataHeight[4]){
+                        console.log('Warning curtain geometry has equal start and end point, geometry creation was skipped');
+                        continue;
+                    }
+                }
+
+                var wall = new Cesium.WallGeometry({
+                    positions : Cesium.Cartesian3.fromDegreesArrayHeights(
+                        posDataHeight
+                    )
+
+                });
+                var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
+                if(wallGeometry){
+                    var instance = new Cesium.GeometryInstance({
+                      geometry : wallGeometry
+                    }); 
+                } else {
+                    console.log("CesiumView.js: Wallgeometry not created correctly!");
+                }
+
 
                 var sliceAppearance = new Cesium.MaterialAppearance({
                     translucent : true,
@@ -2190,6 +2542,8 @@ define([
                 for (var i = idKeys.length - 1; i >= 0; i--) {
                     if(idKeys[i] === 'ALD_U_N_1B'){
                         this.createCurtains(data[idKeys[i]], idKeys[i]);
+                    } else if (idKeys[i].includes('Cloudsat')){
+                        this.createCloudsatCurtains(data[idKeys[i]], idKeys[i]);
                     } else if (idKeys[i].includes('ALD_U_N_2')){
                         this.createL2Curtains(data[idKeys[i]], idKeys[i]);
                     } else {
@@ -2217,6 +2571,8 @@ define([
 
                      if(covid === 'ALD_U_N_1B'){
                         this.createCurtains(data, covid);
+                    } else if (covid === 'Cloudsat'){
+                        this.createCloudsatCurtains(data, covid);
                     } else if ( covid.includes('ALD_U_N_2') ){
                         this.createL2Curtains(data, covid);
                     }

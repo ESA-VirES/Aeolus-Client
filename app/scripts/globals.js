@@ -351,6 +351,24 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 uom: 'm',
             }, 'surface_altitude_nadir':{
                 uom: 'm',
+            },
+
+
+            // Cloudsat
+            'CPR_Cloud_mask': {
+                uom: null,
+                colorscale: 'viridis',
+                extent: [0, 40]
+            },
+            'Gaseous_Attenuation': {
+                extent: [0, 550],
+                uom: null,
+                colorscale: 'plasma'
+            },
+            'Radar_Reflectivity': {
+                extent: [-8000, 16000],
+                uom: null,
+                colorscale: 'plasma'
             }
         }
     };

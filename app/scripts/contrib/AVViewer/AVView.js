@@ -126,7 +126,13 @@ define(['backbone.marionette',
                     'surface_wind_component_v_off_nadir',
                     'surface_wind_component_v_nadir',
                     'surface_pressure_off_nadir','surface_pressure_nadir',
-                    'surface_altitude_off_nadir', 'surface_altitude_nadir'
+                    'surface_altitude_off_nadir', 'surface_altitude_nadir',
+                    // Cloudsat
+                    'CPR_Cloud_mask',
+                    'Gaseous_Attenuation',
+                    'Radar_Reflectivity',
+                    'Latitude',
+                    'Longitud'
                 ]
             }
 
@@ -168,6 +174,16 @@ define(['backbone.marionette',
                         time: ['mie_time_start', 'mie_time_end'],
                     },
                     colorAxis: ['mie_HLOS_wind_speed']
+
+                },
+                'Cloudsat': {
+                    xAxis: 'time',
+                    yAxis: [ 'altitude'],
+                    combinedParameters: {
+                        altitude: ['altitude_end', 'altitude_start'],
+                        time: ['time_start', 'time_end'],
+                    },
+                    colorAxis: ['CPR_Cloud_mask']
 
                 },
                 'ALD_U_N_2A_mie': {
@@ -747,6 +763,25 @@ define(['backbone.marionette',
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_1B']);
+
+                     }else if(idKeys[0] === 'Cloudsat'){
+                        this.graph2.data = {};
+                        $('#graph_1').css('height', '99%');
+                        $('#graph_2').hide();
+                        this.graph1.ignoreParameters = [];
+                        this.graph2.ignoreParameters = [];
+                        this.graph1.debounceActive = true;
+                        this.graph2.debounceActive = true;
+                        this.graph1.ignoreParameters = ['lats', 'lons', 'positions', 'stepPositions', /.*_jumps/];
+                        this.graph2.ignoreParameters = ['lats', 'lons', 'positions', 'stepPositions', /.*_jumps/];
+                        this.graph1.connectGraph(false);
+                        this.graph2.connectGraph(false);
+                        this.graph1.dataSettings = mergedDataSettings;
+                        this.graph1.renderSettings = this.renderSettings[idKeys[0]];
+                        this.graph1.loadData(data[idKeys[0]]);
+                        this.graph1.fileSaveString = idKeys[0];
+                        this.graph1.resize();
+                        this.filterManager.loadData(data[idKeys[0]]);
 
                      }else if(idKeys[0] === 'ALD_U_N_2A'){
 
