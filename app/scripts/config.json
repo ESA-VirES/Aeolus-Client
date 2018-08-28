@@ -129,7 +129,7 @@
             }]
         }],
         "products": [{
-            "name": "ADM L1B",
+            "name": "L1B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "visible": true,
@@ -213,7 +213,7 @@
             "granularity_options": ["observation", "measurement"]
         },
         {
-            "name": "ADM L2A",
+            "name": "L2A",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "views": [{
@@ -332,7 +332,7 @@
             "granularity_options": ["observation", "group"]
         },
         {
-            "name": "ADM L2B",
+            "name": "L2B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "visible": false,
@@ -475,7 +475,7 @@
             "granularity_options": ["wind-accumulation-result", "measurement", "group"]
         },
         {
-            "name": "ADM L2C",
+            "name": "L2C",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "visible": false,
