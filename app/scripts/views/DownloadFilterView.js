@@ -66,11 +66,11 @@
             'ALD_U_N_2A': 'aeolus:level2A',
             'ALD_U_N_2B': 'aeolus:level2B',
             'ALD_U_N_2C': 'aeolus:level2C',
-            'AUX_MRC_1B': 'aeolus:level1B:AUX',
-            'AUX_RRC_1B': 'aeolus:level1B:AUX',
-            'AUX_ISR_1B': 'aeolus:level1B:AUX',
-            'AUX_ZWC_1B': 'aeolus:level1B:AUX',
-            'AUX_MET_12': 'aeolus:level1B:AUX'
+            'AUX_MRC_1B': 'aeolus:level1B:AUX:MRC',
+            'AUX_RRC_1B': 'aeolus:level1B:AUX:RRC',
+            'AUX_ISR_1B': 'aeolus:level1B:AUX:ISR',
+            'AUX_ZWC_1B': 'aeolus:level1B:AUX:ZWC',
+            'AUX_MET_12': 'aeolus:level1B:AUX:MET'
           };
           options.processId = pid[di.Products];
           var req_data = wps_fetchFilteredDataAsync(options);
@@ -319,17 +319,21 @@
 
         // Check for filters
         var filters = this.model.get("filter");
+        if (typeof filters === 'undefined') {
+          filters = {};
+        }
 
-        var aoi = this.model.get("AoI");
+        var aoi = this.model.get('AoI');
         if (aoi && aoi !== null){
-          if (typeof filters === 'undefined') {
-            filters = {};
-          }
-          filters["Longitude"] = [aoi.e, aoi.w];
-          filters["Latitude"] = [aoi.n, aoi.s];
+          filters['Longitude'] = [aoi.e, aoi.w];
+          filters['Latitude'] = [aoi.n, aoi.s];
         } else{
-          delete filters["Longitude"];
-          delete filters["Latitude"];
+          if(filters.hasOwnProperty('Longitude')){
+            delete filters['Longitude'];
+          }
+          if(filters.hasOwnProperty('Latitude')){
+            delete filters['Latitude'];
+          }
         }
 
         if (!$.isEmptyObject(filters)){
@@ -396,9 +400,17 @@
         var available_parameters = [];
 
         var collections = [];
+        var collectionNames = [];
+        var granularity;
         _.each(this.model.get("products"), function(prod){
             if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
               collections.push(prod.get('download').id);
+              var collName = prod.get('download').id;
+              if(prod.get('granularity')){
+                collName += ' ('+prod.get('granularity')+')';
+                granularity = prod.get('granularity');
+              }
+              collectionNames.push(collName);
             }
         },this);
 
@@ -408,7 +420,7 @@
 
         prod_div.append('<ul style="padding-left:15px">');
         var ul = prod_div.find("ul");
-        _.each(collections, function(prod){
+        _.each(collectionNames, function(prod){
           ul.append('<li style="list-style-type: circle; padding-left:-6px;list-style-position: initial;">'+prod+'</li>');
         }, this);
 
@@ -484,11 +496,24 @@
               available_parameters.push({
                 'id': id, 
                 'uom': downPars[id].uom,
-                'description': downPars[id].name
+                'description': downPars[id].name,
+                'granularity': downPars[id].granularity
               });
             }
           }
-        }, this);       
+        }, this);
+
+        // If the currently selected model has granularity filter out parameters
+        // that have other ganularities defined
+        if(typeof granularity !== 'undefined'){
+          available_parameters = available_parameters.filter(function(item){
+            if(item.granularity){
+              return item.granularity.indexOf(granularity.substring(0,3)) !== -1;
+            } else {
+              return false;
+            }
+          });
+        }  
 
         $('#param_enum').w2field('enum', { 
             items: _.sortBy(available_parameters, 'id'), // Sort parameters alphabetically 
@@ -900,28 +925,32 @@
           options["bbox_upper"] = bboxFilter['Longitude'][1] + " " + bboxFilter['Latitude'][1];
         }
 
-        options["filters"] = JSON.stringify(filters);
+        if(Object.keys(filters).length > 0){
+          options["filters"] = JSON.stringify(filters);
+        }
 
         // Custom variables
         if ($('#custom_parameter_cb').is(':checked')) {
+          var granularity;
           _.each(this.model.get("products"), function(prod){
             if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
               var collectionId = prod.get("download").id;
 
               // TODO: This only takes into account having one product selected
               options.processId = prod.get('process');
-
-              if(collectionId.indexOf('AUX')!==-1) {
-                var auxType = collectionId.slice(4, -3);
-                options['aux_type'] = auxType;
-
+              if(prod.get('granularity')){
+                granularity = prod.get('granularity')+'_fields';
               }
             }
 
             var variables = $('#param_enum').data('selected');
             variables = variables.map(function(item) {return item.id;});
             variables = variables.join(',');
-            options.fields = variables;
+            if(typeof granularity !== 'undefined'){
+              options[granularity] = variables;
+            } else {
+              options.fields = variables;
+            }
 
           },this);
         }else{
@@ -929,25 +958,87 @@
           // product parameters in configuration
 
             var fieldsList = {
-            'ALD_U_N_1B': [
-                'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-                'mie_altitude', 'rayleigh_altitude',
-                'mie_range', 'rayleigh_range', 'velocity_at_DEM_intersection',
-                'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
-                'mie_HLOS_wind_speed', 'rayleigh_HLOS_wind_speed',
-                'mie_signal_intensity', 'rayleigh_signal_channel_A_intensity',
-                'rayleigh_signal_channel_B_intensity', /*'rayleigh_signal_intensity',*/
-                'mie_ground_velocity', 'rayleigh_ground_velocity', 'mie_scattering_ratio',
-                'mie_bin_quality_flag', 'mie_HBE_ground_velocity', 'rayleigh_HBE_ground_velocity',
-                'mie_total_ZWC', 'rayleigh_total_ZWC',
+            'ALD_U_N_1B': {
+              'observation_fields': [
+                'time',
+                'longitude_of_DEM_intersection',
+                'latitude_of_DEM_intersection',
+                'altitude_of_DEM_intersection',
+                'mie_longitude',
+                'mie_latitude',
+                'rayleigh_longitude',
+                'rayleigh_latitude',
+                'mie_altitude',
+                'rayleigh_altitude',
+                'mie_range',
+                'rayleigh_range',
+                'geoid_separation',
+                'velocity_at_DEM_intersection',
+                'AOCS_pitch_angle',
+                'AOCS_roll_angle',
+                'AOCS_yaw_angle',
+                'mie_HLOS_wind_speed',
+                'rayleigh_HLOS_wind_speed',
+                'mie_signal_intensity',
+                'rayleigh_signal_channel_A_intensity',
+                'rayleigh_signal_channel_B_intensity',
+                //'rayleigh_signal_intensity',
+                'mie_ground_velocity',
+                'rayleigh_ground_velocity',
+                'mie_HBE_ground_velocity',
+                'rayleigh_HBE_ground_velocity',
+                'mie_total_ZWC',
+                'rayleigh_total_ZWC',
+                'mie_scattering_ratio',
                 'mie_SNR',
-                'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', /*'rayleigh_SNR',*/
-                'mie_error_quantifier', 
-                'rayleigh_bin_quality_flag', 'rayleigh_error_quantifier',
-                'average_laser_energy', 'laser_frequency', 
-                'rayleigh_bin_quality_flag','mie_bin_quality_flag',
-                'rayleigh_reference_pulse_quality_flag','mie_reference_pulse_quality_flag'
-            ],
+                'rayleigh_channel_A_SNR',
+                'rayleigh_channel_B_SNR',
+                //'rayleigh_SNR',
+                'mie_error_quantifier',
+                'rayleigh_error_quantifier',
+                'average_laser_energy',
+                'laser_frequency',
+                'rayleigh_bin_quality_flag',
+                'mie_bin_quality_flag',
+                'rayleigh_reference_pulse_quality_flag',
+                'mie_reference_pulse_quality_flag'
+              ],
+              'measurement_fields': [
+                'time',
+                'longitude_of_DEM_intersection',
+                'latitude_of_DEM_intersection',
+                'altitude_of_DEM_intersection',
+                'mie_longitude',
+                'mie_latitude',
+                'rayleigh_longitude',
+                'rayleigh_latitude',
+                'mie_altitude',
+                'rayleigh_altitude',
+                'velocity_at_DEM_intersection',
+                'AOCS_pitch_angle',
+                'AOCS_roll_angle',
+                'AOCS_yaw_angle',
+                'mie_HLOS_wind_speed',
+                'rayleigh_HLOS_wind_speed',
+                //'mie_signal_intensity',
+                //'rayleigh_signal_channel_A_intensity',
+                //'rayleigh_signal_channel_B_intensity',
+                //'rayleigh_signal_intensity',
+                'mie_ground_velocity',
+                'rayleigh_ground_velocity',
+                'mie_scattering_ratio',
+                /*'mie_SNR',
+                'rayleigh_channel_A_SNR',
+                'rayleigh_channel_B_SNR',
+                'rayleigh_SNR',*/
+                'average_laser_energy',
+                'laser_frequency',
+                'rayleigh_bin_quality_flag',
+                'mie_bin_quality_flag',
+                'rayleigh_reference_pulse_quality_flag',
+                'mie_reference_pulse_quality_flag'
+              ]
+            },
             'ALD_U_N_2A': {
               'observation_fields': [
                 'mie_altitude_obs','rayleigh_altitude_obs',
@@ -1215,16 +1306,15 @@
               // TODO: This only takes into account having one product selected
               options.processId = prod.get('process');
               if(collectionId === 'ALD_U_N_1B'){
-                options["observation_fields"] = fieldsList[collectionId];
+                // Check what granularity is selected and only show relevant parameters
+                var granularity = prod.get('granularity')+'_fields';
+                options[granularity] = fieldsList[collectionId][granularity];
               } else if(collectionId === 'ALD_U_N_2A'){
                 options = Object.assign(options, fieldsList[collectionId]);
               } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
                 options = Object.assign(options, fieldsList[collectionId]);
               } else {
-                var auxType = collectionId.slice(4, -3);
                 options["fields"] = fieldsList[collectionId];
-                options['aux_type'] = auxType;
-
               }
             }   
           },this);

@@ -98,6 +98,10 @@ module.exports = function (grunt) {
                 context: '/wps',
                 host: 'localhost',
                 port: 8400
+            },{
+                context: '/upload',
+                host: 'localhost',
+                port: 8400
             }],            
             livereload: {
                 options: {
@@ -373,6 +377,7 @@ module.exports = function (grunt) {
                         'bower_components/w2ui/src/w2utils.js',
                         'bower_components/msgpack-lite/dist/msgpack.min.js',
                         'bower_components/graphly/dist/graphly.min.js',
+                        'bower_components/filepond/dist/filepond.js',
                         'scripts/vendor/**',
                     ]
                 },{

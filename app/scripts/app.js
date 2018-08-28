@@ -16,7 +16,7 @@ var VECTOR_BREAKDOWN = {};
             'layouts/ToolControlLayout',
             'layouts/OptionsLayout',
             'core/SplitView/WindowView',
-            'communicator',
+            'communicator', 'filepond',
             'jquery', 'backbone.marionette',
             'controller/ContentController',
             'controller/DownloadController',
@@ -29,7 +29,8 @@ var VECTOR_BREAKDOWN = {};
         ],
 
         function(Backbone, globals, DialogRegion,
-            UIRegion, LayerControlLayout, ToolControlLayout, OptionsLayout, WindowView, Communicator) {
+            UIRegion, LayerControlLayout, ToolControlLayout, OptionsLayout,
+            WindowView, Communicator, FilePond) {
 
         var Application = Backbone.Marionette.Application.extend({
             initialize: function(options) {
@@ -37,18 +38,29 @@ var VECTOR_BREAKDOWN = {};
 
             configure: function(config) {
 
-                //localStorage.clear();
-
-
-                /*$("body").tooltip({ 
-                    selector: '[data-toggle=tooltip]',
-                    position: { my: "left+5 center", at: "right center" },
-                    hide: { effect: false, duration: 0 },
-                    show:{ effect: false, delay: 700}
-                });*/
 
                 var imagerenderercanvas = $('<canvas/>',{id: 'imagerenderercanvas'});
                 $('body').append(imagerenderercanvas);
+
+                var uploadDialogContainer = $('<div/>',{id: 'uploadDialogContainer'});
+                $('body').append(uploadDialogContainer);
+                //uploadDialogContainer.style('visibility', 'hidden');
+
+                // Create a multi file upload component
+                const pond = FilePond.create({
+                    allowMultiple: true,
+                    name: 'file',
+                    server: 'upload/',
+                    onprocessfile: function(error, file){
+                        window.setTimeout(
+                            function(){Communicator.mediator.trigger('user:collection:change');},
+                            1000
+                        );
+                    }
+                });
+
+                // Add it to the DOM
+                $(uploadDialogContainer)[0].appendChild(pond.element);
 
 
                 var v = {}; //views
@@ -179,10 +191,12 @@ var VECTOR_BREAKDOWN = {};
 
                         // Make sure download parameters are always loaded from script
                         // as well as granularity options
-                        product_config[i].download_parameters = m_p[i].download_parameters
+                        product_config[i].download_parameters = m_p[i].download_parameters;
                         if(m_p[i].hasOwnProperty('granularity_options')){
                             product_config[i].granularity_options = m_p[i].granularity_options;
                         }
+                        // Make sure process id is also always downloaded from config
+                        product_config[i].process = m_p[i].process;
                     }
 
 
