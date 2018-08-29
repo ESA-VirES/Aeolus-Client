@@ -584,78 +584,6 @@ define([
             }
         },
 
-        /*updateCurtain: function(id){
-
-            var data = globals.swarm.get('data')[id];
-            var product = globals.products.find(
-                function(p){return p.get('download').id === id;}
-            );
-
-            if(product && product.hasOwnProperty('curtain')){
-                var curtain = product.curtain;
-                var parameters = product.get('parameters');
-                var band;
-                var keys = _.keys(parameters);
-                _.each(keys, function(key){
-                    if(parameters[key].selected){
-                        band = key;
-                    }
-                });
-                var style = parameters[band].colorscale;
-                var range = parameters[band].range;
-
-
-                //this.graph.setColorScale(style);
-                //this.graph.onSetExtent(range);
-                this.dataSettings[band].colorscale = style;
-                this.dataSettings[band].extent = range;
-                this.graph.dataSettings = this.dataSettings;
-                
-                if(band === 'mie_HLOS_wind_speed'){
-                    this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
-                    this.graph.renderSettings.yAxis = ['mie_altitude'];
-                    this.graph.renderSettings.xAxis =['mie_time'];
-                }else if(band === 'rayleigh_HLOS_wind_speed'){
-                    this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
-                    this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
-                    this.graph.renderSettings.xAxis =['rayleigh_time'];
-                }
-                this.graph.loadData(data);
-
-                var alpha = 0.99;
-
-                var newmat = new Cesium.Material({
-                    fabric : {
-                        uniforms : {
-                            image : this.graph.getCanvasImage(),
-                            repeat : new Cesium.Cartesian2(-1.0, 1.0),
-                            alpha : alpha
-                        },
-                        components : {
-                            diffuse : 'texture2D(image, fract(repeat * materialInput.st)).rgb',
-                            alpha : 'texture2D(image, fract(repeat * materialInput.st)).a * alpha'
-                        }
-                    },
-                    flat: true,
-                    translucent : true
-                });
-
-                var sliceAppearance = new Cesium.MaterialAppearance({
-                    translucent : true,
-                    flat: true,
-                    material : newmat
-                });
-
-                if(curtain && curtain.hasOwnProperty('_appearance') && curtain._appearance){
-                    curtain.appearance.material._textures.image.copyFrom(this.graph.getCanvas());
-                }
-
-                this.checkColorscale(id);
-            }
-
-        },*/
-
-
         createCurtains: function(data, cov_id){
 
             var currProd = globals.products.find(
@@ -677,11 +605,6 @@ define([
             }
 
             var alpha = currProd.get('opacity');
-
-            //alpha = 0.99;
-            if(alpha === 1.0){
-                alpha = 0.99;
-            }
 
             var parameters = currProd.get('parameters');
             var band;
@@ -746,10 +669,10 @@ define([
                 var dataStartRay = 0;
                 var dataEndRay = data.rayleigh_jumps[0];
                 if (i>0){
-                    start = data.stepPositions[i-1]*2+4;
-                    dataStartMie = data.mie_jumps[i*2-1];
+                    start = data.stepPositions[i-1]*2;
+                    dataStartMie = data.mie_jumps[(i-1)*2];
                     dataEndMie = data.mie_jumps[i*2];
-                    dataStartRay = data.rayleigh_jumps[i*2-1];
+                    dataStartRay = data.rayleigh_jumps[(i-1)*2];
                     dataEndRay = data.rayleigh_jumps[i*2];
                 }
                 if(i===data.stepPositions.length){
@@ -758,15 +681,16 @@ define([
                     dataEndRay = data['rayleigh_HLOS_wind_speed'].length;
                 }
 
+
                 var dataSlice = {};
                 var dataKeys = Object.keys(data);
                 for (var k = dataKeys.length - 1; k >= 0; k--) {
                     if (dataKeys[k].indexOf('mie')!==-1){
                         dataSlice[dataKeys[k]] = 
-                        data[dataKeys[k]].slice(dataStartMie, dataEndMie);
+                            data[dataKeys[k]].slice(dataStartMie, dataEndMie);
                     } else if (dataKeys[k].indexOf('ray')!==-1){
                         dataSlice[dataKeys[k]] = 
-                        data[dataKeys[k]].slice(dataStartRay, dataEndRay);
+                            data[dataKeys[k]].slice(dataStartRay, dataEndRay);
                     }
                 }
 
@@ -783,7 +707,7 @@ define([
                 // latitudes are both negative
                 var lastpos = data.positions.slice(-2);
 
-                newmat.uniforms.repeat.x = -1;
+                /*newmat.uniforms.repeat.x = -1;
                 if(data.positions[3]-data.positions[1]>=0){
                     //ascending
                     if (data.positions[3]<0 && lastpos[1]<0){
@@ -794,10 +718,18 @@ define([
                     if (data.positions[3]<0 && lastpos[1]<0){
                         newmat.uniforms.repeat.x = 1;
                     }
-                }
+                }*/
 
 
-                var slicedPosData = data.positions.slice(start, end);
+                /*var fulldata = data.positions.slice(start, end+2);
+                var slicedPosData = [];
+                if (fulldata.length > 6){
+                    for (var j = 0; j < fulldata.length; j+=6) {
+                        slicedPosData.push(fulldata[j]);
+                        slicedPosData.push(fulldata[j+1]);
+                    }
+                }*/
+                var slicedPosData  = data.positions.slice(start, end+2);
 
                 if(renderOutlines){
                     var slicedPosDataWithHeight = [];
@@ -911,9 +843,6 @@ define([
             var range = parameters[band].range;
 
             var alpha = currProd.get('opacity');
-            if(alpha === 1.0){
-                alpha = 0.99;
-            }
 
             this.dataSettings[band].colorscale = style;
             this.dataSettings[band].extent = range;
@@ -1517,10 +1446,6 @@ define([
                 function(p){return p.get('download').id === options.model.get('download').id;}
             );
 
-            if(options.value === 1.0){
-                options.value = 0.99;
-            }
-
             if(product){
                 if(product.hasOwnProperty('curtains')){
                     for (var i = 0; i < product.curtains._primitives.length; i++) {
@@ -1847,8 +1772,6 @@ define([
                 this.map.scene.primitives.add(pointCollection);
                 currProd.points = pointCollection;
             }
-
-            //alpha = 0.99;
 
             var parameters = currProd.get('parameters');
             var band;

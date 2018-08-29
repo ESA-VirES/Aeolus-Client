@@ -593,17 +593,14 @@
         var start = [];
         var end = [];
         for (var i = 0; i < proxy.length-1; i++) {
-          if(jumps.indexOf(i)!==-1 || jumps.indexOf(i+1)!==-1){
+          /*if(jumps.indexOf(i)!==-1 || jumps.indexOf(i+1)!==-1){
             continue;
-          }
+          }*/
+          // We need to loose the last value/colum to make sure all parameters
+          // have the same size
           for (var j = 0; j < proxy[i].length-1; j++) {
-            if (j===proxy[i].length-1){
-              /*start.push(input[i]);
-              end.push(input[i+1]);*/
-            }else{
-              start.push(input[i]);
-              end.push(input[i+1]);
-            }
+            start.push(input[i]);
+            end.push(input[i+1]);
           }
         }
         return [start, end];
@@ -613,17 +610,13 @@
         var start = [];
         var end = [];
         for (var i = 0; i < input.length-1; i++) {
-          if(jumps.indexOf(i)!==-1 || jumps.indexOf(i+1)!==-1){
+          /*if(jumps.indexOf(i)!==-1 || jumps.indexOf(i+1)!==-1){
             continue;
-          }
+          }*/
           for (var j = 0; j < input[i].length-1; j++) {
-            if(j===input[i].length-1){
-              /*start.push(input[i][j]);
-              end.push(input[i+1][0]);*/
-            }else{
-              start.push(input[i][j]);
-              end.push(input[i][j+1]);
-            }
+            start.push(input[i][j]);
+            end.push(input[i][j+1]);
+
           }
         }
         return [start, end];
@@ -636,8 +629,8 @@
 
           //start and end of jump
           if(jumps.indexOf(i)!==-1 && jumps[jumps.length-1]!==counter){
-            resultJumps.push(counter-input[i].length-1);
             resultJumps.push(counter);
+            resultJumps.push(counter-input[i].length-1);
           }else{
             counter += input[i].length-1;
           }
@@ -649,9 +642,9 @@
       flattenObservationArray: function(input, jumps){
         var output = [];
         for (var i = 0; i < input.length-1; i++) {
-          if(jumps.indexOf(i)!==-1 || jumps.indexOf(i+1)!==-1){
+          /*if(jumps.indexOf(i)!==-1 || jumps.indexOf(i+1)!==-1){
             continue;
-          }
+          }*/
           for (var j = 0; j < input[i].length; j++) {
             output.push(input[i][j]);
           }
@@ -1461,38 +1454,6 @@
                           }
                         }
 
-
-
-                        /*if(data[userCollId][dataGranularity].hasOwnProperty('mie_HLOS_wind_speed')){
-                          for (var i = 0; i < data[userCollId][dataGranularity].mie_HLOS_wind_speed.length; i++) {
-                            mieUserLength+=data[userCollId][dataGranularity].mie_HLOS_wind_speed[i].length;
-                          }
-                        }
-                        if(ds.hasOwnProperty('rayleigh_HLOS_wind_speed')){
-                          for (var i = 0; i < ds.rayleigh_HLOS_wind_speed.length; i++) {
-                            rayleighOrigLength+=ds.rayleigh_HLOS_wind_speed[i].length;
-                          }
-                        }
-                        if(data[userCollId][dataGranularity].hasOwnProperty('rayleigh_HLOS_wind_speed')){
-                          for (var i = 0; i < data[userCollId][dataGranularity].rayleigh_HLOS_wind_speed.length; i++) {
-                            rayleighUserLength+=data[userCollId][dataGranularity].rayleigh_HLOS_wind_speed[i].length;
-                          }
-                        }*/
-
-                        /*if(mieUserLength !== 0 && 
-                           mieOrigLength !== 0 &&
-                           rayleighUserLength !== 0 && 
-                           rayleighOrigLength !== 0){
-                          // Add identifier array for data
-                          tmpdata['origin'] = [];
-                          for (var i = 0; i < (mieOrigLength+rayleighOrigLength); i++) {
-                            tmpdata.origin.push('original');
-                          }
-                          for (var i = 0; i < (mieUserLength+rayleighUserLength); i++) {
-                            tmpdata.origin.push('user_upload');
-                          }
-                        }*/
-
                         for (var param in ds){
                           if(data[userCollId][dataGranularity].hasOwnProperty(param)){
                             ds[param] = ds[param].concat(
@@ -1549,12 +1510,13 @@
                   var lonStep = 10;
                   var latStep = 10;
 
-
+                  
                   var stepPositions = [];
                   for (var i = 2; i < positions.length; i++) {
-                    if (i%2===0 && Math.abs(positions[i]-positions[i-2])>=Math.abs(lonStep)+2.5) {
+                    var diff = Math.abs(positions[i]-positions[i-2]);
+                    if (i%2===0 && diff>=Math.abs(lonStep)) {
                       stepPositions.push(parseInt(i/2));
-                    }else if (i%2===1 && Math.abs(positions[i]-positions[i-2])>=Math.abs(latStep)+2.5) {
+                    }else if (i%2===1 && diff>=Math.abs(latStep)) {
                       if(stepPositions.length>0 && stepPositions[stepPositions.length-1]!=parseInt((i-1)/2)){
                         stepPositions.push(parseInt((i+1)/2));
                       }else if(stepPositions.length === 0){
@@ -1563,7 +1525,7 @@
                     }
                   }
 
-                  var mie_jumps = that.findObservationJumps(ds.mie_altitude, stepPositions);
+                  var mie_jumps = that.findObservationJumps(ds.mie_latitude, stepPositions);
 
                   var mieVars = [
                     'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
