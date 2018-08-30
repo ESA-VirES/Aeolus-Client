@@ -678,11 +678,6 @@ define([
 
             var alpha = currProd.get('opacity');
 
-            //alpha = 0.99;
-            if(alpha === 1.0){
-                alpha = 0.99;
-            }
-
             var parameters = currProd.get('parameters');
             var band;
             var keys = _.keys(parameters);
@@ -933,9 +928,6 @@ define([
             var range = parameters[band].range;
 
             var alpha = currProd.get('opacity');
-            if(alpha === 1.0){
-                alpha = 0.99;
-            }
 
             this.dataSettings[band].colorscale = style;
             this.dataSettings[band].extent = range;
@@ -1539,10 +1531,6 @@ define([
                 function(p){return p.get('download').id === options.model.get('download').id;}
             );
 
-            if(options.value === 1.0){
-                options.value = 0.99;
-            }
-
             if(product){
                 if(product.hasOwnProperty('curtains')){
                     for (var i = 0; i < product.curtains._primitives.length; i++) {
@@ -1870,7 +1858,6 @@ define([
                 currProd.points = pointCollection;
             }
 
-            //alpha = 0.99;
 
             var parameters = currProd.get('parameters');
             var band;
