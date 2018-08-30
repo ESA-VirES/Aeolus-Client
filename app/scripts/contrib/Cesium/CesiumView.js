@@ -783,21 +783,12 @@ define([
                 // latitudes are both negative
                 var lastpos = data.positions.slice(-2);
 
-                newmat.uniforms.repeat.x = -1;
-                if(data.positions[3]-data.positions[1]>=0){
-                    //ascending
-                    if (data.positions[3]<0 && lastpos[1]<0){
-                        newmat.uniforms.repeat.x = 1;
-                    }
-                }else{
-                    //descending
-                    if (data.positions[3]<0 && lastpos[1]<0){
-                        newmat.uniforms.repeat.x = 1;
-                    }
-                }
-
-
                 var slicedPosData = data.positions.slice(start, end);
+
+                console.log("LatStart: "+slicedPosData[1]);
+                console.log("LonStart: "+slicedPosData[0]);
+                console.log("LatEnd: "+slicedPosData[slicedPosData.length-1]);
+                console.log("LonEnd: "+slicedPosData[slicedPosData.length-2]);
 
                 if(renderOutlines){
                     var slicedPosDataWithHeight = [];
@@ -843,27 +834,58 @@ define([
                     maximumHeights : maxHeights,
                 });
                 var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
-                var instance = new Cesium.GeometryInstance({
-                  geometry : wallGeometry
-                });
 
-                var sliceAppearance = new Cesium.MaterialAppearance({
-                    translucent : true,
-                    flat: true,
-                    faceForward: true,
-                    //closed: true,
-                    material : newmat
-                });
+                if(wallGeometry){
+                    var instance = new Cesium.GeometryInstance({
+                      geometry : wallGeometry
+                    });
 
-                //instances.push(instance);
-                var prim = new Cesium.Primitive({
-                  geometryInstances : instance,
-                  appearance : sliceAppearance,
-                  releaseGeometryInstances: false,
-                  asynchronous: false
-                });
+                    var sliceAppearance = new Cesium.MaterialAppearance({
+                        translucent : true,
+                        flat: true,
+                        faceForward: true,
+                        material : newmat
+                    });
 
-                curtainCollection.add(prim);
+                    console.log("Normal0: "+wallGeometry.attributes.normal.values[0]);
+                    console.log("Normal1: "+wallGeometry.attributes.normal.values[1]);
+                    console.log("Normal2: "+wallGeometry.attributes.normal.values[2]);
+
+                    // Check the normal vector, in some cases we need to flip the
+                    // direction of the texture to be applied
+                    if(wallGeometry.attributes.normal.values[0]>0 &&
+                        wallGeometry.attributes.normal.values[1]<0 &&
+                        wallGeometry.attributes.normal.values[2]>0){
+                        newmat.uniforms.repeat.x = 1;
+                    } else if (wallGeometry.attributes.normal.values[0]<0 &&
+                        wallGeometry.attributes.normal.values[1]>0 &&
+                        wallGeometry.attributes.normal.values[2]<0){
+                        newmat.uniforms.repeat.x = -1;
+                    } else if (wallGeometry.attributes.normal.values[0]>0 &&
+                        wallGeometry.attributes.normal.values[1]>0 &&
+                        wallGeometry.attributes.normal.values[2]<0){
+                        newmat.uniforms.repeat.x = -1;
+                    } else if (wallGeometry.attributes.normal.values[0]>0 &&
+                        wallGeometry.attributes.normal.values[1]<0 &&
+                        wallGeometry.attributes.normal.values[2]<0){
+                        newmat.uniforms.repeat.x = -1;
+                    } else if (wallGeometry.attributes.normal.values[0]<0 &&
+                        wallGeometry.attributes.normal.values[1]<0 &&
+                        wallGeometry.attributes.normal.values[2]<0){
+                        newmat.uniforms.repeat.x = -1;
+                    }
+
+                    //instances.push(instance);
+                    var prim = new Cesium.Primitive({
+                      geometryInstances : instance,
+                      appearance : sliceAppearance,
+                      releaseGeometryInstances: false,
+                      asynchronous: false
+                    });
+
+                    curtainCollection.add(prim);
+                }
+                
             }
 
             if(renderOutlines){
