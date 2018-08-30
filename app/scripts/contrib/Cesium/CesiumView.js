@@ -703,22 +703,16 @@ define([
                     color: new Cesium.Color(1, 1, 1, alpha),
                 });
                 
-                // Change direction of texture depending if start and end 
-                // latitudes are both negative
-                var lastpos = data.positions.slice(-2);
-
-                /*newmat.uniforms.repeat.x = -1;
-                if(data.positions[3]-data.positions[1]>=0){
+                var latascending = false;
+                var lonnegative = false;
+                if((180+data.positions[3])-(180+data.positions[1])>=0){
                     //ascending
-                    if (data.positions[3]<0 && lastpos[1]<0){
-                        newmat.uniforms.repeat.x = 1;
-                    }
-                }else{
-                    //descending
-                    if (data.positions[3]<0 && lastpos[1]<0){
-                        newmat.uniforms.repeat.x = 1;
-                    }
-                }*/
+                    latascending = true;
+                }
+                if((data.positions[2])<0){
+                    //ascending
+                    lonnegative = true;
+                }
 
 
                 /*var fulldata = data.positions.slice(start, end+2);
@@ -729,7 +723,16 @@ define([
                         slicedPosData.push(fulldata[j+1]);
                     }
                 }*/
-                var slicedPosData  = data.positions.slice(start, end+2);
+                var slicedPosData = data.positions.slice(start, end+2);
+                /*var subsetposdata = [];
+
+                for (var n = 0; n < slicedPosData.length; n+=4) {
+                     subsetposdata.push(slicedPosData[n]);
+                     subsetposdata.push(slicedPosData[n+1]);
+                 } 
+
+                slicedPosData = subsetposdata;
+                console.log(slicedPosData);*/
 
                 if(renderOutlines){
                     var slicedPosDataWithHeight = [];
@@ -779,23 +782,43 @@ define([
                   geometry : wallGeometry
                 });
 
-                var sliceAppearance = new Cesium.MaterialAppearance({
-                    translucent : true,
-                    flat: true,
-                    faceForward: true,
-                    //closed: true,
-                    material : newmat
-                });
+                console.log('LATASCENDING: '+latascending);
+                console.log('LONNEGATIVE: '+lonnegative);
 
-                //instances.push(instance);
-                var prim = new Cesium.Primitive({
-                  geometryInstances : instance,
-                  appearance : sliceAppearance,
-                  releaseGeometryInstances: false,
-                  asynchronous: false
-                });
+                if(wallGeometry){
+                    if(!latascending && !lonnegative && wallGeometry.attributes.normal.values[0]<0){
+                        console.log('normal negative');
+                        newmat.uniforms.repeat.x = -1;
+                    } else if (!latascending && lonnegative){
+                        console.log('latascending and longitude negative');
+                        newmat.uniforms.repeat.x = -1;
+                    }else if (latascending && wallGeometry.attributes.normal.values[0]<0){
+                        console.log('normal positive');
+                        newmat.uniforms.repeat.x = -1;
+                    }
 
-                curtainCollection.add(prim);
+                    var sliceAppearance = new Cesium.MaterialAppearance({
+                        translucent : true,
+                        flat: true,
+                        faceForward: true,
+                        //closed: true,
+                        material : newmat
+                    });
+
+                    //instances.push(instance);
+                    var prim = new Cesium.Primitive({
+                      geometryInstances : instance,
+                      appearance : sliceAppearance,
+                      releaseGeometryInstances: false,
+                      asynchronous: false
+                    });
+
+                    curtainCollection.add(prim);
+                } else {
+                    console.log('Error creating wallgeometry');
+                }
+
+                
             }
 
             if(renderOutlines){

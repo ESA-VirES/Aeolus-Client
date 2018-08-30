@@ -1503,7 +1503,11 @@
                   // First thing we need to find possible jumps in data and handle them
                   var positions = [];
                   for (var i = 0; i < ds.latitude_of_DEM_intersection.length; i++) {
-                    positions.push(ds.longitude_of_DEM_intersection[i]);
+                    if(ds.longitude_of_DEM_intersection[i]>180){
+                      positions.push(ds.longitude_of_DEM_intersection[i]-360);
+                    }else{
+                      positions.push(ds.longitude_of_DEM_intersection[i]);
+                    }
                     positions.push(ds.latitude_of_DEM_intersection[i]);
                   }
 
