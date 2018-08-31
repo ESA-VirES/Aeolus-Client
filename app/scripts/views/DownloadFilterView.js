@@ -643,10 +643,19 @@
 
         _.each(_.keys(filters), function(key){
 
-          var extent = [
-            Number(filters[key][0].toFixed(6)),
-            Number(filters[key][1].toFixed(6))
-          ];
+          var extent;
+          if(Array.isArray(filters[key])){
+            extent = [
+              Number(filters[key][0].toFixed(6)),
+              Number(filters[key][1].toFixed(6))
+            ];
+          }else{
+            extent = [
+              filters[key],
+              filters[key]
+            ];
+          }
+          
           var name = key.replace(/_/g, " ");
           var $html = $(FilterTmpl({
               id: key,

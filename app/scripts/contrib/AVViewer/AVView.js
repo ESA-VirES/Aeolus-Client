@@ -89,9 +89,9 @@ define(['backbone.marionette',
             } else {
                 this.selectedFilterList = [
                     // L1B
-                    'mie_quality_flag_data', 'mie_HLOS_wind_speed',
+                    'mie_bin_quality_flag', 'mie_HLOS_wind_speed',
                     'geoid_separation','velocity_at_DEM_intersection',
-                    'rayleigh_quality_flag_data', 'rayleigh_HLOS_wind_speed',
+                    'rayleigh_bin_quality_flag', 'rayleigh_HLOS_wind_speed',
                     // L2A
                     'rayleigh_altitude_obs',
                     'SCA_backscatter','SCA_QC_flag',
@@ -378,8 +378,23 @@ define(['backbone.marionette',
                         filterRanges[f] = this.brushes[f];
                     }
                 }
+
+                // Check if a binary mask filter was set
+                for (var mf in this.maskParameter){
+                    var mfobj = this.maskParameter[mf];
+                    if(mfobj.hasOwnProperty('selection')){
+                        filterRanges[mf] = mfobj.selection;
+                    }
+                }
+
+                var tosave = {};
+                for(var key in filterRanges){
+                    if(!this.filterSettings.maskParameter.hasOwnProperty(key)){
+                        tosave[key] = filterRanges[key];
+                    }
+                }
                 
-                localStorage.setItem('filterSelection', JSON.stringify(filterRanges));
+                localStorage.setItem('filterSelection', JSON.stringify(tosave));
                 Communicator.mediator.trigger('analytics:set:filter', filterRanges);
                 globals.swarm.set({filters: filters});
 
