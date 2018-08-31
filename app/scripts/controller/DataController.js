@@ -133,9 +133,9 @@
             ],
             visibleFilters: [
                 // L1B
-                'mie_quality_flag_data', 'mie_HLOS_wind_speed',
+                'mie_bin_quality_flag', 'mie_HLOS_wind_speed',
                 'geoid_separation','velocity_at_DEM_intersection',
-                'rayleigh_quality_flag_data', 'rayleigh_HLOS_wind_speed',
+                'rayleigh_bin_quality_flag', 'rayleigh_HLOS_wind_speed',
                 // L2A
                 'rayleigh_altitude_obs',
                 'SCA_backscatter','SCA_QC_flag',
@@ -178,19 +178,19 @@
             ],
             boolParameter: ['SCA_QC_flag'/*'measurement_response_valid','reference_pulse_response_valid'*/],
             maskParameter: {
-              'mie_quality_flag_data': {
+              'mie_bin_quality_flag': {
                   values: [
-                      ['Bit 1', 'Overall validity. Data invalid 1, otherwise 0 '],
-                      ['Bit 2', 'Set to 1 if signal-to-noise below SNR_Threshold, default 0 '],
-                      ['Bit 3', 'Data saturation found 1, otherwise 0 '],
-                      ['Bit 4', 'Data spike found 1, otherwise 0 '],
-                      ['Bit 5', 'Reference pulse invalid 1, otherwise 0 '],
-                      ['Bit 6', 'Source packet invalid 1, otherwise 0 '],
-                      ['Bit 7', 'Number of corresponding valid pulses is below Meas_Cavity_Lock_Status_Thresh 1, otherwise 0 '],
-                      ['Bit 8', 'Spacecraft attitude not on target 1, otherwise 0 '],
-                      ['Bit 9', 'For Mie, peak not found 1, otherwise 0. For Rayleigh, rayleigh response not found 1, otherwise 0 '],
+                      ['Bit 1', 'Overall validity. Data invalid 1, otherwise 0'],
+                      ['Bit 2', 'Set to 1 if signal-to-noise below SNR_Threshold, default 0'],
+                      ['Bit 3', 'Data saturation found 1, otherwise 0'],
+                      ['Bit 4', 'Data spike found 1, otherwise 0'],
+                      ['Bit 5', 'Reference pulse invalid 1, otherwise 0'],
+                      ['Bit 6', 'Source packet invalid 1, otherwise 0'],
+                      ['Bit 7', 'Number of corresponding valid pulses is below Meas_Cavity_Lock_Status_Thresh 1, otherwise 0'],
+                      ['Bit 8', 'Spacecraft attitude not on target 1, otherwise 0'],
+                      ['Bit 9', 'Peak not found 1, otherwise 0'],
                       ['Bit 10','Set to 1 if the absolute wind velocity above Wind_Velocity_Threshold, default 0 '],
-                      ['Bit 11','Set to 1 if polynomial fit of error responses was used but no valid root of the polynomial was found, otherwise 0. '],
+                      ['Bit 11','Set to 1 if polynomial fit of error responses was used but no valid root of the polynomial was found, otherwise 0'],
                       ['Bit 12','Bin was detected as ground bin, otherwise 0. '],
                       ['Bit 13','Spare, set to 0'],
                       ['Bit 14','Spare, set to 0'],
@@ -198,7 +198,7 @@
                       ['Bit 16','Spare, set to 0']
                   ]
               },
-              'rayleigh_quality_flag_data': {
+              'rayleigh_bin_quality_flag': {
                   values: [
                       ['Bit 1', 'Overall validity. Data invalid 1, otherwise 0 '],
                       ['Bit 2', 'Set to 1 if signal-to-noise below SNR_Threshold, default 0 '],
@@ -208,7 +208,7 @@
                       ['Bit 6', 'Source packet invalid 1, otherwise 0 '],
                       ['Bit 7', 'Number of corresponding valid pulses is below Meas_Cavity_Lock_Status_Thresh 1, otherwise 0 '],
                       ['Bit 8', 'Spacecraft attitude not on target 1, otherwise 0 '],
-                      ['Bit 9', 'For Mie, peak not found 1, otherwise 0. For Rayleigh, rayleigh response not found 1, otherwise 0 '],
+                      ['Bit 9', 'Rayleigh response not found 1, otherwise 0'],
                       ['Bit 10','Set to 1 if the absolute wind velocity above Wind_Velocity_Threshold, default 0 '],
                       ['Bit 11','Set to 1 if polynomial fit of error responses was used but no valid root of the polynomial was found, otherwise 0. '],
                       ['Bit 12','Bin was detected as ground bin, otherwise 0. '],

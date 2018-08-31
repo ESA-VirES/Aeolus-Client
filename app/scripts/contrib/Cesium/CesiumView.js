@@ -678,11 +678,6 @@ define([
 
             var alpha = currProd.get('opacity');
 
-            //alpha = 0.99;
-            if(alpha === 1.0){
-                alpha = 0.99;
-            }
-
             var parameters = currProd.get('parameters');
             var band;
             var keys = _.keys(parameters);
@@ -783,20 +778,6 @@ define([
                 // latitudes are both negative
                 var lastpos = data.positions.slice(-2);
 
-                newmat.uniforms.repeat.x = -1;
-                if(data.positions[3]-data.positions[1]>=0){
-                    //ascending
-                    if (data.positions[3]<0 && lastpos[1]<0){
-                        newmat.uniforms.repeat.x = 1;
-                    }
-                }else{
-                    //descending
-                    if (data.positions[3]<0 && lastpos[1]<0){
-                        newmat.uniforms.repeat.x = 1;
-                    }
-                }
-
-
                 var slicedPosData = data.positions.slice(start, end);
 
                 if(renderOutlines){
@@ -843,27 +824,54 @@ define([
                     maximumHeights : maxHeights,
                 });
                 var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
-                var instance = new Cesium.GeometryInstance({
-                  geometry : wallGeometry
-                });
 
-                var sliceAppearance = new Cesium.MaterialAppearance({
-                    translucent : true,
-                    flat: true,
-                    faceForward: true,
-                    //closed: true,
-                    material : newmat
-                });
+                if(wallGeometry){
+                    var instance = new Cesium.GeometryInstance({
+                      geometry : wallGeometry
+                    });
 
-                //instances.push(instance);
-                var prim = new Cesium.Primitive({
-                  geometryInstances : instance,
-                  appearance : sliceAppearance,
-                  releaseGeometryInstances: false,
-                  asynchronous: false
-                });
+                    var sliceAppearance = new Cesium.MaterialAppearance({
+                        translucent : true,
+                        flat: true,
+                        faceForward: true,
+                        material : newmat
+                    });
 
-                curtainCollection.add(prim);
+                    // Check the normal vector, in some cases we need to flip the
+                    // direction of the texture to be applied
+                    if(wallGeometry.attributes.normal.values[0]>0 &&
+                        wallGeometry.attributes.normal.values[1]<0 &&
+                        wallGeometry.attributes.normal.values[2]>0){
+                        newmat.uniforms.repeat.x = 1;
+                    } else if (wallGeometry.attributes.normal.values[0]<0 &&
+                        wallGeometry.attributes.normal.values[1]>0 &&
+                        wallGeometry.attributes.normal.values[2]<0){
+                        newmat.uniforms.repeat.x = -1;
+                    } else if (wallGeometry.attributes.normal.values[0]>0 &&
+                        wallGeometry.attributes.normal.values[1]>0 &&
+                        wallGeometry.attributes.normal.values[2]<0){
+                        newmat.uniforms.repeat.x = -1;
+                    } else if (wallGeometry.attributes.normal.values[0]>0 &&
+                        wallGeometry.attributes.normal.values[1]<0 &&
+                        wallGeometry.attributes.normal.values[2]<0){
+                        newmat.uniforms.repeat.x = -1;
+                    } else if (wallGeometry.attributes.normal.values[0]<0 &&
+                        wallGeometry.attributes.normal.values[1]<0 &&
+                        wallGeometry.attributes.normal.values[2]<0){
+                        newmat.uniforms.repeat.x = -1;
+                    }
+
+                    //instances.push(instance);
+                    var prim = new Cesium.Primitive({
+                      geometryInstances : instance,
+                      appearance : sliceAppearance,
+                      releaseGeometryInstances: false,
+                      asynchronous: false
+                    });
+
+                    curtainCollection.add(prim);
+                }
+                
             }
 
             if(renderOutlines){
@@ -911,9 +919,6 @@ define([
             var range = parameters[band].range;
 
             var alpha = currProd.get('opacity');
-            if(alpha === 1.0){
-                alpha = 0.99;
-            }
 
             this.dataSettings[band].colorscale = style;
             this.dataSettings[band].extent = range;
@@ -1517,10 +1522,6 @@ define([
                 function(p){return p.get('download').id === options.model.get('download').id;}
             );
 
-            if(options.value === 1.0){
-                options.value = 0.99;
-            }
-
             if(product){
                 if(product.hasOwnProperty('curtains')){
                     for (var i = 0; i < product.curtains._primitives.length; i++) {
@@ -1848,7 +1849,6 @@ define([
                 currProd.points = pointCollection;
             }
 
-            //alpha = 0.99;
 
             var parameters = currProd.get('parameters');
             var band;
