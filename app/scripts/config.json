@@ -132,7 +132,6 @@
             "name": "L1B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "visible": true,
             "views": [{
                 "id": "ALD_U_N_1B",
                 "protocol": "WPS",
@@ -873,6 +872,7 @@
             "name": "AUX ISR",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
+            "visible": true,
             "views": [{
                 "id": "AUX_ISR_1B",
                 "protocol": "WPS",
@@ -1177,12 +1177,12 @@
             "end": "2018-03-05T01:00:00Z"
         },
         "brush": {
-            "start": "2015-10-01T06:22:11Z",
-            "end": "2015-10-01T07:35:22Z"
+            "start": "2018-10-01T06:22:11Z",
+            "end": "2018-10-01T07:35:22Z"
         },
         "display": {
-            "start": "2015-10-01T00:22:11Z",
-            "end": "2015-10-02T06:22:11Z"
+            "start": "2018-10-01T00:00:01Z",
+            "end": "2018-10-03T23:59:59Z"
         }
     },
 
