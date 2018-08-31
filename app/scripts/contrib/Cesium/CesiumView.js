@@ -780,11 +780,6 @@ define([
 
                 var slicedPosData = data.positions.slice(start, end);
 
-                console.log("LatStart: "+slicedPosData[1]);
-                console.log("LonStart: "+slicedPosData[0]);
-                console.log("LatEnd: "+slicedPosData[slicedPosData.length-1]);
-                console.log("LonEnd: "+slicedPosData[slicedPosData.length-2]);
-
                 if(renderOutlines){
                     var slicedPosDataWithHeight = [];
                     for (var p = 0; p < slicedPosData.length; p+=2) {
@@ -841,10 +836,6 @@ define([
                         faceForward: true,
                         material : newmat
                     });
-
-                    console.log("Normal0: "+wallGeometry.attributes.normal.values[0]);
-                    console.log("Normal1: "+wallGeometry.attributes.normal.values[1]);
-                    console.log("Normal2: "+wallGeometry.attributes.normal.values[2]);
 
                     // Check the normal vector, in some cases we need to flip the
                     // direction of the texture to be applied
