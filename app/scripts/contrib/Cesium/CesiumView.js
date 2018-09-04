@@ -1038,7 +1038,7 @@ define([
 
             
             //TODO: How to correctly handle multiple curtains with jumps
-            for (var i = 0; i <= dataJumps.length; i++) {
+            for (var jIdx = 0; jIdx <= dataJumps.length; jIdx++) {
 
                 var startSlice, endSlice;
                 if(dataJumps.length === 0){
@@ -1046,11 +1046,11 @@ define([
                 } else {
                     // get extent limits for curtain piece
                     startSlice = 0;
-                    if(i>0){
-                        startSlice = dataJumps[i-1];
+                    if(jIdx>0){
+                        startSlice = dataJumps[jIdx-1];
                     }
-                    if(i<dataJumps.length){
-                        endSlice = dataJumps[i];
+                    if(jIdx<dataJumps.length){
+                        endSlice = dataJumps[jIdx];
                     }else{
                         endSlice = lats.length-1;
                     }
