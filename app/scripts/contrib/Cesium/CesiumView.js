@@ -723,6 +723,18 @@ define([
                 this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
                 this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
                 this.graph.renderSettings.xAxis =['rayleigh_time'];
+            }else if(band === 'mie_signal_intensity'){
+                this.graph.renderSettings.colorAxis = ['mie_signal_intensity'];
+                this.graph.renderSettings.yAxis = ['mie_altitude'];
+                this.graph.renderSettings.xAxis =['mie_time'];
+            }else if(band === 'rayleigh_signal_channel_A_intensity'){
+                this.graph.renderSettings.colorAxis = ['rayleigh_signal_channel_A_intensity'];
+                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
+            }else if(band === 'rayleigh_signal_channel_B_intensity'){
+                this.graph.renderSettings.colorAxis = ['rayleigh_signal_channel_B_intensity'];
+                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
             }
 
 
