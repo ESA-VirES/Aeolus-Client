@@ -54,6 +54,16 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 name: 'altitude',
                 uom: 'm'
             },
+
+            'mie_signal_intensity': {
+                uom: "ACCD counts"
+            },
+            'rayleigh_signal_channel_A_intensity': {
+                uom: "ACCD counts"
+            },
+            'rayleigh_signal_channel_B_intensity': {
+                uom: "ACCD counts"
+            },
             // L2A
 
             'SCA_extinction': {

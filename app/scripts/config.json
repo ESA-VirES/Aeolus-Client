@@ -160,6 +160,24 @@
                     "uom":"m/s",
                     "colorscale": "plasma",
                     "name": "Rayleigh HLOS wind speed"
+                },
+                "mie_signal_intensity": {
+                    "range": [0, 13000],
+                    "uom":"ACCD counts",
+                    "colorscale": "viridis",
+                    "name": "Mie signal intensity"
+                },
+                "rayleigh_signal_channel_A_intensity": {
+                    "range": [0, 13000],
+                    "uom":"ACCD counts",
+                    "colorscale": "viridis",
+                    "name": "Rayleigh ch. A signal intesity"
+                },
+                "rayleigh_signal_channel_B_intensity": {
+                    "range": [0, 13000],
+                    "uom":"ACCD counts",
+                    "colorscale": "viridis",
+                    "name": "Rayleigh ch. B signal intesity"
                 }
             },
             "download_parameters": {
