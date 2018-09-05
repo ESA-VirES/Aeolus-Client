@@ -79,7 +79,7 @@
                 if (events_registered.indexOf(event) > -1) {
 
                     var u="//nix.eox.at/piwik/";
-                    var tracker = Piwik.getTracker( u+'piwik.php', 4 );
+                    var tracker = Piwik.getTracker( u+'piwik.php', 8 );
 
                     if(event == 'time:change'){
                         var ts = getISODateTimeString(param.start).split('T')[0];
