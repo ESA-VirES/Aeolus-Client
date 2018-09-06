@@ -1070,10 +1070,22 @@ define([
                     if(endSlice-startSlice<=2){
                         continue;
                     }
-                    var start = new Date('2000-01-01');
-                    start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice]*1000);
-                    var end = new Date('2000-01-01');
-                    end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice]*1000);
+
+                    var start, end;
+                    if(pStartTimes[startSlice] instanceof Date){
+                        start = pStartTimes[startSlice];
+                    }else{
+                        start = new Date('2000-01-01');
+                        start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice]*1000);
+                    }
+
+                    if(pStopTimes[endSlice] instanceof Date){
+                        end = pStopTimes[endSlice];
+                    }else{
+                        end = new Date('2000-01-01');
+                        end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice]*1000);
+                    }
+                    
                     this.graph.setXDomain([start, end]);
                     this.graph.loadData(data);
                     this.graph.clearXDomain();
