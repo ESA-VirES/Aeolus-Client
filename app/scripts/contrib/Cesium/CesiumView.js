@@ -1205,41 +1205,7 @@ define([
                 // Change direction of texture depending if curtain beginning 
                 // and end latitude coordinates
                 var lastLats = cleanLats.slice(-2);
-                //console.log("lon:", lons[0]," lat:", lats[0]);
-                //console.log("lon:", lons.slice(-1)[0]," lat:", lats.slice(-1)[0]);
-
-                newmat.uniforms.repeat.x = -1;
-                // Check if ascending/descending change
-                if(cleanLats[0]-cleanLats[1]<0 && cleanLats[cleanLats.length-2]-cleanLats[cleanLats.length-1]>0){
-                    newmat.uniforms.repeat.x = -1;
-                } else if(cleanLats[0]-cleanLats[1]>0 && cleanLats[cleanLats.length-2]-cleanLats[cleanLats.length-1]<0){
-                    newmat.uniforms.repeat.x = 1;
-                }
-                // Check for switch from positive to negative or other way around
-                /*if(cleanLats[0]<0 && cleanLats[cleanLats.length-1]>0){
-                    newmat.uniforms.repeat.x = -1;
-                }else if (cleanLats[0]>0 && cleanLats[cleanLats.length-1]<0){
-                    if( (cleanLats[cleanLats.length-1]<0 && cleanLats[cleanLats.length-2]<0) && // if there is no pole crossing in the last two values
-                        cleanLats[cleanLats.length-1]<cleanLats[cleanLats.length-2]){
-                        newmat.uniforms.repeat.x = 1;
-                    }
-                }*/
-                /*if(slicedLats[2]-slicedLats[0]>=0){
-                    //ascending
-                    if (slicedLats[0]<0 && lastLats[0]<0){
-                        newmat.uniforms.repeat.x = 1;
-                    }
-                }else{
-                    //descending
-                    if (slicedLats[0]<0 && lastLats[0]<0){
-                        newmat.uniforms.repeat.x = 1;
-                    }
-                }*/
-                // It seems when only two values are available for curtain creation
-                // the texture is swapped in direction so we swap it beforehand here
-                if(cleanLats.length == 2){
-                    newmat.uniforms.repeat.x = 1;
-                }
+                
 
                 for (var p = 0; p < cleanLats.length; p++) {
                     posDataHeight.push(cleanLons[p]);
@@ -1293,66 +1259,49 @@ define([
                     positions : Cesium.Cartesian3.fromDegreesArrayHeights(
                         posDataHeight
                     )
-                    /*positions: Cesium.Cartesian3.fromDegreesArray(posData),
-                    maximumHeights: maxHeights,
-                    minimumHeights: minHeights*/
                 });
                 var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
                 if(wallGeometry){
                     var instance = new Cesium.GeometryInstance({
                       geometry : wallGeometry
                     }); 
+
+                    // Check the normal vector, in some cases we need to flip the
+                    // direction of the texture to be applied
+                    if(wallGeometry.attributes.normal.values[0]>0 &&
+                        wallGeometry.attributes.normal.values[1]<0 &&
+                        wallGeometry.attributes.normal.values[2]>0){
+                        newmat.uniforms.repeat.x = 1;
+                    } else if (wallGeometry.attributes.normal.values[0]<0 &&
+                        wallGeometry.attributes.normal.values[1]>0 &&
+                        wallGeometry.attributes.normal.values[2]<0){
+                        newmat.uniforms.repeat.x = -1;
+                    } else if (wallGeometry.attributes.normal.values[0]>0 &&
+                        wallGeometry.attributes.normal.values[1]>0 &&
+                        wallGeometry.attributes.normal.values[2]<0){
+                        newmat.uniforms.repeat.x = -1;
+                    } else if (wallGeometry.attributes.normal.values[0]>0 &&
+                        wallGeometry.attributes.normal.values[1]<0 &&
+                        wallGeometry.attributes.normal.values[2]<0){
+                        newmat.uniforms.repeat.x = -1;
+                    } else if (wallGeometry.attributes.normal.values[0]<0 &&
+                        wallGeometry.attributes.normal.values[1]<0 &&
+                        wallGeometry.attributes.normal.values[2]<0){
+                        newmat.uniforms.repeat.x = -1;
+                    }
+
                 } else {
                     console.log("CesiumView.js: Wallgeometry not created correctly!");
                 }
 
 
-                // DEBUG
-                /*var wallOutlineInstance = new Cesium.GeometryInstance({
-                    geometry : new Cesium.WallOutlineGeometry({
-                        positions : Cesium.Cartesian3.fromDegreesArrayHeights(
-                            posDataHeight
-                        )
-                    }),
-                    attributes : {
-                        color : new Cesium.ColorGeometryInstanceAttribute(1.0, 0.0, 0.0, 1.0)
-                    }
-                });
-
-                if(this.debugprimitive){
-                    this.map.scene.primitives.remove(this.debugprimitive);
-                }
-
-                this.debugprimitive = this.map.scene.primitives.add(new Cesium.Primitive({
-                    id: 'debug_curtain',
-                    geometryInstances : wallOutlineInstance,
-                    appearance : new Cesium.PerInstanceColorAppearance({
-                        flat : true,
-                        translucent : false,
-                        renderState : {
-                            depthTest : {
-                                enabled : true
-                            },
-                            lineWidth : 2
-                        }
-                    })
-                }));*/
-                //DEBUG
-
-
-                // Check if normal is negative, if it is we need to flip the
-                // direction of the texture to be applied
-                /*if(wallGeometry.attributes.normal.values[0]<0){
-                    newmat.uniforms.repeat.x = 1;
-                }*/
-
                 var sliceAppearance = new Cesium.MaterialAppearance({
                     translucent : true,
                     flat: true,
                     faceForward: true,
-                    //closed: true,
                     material : newmat
                 });
+
 
                 //instances.push(instance);
                 var prim = new Cesium.Primitive({
