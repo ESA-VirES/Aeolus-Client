@@ -1923,22 +1923,24 @@
                           miewindLat[i]) >= Math.abs(latStep)) {
                         mieJumpPositions.push(i);
                       }else if (Math.abs(
-                          miewindLat[i-1]-
-                          miewindLat[i]) >= Math.abs(lonStep)) {
+                          miewindLon[i-1]-
+                          miewindLon[i]) >= Math.abs(lonStep)) {
                         mieJumpPositions.push(i);
                       }
                     }
                     resData['mie_jumps'] = mieJumpPositions;
 
                     var rayleighJumpPositions = [];
-                    for (var i = 1; i < miewindLon.length; i++) {
+                    var raywindLat = ds.rayleigh_wind_data.rayleigh_wind_result_lat_of_DEM_intersection;
+                    var raywindLon = ds.rayleigh_wind_data.rayleigh_wind_result_lon_of_DEM_intersection;
+                    for (var i = 1; i < raywindLat.length; i++) {
                       if (Math.abs(
-                          miewindLon[i-1]-
-                          miewindLon[i]) >= Math.abs(latStep)) {
+                          raywindLat[i-1]-
+                          raywindLat[i]) >= Math.abs(latStep)) {
                         rayleighJumpPositions.push(i);
                       }else if (Math.abs(
-                          miewindLon[i-1]-
-                          miewindLon[i]) >= Math.abs(lonStep)) {
+                          raywindLon[i-1]-
+                          raywindLon[i]) >= Math.abs(lonStep)) {
                         rayleighJumpPositions.push(i);
                       }
                     }
