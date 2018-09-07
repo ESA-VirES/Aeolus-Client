@@ -946,7 +946,7 @@ define([
             this.dataSettings[band].extent = range;
             this.graph.dataSettings = this.dataSettings;
 
-            var dataJumps, lats, lons, pStartTimes, pStopTimes;
+            var dataJumps, lats, lons, pStartTimes, pStopTimes, signCross;
 
             var params = {
                 'ALD_U_N_2A': {
@@ -962,7 +962,8 @@ define([
                             rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
                             time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
                         },
-                        jumps: 'jumps'
+                        jumps: 'jumps',
+                        signCross: 'signCross'
                     },
                     'MCA_extinction': {
                         lats: 'latitude_of_DEM_intersection_obs_orig',
@@ -976,7 +977,8 @@ define([
                             mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
                             time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
                         },
-                        jumps: 'jumps'
+                        jumps: 'jumps',
+                        signCross: 'signCross'
                     }
 
                 },
@@ -993,7 +995,8 @@ define([
                             mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
                             time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
                         },
-                        jumps: 'mie_jumps'
+                        jumps: 'mie_jumps',
+                        signCross: 'mieSignCross'
                     },
                     'rayleigh_wind_result_wind_velocity': {
                         lats: 'rayleigh_wind_result_lat_of_DEM_intersection',
@@ -1007,7 +1010,8 @@ define([
                             rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
                             time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
                         },
-                        jumps: 'rayleigh_jumps'
+                        jumps: 'rayleigh_jumps',
+                        signCross: 'rayleighSignCross'
                     }
                 },
                 'ALD_U_N_2C': {
@@ -1023,7 +1027,8 @@ define([
                             mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
                             time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
                         },
-                        jumps: 'mie_jumps'
+                        jumps: 'mie_jumps',
+                        signCross: 'mieSignCross'
                     },
                     'rayleigh_wind_result_wind_velocity': {
                         lats: 'rayleigh_wind_result_lat_of_DEM_intersection',
@@ -1037,7 +1042,8 @@ define([
                             rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
                             time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
                         },
-                        jumps: 'rayleigh_jumps'
+                        jumps: 'rayleigh_jumps',
+                        signCross: 'rayleighSignCross'
                     }
                 }
             };
@@ -1052,6 +1058,7 @@ define([
             lons = data[currPar.lons];
             pStartTimes = data[currPar.timeStart];
             pStopTimes = data[currPar.timeStop];
+            signCross = data[currPar.signCross];
 
 
             var height = 1000000;
@@ -1069,10 +1076,14 @@ define([
                     // get extent limits for curtain piece
                     startSlice = 0;
                     if(jIdx>0){
-                        startSlice = dataJumps[jIdx-1];
+                        if(signCross[jIdx-1]){
+                            startSlice = dataJumps[jIdx-1]-1;
+                        } else {
+                            startSlice = dataJumps[jIdx-1];
+                        }
                     }
                     if(jIdx<dataJumps.length){
-                        endSlice = dataJumps[jIdx];
+                        endSlice = dataJumps[jIdx]-1;
                     }else{
                         endSlice = lats.length-1;
                     }
@@ -1081,6 +1092,7 @@ define([
                         continue;
                     }
 
+                    // TODO: Issue could be here for L2A
                     var start, end;
                     if(pStartTimes[startSlice] instanceof Date){
                         start = pStartTimes[startSlice];

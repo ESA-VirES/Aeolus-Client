@@ -662,59 +662,6 @@
         return output;
       },
 
-      proxyFlattenMeasurementArraySE: function(input, proxy){
-        var start = [];
-        var end = [];
-        for (var i = 0; i < proxy.length-1; i++) {
-          for (var j = 0; j < proxy[i].length; j++) {
-            for (var k = 0; k < proxy[i][j].length-1; k++) {
-              if (j===proxy[i].length-1){
-                start.push(input[i][j]);
-                end.push(input[i+1][0]);
-              }else{
-                start.push(input[i][j]);
-                end.push(input[i][j+1]);
-              }
-              
-            }
-          }
-        }
-        return [start, end];
-      },
-
-      flattenMeasurementArraySE: function(input){
-        var start = [];
-        var end = [];
-        for (var i = 0; i < input.length-1; i++) {
-          for (var j = 0; j < input[i].length; j++) {
-            for (var k = 0; k < input[i][j].length-1; k++) {
-              if(j===input[i].length-1){
-                start.push(input[i][j][k]);
-                end.push(input[i+1][0][k+1]);
-              }else{
-                start.push(input[i][j][k]);
-                end.push(input[i][j][k+1]);
-              }
-              
-            }
-          }
-        }
-        return [start, end];
-      },
-
-      flattenMeasurementArray: function(input){
-        var output = [];
-        for (var i = 0; i < input.length; i++) {
-          for (var j = 0; j < input[i].length; j++) {
-            for (var k = 0; k < input[i][j].length; k++) {
-              output.push(input[i][j][k]);
-            }
-          }
-        }
-
-        return output;
-      },
-
       sendRequest: function(prodId){
        
         var process = {
@@ -1847,18 +1794,27 @@
 
 
                     var jumpPos = [];
+                    var signCross = [];
                     for (var i = 1; i < resData.latitude_of_DEM_intersection_obs_orig.length; i++) {
-                      if (Math.abs(
-                          resData.latitude_of_DEM_intersection_obs_orig[i-1]-
-                          resData.latitude_of_DEM_intersection_obs_orig[i]) >= Math.abs(latStep)) {
+                      var latdiff = Math.abs(
+                        resData.latitude_of_DEM_intersection_obs_orig[i-1]-
+                        resData.latitude_of_DEM_intersection_obs_orig[i]
+                      );
+                      var londiff = Math.abs(
+                        resData.longitude_of_DEM_intersection_obs_orig[i-1]-
+                        resData.longitude_of_DEM_intersection_obs_orig[i]
+                      ); 
+                      // TODO: slicing not working correctly for L2a
+                      if (latdiff >= latStep) {
+                        signCross.push(latdiff>160);
                         jumpPos.push(i);
-                      }else if (Math.abs(
-                          resData.longitude_of_DEM_intersection_obs_orig[i-1]-
-                          resData.longitude_of_DEM_intersection_obs_orig[i]) >= Math.abs(latStep)) {
+                      }else if (londiff >= lonStep) {
+                        signCross.push(londiff>340)
                         jumpPos.push(i);
                       }
                     }
-                    resData['jumps'] = jumpPos;
+                    resData.jumps = jumpPos;
+                    resData.signCross = signCross;
 
                   } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
 
@@ -1880,37 +1836,52 @@
                     var lonStep = 15;
                     var latStep = 15;
 
+                    var mieSignCross = []; 
                     var mieJumpPositions = [];
                     var miewindLat = ds.mie_wind_data.mie_wind_result_lat_of_DEM_intersection;
                     var miewindLon = ds.mie_wind_data.mie_wind_result_lon_of_DEM_intersection;
                     for (var i = 1; i < miewindLat.length; i++) {
-                      if (Math.abs(
-                          miewindLat[i-1]-
-                          miewindLat[i]) >= Math.abs(latStep)) {
+                      var latdiff = Math.abs(
+                        miewindLat[i-1] - miewindLat[i]
+                      );
+                      var londiff = Math.abs(
+                        miewindLon[i-1] - miewindLon[i]
+                      ); 
+
+                      if (latdiff >= latStep) {
+                        mieSignCross.push(latdiff>160);
                         mieJumpPositions.push(i);
-                      }else if (Math.abs(
-                          miewindLon[i-1]-
-                          miewindLon[i]) >= Math.abs(lonStep)) {
+                      }else if (londiff >= lonStep) {
+                        mieSignCross.push(londiff>340)
                         mieJumpPositions.push(i);
                       }
                     }
-                    resData['mie_jumps'] = mieJumpPositions;
+                    resData.mie_jumps = mieJumpPositions;
+                    resData.mieSignCross = mieSignCross;
 
+                    var rayleighSignCross = [];
                     var rayleighJumpPositions = [];
                     var raywindLat = ds.rayleigh_wind_data.rayleigh_wind_result_lat_of_DEM_intersection;
                     var raywindLon = ds.rayleigh_wind_data.rayleigh_wind_result_lon_of_DEM_intersection;
+
                     for (var i = 1; i < raywindLat.length; i++) {
-                      if (Math.abs(
-                          raywindLat[i-1]-
-                          raywindLat[i]) >= Math.abs(latStep)) {
+                      var latdiff = Math.abs(
+                        raywindLat[i-1] - raywindLat[i]
+                      );
+                      var londiff = Math.abs(
+                        raywindLon[i-1] - raywindLon[i]
+                      ); 
+
+                      if (latdiff >= latStep) {
+                        rayleighSignCross.push(latdiff>160);
                         rayleighJumpPositions.push(i);
-                      }else if (Math.abs(
-                          raywindLon[i-1]-
-                          raywindLon[i]) >= Math.abs(lonStep)) {
+                      }else if (londiff >= lonStep) {
+                        rayleighSignCross.push(londiff>340)
                         rayleighJumpPositions.push(i);
                       }
                     }
-                    resData['rayleigh_jumps'] = rayleighJumpPositions;
+                    resData.rayleigh_jumps = rayleighJumpPositions;
+                    resData.rayleighSignCross = rayleighSignCross;
 
                   } else {
                     // We land here for MRC, RRC and ISR
