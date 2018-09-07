@@ -752,17 +752,22 @@ define([
                 if(i<data.stepPositions.length){
                     end = data.stepPositions[i]*2;
                 }
+
+                // TODO: this modifiert cuts the first and last column of the 
+                // available data this solves multiple issues where the texture 
+                // is rendered using the next colum after a gap in the data but
+                //  it is not a clean solution
+                var mod = 24;
                 var dataStartMie = 0;
-                var dataEndMie = data.mie_jumps[0];
+                var dataEndMie = data.mie_jumps[0]-mod;
                 var dataStartRay = 0;
-                var dataEndRay = data.rayleigh_jumps[0];
+                var dataEndRay = data.rayleigh_jumps[0]-mod;
                 if (i>0){
                     start = data.stepPositions[i-1]*2;
-                    //dataStartMie = data.mie_jumps[(i*2)-1];
-                    dataStartMie = data.mie_jumps[(i-1)*2];
-                    dataEndMie = data.mie_jumps[(i*2)];
-                    dataStartRay = data.rayleigh_jumps[(i-1)*2];
-                    dataEndRay = data.rayleigh_jumps[(i*2)];
+                    dataStartMie = data.mie_jumps[(i-1)*2]+mod;
+                    dataEndMie = data.mie_jumps[(i*2)]-mod;
+                    dataStartRay = data.rayleigh_jumps[(i-1)*2]+mod;
+                    dataEndRay = data.rayleigh_jumps[(i*2)]-mod;
                 }
                 if(i===data.stepPositions.length){
                     end = data.positions.length;

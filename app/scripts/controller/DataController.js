@@ -599,18 +599,6 @@
             continue;
           }
 
-          /*if(i===proxy.length-2){
-            for (var j = 0; j < proxy[i].length-1; j++) {
-              start.push(input[i-1]);
-              end.push(input[i]);
-            }
-          } else {
-            for (var j = 0; j < proxy[i].length-1; j++) {
-              start.push(input[i]);
-              end.push(input[i+1]);
-            }
-          }*/
-
           for (var j = 0; j < proxy[i].length-1; j++) {
             start.push(input[i-1]);
             end.push(input[i]);
@@ -647,7 +635,7 @@
           if(currJump!==-1 && jumps[jumps.length-1]!==counter){
             if(signCross[currJump]){
               resultJumps.push(counter);
-              resultJumps.push(counter-input[i].length-1);
+              resultJumps.push(counter-(input[i].length-1));
             } else {
               resultJumps.push(counter);
               resultJumps.push(counter-(input[i].length-1));
