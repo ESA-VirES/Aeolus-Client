@@ -589,55 +589,69 @@
         this.checkModelValidity();
       },
 
-      proxyFlattenObservationArraySE: function(input, proxy, jumps){
+      proxyFlattenObservationArraySE: function(input, proxy, jumps, signCross){
         var start = [];
         var end = [];
-        for (var i = 0; i < proxy.length-1; i++) {
-          if(jumps.indexOf(i)!==-1 || jumps.indexOf(i+1)!==-1){
+        for (var i = 1; i < proxy.length-1; i++) {
+
+          var currJump = jumps.indexOf(i);
+          if(currJump!==-1 && !signCross[currJump]){
             continue;
           }
-          for (var j = 0; j < proxy[i].length-1; j++) {
-            if (j===proxy[i].length-1){
-              /*start.push(input[i]);
-              end.push(input[i+1]);*/
-            }else{
+
+          /*if(i===proxy.length-2){
+            for (var j = 0; j < proxy[i].length-1; j++) {
+              start.push(input[i-1]);
+              end.push(input[i]);
+            }
+          } else {
+            for (var j = 0; j < proxy[i].length-1; j++) {
               start.push(input[i]);
               end.push(input[i+1]);
             }
+          }*/
+
+          for (var j = 0; j < proxy[i].length-1; j++) {
+            start.push(input[i-1]);
+            end.push(input[i]);
           }
         }
         return [start, end];
       },
 
-      flattenObservationArraySE: function(input, jumps){
+      flattenObservationArraySE: function(input, jumps, signCross){
         var start = [];
         var end = [];
         for (var i = 0; i < input.length-1; i++) {
-          if(jumps.indexOf(i)!==-1 || jumps.indexOf(i+1)!==-1){
+
+          var currJump = jumps.indexOf(i);
+          if(currJump!==-1 && !signCross[currJump]){
             continue;
           }
+
           for (var j = 0; j < input[i].length-1; j++) {
-            if(j===input[i].length-1){
-              /*start.push(input[i][j]);
-              end.push(input[i+1][0]);*/
-            }else{
-              start.push(input[i][j]);
-              end.push(input[i][j+1]);
-            }
+            start.push(input[i][j]);
+            end.push(input[i][j+1]);
           }
         }
         return [start, end];
       },
 
-      findObservationJumps: function(input, jumps){
+      findObservationJumps: function(input, jumps, signCross){
         var resultJumps = [];
         var counter = 0;
         for (var i = 0; i < input.length-1; i++) {
 
           //start and end of jump
-          if(jumps.indexOf(i)!==-1 && jumps[jumps.length-1]!==counter){
-            resultJumps.push(counter-input[i].length-1);
-            resultJumps.push(counter);
+          var currJump = jumps.indexOf(i);
+          if(currJump!==-1 && jumps[jumps.length-1]!==counter){
+            if(signCross[currJump]){
+              resultJumps.push(counter);
+              resultJumps.push(counter-input[i].length-1);
+            } else {
+              resultJumps.push(counter);
+              resultJumps.push(counter-(input[i].length-1));
+            }
           }else{
             counter += input[i].length-1;
           }
@@ -646,10 +660,11 @@
         return resultJumps;
       },
 
-      flattenObservationArray: function(input, jumps){
+      flattenObservationArray: function(input, jumps, signCross){
         var output = [];
         for (var i = 0; i < input.length-1; i++) {
-          if(jumps.indexOf(i)!==-1 || jumps.indexOf(i+1)!==-1){
+          var currJump = jumps.indexOf(i);
+          if(currJump!==-1 && !signCross[currJump]){
             continue;
           }
           for (var j = 0; j < input[i].length; j++) {
@@ -1330,24 +1345,7 @@
             var fields = gran+'_fields';
             options[fields] = fieldsList[collectionId][fields];
           }
-        }
-        /*if(collectionId === 'ALD_U_N_1B'){
-          options[fields] = fieldsList[collectionId][fields];
-        } else if(collectionId === 'ALD_U_N_2A'){
-          options = Object.assign(options, fieldsList[collectionId]);
-        } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
-          options = Object.assign(options, fieldsList[collectionId]);
-          options["filters"] = JSON.stringify({
-            mie_wind_result_validity_flag: {
-              min: 1,
-              max: 1
-            }, 
-            rayleigh_wind_result_validity_flag: {
-              min: 1,
-              max: 1
-            }
-          });
-        }*/ else {
+        } else {
           options["fields"] = fieldsList[collectionId];
         }
 
@@ -1461,38 +1459,6 @@
                           }
                         }
 
-
-
-                        /*if(data[userCollId][dataGranularity].hasOwnProperty('mie_HLOS_wind_speed')){
-                          for (var i = 0; i < data[userCollId][dataGranularity].mie_HLOS_wind_speed.length; i++) {
-                            mieUserLength+=data[userCollId][dataGranularity].mie_HLOS_wind_speed[i].length;
-                          }
-                        }
-                        if(ds.hasOwnProperty('rayleigh_HLOS_wind_speed')){
-                          for (var i = 0; i < ds.rayleigh_HLOS_wind_speed.length; i++) {
-                            rayleighOrigLength+=ds.rayleigh_HLOS_wind_speed[i].length;
-                          }
-                        }
-                        if(data[userCollId][dataGranularity].hasOwnProperty('rayleigh_HLOS_wind_speed')){
-                          for (var i = 0; i < data[userCollId][dataGranularity].rayleigh_HLOS_wind_speed.length; i++) {
-                            rayleighUserLength+=data[userCollId][dataGranularity].rayleigh_HLOS_wind_speed[i].length;
-                          }
-                        }*/
-
-                        /*if(mieUserLength !== 0 && 
-                           mieOrigLength !== 0 &&
-                           rayleighUserLength !== 0 && 
-                           rayleighOrigLength !== 0){
-                          // Add identifier array for data
-                          tmpdata['origin'] = [];
-                          for (var i = 0; i < (mieOrigLength+rayleighOrigLength); i++) {
-                            tmpdata.origin.push('original');
-                          }
-                          for (var i = 0; i < (mieUserLength+rayleighUserLength); i++) {
-                            tmpdata.origin.push('user_upload');
-                          }
-                        }*/
-
                         for (var param in ds){
                           if(data[userCollId][dataGranularity].hasOwnProperty(param)){
                             ds[param] = ds[param].concat(
@@ -1551,19 +1517,29 @@
 
 
                   var stepPositions = [];
+                  var signCross = [];
                   for (var i = 2; i < positions.length; i++) {
-                    if (i%2===0 && Math.abs(positions[i]-positions[i-2])>=Math.abs(lonStep)+2.5) {
-                      stepPositions.push(parseInt(i/2));
-                    }else if (i%2===1 && Math.abs(positions[i]-positions[i-2])>=Math.abs(latStep)+2.5) {
+                    var diff = Math.abs(positions[i]-positions[i-2]);
+                    if (i%2===0 && diff>=lonStep) {
+                      signCross.push(diff>350);
+                      if(diff>350){
+                        stepPositions.push(parseInt(i/2)+2);
+                      } else {
+                        stepPositions.push(parseInt(i/2));
+                      }
+                      
+                    }else if (i%2===1 && diff>=latStep) {
                       if(stepPositions.length>0 && stepPositions[stepPositions.length-1]!=parseInt((i-1)/2)){
                         stepPositions.push(parseInt((i+1)/2));
+                        signCross.push(diff>160); 
                       }else if(stepPositions.length === 0){
                         stepPositions.push(parseInt(i/2));
+                        signCross.push(diff>160); 
                       }
                     }
                   }
 
-                  var mie_jumps = that.findObservationJumps(ds.mie_altitude, stepPositions);
+                  var mie_jumps = that.findObservationJumps(ds.mie_altitude, stepPositions, signCross);
 
                   var mieVars = [
                     'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
@@ -1625,7 +1601,7 @@
                       var arrLen = ds[mieVars[i]][0].length;
                       if(arrLen > nSize){ // case 3
                         var tuple = that.flattenObservationArraySE(
-                          ds[mieVars[i]], stepPositions
+                          ds[mieVars[i]], stepPositions, signCross
                         );
 
                         if(startEndVars.indexOf(mieVars[i]) !== -1){
@@ -1637,12 +1613,12 @@
 
                       } else if (arrLen === nSize){ //case 2
                         tmpdata[pseudoKey] = that.flattenObservationArray(
-                          ds[mieVars[i]], stepPositions
+                          ds[mieVars[i]], stepPositions, signCross
                         );
                       }
                     } else { // case 1
                       var tuple = that.proxyFlattenObservationArraySE(
-                        ds[mieVars[i]], ds.mie_altitude, stepPositions
+                        ds[mieVars[i]], ds.mie_altitude, stepPositions, signCross
                       );
                       if(startEndVars.indexOf(mieVars[i]) !== -1){
                         tmpdata[(pseudoKey+'_start')] = tuple[0];
@@ -1655,12 +1631,13 @@
                   }
 
                   tmpdata.stepPositions = stepPositions;
+                  tmpdata.signCross = signCross;
                   tmpdata.mie_jumps = mie_jumps;
 
                   // Rayleigh
 
                   var rayleigh_jumps = that.findObservationJumps(
-                    ds.rayleigh_altitude, stepPositions
+                    ds.rayleigh_altitude, stepPositions, signCross
                   );
 
 
@@ -1677,7 +1654,7 @@
                       var arrLen = ds[rayleighVars[i]][0].length;
                       if(arrLen > nSize){ // case 3
                         var tuple = that.flattenObservationArraySE(
-                          ds[rayleighVars[i]], stepPositions
+                          ds[rayleighVars[i]], stepPositions, signCross
                         );
                         if(startEndVars.indexOf(rayleighVars[i]) !== -1){
                           tmpdata[(pseudoKey+'_start')] = tuple[1];
@@ -1688,12 +1665,13 @@
 
                       } else if (arrLen === nSize){ //case 2
                         tmpdata[pseudoKey] = that.flattenObservationArray(
-                          ds[rayleighVars[i]], stepPositions
+                          ds[rayleighVars[i]], stepPositions, signCross
                         );
                       }
                     } else { // case 1
                       var tuple = that.proxyFlattenObservationArraySE(
-                        ds[rayleighVars[i]], ds.rayleigh_altitude, stepPositions
+                        ds[rayleighVars[i]], ds.rayleigh_altitude, 
+                        stepPositions, signCross
                       );
                       if(startEndVars.indexOf(rayleighVars[i]) !== -1){
                         tmpdata[(pseudoKey+'_start')] = tuple[0];

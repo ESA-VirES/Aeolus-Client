@@ -747,17 +747,22 @@ define([
             for (var i = 0; i <= data.stepPositions.length; i++) {
 
                 var start = 0;
-                var end = data.stepPositions[i]*2;
+                var end;
+                var signCross;
+                if(i<data.stepPositions.length){
+                    end = data.stepPositions[i]*2;
+                }
                 var dataStartMie = 0;
                 var dataEndMie = data.mie_jumps[0];
                 var dataStartRay = 0;
                 var dataEndRay = data.rayleigh_jumps[0];
                 if (i>0){
-                    start = data.stepPositions[i-1]*2+4;
-                    dataStartMie = data.mie_jumps[i*2-1];
-                    dataEndMie = data.mie_jumps[i*2];
-                    dataStartRay = data.rayleigh_jumps[i*2-1];
-                    dataEndRay = data.rayleigh_jumps[i*2];
+                    start = data.stepPositions[i-1]*2;
+                    //dataStartMie = data.mie_jumps[(i*2)-1];
+                    dataStartMie = data.mie_jumps[(i-1)*2];
+                    dataEndMie = data.mie_jumps[(i*2)];
+                    dataStartRay = data.rayleigh_jumps[(i-1)*2];
+                    dataEndRay = data.rayleigh_jumps[(i*2)];
                 }
                 if(i===data.stepPositions.length){
                     end = data.positions.length;
@@ -777,6 +782,10 @@ define([
                     }
                 }
 
+                if(data.signCross[i]){
+                    end += 2;
+                }
+
 
                 this.graph.loadData(dataSlice);
 
@@ -786,10 +795,6 @@ define([
                     color: new Cesium.Color(1, 1, 1, alpha),
                 });
                 
-                // Change direction of texture depending if start and end 
-                // latitudes are both negative
-                var lastpos = data.positions.slice(-2);
-
                 var slicedPosData = data.positions.slice(start, end);
 
                 if(renderOutlines){
