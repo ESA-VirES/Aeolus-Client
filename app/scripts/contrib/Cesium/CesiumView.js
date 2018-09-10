@@ -747,17 +747,27 @@ define([
             for (var i = 0; i <= data.stepPositions.length; i++) {
 
                 var start = 0;
-                var end = data.stepPositions[i]*2;
+                var end;
+                var signCross;
+                if(i<data.stepPositions.length){
+                    end = data.stepPositions[i]*2;
+                }
+
+                // TODO: this modifiert cuts the first and last column of the 
+                // available data this solves multiple issues where the texture 
+                // is rendered using the next colum after a gap in the data but
+                //  it is not a clean solution
+                var mod = 24;
                 var dataStartMie = 0;
-                var dataEndMie = data.mie_jumps[0];
+                var dataEndMie = data.mie_jumps[0]-mod;
                 var dataStartRay = 0;
-                var dataEndRay = data.rayleigh_jumps[0];
+                var dataEndRay = data.rayleigh_jumps[0]-mod;
                 if (i>0){
-                    start = data.stepPositions[i-1]*2+4;
-                    dataStartMie = data.mie_jumps[i*2-1];
-                    dataEndMie = data.mie_jumps[i*2];
-                    dataStartRay = data.rayleigh_jumps[i*2-1];
-                    dataEndRay = data.rayleigh_jumps[i*2];
+                    start = data.stepPositions[i-1]*2;
+                    dataStartMie = data.mie_jumps[(i-1)*2]+mod;
+                    dataEndMie = data.mie_jumps[(i*2)]-mod;
+                    dataStartRay = data.rayleigh_jumps[(i-1)*2]+mod;
+                    dataEndRay = data.rayleigh_jumps[(i*2)]-mod;
                 }
                 if(i===data.stepPositions.length){
                     end = data.positions.length;
@@ -777,6 +787,10 @@ define([
                     }
                 }
 
+                if(data.signCross[i]){
+                    end += 2;
+                }
+
 
                 this.graph.loadData(dataSlice);
 
@@ -786,10 +800,6 @@ define([
                     color: new Cesium.Color(1, 1, 1, alpha),
                 });
                 
-                // Change direction of texture depending if start and end 
-                // latitudes are both negative
-                var lastpos = data.positions.slice(-2);
-
                 var slicedPosData = data.positions.slice(start, end);
 
                 if(renderOutlines){
@@ -936,7 +946,7 @@ define([
             this.dataSettings[band].extent = range;
             this.graph.dataSettings = this.dataSettings;
 
-            var dataJumps, lats, lons, pStartTimes, pStopTimes;
+            var dataJumps, lats, lons, pStartTimes, pStopTimes, signCross;
 
             var params = {
                 'ALD_U_N_2A': {
@@ -952,7 +962,8 @@ define([
                             rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
                             time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
                         },
-                        jumps: 'jumps'
+                        jumps: 'jumps',
+                        signCross: 'signCross'
                     },
                     'MCA_extinction': {
                         lats: 'latitude_of_DEM_intersection_obs_orig',
@@ -966,7 +977,8 @@ define([
                             mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
                             time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
                         },
-                        jumps: 'jumps'
+                        jumps: 'jumps',
+                        signCross: 'signCross'
                     }
 
                 },
@@ -983,7 +995,8 @@ define([
                             mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
                             time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
                         },
-                        jumps: 'mie_jumps'
+                        jumps: 'mie_jumps',
+                        signCross: 'mieSignCross'
                     },
                     'rayleigh_wind_result_wind_velocity': {
                         lats: 'rayleigh_wind_result_lat_of_DEM_intersection',
@@ -997,7 +1010,8 @@ define([
                             rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
                             time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
                         },
-                        jumps: 'rayleigh_jumps'
+                        jumps: 'rayleigh_jumps',
+                        signCross: 'rayleighSignCross'
                     }
                 },
                 'ALD_U_N_2C': {
@@ -1013,7 +1027,8 @@ define([
                             mie_altitude: ['mie_wind_result_top_altitude', 'mie_wind_result_bottom_altitude'],
                             time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
                         },
-                        jumps: 'mie_jumps'
+                        jumps: 'mie_jumps',
+                        signCross: 'mieSignCross'
                     },
                     'rayleigh_wind_result_wind_velocity': {
                         lats: 'rayleigh_wind_result_lat_of_DEM_intersection',
@@ -1027,7 +1042,8 @@ define([
                             rayleigh_altitude: ['rayleigh_wind_result_top_altitude', 'rayleigh_wind_result_bottom_altitude'],
                             time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
                         },
-                        jumps: 'rayleigh_jumps'
+                        jumps: 'rayleigh_jumps',
+                        signCross: 'rayleighSignCross'
                     }
                 }
             };
@@ -1042,6 +1058,7 @@ define([
             lons = data[currPar.lons];
             pStartTimes = data[currPar.timeStart];
             pStopTimes = data[currPar.timeStop];
+            signCross = data[currPar.signCross];
 
 
             var height = 1000000;
@@ -1059,10 +1076,14 @@ define([
                     // get extent limits for curtain piece
                     startSlice = 0;
                     if(jIdx>0){
-                        startSlice = dataJumps[jIdx-1];
+                        if(signCross[jIdx-1]){
+                            startSlice = dataJumps[jIdx-1]-1;
+                        } else {
+                            startSlice = dataJumps[jIdx-1];
+                        }
                     }
                     if(jIdx<dataJumps.length){
-                        endSlice = dataJumps[jIdx];
+                        endSlice = dataJumps[jIdx]-1;
                     }else{
                         endSlice = lats.length-1;
                     }
@@ -1080,10 +1101,10 @@ define([
                     }
 
                     if(pStopTimes[endSlice] instanceof Date){
-                        end = pStopTimes[endSlice];
+                        end = pStopTimes[endSlice-1];
                     }else{
                         end = new Date('2000-01-01');
-                        end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice]*1000);
+                        end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice-1]*1000);
                     }
                     
                     this.graph.setXDomain([start, end]);
@@ -1099,8 +1120,8 @@ define([
                 var slicedLats, slicedLons;
 
                 if(dataJumps.length > 0){
-                    slicedLats = lats.slice(startSlice, endSlice);
-                    slicedLons = lons.slice(startSlice, endSlice);
+                    slicedLats = lats.slice(startSlice, endSlice-1);
+                    slicedLons = lons.slice(startSlice, endSlice-1);
                 } else {
                     slicedLats = lats;
                     slicedLons = lons;
