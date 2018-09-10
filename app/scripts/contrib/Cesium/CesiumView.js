@@ -1092,7 +1092,6 @@ define([
                         continue;
                     }
 
-                    // TODO: Issue could be here for L2A
                     var start, end;
                     if(pStartTimes[startSlice] instanceof Date){
                         start = pStartTimes[startSlice];
@@ -1102,10 +1101,10 @@ define([
                     }
 
                     if(pStopTimes[endSlice] instanceof Date){
-                        end = pStopTimes[endSlice];
+                        end = pStopTimes[endSlice-1];
                     }else{
                         end = new Date('2000-01-01');
-                        end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice]*1000);
+                        end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice-1]*1000);
                     }
                     
                     this.graph.setXDomain([start, end]);
@@ -1121,8 +1120,8 @@ define([
                 var slicedLats, slicedLons;
 
                 if(dataJumps.length > 0){
-                    slicedLats = lats.slice(startSlice, endSlice);
-                    slicedLons = lons.slice(startSlice, endSlice);
+                    slicedLats = lats.slice(startSlice, endSlice-1);
+                    slicedLons = lons.slice(startSlice, endSlice-1);
                 } else {
                     slicedLats = lats;
                     slicedLons = lons;
