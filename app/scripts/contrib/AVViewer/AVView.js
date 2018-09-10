@@ -139,15 +139,23 @@ define(['backbone.marionette',
                         'rayleigh_altitude'
                     ],
                     combinedParameters: {
-                        rayleigh_latitude: ['rayleigh_latitude_start', 'rayleigh_latitude_end'],
                         rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
                         latitude_of_DEM_intersection: [
                             'rayleigh_latitude_of_DEM_intersection_start',
                             'rayleigh_latitude_of_DEM_intersection_end'
                         ],
+                        longitude_of_DEM_intersection: [
+                            'rayleigh_longitude_of_DEM_intersection_start',
+                            'rayleigh_longitude_of_DEM_intersection_end'
+                        ],
                         time: ['rayleigh_time_start', 'rayleigh_time_end'],
                     },
-                    colorAxis: ['rayleigh_HLOS_wind_speed']
+                    colorAxis: ['rayleigh_HLOS_wind_speed'],
+                    positionAlias: {
+                        'latitude': 'latitude_of_DEM_intersection',
+                        'longitude': 'longitude_of_DEM_intersection',
+                        'altitude': 'rayleigh_altitude'
+                    }
 
                 },
                 mie: {
@@ -159,15 +167,23 @@ define(['backbone.marionette',
                     ],
                     //y2Axis: [],
                     combinedParameters: {
-                        mie_latitude: ['mie_latitude_start', 'mie_latitude_end'],
                         mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
                         latitude_of_DEM_intersection: [
                             'mie_latitude_of_DEM_intersection_start',
                             'mie_latitude_of_DEM_intersection_end'
                         ],
+                        longitude_of_DEM_intersection: [
+                            'mie_longitude_of_DEM_intersection_start',
+                            'mie_longitude_of_DEM_intersection_end'
+                        ],
                         time: ['mie_time_start', 'mie_time_end'],
                     },
-                    colorAxis: ['mie_HLOS_wind_speed']
+                    colorAxis: ['mie_HLOS_wind_speed'],
+                    positionAlias: {
+                        'latitude': 'latitude_of_DEM_intersection',
+                        'longitude': 'longitude_of_DEM_intersection',
+                        'altitude': 'mie_altitude'
+                    }
 
                 },
                 'ALD_U_N_2A_mie': {
@@ -175,9 +191,14 @@ define(['backbone.marionette',
                     yAxis: [ 'mie_altitude'],
                     combinedParameters: {
                         mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
-                        time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
+                        time: ['MCA_time_obs_start', 'MCA_time_obs_stop']
                     },
-                    colorAxis: ['MCA_extinction']
+                    colorAxis: ['MCA_extinction'],
+                    positionAlias: {
+                        'latitude': 'latitude_of_DEM_intersection_obs',
+                        'longitude': 'longitude_of_DEM_intersection_obs',
+                        'altitude': 'mie_altitude'
+                    }
 
                 },
                 'ALD_U_N_2A_rayleigh': {
@@ -187,7 +208,12 @@ define(['backbone.marionette',
                         rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
                         time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
                     },
-                    colorAxis: ['SCA_extinction']
+                    colorAxis: ['SCA_extinction'],
+                    positionAlias: {
+                        'latitude': 'latitude_of_DEM_intersection_obs',
+                        'longitude': 'longitude_of_DEM_intersection_obs',
+                        'altitude': 'rayleigh_altitude'
+                    }
 
                 },
                 'ALD_U_N_2B_mie': {
@@ -197,7 +223,12 @@ define(['backbone.marionette',
                         mie_altitude: ['mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'],
                         time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
                     },
-                    colorAxis: ['mie_wind_result_wind_velocity']
+                    colorAxis: ['mie_wind_result_wind_velocity'],
+                    positionAlias: {
+                        'latitude': 'mie_wind_result_start_latitude',
+                        'longitude': 'mie_wind_result_start_longitude',
+                        'altitude': 'mie_altitude'
+                    }
 
                 },
                 'ALD_U_N_2B_rayleigh': {
@@ -207,7 +238,12 @@ define(['backbone.marionette',
                         rayleigh_altitude: ['rayleigh_wind_result_bottom_altitude', 'rayleigh_wind_result_top_altitude'],
                         time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
                     },
-                    colorAxis: ['rayleigh_wind_result_wind_velocity']
+                    colorAxis: ['rayleigh_wind_result_wind_velocity'],
+                    positionAlias: {
+                        'latitude': 'rayleigh_wind_result_start_latitude',
+                        'longitude': 'rayleigh_wind_result_start_longitude',
+                        'altitude': 'rayleigh_altitude'
+                    }
 
                 },
                 'ALD_U_N_2C_mie': {
@@ -234,21 +270,41 @@ define(['backbone.marionette',
                     xAxis: ['frequency_offset'],
                     yAxis: ['measurement_response'],
                     colorAxis: [ null ],
+                    positionAlias: {
+                        'latitude': 'lat_of_DEM_intersection',
+                        'longitude': 'lon_of_DEM_intersection',
+                        'altitude': 'altitude'
+                    }
                 },
                 AUX_MRC_1B_error: {
                     xAxis: ['frequency_offset'],
                     yAxis: ['measurement_error_mie_response'],
                     colorAxis: [ null ],
+                    positionAlias: {
+                        'latitude': 'lat_of_DEM_intersection',
+                        'longitude': 'lon_of_DEM_intersection',
+                        'altitude': 'altitude'
+                    }
                 },
                 AUX_RRC_1B: {
                     xAxis: ['frequency_offset'],
                     yAxis: ['measurement_response'],
-                    colorAxis: [ null ]
+                    colorAxis: [ null ],
+                    positionAlias: {
+                        'latitude': 'lat_of_DEM_intersection',
+                        'longitude': 'lon_of_DEM_intersection',
+                        'altitude': 'altitude'
+                    }
                 },
                 AUX_RRC_1B_error: {
                     xAxis: ['frequency_offset'],
                     yAxis: ['measurement_error_rayleigh_response'],
-                    colorAxis: [ null ]
+                    colorAxis: [ null ],
+                    positionAlias: {
+                        'latitude': 'lat_of_DEM_intersection',
+                        'longitude': 'lon_of_DEM_intersection',
+                        'altitude': 'altitude'
+                    }
                 },
                 AUX_ISR_1B: {
                     xAxis: 'laser_frequency_offset',
@@ -258,7 +314,11 @@ define(['backbone.marionette',
                 AUX_ZWC_1B: {
                     xAxis: 'observation_index',
                     yAxis: ['mie_ground_correction_velocity', 'rayleigh_ground_correction_velocity'],
-                    colorAxis: [ null, null ]
+                    colorAxis: [ null, null ],
+                    positionAlias: {
+                        'latitude': 'lat_of_DEM_intersection',
+                        'longitude': 'lon_of_DEM_intersection'
+                    }
                 },
                 'AUX_MET_12_nadir': {
                     xAxis: 'time_nadir',
@@ -317,6 +377,9 @@ define(['backbone.marionette',
                     ignoreParameters: [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/]
                 });
                 globals.swarm.get('filterManager').setRenderNode('#analyticsFilters');
+                this.graph1.on('pointSelect', function(values){
+                    Communicator.mediator.trigger('cesium:highlight:point', values);
+                });
             }
 
             if (this.graph2 === undefined){
@@ -331,6 +394,9 @@ define(['backbone.marionette',
                     ignoreParameters: [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/]
                 });
                 this.graph1.connectGraph(this.graph2);
+                this.graph2.on('pointSelect', function(values){
+                    Communicator.mediator.trigger('cesium:highlight:point', values);
+                });
             }
 
             var data = globals.swarm.get('data');
@@ -623,7 +689,8 @@ define(['backbone.marionette',
         onLayerParametersChanged: function(layer){
 
             // Parameters only apply for L1B curtains (possibly L2B)
-            if(layer === 'ALD_U_N_1B'){
+            if(layer === 'ALD_U_N_1B' || layer === 'ALD_U_N_2A' ||
+                layer === 'ALD_U_N_2B' || layer === 'ALD_U_N_2C'){
                 var currProd = globals.products.find(
                     function(p){return p.get('download').id === layer;}
                 );
@@ -651,8 +718,10 @@ define(['backbone.marionette',
                 }
                 this.graph1.dataSettings = this.dataSettings;
                 this.graph1.renderData();
+                this.graph1.createColorScales();
                 this.graph2.dataSettings = this.dataSettings;
                 this.graph2.renderData();
+                this.graph2.createColorScales();
             }
         },
 
@@ -772,8 +841,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
-                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/];
-                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/];
+                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
+                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_2A']);
@@ -795,8 +864,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
-                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/];
-                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/];
+                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/];
+                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_2B']);
@@ -818,8 +887,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
-                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/];
-                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/];
+                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/];
+                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_2C']);

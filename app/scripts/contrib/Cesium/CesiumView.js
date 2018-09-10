@@ -2723,31 +2723,62 @@ define([
 
         onHighlightPoint: function(coords){
             this.billboards.removeAll();
-            var canvas = document.createElement('canvas');
-            canvas.width = 32;
-            canvas.height = 32;
-            var context2D = canvas.getContext('2d');
-            context2D.beginPath();
-            context2D.arc(16, 16, 12, 0, Cesium.Math.TWO_PI, true);
-            context2D.closePath();
-            context2D.strokeStyle = 'rgb(255, 255, 255)';
-            context2D.lineWidth = 3;
-            context2D.stroke();
+            if(coords !== null){
+                var canvas = document.createElement('canvas');
+                canvas.width = 32;
+                canvas.height = 32;
+                var context2D = canvas.getContext('2d');
+                context2D.beginPath();
+                context2D.arc(16, 16, 12, 0, Cesium.Math.TWO_PI, true);
+                context2D.closePath();
+                context2D.strokeStyle = 'rgb(255, 255, 255)';
+                context2D.lineWidth = 3;
+                context2D.stroke();
 
-            context2D.beginPath();
-            context2D.arc(16, 16, 9, 0, Cesium.Math.TWO_PI, true);
-            context2D.closePath();
-            context2D.strokeStyle = 'rgb(0, 0, 0)';
-            context2D.lineWidth = 3;
-            context2D.stroke();
+                context2D.beginPath();
+                context2D.arc(16, 16, 9, 0, Cesium.Math.TWO_PI, true);
+                context2D.closePath();
+                context2D.strokeStyle = 'rgb(0, 0, 0)';
+                context2D.lineWidth = 3;
+                context2D.stroke();
 
-            this.billboards.add({
-                imageId : 'custom canvas point',
-                image : canvas,
-                position : Cesium.Cartesian3.fromDegrees(coords[1], coords[0], parseInt(coords[2]-6384100)),
-                radius: coords[2],
-                scale : 1
-            });
+                if(!Array.isArray(coords.Latitude) &&
+                   !Array.isArray(coords.Longitude)){
+                    var height = 0;
+                    if(Array.isArray(coords.Radius)){
+                        height = coords.Radius[0]+(coords.Radius[1]-coords.Radius[0])/2;
+                        height = (1000*50)+(height*50)
+                    } else if(coords.Radius){
+                        height = coords.Radius;
+                    }
+
+                    this.billboards.add({
+                        imageId : 'custom canvas point',
+                        image : canvas,
+                        position : Cesium.Cartesian3.fromDegrees(
+                            coords.Longitude,
+                            coords.Latitude,
+                            height
+                        ),
+                        scale : 1
+                    });
+                } else {
+                    var lat = coords.Latitude[1]-Math.abs(coords.Latitude[0]-coords.Latitude[1])/2;
+                    var lon = coords.Longitude[1]+Math.abs(coords.Longitude[0]-coords.Longitude[1])/2;
+                    var alt = coords.Radius[0]+(coords.Radius[1]-coords.Radius[0])/2;
+                    //var alt = 0;
+                    this.billboards.add({
+                        imageId : 'custom canvas point',
+                        image : canvas,
+                        position : Cesium.Cartesian3.fromDegrees(
+                            lon,
+                            lat,
+                            (1000*50)+(alt*50)
+                        ),
+                        scale : 1
+                    });
+                }
+            }
         },
 
         onRemoveHighlights: function(){
