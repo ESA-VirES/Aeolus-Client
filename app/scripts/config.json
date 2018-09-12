@@ -966,14 +966,14 @@
             "parameters": {
                 "mie_ground_correction_velocity": {
                     "selected": true,
-                    "range": [-0.5, 0.2],
+                    "range": [-2, 2],
                     "uom": "m/s",
                     "colorscale": "viridis",
                     "name": "Mie Ground Correction Velocity"
                 },
                 "rayleigh_ground_correction_velocity": {
                     "selected": true,
-                    "range": [-1.5, 1.5],
+                    "range": [-100, 100],
                     "uom": "m/s",
                     "colorscale": "plasma",
                     "name": "Rayleigh Ground Correction Velocity"
