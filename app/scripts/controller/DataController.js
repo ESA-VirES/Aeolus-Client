@@ -271,7 +271,7 @@
                     {'name': 'ZWC_Mie', value:'ZWC_Mie'},
                     {'name': 'ZWC_Rayleigh', value:'ZWC_Rayleigh'}
                 ],
-                selected: 'ZWC_Both'
+                selected: -1
               }
           }
         };
