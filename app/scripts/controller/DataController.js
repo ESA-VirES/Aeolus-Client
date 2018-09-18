@@ -1859,11 +1859,14 @@
                       for (var l = 0; l < subK.length; l++) {
                         
                         if(subK[l] === 'mie_wind_result_wind_velocity' ||
-                           subK[l] === 'rayleigh_wind_result_wind_velocity' ||
-                           subK[l] === 'mie_wind_result_COG_range' ||
-                           subK[l] === 'rayleigh_wind_result_COG_range'){
+                           subK[l] === 'rayleigh_wind_result_wind_velocity'){
                           // Convert from cm/s to m/s
                           resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 100; });
+                        /*} else if(
+                           subK[l] === 'mie_wind_result_COG_range' ||
+                           subK[l] === 'rayleigh_wind_result_COG_range'){
+                          // Convert from m to km
+                          resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 1000; });*/
                         } else {
                           resData[subK[l]] = ds[keys[k]][subK[l]];
                         }
