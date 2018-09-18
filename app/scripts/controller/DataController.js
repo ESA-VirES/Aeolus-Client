@@ -1456,7 +1456,7 @@
                   for (var i = 2; i < positions.length; i++) {
                     var diff = Math.abs(positions[i]-positions[i-2]);
                     if (i%2===0 && diff>=lonStep) {
-                      signCross.push(diff>350);
+                      signCross.push(diff>350 && Math.abs(positions[i+1]-positions[i-1])<latStep);
                       if(diff>350){
                         stepPositions.push(parseInt(i/2)+2);
                       } else {
