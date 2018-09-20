@@ -1465,7 +1465,7 @@
                       
                     }else if (i%2===1 && diff>=latStep) {
                       if(stepPositions.length>0 && stepPositions[stepPositions.length-1]!=parseInt((i-1)/2)){
-                        stepPositions.push(parseInt((i+1)/2));
+                        stepPositions.push(parseInt((i)/2));
                         signCross.push(diff>160); 
                       }else if(stepPositions.length === 0){
                         stepPositions.push(parseInt(i/2));
