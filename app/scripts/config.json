@@ -473,12 +473,12 @@
                 "rayleigh_wind_result_scattering_ratio":{"uom": null, "name": "Scattering Ratio used to estimate the Mie signal used in Mie decontamination for this wind result"},
                 "mie_wind_result_observation_type":{"uom": null, "name": "Remember if this was a cloud or no-cloud result (0=undefined, 1=cloudy, 2=clear)"},
                 "mie_wind_result_validity_flag":{"uom": null, "name": "Validity flag (1 or TRUE = valid, 0 or FALSE= invalid)"},
-                "mie_wind_result_wind_velocity":{"uom": "cm/s", "name": "Wind velocity given in cm/s and rounded to the nearest integer"},
+                "mie_wind_result_wind_velocity":{"uom": "m/s", "name": "Wind velocity given in cm/s and rounded to the nearest integer"},
                 "mie_wind_result_integration_length":{"uom": "m", "name": "Horizontal integration length for the reported Mie wind"},
                 "mie_wind_result_num_of_measurements":{"uom": null, "name": "Number of measurements used to construct the accumulation used to derive the current Mie wind result"},
                 "rayleigh_wind_result_observation_type":{"uom": null, "name": "Cloud or no-cloud result (0=undefined, 1=cloudy, 2=clear)"},
                 "rayleigh_wind_result_validity_flag":{"uom": null, "name": "Validity flag (1 or TRUE = valid, 0 or FALSE= invalid)"},
-                "rayleigh_wind_result_wind_velocity":{"uom": "cm/s", "name": "Wind velocity given in cm/s and rounded to the nearest integer"},
+                "rayleigh_wind_result_wind_velocity":{"uom": "m/s", "name": "Wind velocity given in cm/s and rounded to the nearest integer"},
                 "rayleigh_wind_result_integration_length":{"uom": "m", "name": "Horizontal integration length for the reported Mie wind"},
                 "rayleigh_wind_result_num_of_measurements":{"uom": null, "name": "Number of measurements used to construct the accumulation used to derive the current Mie wind result"},
                 "rayleigh_wind_result_reference_pressure":{"uom": "Pa", "name": "Reference pressure used for inverting the Rayleigh response into an HLOS wind"},
@@ -636,12 +636,12 @@
 
                 "mie_wind_result_observation_type":{"uom": null, "name": "Remember if this was a cloud or no-cloud result (0=undefined, 1=cloudy, 2=clear)"},
                 "mie_wind_result_validity_flag":{"uom": null, "name": "Validity flag (1 or TRUE = valid, 0 or FALSE= invalid)"},
-                "mie_wind_result_wind_velocity":{"uom": "cm/s", "name": "Wind velocity given in cm/s and rounded to the nearest integer"},
+                "mie_wind_result_wind_velocity":{"uom": "m/s", "name": "Wind velocity given in cm/s and rounded to the nearest integer"},
                 "mie_wind_result_integration_length":{"uom": "m", "name": "Horizontal integration length for the reported Mie wind"},
                 "mie_wind_result_num_of_measurements":{"uom": null, "name": "Number of measurements used to construct the accumulation used to derive the current Mie wind result"},
                 "rayleigh_wind_result_observation_type":{"uom": null, "name": "Cloud or no-cloud result (0=undefined, 1=cloudy, 2=clear)"},
                 "rayleigh_wind_result_validity_flag":{"uom": null, "name": "Validity flag (1 or TRUE = valid, 0 or FALSE= invalid)"},
-                "rayleigh_wind_result_wind_velocity":{"uom": "cm/s", "name": "Wind velocity given in cm/s and rounded to the nearest integer"},
+                "rayleigh_wind_result_wind_velocity":{"uom": "m/s", "name": "Wind velocity given in cm/s and rounded to the nearest integer"},
                 "rayleigh_wind_result_integration_length":{"uom": "m", "name": "Horizontal integration length for the reported Mie wind"},
                 "rayleigh_wind_result_num_of_measurements":{"uom": null, "name": "Number of measurements used to construct the accumulation used to derive the current Mie wind result"},
                 "rayleigh_wind_result_reference_pressure":{"uom": "Pa", "name": "Reference pressure used for inverting the Rayleigh response into an HLOS wind"},
@@ -966,14 +966,14 @@
             "parameters": {
                 "mie_ground_correction_velocity": {
                     "selected": true,
-                    "range": [-0.5, 0.2],
+                    "range": [-2, 2],
                     "uom": "m/s",
                     "colorscale": "viridis",
                     "name": "Mie Ground Correction Velocity"
                 },
                 "rayleigh_ground_correction_velocity": {
                     "selected": true,
-                    "range": [-1.5, 1.5],
+                    "range": [-100, 100],
                     "uom": "m/s",
                     "colorscale": "plasma",
                     "name": "Rayleigh Ground Correction Velocity"
@@ -1015,7 +1015,9 @@
                 "rayleigh_channel_B_ground_SNR_meas": {"uom": null, "name": "Mean SNR over SNR values of detected ground bins for Rayleigh channel B"},
                 "DEM_height": {"uom": "m", "name": "N_Meas of the observation"}
             },
-            "outlines": false
+            "outlines": false,
+            "granularity": "observation",
+            "granularity_options": ["observation", "measurement"]
         },{
             "name": "AUX MET",
             "timeSlider": true,

@@ -271,7 +271,7 @@
                     {'name': 'ZWC_Mie', value:'ZWC_Mie'},
                     {'name': 'ZWC_Rayleigh', value:'ZWC_Rayleigh'}
                 ],
-                selected: 'ZWC_Both'
+                selected: -1
               }
           }
         };
@@ -1456,7 +1456,7 @@
                   for (var i = 2; i < positions.length; i++) {
                     var diff = Math.abs(positions[i]-positions[i-2]);
                     if (i%2===0 && diff>=lonStep) {
-                      signCross.push(diff>350);
+                      signCross.push(diff>350 && Math.abs(positions[i+1]-positions[i-1])<latStep);
                       if(diff>350){
                         stepPositions.push(parseInt(i/2)+2);
                       } else {
@@ -1465,7 +1465,7 @@
                       
                     }else if (i%2===1 && diff>=latStep) {
                       if(stepPositions.length>0 && stepPositions[stepPositions.length-1]!=parseInt((i-1)/2)){
-                        stepPositions.push(parseInt((i+1)/2));
+                        stepPositions.push(parseInt((i)/2));
                         signCross.push(diff>160); 
                       }else if(stepPositions.length === 0){
                         stepPositions.push(parseInt(i/2));
@@ -1859,11 +1859,14 @@
                       for (var l = 0; l < subK.length; l++) {
                         
                         if(subK[l] === 'mie_wind_result_wind_velocity' ||
-                           subK[l] === 'rayleigh_wind_result_wind_velocity' ||
-                           subK[l] === 'mie_wind_result_COG_range' ||
-                           subK[l] === 'rayleigh_wind_result_COG_range'){
+                           subK[l] === 'rayleigh_wind_result_wind_velocity'){
                           // Convert from cm/s to m/s
                           resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 100; });
+                        /*} else if(
+                           subK[l] === 'mie_wind_result_COG_range' ||
+                           subK[l] === 'rayleigh_wind_result_COG_range'){
+                          // Convert from m to km
+                          resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 1000; });*/
                         } else {
                           resData[subK[l]] = ds[keys[k]][subK[l]];
                         }
