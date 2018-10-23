@@ -592,7 +592,7 @@
       proxyFlattenObservationArraySE: function(input, proxy, jumps, signCross){
         var start = [];
         var end = [];
-        for (var i = 1; i < proxy.length-1; i++) {
+        for (var i = 1; i < proxy.length; i++) {
 
           var currJump = jumps.indexOf(i);
           if(currJump!==-1 && !signCross[currJump]){
