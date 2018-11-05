@@ -129,22 +129,22 @@
             }]
         }],
         "products": [{
-            "name": "Cloudsat",
-            "timeSlider": false,
-            "visible": true,
+            "name": "cloudsat-2b-geoprof",
+            "timeSlider": true,
+            "timeSliderProtocol": "EOWCS2",
             "views": [{
-                "id": "Cloudsat",
+                "id": "cloudsat-2b-geoprof",
                 "protocol": "WPS",
                 "urls": [
-                    "http://localhost:9000/vires00/ows"
+                    "http://ows.eox.at/testbed-14/eoxserver/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
             }],
             "download": {
-                "id": "Cloudsat",
+                "id": "cloudsat-2b-geoprof",
                 "protocol": "WPS",
-                "url": "data/cloudsat.mp?"
+                "url": "http://ows.eox.at/testbed-14/eoxserver/ows"
             },
             "process" : "aeolus:level1B",
             "parameters": {
@@ -263,7 +263,7 @@
     },
     "timeSlider": {
         "domain": {
-            "start": "2000-02-28T01:00:00Z",
+            "start": "2018-03-01T01:00:00",
             "end": "2018-03-05T01:00:00Z"
         },
         "brush": {
@@ -271,8 +271,8 @@
             "end": "2015-10-01T07:35:22Z"
         },
         "display": {
-            "start": "2015-10-01T00:22:11Z",
-            "end": "2015-10-02T06:22:11Z"
+            "start": "2017-11-26T00:22:11Z",
+            "end": "2017-11-28T00:22:11Z"
         }
     },
 

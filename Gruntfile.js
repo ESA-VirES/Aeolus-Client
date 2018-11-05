@@ -91,9 +91,8 @@ module.exports = function (grunt) {
                 changeOrigin: true,
                 xforward: false
             },{
-                context: '/ows',
-                host: 'localhost',
-                port: 8401
+                context: '/testbed-14/eoxserver',
+                host: 'ows.eox.at'
             },{
                 context: '/wps',
                 host: 'localhost',

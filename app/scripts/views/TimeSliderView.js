@@ -211,6 +211,7 @@
 
 
                 // Add possible user collections
+               /* var USERVARIABLE = undefined;
                 var collectionId;
                 if(typeof USERVARIABLE !== 'undefined'){
                     collectionId = 'user_collection_'+ USERVARIABLE;
@@ -220,7 +221,7 @@
                 
                 var attrs = {
                     id: collectionId,
-                    url: '/ows'
+                    url: 'testbed-14/eoxserver/ows'
                 };
                   
                 this.slider.addDataset({
@@ -228,7 +229,7 @@
                     color: '#1122ff',
                     records: null,
                     source: {fetch: this.fetchWPS.bind(attrs)}
-                });
+                });*/
 
 
             }, // END of onShow
@@ -297,6 +298,31 @@
                     });
             },
 
+            fetchEOWCS2: function(start, end, params, callback){
+                var request = this.url + '?service=wcs&request=describeeocoverageset&version=2.1.0&eoid='+
+                this.id+'&subset=phenomenonTime("'+getISODateTimeString(start)+'","'+getISODateTimeString(end)+'")';
+                $.get(request, function(resp){
+                    var covs = [];
+                    var covnodes = resp.getElementsByTagNameNS(
+                        'http://www.opengis.net/wcs/2.1/gml', 'CoverageDescription'
+                    );
+                    for (var i = 0; i < covnodes.length; i++) {
+                        var id = covnodes[i].getAttributeNS('http://www.opengis.net/gml/3.2','id');
+                        var timenode = covnodes[i].getElementsByTagNameNS('http://www.opengis.net/gml/3.2','TimePeriod')[0];
+                        var begin_time = new Date(
+                            timenode.getElementsByTagNameNS('http://www.opengis.net/gml/3.2','beginPosition')[0].textContent
+                        );
+                        var end_time = new Date(
+                            timenode.getElementsByTagNameNS('http://www.opengis.net/gml/3.2','endPosition')[0].textContent
+                        );
+
+                        covs.push([begin_time, end_time, {id:id}]);
+                    }
+                    Communicator.mediator.trigger("progress:change", false);
+                    callback(covs);
+                }, 'xml');
+            },
+
 
             fetchWPS: function(start, end, params, callback){
                 var request = this.url + '?service=wps&request=execute&version=1.0.0&identifier=getTimeData&DataInputs=collection='+
@@ -353,6 +379,21 @@
                                      })
                                   });
                                   break;
+
+                                case 'EOWCS2':
+                                  this.activeWPSproducts.push(product.get('download').id);
+                                  attrs = {
+                                    id: product.get('download').id,
+                                    url: product.get('download').url
+                                  };
+                                  this.slider.addDataset({
+                                    id: product.get('download').id,
+                                    color: product.get('color'),
+                                    records: null,
+                                    source: {fetch: this.fetchEOWCS2.bind(attrs)}
+                                  });
+                                  break;
+
                                 case 'WPS':
                                   attrs = {
                                     id: product.get('download').id,

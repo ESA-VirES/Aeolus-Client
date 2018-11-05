@@ -738,7 +738,7 @@
 
         var parameters = '';
         var fieldsList = {
-          'Cloudsat': {},
+          'cloudsat-2b-geoprof': {},
           'ALD_U_N_1B': {
             'observation_fields': [
               'time',
@@ -1397,7 +1397,7 @@
                   }
                 }
 
-                if(collectionId === 'Cloudsat'){
+                if(collectionId === 'cloudsat-2b-geoprof'){
                   tmpdata = data;
                   var resData = {};
                   resData[collectionId] = tmpdata;
@@ -2088,7 +2088,7 @@
         };
 
         Communicator.mediator.trigger("progress:change", true);
-        this.xhr.send(body);
+        //this.xhr.send(body);
 
       },
 
