@@ -132,7 +132,11 @@ define(['backbone.marionette',
                     'Gaseous_Attenuation',
                     'Radar_Reflectivity',
                     'Latitude',
-                    'Longitud'
+                    'Longitud',
+                    // test
+                    'values',
+                    'x',
+                    'y'
                 ]
             }
 
@@ -184,6 +188,16 @@ define(['backbone.marionette',
                         time: ['time_start', 'time_end'],
                     },
                     colorAxis: ['CPR_Cloud_mask']
+
+                },
+                'test': {
+                    xAxis: 'x',
+                    yAxis: [ 'y'],
+                    combinedParameters: {
+                        x: ['x_start', 'x_end'],
+                        y: ['y_start', 'y_end'],
+                    },
+                    colorAxis: ['values']
 
                 },
                 'ALD_U_N_2A_mie': {
@@ -764,7 +778,7 @@ define(['backbone.marionette',
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_1B']);
 
-                     }else if(idKeys[0] === 'Cloudsat'){
+                     }else if(idKeys[0] === 'test'){
                         this.graph2.data = {};
                         $('#graph_1').css('height', '99%');
                         $('#graph_2').hide();

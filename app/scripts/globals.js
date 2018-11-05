@@ -12,6 +12,12 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
         overlays: new Backbone.Collection(),
         swarm: new swarm_model(),
         dataSettings: {
+            'x':{},
+            'y':{},
+            'values':{
+                uom: null,
+                colorscale: 'viridis',
+            },
 
             time: {
                 scaleFormat: 'time',

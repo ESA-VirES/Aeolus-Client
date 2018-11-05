@@ -1,3 +1,5 @@
+/* eslint-disable indent */
+
 (function() {
   'use strict';
 
@@ -12,6 +14,7 @@
     'app',
     'papaparse',
     'msgpack',
+    'geotiff',
     'graphly'
   ],
 
@@ -721,12 +724,152 @@
         return output;
       },
 
+      onCoverageReceived: function(data){
+
+        console.log('Hello');
+        var gt;
+        try {
+          gt = GeoTIFF.parse(data);
+        }
+        catch(err) {
+          $("#error-messages").append(
+            '<div class="alert alert-warning alert-danger">'+
+            '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+
+            '<strong>Error:</strong> TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAng.' +
+            '</div>'
+          );
+          return;
+        }
+        
+        var img = gt.getImage(0);
+        var rasdata = img.readRasters();
+        var meta = img.getGDALMetadata();
+
+      },
+
+
+      requestCoverage: function(collectionId, covid, url){
+
+        var positionsRequest = url + '?service=wcs&request=describecoverage&version=2.1.0&coverageid='+covid;
+        var that = this;
+        var collId = collectionId;
+
+        var scaleY = 0.1;
+        var parameter = 'Radar_Reflectivity';
+        var datarequest = url+ '?service=WCS&version=2.1.0&request=GetCoverage&coverageid='+covid+
+            '&format=image/tiff&scaleaxes=x(1),y('+scaleY+')&rangesubset='+parameter;
+
+        this.xhr = new XMLHttpRequest();
+        this.xhr.open('GET', datarequest, true);
+        this.xhr.responseType = 'arraybuffer';
+        var that = this;
+        var request = this.xhr;
+
+        this.xhr.onreadystatechange = function() {
+       
+          if(request.readyState == 4) {
+
+            if(request.status == 200) {
+
+              var gt = GeoTIFF.parse(this.response);
+              var img = gt.getImage(0);
+              var rasdata = img.readRasters()[0];
+
+              // height and width are flipped
+              var height = img.getHeight();
+              var width = img.getWidth();
+
+              var x_start=[];
+              var x_end=[];
+              var y_start=[];
+              var y_end=[];
+              var values=[];
+
+              for (var y = 0; y < height; y++) {
+                for (var x = 0; x < width; x++) {
+                   y_start.push(width-x);
+                   y_end.push(width-x+1);
+                   x_start.push(height-y);
+                   x_end.push(height-y+1);
+                   values.push(rasdata[y*width+x]);
+                }
+              }
+
+              var data = {};
+              data['test'] =  {
+                'x_start': x_start,
+                'x_end': x_end,
+                'y_start': y_start,
+                'y_end': y_end,
+                'values': values
+              };
+
+              globals.swarm.set({data: data});
+
+
+
+            } else if(request.status!== 0 && request.responseText != "") {
+                Communicator.mediator.trigger("progress:change", false);
+                globals.swarm.set({data: {}});
+                var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+                if (error_text && error_text.length > 1) {
+                    error_text = error_text[1];
+                } else {
+                    error_text = 'Please contact feedback@vires.services if issue persists.'
+                }
+                that.xhr = null;
+                showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                return;
+            }
+
+          } else if(request.readyState == 2) {
+              if(request.status == 200) {
+                  request.responseType = 'arraybuffer';
+              } else {
+                  request.responseType = 'text';
+              }
+          }
+          that.xhr = null;
+        };
+
+        this.xhr.send();
+
+
+
+        /*$.get(positionsRequest, function(resp){
+            
+            var footprint = resp.getElementsByTagNameNS(
+                'http://www.opengis.net/eop/2.0', 'Footprint'
+            )[0];
+
+            var poslist = footprint.getElementsByTagNameNS(
+                'http://www.opengis.net/gml/3.2', 'posList'
+            )[0].textContent.split(' ').map(Number);
+
+            var flippedposlist = [];
+            for (var i = 0; i < poslist.length; i+=2) {
+              flippedposlist.push(poslist[i+1]);
+              flippedposlist.push(poslist[i]);
+            }
+            
+            var data = {};
+            data[collId] =  {
+              'positions': flippedposlist
+            };
+
+            globals.swarm.set({data: data});
+            
+
+            Communicator.mediator.trigger("progress:change", false);
+        });*/
+      },
+
       sendRequest: function(prodId){
        
         var process = {
           collectionId: prodId,
           id: this.activeWPSproducts[prodId]
-        }
+        };
 
         var product = globals.products.find(
             function(p){return p.get('download').id === process.collectionId;}
@@ -735,6 +878,37 @@
         var urlBase = product.get('download').url;
 
         var collectionId = product.get('download').id;
+
+        var request = urlBase + '?service=wcs&request=describeeocoverageset&version=2.1.0&eoid='+
+        collectionId+'&subset=phenomenonTime("'+getISODateTimeString(this.selected_time.start)+'","'+getISODateTimeString(this.selected_time.end)+'")';
+
+        var that = this;
+        $.get(request, function(resp){
+            var covs = [];
+            var covnodes = resp.getElementsByTagNameNS(
+                'http://www.opengis.net/wcs/2.1/gml', 'CoverageDescription'
+            );
+            for (var i = 0; i < covnodes.length; i++) {
+                var id = covnodes[i].getAttributeNS('http://www.opengis.net/gml/3.2','id');
+                var timenode = covnodes[i].getElementsByTagNameNS('http://www.opengis.net/gml/3.2','TimePeriod')[0];
+                var begin_time = new Date(
+                    timenode.getElementsByTagNameNS('http://www.opengis.net/gml/3.2','beginPosition')[0].textContent
+                );
+                var end_time = new Date(
+                    timenode.getElementsByTagNameNS('http://www.opengis.net/gml/3.2','endPosition')[0].textContent
+                );
+
+                that.requestCoverage(prodId, id, urlBase);
+                //covs.push([begin_time, end_time, {id:id}]);
+            }
+            Communicator.mediator.trigger("progress:change", false);
+        }, 'xml');
+
+
+        return;
+
+
+
 
         var parameters = '';
         var fieldsList = {

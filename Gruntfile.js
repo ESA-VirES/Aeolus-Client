@@ -91,9 +91,6 @@ module.exports = function (grunt) {
                 changeOrigin: true,
                 xforward: false
             },{
-                context: '/testbed-14/eoxserver',
-                host: 'ows.eox.at'
-            },{
                 context: '/wps',
                 host: 'localhost',
                 port: 8400
@@ -376,6 +373,7 @@ module.exports = function (grunt) {
                         'bower_components/w2ui/src/w2utils.js',
                         'bower_components/msgpack-lite/dist/msgpack.min.js',
                         'bower_components/graphly/dist/graphly.min.js',
+                        'bower_components/geotiffjs/index.js',
                         'bower_components/filepond/dist/filepond.js',
                         'scripts/vendor/**',
                     ]

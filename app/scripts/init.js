@@ -127,7 +127,7 @@
             keypress: '../bower_components/Keypress/keypress',
 
             papaparse: '../bower_components/papaparse/papaparse.min',
-
+            geotiff: '../bower_components/geotiffjs/index',
             plotty: '../bower_components/plotty/dist/plotty.min',
 
             sumoselect: '../bower_components/sumoselect/jquery.sumoselect.min',

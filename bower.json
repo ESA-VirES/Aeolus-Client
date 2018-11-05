@@ -22,6 +22,7 @@
     "font-awesome": "~4.5.0",
     "d3.Graphs": "ESA-VirES/AnalyticsViewer#~0.4.17",
     "cesium": "https://github.com/AnalyticalGraphicsInc/cesium/releases/download/1.39/Cesium-1.39.zip",
+    "geotiffjs": "https://github.com/geotiffjs/geotiff.js/releases/download/v0.3.6/geotiff.min.js",
     "papaparse": "~4.1.0",
     "plotty": "santilland/plotty#^0.1.1",
     "jqueryui-touch-punch": "*",
