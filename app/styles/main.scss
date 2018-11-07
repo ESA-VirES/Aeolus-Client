@@ -507,3 +507,13 @@ button[active=active] {
   padding-top: 0.8em!important;
   font-size: 1.2em!important;
 }
+
+
+#subsettingwarning{
+  font-size:12px;
+  color:yellow;
+  position: absolute;
+  top: 25px;
+  right: 250px;
+  z-index: 1050;
+}

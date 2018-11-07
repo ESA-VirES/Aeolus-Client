@@ -183,7 +183,7 @@ define(['backbone.marionette',
                         height: ['height_start', 'height_end'],
                         time: ['time_start', 'time_end'],
                     },
-                    colorAxis: ['Radar_Reflectivity']
+                    colorAxis: ['CPR_Cloud_mask']
 
                 },
                 'ALD_U_N_2A_mie': {
@@ -330,7 +330,7 @@ define(['backbone.marionette',
                     renderSettings: this.renderSettings.mie,
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
-                    ignoreParameters: [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/]
+                    ignoreParameters: [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, 'latitude', 'longitude']
                 });
                 globals.swarm.get('filterManager').setRenderNode('#analyticsFilters');
             }
@@ -344,7 +344,7 @@ define(['backbone.marionette',
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
                     connectedGraph: this.graph1,
-                    ignoreParameters: [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/]
+                    ignoreParameters: [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/, 'latitude', 'longitude']
                 });
                 this.graph1.connectGraph(this.graph2);
             }
@@ -772,8 +772,8 @@ define(['backbone.marionette',
                         this.graph2.ignoreParameters = [];
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
-                        this.graph1.ignoreParameters = ['lats', 'lons', 'positions', 'stepPositions', /.*_jumps/];
-                        this.graph2.ignoreParameters = ['lats', 'lons', 'positions', 'stepPositions', /.*_jumps/];
+                        this.graph1.ignoreParameters = [ 'latitude', 'longitude', 'positions', 'stepPositions', /.*_jumps/];
+                        this.graph2.ignoreParameters = [ 'latitude', 'longitude', 'positions', 'stepPositions', /.*_jumps/];
                         this.graph1.connectGraph(false);
                         this.graph2.connectGraph(false);
                         this.graph1.dataSettings = mergedDataSettings;

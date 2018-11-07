@@ -24,7 +24,7 @@
             manualInit: function(){
                 for (var i = 0; i < globals.products.models.length; i++) {
                     var prot = globals.products.models[i].get('timeSliderProtocol');
-                    if(prot === 'WPS' || prot === 'INDEX'){
+                    if(prot === 'WPS' || prot === 'INDEX' || prot === 'EOWCS2'){
                         this.changeLayer({
                             name: globals.products.models[i].get('name'),
                             visible: globals.products.models[i].get('visible')
@@ -464,13 +464,12 @@
 
             onCoverageSelected: function(evt){
                 var details = evt.originalEvent.detail;
-                if (details.params.bbox){
-                    var oneDay=1000*60*60*24;
-                    if ( Math.ceil( (details.end - details.start)/oneDay)<10 ){
-                        this.slider.select(details.start, details.end);
-                        Communicator.mediator.trigger('map:set:extent', details.params.bbox);
-                    }
+                var oneDay=1000*60*60*24;
+                if ( Math.ceil( (details.end - details.start)/oneDay)<10 ){
+                    this.slider.select(details.start, details.end);
+                    //Communicator.mediator.trigger('map:set:extent', details.params.bbox);
                 }
+                
             }
         });
         return {'TimeSliderView':TimeSliderView};

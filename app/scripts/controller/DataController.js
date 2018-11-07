@@ -576,6 +576,9 @@
       },
 
       checkSelections: function(){
+        // Remove possible warning message
+        $('#subsettingwarning').remove();
+
         if (this.selected_time == null)
           this.selected_time = Communicator.reqres.request('get:time');
 
@@ -766,18 +769,17 @@
 
 
           var scaleY = 0.1;
-          var scalesizeY = 1000;
+          var scalesizeY = 3000;
+
           if(maxIdx-minIdx < scalesizeY){
             scalesizeY = maxIdx-minIdx;
+          }else{
+            // data will be subset, let us add information about that
+            $('body').append('<div id="subsettingwarning">The data is being scaled down in the time axis, if you want to retrieve the full resolution select a shorter time interval.</div>')
           }
           
-          /*var datarequest = url+ '?service=WCS&version=2.1.0&request=GetCoverage&coverageid='+covid+
-              '&format=image/tiff&subset=y('+minIdx+','+maxIdx+')&scaleaxes=x(1),y('+scaleY+')&rangesubset='+parameter;*/
-          
-
-
           var filesLoaded = 0;
-          var parameters = ['Radar_Reflectivity', 'height', 'profile_time', 'Gaseous_Attenuation', 'CPR_Cloud_mask'];
+          var parameters = ['Radar_Reflectivity', 'height', 'latitude', 'longitude', 'profile_time', 'Gaseous_Attenuation', 'CPR_Cloud_mask'];
           //'' 
 
 
@@ -817,7 +819,7 @@
                 checkAllLoaded();
 
               } else if(this.status!== 0 && this.responseText != "") {
-                  Communicator.mediator.trigger("progress:change", false);
+                  //Communicator.mediator.trigger("progress:change", false);
                   globals.swarm.set({data: {}});
                   console.log('Error retrieveing data');
                   return;
@@ -832,47 +834,26 @@
             }
           }
 
+          // start of loading everything
+          Communicator.mediator.trigger("progress:change", true);
+
           for (var i = 0; i < parameters.length; i++) {
             var datarequest = url+ '?service=WCS&version=2.1.0&request=GetCoverage&coverageid='+covid+
               '&format=image/tiff&subset=y('+minIdx+','+maxIdx+')&scalesize=y('+scalesizeY+')&rangesubset='+parameters[i];
-            if(parameters[i] === 'height' || parameters[i] === 'profile_time'){
+            if(parameters[i] === 'height' || parameters[i] === 'profile_time' ||
+               parameters[i] === 'latitude' || parameters[i] === 'longitude'){
               datarequest = url+ '?service=WCS&version=2.1.0&request=GetCoverage&coverageid='+covid+'_'+parameters[i]+
               '&format=image/tiff&subset=x('+minIdx+','+maxIdx+')&scalesize=x('+scalesizeY+')';
             }
             getAsync(datarequest, bindWithoutThis(handleResponse, parameters[i]));
           }
 
-
-          $.get(positionsRequest, function(resp){
-              
-              var footprint = resp.getElementsByTagNameNS(
-                  'http://www.opengis.net/eop/2.0', 'Footprint'
-              )[0];
-
-              var poslist = footprint.getElementsByTagNameNS(
-                  'http://www.opengis.net/gml/3.2', 'posList'
-              )[0].textContent.split(' ').map(Number);
-
-              var flippedposlist = [];
-              for (var i = 0; i < poslist.length; i+=2) {
-                flippedposlist.push(poslist[i+1]);
-                flippedposlist.push(poslist[i]);
-              }
-              
-              coveragedata['positions'] = flippedposlist;
-              
-
-              checkAllLoaded();
-          });
-
-
-
           function checkAllLoaded() {
 
               filesLoaded += 1;
 
               // All parameters have been loaded
-              if(filesLoaded == parameters.length+1) {
+              if(filesLoaded == parameters.length) {
                 
                 var time_start = [];
                 var time_end = [];
@@ -891,43 +872,6 @@
                 for (var y = 0; y < 125; y++) {
                   time_end.push(new Date(lasttime + 1400));
                 }
-
-  
-                /*for (var x = 0; x < 125; x++) {
-                  var d;
-                  for (var i = 0; i < coveragedata.profile_time.data.length; i++) {
-                    d = new Date(initTime + coveragedata.profile_time.data[i]*1000);
-                    if(i>0){
-                      time_end.push(d);
-                    }
-                    time_start.push(d);
-                  }
-                  time_end.push(new Date(d.getTime()+1400));
-                }*/
-
-                
-
-
-                /*var time_start = time.slice(coveragedata.profile_time.width);
-                var time_end = time.slice(0, -coveragedata.profile_time.width);*/
-
-
-
-                /*var x_start=[];
-                var x_end=[];
-                var y_start=[];
-                var y_end=[];
-                var values=[];
-
-                for (var y = 0; y < height; y++) {
-                  for (var x = 0; x < width; x++) {
-                     y_start.push(width-x);
-                     y_end.push(width-x+1);
-                     x_start.push(height-y);
-                     x_end.push(height-y+1);
-                     values.push(rasdata[y*width+x]);
-                  }
-                }*/
 
                 // height and width are flipped
                 var height_start = coveragedata.height.data;
@@ -952,11 +896,14 @@
                   'Radar_Reflectivity': coveragedata.Radar_Reflectivity.data,
                   'Gaseous_Attenuation': coveragedata.Gaseous_Attenuation.data,
                   'CPR_Cloud_mask': coveragedata.CPR_Cloud_mask.data,
+                  'latitude': coveragedata.latitude.data,
+                  'longitude': coveragedata.longitude.data
                 };
 
-                console.log(data);
-
                 globals.swarm.set({data: data});
+
+                // everything loaded
+                Communicator.mediator.trigger("progress:change", false);
               }
           }
 
@@ -988,7 +935,20 @@
             var covnodes = resp.getElementsByTagNameNS(
                 'http://www.opengis.net/wcs/2.1/gml', 'CoverageDescription'
             );
-            for (var i = 0; i < covnodes.length; i++) {
+            
+            var covlength = covnodes.length;
+
+            // For now we show only the first coverage in the list
+            if(covlength>1){
+              showMessage('warning', (
+                'More then one coverage selected, only first coverage will be visualized.'
+              ) , 10, 'validitywarning');
+              covlength = 1;
+            } else if (covlength === 0){
+              globals.swarm.set({data: {}});
+            }
+
+            for (var i = 0; i < covlength; i++) {
                 var id = covnodes[i].getAttributeNS('http://www.opengis.net/gml/3.2','id');
                 var timenode = covnodes[i].getElementsByTagNameNS('http://www.opengis.net/gml/3.2','TimePeriod')[0];
                 var begin_time = new Date(
@@ -998,13 +958,10 @@
                     timenode.getElementsByTagNameNS('http://www.opengis.net/gml/3.2','endPosition')[0].textContent
                 );
 
-                console.log(begin_time);
-                console.log(end_time);
-
                 that.requestCoverage(prodId, id, begin_time, urlBase);
                 //covs.push([begin_time, end_time, {id:id}]);
             }
-            Communicator.mediator.trigger("progress:change", false);
+            //Communicator.mediator.trigger("progress:change", false);
         }, 'xml');
 
 

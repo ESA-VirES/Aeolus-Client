@@ -479,7 +479,7 @@ define([
             // Recheck color legends
             globals.products.each(synchronizeColorLegend.bind(this));
 
-            //this.connectDataEvents();
+            this.connectDataEvents();
 
             // Redraw to make sure we are at current selection
             /*this.createDataFeatures(
@@ -1390,41 +1390,35 @@ define([
                 alpha = 0.99;
             }
 
-            /*this.dataSettings[band].colorscale = style;
+            this.dataSettings[band].colorscale = style;
             this.dataSettings[band].extent = range;
             this.graph.dataSettings = this.dataSettings;
 
             var dataJumps, lats, lons, pStartTimes, pStopTimes;
 
             var params = {
-                'Cloudsat': {
+                'cloudsat-2b-geoprof': {
                     'CPR_Cloud_mask': {
-                        lats: 'lats',
-                        lons: 'lons',
                         timeStart: 'time_start',
                         timeStop: 'time_end',
                         colorAxis: ['CPR_Cloud_mask'],
                         xAxis:'time',
-                        yAxis: ['altitude'],
+                        yAxis: ['height'],
                         combinedParameters: {
-                            altitude: ['altitude_end', 'altitude_start'],
+                            height: ['height_end', 'height_start'],
                             time: ['time_start', 'time_end'],
-                        },
-                        jumps: 'jumps'
+                        }
                     },
                     'Gaseous_Attenuation': {
-                        lats: 'lats',
-                        lons: 'lons',
                         timeStart: 'time_start',
                         timeStop: 'time_end',
                         colorAxis: ['Gaseous_Attenuation'],
                         xAxis:'time',
-                        yAxis: ['altitude'],
+                        yAxis: ['height'],
                         combinedParameters: {
-                            altitude: ['altitude_end', 'altitude_start'],
+                            height: ['height_end', 'height_start'],
                             time: ['time_start', 'time_end'],
-                        },
-                        jumps: 'jumps'
+                        }
                     },
                     'Radar_Reflectivity': {
                         lats: 'lats',
@@ -1433,15 +1427,12 @@ define([
                         timeStop: 'time_end',
                         colorAxis: ['Radar_Reflectivity'],
                         xAxis:'time',
-                        yAxis: ['altitude'],
+                        yAxis: ['height'],
                         combinedParameters: {
-                            altitude: ['altitude_end', 'altitude_start'],
+                            height: ['height_end', 'height_start'],
                             time: ['time_start', 'time_end'],
-                        },
-                        jumps: 'jumps'
+                        }
                     }
-                    
-
                 }
             };
 
@@ -1450,220 +1441,103 @@ define([
             this.graph.renderSettings.colorAxis = currPar.colorAxis;
             this.graph.renderSettings.yAxis = currPar.yAxis;
             this.graph.renderSettings.xAxis =currPar.xAxis;
-            if(data.hasOwnProperty(currPar.jumps)){
-                dataJumps = data[currPar.jumps];
-            }else{
-                dataJumps = [];
-            }
-            lats = data[currPar.lats];
-            lons = data[currPar.lons];
-            pStartTimes = data[currPar.timeStart];
-            pStopTimes = data[currPar.timeStop];*/
-
 
             var height = 1000000;
             var lineInstances = [];
             var renderOutlines = defaultFor(currProd.get('outlines'), false);
 
-            
-            //TODO: How to correctly handle multiple curtains with jumps
-            /*for (var i = 0; i <= dataJumps.length; i++) {
-
-                var startSlice, endSlice;
-                if(dataJumps.length === 0){
-                    this.graph.loadData(data);
-                } else {
-                    // get extent limits for curtain piece
-                    startSlice = 0;
-                    if(i>0){
-                        startSlice = dataJumps[i-1];
-                    }
-                    if(i<dataJumps.length){
-                        endSlice = dataJumps[i];
-                    }else{
-                        endSlice = lats.length-1;
-                    }
-                    // If curtain slice is too small we ignore it as it can't be rendered
-                    if(endSlice-startSlice<=2){
-                        continue;
-                    }
-                    var start = new Date('2000-01-01');
-                    start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice]*1000);
-                    var end = new Date('2000-01-01');
-                    end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice]*1000);
-                    this.graph.setXDomain([start, end]);
-                    this.graph.loadData(data);
-                    this.graph.clearXDomain();
-                }
-                var newmat = new Cesium.Material.fromType('Image', {
-                    image : this.graph.getCanvasImage(),
-                    color: new Cesium.Color(1, 1, 1, alpha),
-                });
+            this.graph.loadData(data);
+          
+            var newmat = new Cesium.Material.fromType('Image', {
+                image : this.graph.getCanvasImage(),
+                color: new Cesium.Color(1, 1, 1, alpha),
+            });
 
 
-                var slicedLats, slicedLons;
 
-                if(dataJumps.length > 0){
-                    slicedLats = lats.slice(startSlice, endSlice);
-                    slicedLons = lons.slice(startSlice, endSlice);
-                } else {
-                    slicedLats = lats;
-                    slicedLons = lons;
-                }
+            var posDataHeight = [];
 
+            var posData = [];
 
-                var posDataHeight = [];
-                var posData = [];
-                
-                // Data provided has jumps back an forth in lat and long, trying
-                // to avoid the issue we take every third element which hopefully
-                // should hit not repeating or ascending/descending inverted values
-                // TODO: re-evaluate a correct method to handle this
-                var stepsize = 3;
-                if(slicedLats.length > 30){
-                    stepsize = 20;
-                }
-                if(slicedLats.length <5){
-                    stepsize = 2;
-                }
-                var cleanLats = [];
-                for (var p = 0; p < slicedLats.length; p+=stepsize){
-                    if(slicedLats[p] !== cleanLats[cleanLats.length-1]){
-                        cleanLats.push(slicedLats[p]);
-                    }
-                }
-                if((slicedLats.length-1)%stepsize !== 0){
-                    if(cleanLats[cleanLats.length-1] !== slicedLats[slicedLats.length-1]){
-                        cleanLats.push(slicedLats[slicedLats.length-1]);
-                    }
-                }
+            for (var i = 0; i < data.latitude.length; i+=10) {
+                posDataHeight.push(data.longitude[i]);
+                posDataHeight.push(data.latitude[i]);
+                posDataHeight.push(height);
 
-                var cleanLons = [];
-                for (var p = 0; p < slicedLons.length; p+=stepsize){
-                    if(slicedLons[p] !== cleanLons[cleanLons.length-1]){
-                        cleanLons.push(slicedLons[p]);
-                    }
-                }
-                if((slicedLons.length-1)%stepsize !== 0){
-                    if(cleanLons[cleanLons.length-1] !== slicedLons[slicedLons.length-1]){
-                        cleanLons.push(slicedLons.slice(-1)[0]);
-                    }
+                posData.push(data.longitude[i]);
+                posData.push(data.latitude[i]);
+            }
 
-                }
-
-                var itemsToRemove = [];
-                // Check lats to make sure direction does not change
-                for (var i = cleanLats.length - 1; i >= 0; i--) {
-                    if(i>3){
-                        if( (cleanLats[i]-cleanLats[i-2] <= 0 && 
-                            cleanLats[i-1]-cleanLats[i-2] >= 0 ) ||
-                            (cleanLats[i]-cleanLats[i-2] >= 0 && 
-                            cleanLats[i-1]-cleanLats[i-2] <= 0)){
-                            itemsToRemove.push(i-1);
-                        }
-                    }
-                }
-
-                for (var i = 0; i < itemsToRemove.length; i++) {
-                    cleanLats.splice(itemsToRemove[i],1);
-                    cleanLons.splice(itemsToRemove[i],1);
-                }
-
-                itemsToRemove = [];
-                // Check lons to make sure direction does not change
-                for (var i = cleanLons.length - 1; i >= 0; i--) {
-                    if(i>3){
-                        if( (cleanLons[i]-cleanLons[i-2] <= 0 && 
-                            cleanLons[i-1]-cleanLons[i-2] >= 0 ) ||
-                            (cleanLons[i]-cleanLons[i-2] >= 0 && 
-                            cleanLons[i-1]-cleanLons[i-2] <= 0)){
-                            itemsToRemove.push(i-1);
-                        }
-                    }
-                }
-
-                for (var i = 0; i < itemsToRemove.length; i++) {
-                    cleanLats.splice(itemsToRemove[i],1);
-                    cleanLons.splice(itemsToRemove[i],1);
-                }
-
-                // Check lons to make sure direction does not change
-
-
-                // Change direction of texture depending if curtain beginning 
-                // and end latitude coordinates
-                var lastLats = cleanLats.slice(-2);
-                //console.log("lon:", lons[0]," lat:", lats[0]);
-                //console.log("lon:", lons.slice(-1)[0]," lat:", lats.slice(-1)[0]);
-
-
-                for (var p = 0; p < cleanLats.length; p++) {
-                    posDataHeight.push(cleanLons[p]);
-                    posDataHeight.push(cleanLats[p]);
-                    posDataHeight.push(height);
-                    posData.push(cleanLons[p]);
-                    posData.push(cleanLats[p]);
-                }*/
-
-                var posData = data['positions'];
-
-                if(renderOutlines){
-                    /*lineInstances.push(
-                        new Cesium.GeometryInstance({
-                            geometry : new Cesium.PolylineGeometry({
-                                positions : 
-                                Cesium.Cartesian3.fromDegreesArrayHeights(
-                                    posDataHeight
-                                ),
-                                width : 10.0
-                            })
+            if(renderOutlines){
+                lineInstances.push(
+                    new Cesium.GeometryInstance({
+                        geometry : new Cesium.PolylineGeometry({
+                            positions : 
+                            Cesium.Cartesian3.fromDegreesArrayHeights(
+                                posDataHeight
+                            ),
+                            width : 10.0
                         })
-                    );*/
+                    })
+                );
 
-                    lineInstances.push(
-                        new Cesium.GeometryInstance({
-                            geometry : new Cesium.PolylineGeometry({
-                                positions : 
-                                Cesium.Cartesian3.fromDegreesArray(
-                                    posData
-                                ),
-                                width : 10.0
-                            })
+                lineInstances.push(
+                    new Cesium.GeometryInstance({
+                        geometry : new Cesium.PolylineGeometry({
+                            positions : 
+                            Cesium.Cartesian3.fromDegreesArray(
+                                posData
+                            ),
+                            width : 10.0
                         })
-                    );
-                }
+                    })
+                );
+            }
 
-               /*if(posDataHeight.length === 6){
-                    if (posDataHeight[0] === posDataHeight[3] &&
-                        posDataHeight[1] === posDataHeight[4]){
-                        console.log('Warning curtain geometry has equal start and end point, geometry creation was skipped');
-                        continue;
-                    }
-                }
+            var wall = new Cesium.WallGeometry({
+                positions : Cesium.Cartesian3.fromDegreesArrayHeights(
+                    posDataHeight
+                )
 
-                var wall = new Cesium.WallGeometry({
-                    positions : Cesium.Cartesian3.fromDegreesArrayHeights(
-                        posDataHeight
-                    )
+            });
 
+            var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
+
+            if(wallGeometry){
+                var instance = new Cesium.GeometryInstance({
+                    geometry : wallGeometry
                 });
-                var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
-                if(wallGeometry){
-                    var instance = new Cesium.GeometryInstance({
-                      geometry : wallGeometry
-                    }); 
-                } else {
-                    console.log("CesiumView.js: Wallgeometry not created correctly!");
-                }
-
 
                 var sliceAppearance = new Cesium.MaterialAppearance({
                     translucent : true,
                     flat: true,
                     faceForward: true,
-                    //closed: true,
                     material : newmat
                 });
+
+                // Check the normal vector, in some cases we need to flip the
+                // direction of the texture to be applied
+                if(wallGeometry.attributes.normal.values[0]>0 &&
+                    wallGeometry.attributes.normal.values[1]<0 &&
+                    wallGeometry.attributes.normal.values[2]>0){
+                    newmat.uniforms.repeat.x = 1;
+                } else if (wallGeometry.attributes.normal.values[0]<0 &&
+                    wallGeometry.attributes.normal.values[1]>0 &&
+                    wallGeometry.attributes.normal.values[2]<0){
+                    newmat.uniforms.repeat.x = -1;
+                } else if (wallGeometry.attributes.normal.values[0]>0 &&
+                    wallGeometry.attributes.normal.values[1]>0 &&
+                    wallGeometry.attributes.normal.values[2]<0){
+                    newmat.uniforms.repeat.x = -1;
+                } else if (wallGeometry.attributes.normal.values[0]>0 &&
+                    wallGeometry.attributes.normal.values[1]<0 &&
+                    wallGeometry.attributes.normal.values[2]<0){
+                    newmat.uniforms.repeat.x = -1;
+                } else if (wallGeometry.attributes.normal.values[0]<0 &&
+                    wallGeometry.attributes.normal.values[1]<0 &&
+                    wallGeometry.attributes.normal.values[2]<0){
+                    newmat.uniforms.repeat.x = -1;
+                }
 
                 //instances.push(instance);
                 var prim = new Cesium.Primitive({
@@ -1674,7 +1548,34 @@ define([
                 });
 
                 curtainCollection.add(prim);
+            }
+
+            /*if(wallGeometry){
+                var instance = new Cesium.GeometryInstance({
+                  geometry : wallGeometry
+                }); 
+            } else {
+                console.log("CesiumView.js: Wallgeometry not created correctly!");
             }*/
+
+
+            var sliceAppearance = new Cesium.MaterialAppearance({
+                translucent : true,
+                flat: true,
+                faceForward: true,
+                //closed: true,
+                material : newmat
+            });
+
+            //instances.push(instance);
+            var prim = new Cesium.Primitive({
+              geometryInstances : instance,
+              appearance : sliceAppearance,
+              releaseGeometryInstances: false,
+              asynchronous: false
+            });
+
+            curtainCollection.add(prim);
 
             if(renderOutlines){
                 var linesPrim = new Cesium.Primitive({
