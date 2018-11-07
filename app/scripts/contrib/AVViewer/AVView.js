@@ -133,10 +133,6 @@ define(['backbone.marionette',
                     'Radar_Reflectivity',
                     'Latitude',
                     'Longitud',
-                    // test
-                    'values',
-                    'x',
-                    'y'
                 ]
             }
 
@@ -180,24 +176,14 @@ define(['backbone.marionette',
                     colorAxis: ['mie_HLOS_wind_speed']
 
                 },
-                'Cloudsat': {
+                'cloudsat-2b-geoprof': {
                     xAxis: 'time',
-                    yAxis: [ 'altitude'],
+                    yAxis: [ 'height'],
                     combinedParameters: {
-                        altitude: ['altitude_end', 'altitude_start'],
+                        height: ['height_start', 'height_end'],
                         time: ['time_start', 'time_end'],
                     },
-                    colorAxis: ['CPR_Cloud_mask']
-
-                },
-                'test': {
-                    xAxis: 'x',
-                    yAxis: [ 'y'],
-                    combinedParameters: {
-                        x: ['x_start', 'x_end'],
-                        y: ['y_start', 'y_end'],
-                    },
-                    colorAxis: ['values']
+                    colorAxis: ['Radar_Reflectivity']
 
                 },
                 'ALD_U_N_2A_mie': {
@@ -778,7 +764,7 @@ define(['backbone.marionette',
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_1B']);
 
-                     }else if(idKeys[0] === 'test'){
+                     }else if(idKeys[0] === 'cloudsat-2b-geoprof'){
                         this.graph2.data = {};
                         $('#graph_1').css('height', '99%');
                         $('#graph_2').hide();

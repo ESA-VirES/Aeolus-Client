@@ -724,144 +724,244 @@
         return output;
       },
 
-      onCoverageReceived: function(data){
 
-        console.log('Hello');
-        var gt;
-        try {
-          gt = GeoTIFF.parse(data);
-        }
-        catch(err) {
-          $("#error-messages").append(
-            '<div class="alert alert-warning alert-danger">'+
-            '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+
-            '<strong>Error:</strong> TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAng.' +
-            '</div>'
-          );
-          return;
-        }
-        
-        var img = gt.getImage(0);
-        var rasdata = img.readRasters();
-        var meta = img.getGDALMetadata();
-
-      },
-
-
-      requestCoverage: function(collectionId, covid, url){
+      requestCoverage: function(collectionId, covid, begin_time, url){
 
         var positionsRequest = url + '?service=wcs&request=describecoverage&version=2.1.0&coverageid='+covid;
         var that = this;
         var collId = collectionId;
 
-        var scaleY = 0.1;
-        var parameter = 'Radar_Reflectivity';
-        var datarequest = url+ '?service=WCS&version=2.1.0&request=GetCoverage&coverageid='+covid+
-            '&format=image/tiff&scaleaxes=x(1),y('+scaleY+')&rangesubset='+parameter;
 
-        this.xhr = new XMLHttpRequest();
-        this.xhr.open('GET', datarequest, true);
-        this.xhr.responseType = 'arraybuffer';
+
+        // First get the time axis to evaluate which indices to get for other
+        // parameters
+
+        var timscaleReq = url + '?service=WCS&version=2.1.0&request=GetCoverage&coverageid='+covid+'_profile_time&format=text/csv';
+        var sT = this.selected_time.start;
+        var eT = this.selected_time.end;
         var that = this;
-        var request = this.xhr;
 
-        this.xhr.onreadystatechange = function() {
-       
-          if(request.readyState == 4) {
+        function getAsync(url, func) {
+            var client = new XMLHttpRequest();
+            client.open('GET', url);
+            client.responseType = 'arraybuffer';
+            client.onreadystatechange = func;
+            client.send();
+        }
 
-            if(request.status == 200) {
+        d3.csv(timscaleReq, function(data){
 
-              var gt = GeoTIFF.parse(this.response);
-              var img = gt.getImage(0);
-              var rasdata = img.readRasters()[0];
+          var initTime = begin_time.getTime();
+          var minIdx = 0;
+          var maxIdx = data.length;
+          data.forEach(function(d,i){ 
+            d['Profile_time'] = new Date(initTime+( Number(d['Profile_time'])*1000 ));
+            if(d['Profile_time']<sT && i>minIdx){
+              minIdx = i;
+            }
+            if(d['Profile_time']>eT && i<maxIdx){
+              maxIdx = i;
+            }
+          }); 
 
-              // height and width are flipped
-              var height = img.getHeight();
-              var width = img.getWidth();
 
-              var x_start=[];
-              var x_end=[];
-              var y_start=[];
-              var y_end=[];
-              var values=[];
+          var scaleY = 0.1;
+          var scalesizeY = 1000;
+          if(maxIdx-minIdx < scalesizeY){
+            scalesizeY = maxIdx-minIdx;
+          }
+          
+          /*var datarequest = url+ '?service=WCS&version=2.1.0&request=GetCoverage&coverageid='+covid+
+              '&format=image/tiff&subset=y('+minIdx+','+maxIdx+')&scaleaxes=x(1),y('+scaleY+')&rangesubset='+parameter;*/
+          
 
-              for (var y = 0; y < height; y++) {
-                for (var x = 0; x < width; x++) {
-                   y_start.push(width-x);
-                   y_end.push(width-x+1);
-                   x_start.push(height-y);
-                   x_end.push(height-y+1);
-                   values.push(rasdata[y*width+x]);
-                }
+
+          var filesLoaded = 0;
+          var parameters = ['Radar_Reflectivity', 'height', 'profile_time', 'Gaseous_Attenuation', 'CPR_Cloud_mask'];
+          //'' 
+
+
+          var coveragedata = {};
+          //coveragedata['Profile_time'] = data.slice(minIdx, maxIdx).map(function(obj){return obj.Profile_time;});
+
+          function bindWithoutThis(cb) {
+              var bindArgs = Array.prototype.slice.call(arguments, 1);
+
+              return function () {
+                  var internalArgs = Array.prototype.slice.call(arguments, 0);
+                  var args = Array.prototype.concat(bindArgs, internalArgs);
+                  return cb.apply(this, args);
+              };
+          }
+
+          function handleResponse (parameter){
+            if(this.readyState == 4) {
+
+              if(this.status == 200) {
+
+                var gt = GeoTIFF.parse(this.response);
+                var img = gt.getImage(0);
+                var rasdata = img.readRasters()[0];
+
+
+                // height and width are flipped
+                var height = img.getHeight();
+                var width = img.getWidth();
+
+                coveragedata[parameter] = {
+                  'data': rasdata,
+                  'width': width,
+                  'height': height
+                };
+                
+                checkAllLoaded();
+
+              } else if(this.status!== 0 && this.responseText != "") {
+                  Communicator.mediator.trigger("progress:change", false);
+                  globals.swarm.set({data: {}});
+                  console.log('Error retrieveing data');
+                  return;
               }
 
-              var data = {};
-              data['test'] =  {
-                'x_start': x_start,
-                'x_end': x_end,
-                'y_start': y_start,
-                'y_end': y_end,
-                'values': values
-              };
-
-              globals.swarm.set({data: data});
-
-
-
-            } else if(request.status!== 0 && request.responseText != "") {
-                Communicator.mediator.trigger("progress:change", false);
-                globals.swarm.set({data: {}});
-                var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
-                if (error_text && error_text.length > 1) {
-                    error_text = error_text[1];
+            } else if(this.readyState == 2) {
+                if(this.status == 200) {
+                    this.responseType = 'arraybuffer';
                 } else {
-                    error_text = 'Please contact feedback@vires.services if issue persists.'
+                    this.responseType = 'text';
                 }
-                that.xhr = null;
-                showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
-                return;
             }
+          }
 
-          } else if(request.readyState == 2) {
-              if(request.status == 200) {
-                  request.responseType = 'arraybuffer';
-              } else {
-                  request.responseType = 'text';
+          for (var i = 0; i < parameters.length; i++) {
+            var datarequest = url+ '?service=WCS&version=2.1.0&request=GetCoverage&coverageid='+covid+
+              '&format=image/tiff&subset=y('+minIdx+','+maxIdx+')&scalesize=y('+scalesizeY+')&rangesubset='+parameters[i];
+            if(parameters[i] === 'height' || parameters[i] === 'profile_time'){
+              datarequest = url+ '?service=WCS&version=2.1.0&request=GetCoverage&coverageid='+covid+'_'+parameters[i]+
+              '&format=image/tiff&subset=x('+minIdx+','+maxIdx+')&scalesize=x('+scalesizeY+')';
+            }
+            getAsync(datarequest, bindWithoutThis(handleResponse, parameters[i]));
+          }
+
+
+          $.get(positionsRequest, function(resp){
+              
+              var footprint = resp.getElementsByTagNameNS(
+                  'http://www.opengis.net/eop/2.0', 'Footprint'
+              )[0];
+
+              var poslist = footprint.getElementsByTagNameNS(
+                  'http://www.opengis.net/gml/3.2', 'posList'
+              )[0].textContent.split(' ').map(Number);
+
+              var flippedposlist = [];
+              for (var i = 0; i < poslist.length; i+=2) {
+                flippedposlist.push(poslist[i+1]);
+                flippedposlist.push(poslist[i]);
+              }
+              
+              coveragedata['positions'] = flippedposlist;
+              
+
+              checkAllLoaded();
+          });
+
+
+
+          function checkAllLoaded() {
+
+              filesLoaded += 1;
+
+              // All parameters have been loaded
+              if(filesLoaded == parameters.length+1) {
+                
+                var time_start = [];
+                var time_end = [];
+
+                for (var i = 0; i < coveragedata.profile_time.data.length; i++) {
+                  var d = new Date(initTime + coveragedata.profile_time.data[i]*1000);
+                  for (var x = 0; x < 125; x++) {
+                    if(i>0){
+                      time_end.push(d);
+                    }
+                    time_start.push(d);
+                  }
+                }
+
+                var lasttime = time_start[time_start.length-1].getTime();
+                for (var y = 0; y < 125; y++) {
+                  time_end.push(new Date(lasttime + 1400));
+                }
+
+  
+                /*for (var x = 0; x < 125; x++) {
+                  var d;
+                  for (var i = 0; i < coveragedata.profile_time.data.length; i++) {
+                    d = new Date(initTime + coveragedata.profile_time.data[i]*1000);
+                    if(i>0){
+                      time_end.push(d);
+                    }
+                    time_start.push(d);
+                  }
+                  time_end.push(new Date(d.getTime()+1400));
+                }*/
+
+                
+
+
+                /*var time_start = time.slice(coveragedata.profile_time.width);
+                var time_end = time.slice(0, -coveragedata.profile_time.width);*/
+
+
+
+                /*var x_start=[];
+                var x_end=[];
+                var y_start=[];
+                var y_end=[];
+                var values=[];
+
+                for (var y = 0; y < height; y++) {
+                  for (var x = 0; x < width; x++) {
+                     y_start.push(width-x);
+                     y_end.push(width-x+1);
+                     x_start.push(height-y);
+                     x_end.push(height-y+1);
+                     values.push(rasdata[y*width+x]);
+                  }
+                }*/
+
+                // height and width are flipped
+                var height_start = coveragedata.height.data;
+                var height_end = [];
+                var heightdiff = 200;
+
+                for (var y = 0; y < coveragedata.height.height; y++) {
+                  var h = coveragedata.height.data[y*coveragedata.height.height];
+                  height_end.push(h+heightdiff);
+                  for (var x = 0; x < coveragedata.height.width-1; x++) {
+                    h = coveragedata.height.data[y*coveragedata.height.width+x];
+                    height_end.push(h);
+                  }
+                }
+
+                var data = {};
+                data[collId] =  {
+                  'time_start': time_start,
+                  'time_end': time_end,
+                  'height_start': height_start,
+                  'height_end': height_end,
+                  'Radar_Reflectivity': coveragedata.Radar_Reflectivity.data,
+                  'Gaseous_Attenuation': coveragedata.Gaseous_Attenuation.data,
+                  'CPR_Cloud_mask': coveragedata.CPR_Cloud_mask.data,
+                };
+
+                console.log(data);
+
+                globals.swarm.set({data: data});
               }
           }
-          that.xhr = null;
-        };
 
-        this.xhr.send();
+        });
 
-
-
-        /*$.get(positionsRequest, function(resp){
-            
-            var footprint = resp.getElementsByTagNameNS(
-                'http://www.opengis.net/eop/2.0', 'Footprint'
-            )[0];
-
-            var poslist = footprint.getElementsByTagNameNS(
-                'http://www.opengis.net/gml/3.2', 'posList'
-            )[0].textContent.split(' ').map(Number);
-
-            var flippedposlist = [];
-            for (var i = 0; i < poslist.length; i+=2) {
-              flippedposlist.push(poslist[i+1]);
-              flippedposlist.push(poslist[i]);
-            }
-            
-            var data = {};
-            data[collId] =  {
-              'positions': flippedposlist
-            };
-
-            globals.swarm.set({data: data});
-            
-
-            Communicator.mediator.trigger("progress:change", false);
-        });*/
       },
 
       sendRequest: function(prodId){
@@ -898,7 +998,10 @@
                     timenode.getElementsByTagNameNS('http://www.opengis.net/gml/3.2','endPosition')[0].textContent
                 );
 
-                that.requestCoverage(prodId, id, urlBase);
+                console.log(begin_time);
+                console.log(end_time);
+
+                that.requestCoverage(prodId, id, begin_time, urlBase);
                 //covs.push([begin_time, end_time, {id:id}]);
             }
             Communicator.mediator.trigger("progress:change", false);

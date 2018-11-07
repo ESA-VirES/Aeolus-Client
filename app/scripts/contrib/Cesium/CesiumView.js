@@ -479,7 +479,7 @@ define([
             // Recheck color legends
             globals.products.each(synchronizeColorLegend.bind(this));
 
-            this.connectDataEvents();
+            //this.connectDataEvents();
 
             // Redraw to make sure we are at current selection
             /*this.createDataFeatures(

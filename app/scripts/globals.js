@@ -12,12 +12,6 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
         overlays: new Backbone.Collection(),
         swarm: new swarm_model(),
         dataSettings: {
-            'x':{},
-            'y':{},
-            'values':{
-                uom: null,
-                colorscale: 'viridis',
-            },
 
             time: {
                 scaleFormat: 'time',
@@ -359,8 +353,22 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 uom: 'm',
             },
 
-
             // Cloudsat
+            'time_start': {
+                scaleFormat: 'time'
+            },
+            'time_end': {
+                scaleFormat: 'time'
+            },
+            'time':{
+                scaleFormat: 'time',
+            },
+            'height_start': {
+                 uom: 'm/s',
+            },
+            'height_end': {
+                 uom: 'm/s',
+            },
             'CPR_Cloud_mask': {
                 uom: null,
                 colorscale: 'viridis',
