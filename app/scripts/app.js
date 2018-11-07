@@ -584,7 +584,7 @@ var VECTOR_BREAKDOWN = {};
                     if (error_text && error_text.length > 1) {
                         error_text = error_text[1];
                     } else {
-                        error_text = 'Please contact feedback@vires.services if issue persists.'
+                        error_text = 'Please contact office@eox.at if issue persists.'
                     }
 
                     showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
