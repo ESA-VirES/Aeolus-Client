@@ -1,3 +1,5 @@
+/* eslint-disable indent */
+
 (function() {
   'use strict';
 
@@ -1450,9 +1452,10 @@
                   var lonStep = 10;
                   var latStep = 10;
 
-
                   var stepPositions = [];
                   var signCross = [];
+
+
                   for (var i = 2; i < positions.length; i++) {
                     var diff = Math.abs(positions[i]-positions[i-2]);
                     if (i%2===0 && diff>=lonStep) {
@@ -1471,6 +1474,34 @@
                         stepPositions.push(parseInt(i/2));
                         signCross.push(diff>160); 
                       }
+                    }
+                  }
+
+                  for (var t = 1; t < ds.time.length; t++) {
+                    var timediff = ds.time[t]-ds.time[t-1];
+                    if(timediff>100){
+
+                      if(stepPositions.indexOf(t) === -1){
+                        // Find where to insert new step position
+                        var insPos;
+                        for (var i = 0; i < stepPositions.length; i++) {
+                          if(t > stepPositions[i]){
+                            // The first time the value is higher we save the
+                            // previous point and exit the loop
+                            insPos = i-1;
+                            break;
+                          }
+                        }
+                        if(insPos>=0){
+                          stepPositions.splice(insPos, 0, t);
+                          signCross.splice(insPos, 0, false);
+                        } else {
+                          // Insert into first position
+                          stepPositions.splice(0, 0, t);
+                          signCross.splice(0, 0, false);
+                        }
+                      }
+
                     }
                   }
 
