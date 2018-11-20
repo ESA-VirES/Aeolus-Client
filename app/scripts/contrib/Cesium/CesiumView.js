@@ -2847,8 +2847,8 @@ define([
 
         onSaveImage: function(){
             this.map.canvas.toBlob(function(blob) {
-                saveAs(blob, 'VirES_Services_Screenshot.jpg');
-            }, 'image/jpeg', 1);
+                saveAs(blob, 'VirES_Services_Screenshot.png');
+            }, 'image/png');
         },
 
         onClearImage: function(){

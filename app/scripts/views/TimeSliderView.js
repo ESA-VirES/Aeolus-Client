@@ -73,13 +73,34 @@
                     }
                 }
 
-                var selectionstart = new Date(this.options.brush.start);
-                var selectionend = new Date(this.options.brush.end);
+                var selectionstart, selectionend;
 
                 if(localStorage.getItem('timeSelection')){
                     var time = JSON.parse(localStorage.getItem('timeSelection'));
                     selectionstart = new Date(time[0]);
                     selectionend = new Date(time[1]);
+                }else{
+                    // If time not in localstorage use default of current date
+                    // minus 12 hours
+                    selectionstart = new Date();
+                    selectionstart.setUTCHours(selectionstart.getUTCHours() - 12);
+
+                    selectionend = new Date(selectionstart.getTime());
+                    selectionend.setUTCHours(selectionend.getUTCHours() + 1);
+
+                }
+
+                var domainStart, domainEnd;
+                if(localStorage.getItem('timeDomain')){
+                    var domain = JSON.parse(localStorage.getItem('timeDomain'));
+                    domainStart = new Date(domain[0]);
+                    domainEnd = new Date(domain[1]);
+                }else{
+                    domainStart = new Date();
+                    domainStart.setUTCHours(domainStart.getUTCHours() - 36);
+
+                    domainEnd = new Date();
+                    domainEnd.setUTCHours(domainEnd.getUTCHours() + 12);
                 }
 
                 this.activeWPSproducts = [];
@@ -88,6 +109,10 @@
                     domain: {
                         start: new Date(this.options.domain.start),
                         end: new Date(this.options.domain.end)
+                    },
+                    display: {
+                        start: domainStart,
+                        end: domainEnd
                     },
                     displayLimit: 'P1Y2M',
                     brush: {
@@ -102,12 +127,6 @@
                     datasets: []
                 };
 
-                if (this.options.display){
-                    initopt.display = {
-                        start: new Date(this.options.display.start),
-                        end: new Date(this.options.display.end)
-                    };
-                }
 
                 if(localStorage.getItem('timeDomain')){
                     var domain = JSON.parse(localStorage.getItem('timeDomain'));

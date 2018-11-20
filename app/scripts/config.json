@@ -132,6 +132,7 @@
             "name": "L1B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
+            "visible": true,
             "views": [{
                 "id": "ALD_U_N_1B",
                 "protocol": "WPS",
@@ -890,7 +891,6 @@
             "name": "AUX ISR",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "visible": true,
             "views": [{
                 "id": "AUX_ISR_1B",
                 "protocol": "WPS",
