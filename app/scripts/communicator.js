@@ -80,7 +80,6 @@
 
                     var u="//nix.eox.at/piwik/";
                     var tracker = Piwik.getTracker( u+'piwik.php', 8 );
-                    console.log(tracker.getsetUserId());
                     if(typeof USERVARIABLE !== 'undefined'){
                         tracker.setUserId(USERVARIABLE);
                     }
