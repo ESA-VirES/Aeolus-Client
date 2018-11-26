@@ -785,6 +785,10 @@
               'AOCS_yaw_angle',
               'mie_HLOS_wind_speed',
               'rayleigh_HLOS_wind_speed',
+              'mie_mean_emitted_frequency',
+              'rayleigh_mean_emitted_frequency',
+              'mie_emitted_frequency_std_dev',
+              'rayleigh_emitted_frequency_std_dev',
               //'mie_signal_intensity',
               //'rayleigh_signal_channel_A_intensity',
               //'rayleigh_signal_channel_B_intensity',
@@ -1565,7 +1569,8 @@
                     'average_laser_energy', 'laser_frequency', 
                     'mie_bin_quality_flag',
                     'mie_reference_pulse_quality_flag',
-                    'mie_origin'
+                    'mie_origin',
+                    'mie_mean_emitted_frequency', 'mie_emitted_frequency_std_dev'
                   ];
 
                   var rayleighVars = [
@@ -1581,7 +1586,8 @@
                     'rayleigh_bin_quality_flag', 'rayleigh_error_quantifier',
                     'average_laser_energy', 'laser_frequency', 
                     'rayleigh_bin_quality_flag', 'rayleigh_reference_pulse_quality_flag',
-                    'rayleigh_origin'
+                    'rayleigh_origin',
+                    'rayleigh_mean_emitted_frequency', 'rayleigh_emitted_frequency_std_dev'
                   ];
 
                   var startEndVars = [
@@ -1597,7 +1603,7 @@
                   var nSize = 24;
                   var startKey, endKey;
 
-                  that.totalLength = mieVars.length + rayleighVars.length;
+                  that.totalLength = mieVars.length + rayleighVars.length -2;
                   that.processedParameters = 0;
                   that.collectionId = collectionId;
 
