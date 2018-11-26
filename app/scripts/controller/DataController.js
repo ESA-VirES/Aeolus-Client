@@ -591,7 +591,22 @@
         this.checkModelValidity();
       },
 
-      proxyFlattenObservationArraySE: function(input, proxy, jumps, signCross){
+      checkFlatteningComplete: function(){
+        if(this.processedParameters === this.totalLength-1){
+          var resData = {};
+          resData[this.collectionId] = this.tmpdata;
+
+          // TODO: Merge data for filtermanager?
+          this.filterManager.loadData(resData);
+          this.filterManager._initData();
+
+          globals.swarm.set({data: resData});
+        }
+      },
+
+      proxyFlattenObservationArraySE: function(
+        keyStart, keyEnd, input, proxy, jumps, signCross
+      ){
         var start = [];
         var end = [];
         for (var i = 1; i < proxy.length; i++) {
@@ -601,15 +616,28 @@
             continue;
           }
 
-          for (var j = 0; j < proxy[i].length-1; j++) {
-            start.push(input[i-1]);
-            end.push(input[i]);
+          if(keyEnd !== false){
+            for (var j = 0; j < proxy[i].length-1; j++) {
+              start.push(input[i-1]);
+              end.push(input[i]);
+            }
+          }else{
+            for (var j = 0; j < proxy[i].length-1; j++) {
+              start.push(input[i-1]);
+            }
           }
         }
-        return [start, end];
+        this.processedParameters++;
+        this.tmpdata[keyStart] = start;
+        if(keyEnd !== false){
+          this.tmpdata[keyEnd] = end;
+        }
+        this.checkFlatteningComplete();
       },
 
-      flattenObservationArraySE: function(input, jumps, signCross){
+      flattenObservationArraySE: function(
+        keyStart, keyEnd, input, jumps, signCross
+      ){
         var start = [];
         var end = [];
         for (var i = 0; i < input.length-1; i++) {
@@ -618,13 +646,24 @@
           if(currJump!==-1 && !signCross[currJump]){
             continue;
           }
-
-          for (var j = 0; j < input[i].length-1; j++) {
-            start.push(input[i][j]);
-            end.push(input[i][j+1]);
+          if(keyEnd !== false){
+            for (var j = 0; j < input[i].length-1; j++) {
+              start.push(input[i][j+1]);
+              end.push(input[i][j]);
+            }
+          } else {
+            for (var j = 0; j < input[i].length-1; j++) {
+              start.push(input[i][j]);
+            }
           }
+          
         }
-        return [start, end];
+        this.processedParameters++;
+        this.tmpdata[keyStart] = start;
+        if(keyEnd !== false){
+          this.tmpdata[keyEnd] = end;
+        }
+        this.checkFlatteningComplete();
       },
 
       findObservationJumps: function(input, jumps, signCross){
@@ -650,7 +689,7 @@
         return resultJumps;
       },
 
-      flattenObservationArray: function(input, jumps, signCross){
+      flattenObservationArray: function(key, input, jumps, signCross){
         var output = [];
         for (var i = 0; i < input.length-1; i++) {
           var currJump = jumps.indexOf(i);
@@ -661,7 +700,10 @@
             output.push(input[i][j]);
           }
         }
-        return output;
+
+        this.processedParameters++;
+        this.tmpdata[key] = output;
+        this.checkFlatteningComplete();
       },
 
       sendRequest: function(prodId){
@@ -1307,6 +1349,9 @@
        
           if(request.readyState == 4) {
             if(request.status == 200) {
+
+                that.tmpdata = {};
+
                 Communicator.mediator.trigger("progress:change", false);
                 var tmp = new Uint8Array(this.response);
                 var data = msgpack.decode(tmp);
@@ -1550,12 +1595,23 @@
                   // 2: Array of n-sized arrays (2D) containing "bin" values
                   // 3: Array of (n+1)-sized arrays (2D) containing "start/end" bin values
                   var nSize = 24;
+                  var startKey, endKey;
 
-                  var tmpdata = {};
+                  that.totalLength = mieVars.length + rayleighVars.length;
+                  that.processedParameters = 0;
+                  that.collectionId = collectionId;
+
                   var pseudoKey = null;
 
+
+                  that.tmpdata.stepPositions = stepPositions;
+                  that.tmpdata.signCross = signCross;
+                  that.tmpdata.mie_jumps = mie_jumps;
+
                   for (var i = 0; i < mieVars.length; i++) {
+
                     if(!ds.hasOwnProperty(mieVars[i])){
+                      that.processedParameters++;
                       continue;
                     }
                     if(mieVars[i].indexOf('mie')!==-1){
@@ -1564,41 +1620,55 @@
                       pseudoKey = 'mie_'+mieVars[i];
                     }
                     if(Array.isArray(ds[mieVars[i]][0])){
+
                       var arrLen = ds[mieVars[i]][0].length;
                       if(arrLen > nSize){ // case 3
-                        var tuple = that.flattenObservationArraySE(
-                          ds[mieVars[i]], stepPositions, signCross
+                        
+                        if(startEndVars.indexOf(mieVars[i]) !== -1){
+                          startKey = pseudoKey+'_start';
+                          endKey = pseudoKey+'_end';
+                        }  else {
+                          startKey = pseudoKey;
+                          endKey = false;
+                        }
+                        setTimeout(
+                          that.flattenObservationArraySE(
+                            startKey, endKey,
+                            ds[mieVars[i]], stepPositions, signCross
+                          ),
+                          0
                         );
 
-                        if(startEndVars.indexOf(mieVars[i]) !== -1){
-                          tmpdata[(pseudoKey+'_start')] = tuple[1];
-                          tmpdata[(pseudoKey+'_end')] = tuple[0];
-                        }  else {
-                          tmpdata[pseudoKey] = tuple[0];
-                        }
-
                       } else if (arrLen === nSize){ //case 2
-                        tmpdata[pseudoKey] = that.flattenObservationArray(
-                          ds[mieVars[i]], stepPositions, signCross
+                        setTimeout(
+                          that.flattenObservationArray(
+                            pseudoKey, ds[mieVars[i]], stepPositions, signCross
+                          ),
+                          0
                         );
                       }
                     } else { // case 1
-                      var tuple = that.proxyFlattenObservationArraySE(
-                        ds[mieVars[i]], ds.mie_altitude, stepPositions, signCross
-                      );
-                      if(startEndVars.indexOf(mieVars[i]) !== -1){
-                        tmpdata[(pseudoKey+'_start')] = tuple[0];
-                        tmpdata[(pseudoKey+'_end')] = tuple[1];
-                      }  else {
-                        tmpdata[pseudoKey] = tuple[0];
-                      }
-                      
-                    }
-                  }
 
-                  tmpdata.stepPositions = stepPositions;
-                  tmpdata.signCross = signCross;
-                  tmpdata.mie_jumps = mie_jumps;
+                      if(startEndVars.indexOf(mieVars[i]) !== -1){
+                        startKey = pseudoKey+'_start';
+                        endKey = pseudoKey+'_end';
+                      }  else {
+                        startKey = pseudoKey;
+                        endKey = false;
+                      }
+
+                      setTimeout(
+                        that.proxyFlattenObservationArraySE(
+                          startKey, endKey,
+                          ds[mieVars[i]], ds.mie_altitude, stepPositions, signCross
+                        ),
+                        0
+                      );
+
+                    }
+
+                  } // End of mie variables for loop
+
 
                   // Rayleigh
 
@@ -1606,9 +1676,13 @@
                     ds.rayleigh_altitude, stepPositions, signCross
                   );
 
+                  that.tmpdata.rayleigh_jumps = rayleigh_jumps;
+                  that.tmpdata.positions = positions;
 
                   for (var i = 0; i < rayleighVars.length; i++) {
+
                     if(!ds.hasOwnProperty(rayleighVars[i])){
+                      that.processedParameters++;
                       continue;
                     }
                     if(rayleighVars[i].indexOf('rayleigh')!==-1){
@@ -1616,55 +1690,62 @@
                     } else {
                       pseudoKey = 'rayleigh_'+rayleighVars[i];
                     }
+
                     if(Array.isArray(ds[rayleighVars[i]][0])){
+
                       var arrLen = ds[rayleighVars[i]][0].length;
                       if(arrLen > nSize){ // case 3
-                        var tuple = that.flattenObservationArraySE(
-                          ds[rayleighVars[i]], stepPositions, signCross
-                        );
+                        
                         if(startEndVars.indexOf(rayleighVars[i]) !== -1){
-                          tmpdata[(pseudoKey+'_start')] = tuple[1];
-                          tmpdata[(pseudoKey+'_end')] = tuple[0];
+                          startKey = pseudoKey+'_start';
+                          endKey = pseudoKey+'_end';
                         }  else {
-                          tmpdata[pseudoKey] = tuple[0];
+                          startKey = pseudoKey;
+                          endKey = false;
                         }
+                        setTimeout(
+                          that.flattenObservationArraySE(
+                            startKey, endKey,
+                            ds[rayleighVars[i]], stepPositions, signCross
+                          ),
+                          0
+                        );
 
                       } else if (arrLen === nSize){ //case 2
-                        tmpdata[pseudoKey] = that.flattenObservationArray(
-                          ds[rayleighVars[i]], stepPositions, signCross
+                        setTimeout(
+                          that.flattenObservationArray(
+                            pseudoKey, ds[rayleighVars[i]], stepPositions, signCross
+                          ),
+                          0
                         );
                       }
                     } else { // case 1
-                      var tuple = that.proxyFlattenObservationArraySE(
-                        ds[rayleighVars[i]], ds.rayleigh_altitude, 
-                        stepPositions, signCross
-                      );
+
                       if(startEndVars.indexOf(rayleighVars[i]) !== -1){
-                        tmpdata[(pseudoKey+'_start')] = tuple[0];
-                        tmpdata[(pseudoKey+'_end')] = tuple[1];
+                        startKey = pseudoKey+'_start';
+                        endKey = pseudoKey+'_end';
                       }  else {
-                        tmpdata[pseudoKey] = tuple[0];
+                        startKey = pseudoKey;
+                        endKey = false;
                       }
+
+                      setTimeout(
+                        that.proxyFlattenObservationArraySE(
+                          startKey, endKey,
+                          ds[rayleighVars[i]], ds.mie_altitude, stepPositions, signCross
+                        ),
+                        0
+                      );
+
                     }
-                  }
 
-                  tmpdata.rayleigh_jumps = rayleigh_jumps;
+                  } // Closing for loop of raylegh vars
 
-                  tmpdata.positions = positions;
+                  
 
                   // TODO: Getting the object and setting one parameter does not trigger
                   // change event, need to think about using multiple objects for different
                   // ids instead of one object with multiple parameters 
-                  
-                  var resData = {};
-                  resData[collectionId] = tmpdata;
-
-                  // TODO: Merge data for filtermanager?
-                  that.filterManager.loadData(resData);
-                  that.filterManager._initData();
-
-
-                  globals.swarm.set({data: resData});
 
 
                 } else {
@@ -1893,11 +1974,11 @@
                            subK[l] === 'rayleigh_wind_result_wind_velocity'){
                           // Convert from cm/s to m/s
                           resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 100; });
-                        /*} else if(
-                           subK[l] === 'mie_wind_result_COG_range' ||
-                           subK[l] === 'rayleigh_wind_result_COG_range'){
-                          // Convert from m to km
-                          resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 1000; });*/
+                      //  } else if(
+                      //     subK[l] === 'mie_wind_result_COG_range' ||
+                      //     subK[l] === 'rayleigh_wind_result_COG_range'){
+                      //    // Convert from m to km
+                      //    resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 1000; });
                         } else {
                           resData[subK[l]] = ds[keys[k]][subK[l]];
                         }
