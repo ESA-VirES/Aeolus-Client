@@ -616,14 +616,22 @@
             continue;
           }
 
-          for (var j = 0; j < proxy[i].length-1; j++) {
-            start.push(input[i-1]);
-            end.push(input[i]);
+          if(keyEnd !== false){
+            for (var j = 0; j < proxy[i].length-1; j++) {
+              start.push(input[i-1]);
+              end.push(input[i]);
+            }
+          }else{
+            for (var j = 0; j < proxy[i].length-1; j++) {
+              start.push(input[i-1]);
+            }
           }
         }
         this.processedParameters++;
         this.tmpdata[keyStart] = start;
-        this.tmpdata[keyEnd] = end;
+        if(keyEnd !== false){
+          this.tmpdata[keyEnd] = end;
+        }
         this.checkFlatteningComplete();
       },
 
@@ -638,15 +646,23 @@
           if(currJump!==-1 && !signCross[currJump]){
             continue;
           }
-
-          for (var j = 0; j < input[i].length-1; j++) {
-            start.push(input[i][j]);
-            end.push(input[i][j+1]);
+          if(keyEnd !== false){
+            for (var j = 0; j < input[i].length-1; j++) {
+              start.push(input[i][j+1]);
+              end.push(input[i][j]);
+            }
+          } else {
+            for (var j = 0; j < input[i].length-1; j++) {
+              start.push(input[i][j]);
+            }
           }
+          
         }
         this.processedParameters++;
         this.tmpdata[keyStart] = start;
-        this.tmpdata[keyEnd] = end;
+        if(keyEnd !== false){
+          this.tmpdata[keyEnd] = end;
+        }
         this.checkFlatteningComplete();
       },
 
@@ -1613,8 +1629,7 @@
                           endKey = pseudoKey+'_end';
                         }  else {
                           startKey = pseudoKey;
-                          // TODO: endkey not really needed should not compute it in function
-                          endKey = pseudoKey+'_end';
+                          endKey = false;
                         }
                         setTimeout(
                           that.flattenObservationArraySE(
@@ -1639,8 +1654,7 @@
                         endKey = pseudoKey+'_end';
                       }  else {
                         startKey = pseudoKey;
-                        // TODO: endkey not really needed should not compute it in function
-                        endKey = pseudoKey+'_end';
+                        endKey = false;
                       }
 
                       setTimeout(
@@ -1687,8 +1701,7 @@
                           endKey = pseudoKey+'_end';
                         }  else {
                           startKey = pseudoKey;
-                          // TODO: endkey not really needed should not compute it in function
-                          endKey = pseudoKey+'_end';
+                          endKey = false;
                         }
                         setTimeout(
                           that.flattenObservationArraySE(
@@ -1713,8 +1726,7 @@
                         endKey = pseudoKey+'_end';
                       }  else {
                         startKey = pseudoKey;
-                        // TODO: endkey not really needed should not compute it in function
-                        endKey = pseudoKey+'_end';
+                        endKey = false;
                       }
 
                       setTimeout(
