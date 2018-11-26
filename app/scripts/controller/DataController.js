@@ -37,7 +37,7 @@
 
         var filterSettings = {
             parameterMatrix: {
-                'height': [
+               /* 'height': [
                     'mie_altitude_start', 'mie_altitude_end'
                 ],
                 'latitude': [
@@ -51,7 +51,7 @@
                 ],
                 'velocity_at_DEM_intersection': [
                     'rayleigh_velocity_at_DEM_intersection', 'mie_velocity_at_DEM_intersection'
-                ]
+                ]*/
             },
             dataSettings: this.dataSettings,
 
@@ -71,7 +71,13 @@
                   'mie_average_laser_energy', 'mie_laser_frequency', 
                   'mie_bin_quality_flag',
                   'mie_reference_pulse_quality_flag',
-                  'mie_origin'
+                  'mie_origin',
+                  'time','time_start', 'time_end',
+                  'latitude_of_DEM_intersection','longitude_of_DEM_intersection',
+                  'altitude_of_DEM_intersection',
+                  'velocity_at_DEM_intersection',
+                  'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
+                  'average_laser_energy', 'laser_frequency'
                 ],
                 [
                   'rayleigh_time_start','rayleigh_time_end',
@@ -88,7 +94,13 @@
                   'rayleigh_bin_quality_flag', 'rayleigh_error_quantifier',
                   'rayleigh_average_laser_energy', 'rayleigh_laser_frequency', 
                   'rayleigh_bin_quality_flag', 'rayleigh_reference_pulse_quality_flag',
-                  'rayleigh_origin'
+                  'rayleigh_origin',
+                  'time','time_start', 'time_end',
+                  'latitude_of_DEM_intersection','longitude_of_DEM_intersection',
+                  'altitude_of_DEM_intersection',
+                  'velocity_at_DEM_intersection',
+                  'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
+                  'average_laser_energy', 'laser_frequency'
                 ],
                 [
                   'surface_wind_component_u_off_nadir',
@@ -785,6 +797,10 @@
               'AOCS_yaw_angle',
               'mie_HLOS_wind_speed',
               'rayleigh_HLOS_wind_speed',
+              'mie_mean_emitted_frequency',
+              'rayleigh_mean_emitted_frequency',
+              'mie_emitted_frequency_std_dev',
+              'rayleigh_emitted_frequency_std_dev',
               //'mie_signal_intensity',
               //'rayleigh_signal_channel_A_intensity',
               //'rayleigh_signal_channel_B_intensity',
@@ -1565,23 +1581,50 @@
                     'average_laser_energy', 'laser_frequency', 
                     'mie_bin_quality_flag',
                     'mie_reference_pulse_quality_flag',
-                    'mie_origin'
+                    'mie_origin',
+                    'mie_mean_emitted_frequency', 'mie_emitted_frequency_std_dev'
                   ];
 
                   var rayleighVars = [
-                    'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-                    'altitude_of_DEM_intersection',
-                    'rayleigh_altitude', 'rayleigh_range', 'velocity_at_DEM_intersection',
-                    'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
+                    ,
+                    //'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
+//'altitude_of_DEM_intersection',
+ //'velocity_at_DEM_intersection',
+//'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
+//'average_laser_energy', 'laser_frequency', 
+                    ,
+                    //'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
+//'altitude_of_DEM_intersection',
+ //'velocity_at_DEM_intersection',
+//'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
+//'average_laser_energy', 'laser_frequency', 
+                    'rayleigh_altitude', 'rayleigh_range',,
+                    //'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
+//'altitude_of_DEM_intersection',
+ //'velocity_at_DEM_intersection',
+//'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
+//'average_laser_energy', 'laser_frequency', 
+                    ,
+                    //'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
+//'altitude_of_DEM_intersection',
+ //'velocity_at_DEM_intersection',
+//'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
+//'average_laser_energy', 'laser_frequency', 
                     'rayleigh_HLOS_wind_speed', 'rayleigh_signal_channel_A_intensity',
                     'rayleigh_signal_channel_B_intensity', //'rayleigh_signal_intensity',
                     'rayleigh_ground_velocity', 'rayleigh_HBE_ground_velocity',
                     'rayleigh_total_ZWC',
                     'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', //'rayleigh_SNR',
                     'rayleigh_bin_quality_flag', 'rayleigh_error_quantifier',
-                    'average_laser_energy', 'laser_frequency', 
+                    ,
+                    //'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
+//'altitude_of_DEM_intersection',
+ //'velocity_at_DEM_intersection',
+//'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
+//'average_laser_energy', 'laser_frequency', 
                     'rayleigh_bin_quality_flag', 'rayleigh_reference_pulse_quality_flag',
-                    'rayleigh_origin'
+                    'rayleigh_origin',
+                    'rayleigh_mean_emitted_frequency', 'rayleigh_emitted_frequency_std_dev'
                   ];
 
                   var startEndVars = [
@@ -1597,7 +1640,7 @@
                   var nSize = 24;
                   var startKey, endKey;
 
-                  that.totalLength = mieVars.length + rayleighVars.length;
+                  that.totalLength = mieVars.length + rayleighVars.length-2;
                   that.processedParameters = 0;
                   that.collectionId = collectionId;
 
@@ -1617,7 +1660,7 @@
                     if(mieVars[i].indexOf('mie')!==-1){
                       pseudoKey = mieVars[i];
                     } else {
-                      pseudoKey = 'mie_'+mieVars[i];
+                      pseudoKey = /*'mie_'+*/mieVars[i];
                     }
                     if(Array.isArray(ds[mieVars[i]][0])){
 
@@ -1688,7 +1731,7 @@
                     if(rayleighVars[i].indexOf('rayleigh')!==-1){
                       pseudoKey = rayleighVars[i];
                     } else {
-                      pseudoKey = 'rayleigh_'+rayleighVars[i];
+                      pseudoKey = /*'rayleigh_'+*/rayleighVars[i];
                     }
 
                     if(Array.isArray(ds[rayleighVars[i]][0])){
