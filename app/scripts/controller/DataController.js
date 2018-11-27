@@ -592,7 +592,7 @@
       },
 
       checkFlatteningComplete: function(){
-        if(this.processedParameters === this.totalLength-1){
+        if(this.processedParameters === this.totalLength){
           var resData = {};
           resData[this.collectionId] = this.tmpdata;
 
@@ -1603,7 +1603,7 @@
                   var nSize = 24;
                   var startKey, endKey;
 
-                  that.totalLength = mieVars.length + rayleighVars.length -2;
+                  that.totalLength = mieVars.length + rayleighVars.length;
                   that.processedParameters = 0;
                   that.collectionId = collectionId;
 
@@ -1618,6 +1618,7 @@
 
                     if(!ds.hasOwnProperty(mieVars[i])){
                       that.processedParameters++;
+                      that.checkFlatteningComplete();
                       continue;
                     }
                     if(mieVars[i].indexOf('mie')!==-1){
@@ -1689,6 +1690,7 @@
 
                     if(!ds.hasOwnProperty(rayleighVars[i])){
                       that.processedParameters++;
+                      that.checkFlatteningComplete();
                       continue;
                     }
                     if(rayleighVars[i].indexOf('rayleigh')!==-1){
