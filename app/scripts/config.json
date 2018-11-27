@@ -224,6 +224,10 @@
                 "mie_bin_quality_flag": {"uom": null, "name": "Mie bin quality flag", "granularity":["obs", "mea"]},
                 "rayleigh_reference_pulse_quality_flag": {"uom": null, "name": "Rayleigh internal reference quality flag", "granularity":["obs", "mea"]},
                 "mie_reference_pulse_quality_flag": {"uom": null, "name": "Mie internal reference quality flag", "granularity":["obs", "mea"]},
+                "mie_mean_emitted_frequency": {"uom": "GHz", "name": "Mie mean emitted frequency", "granularity":["mea"]},
+                "rayleigh_mean_emitted_frequency": {"uom": "GHz", "name": "Rayleigh mean emitted frequency", "granularity":["mea"]},
+                "mie_emitted_frequency_std_dev": {"uom": "GHz", "name": "Mie emitted frequency standard deviation", "granularity":["mea"]},
+                "rayleigh_emitted_frequency_std_dev": {"uom": "GHz", "name": "Rayleigh emitted frequency standrad deviation", "granularity":["mea"]},
                 "albedo_off_nadir": {"uom": null, "name": "Albedo off-nadir value", "granularity":["obs"]}                     
             },
             "outlines": true,
