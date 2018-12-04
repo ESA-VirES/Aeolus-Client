@@ -604,7 +604,7 @@
       },
 
       checkFlatteningComplete: function(){
-        if(this.processedParameters === this.totalLength-1){
+        if(this.processedParameters === this.totalLength){
           var resData = {};
           resData[this.collectionId] = this.tmpdata;
 
@@ -1629,7 +1629,7 @@
 
                   var startEndVars = [
                     'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-                    'rayleigh_altitude', 'mie_altitude'
+                    'rayleigh_altitude', 'rayleigh_range', 'mie_altitude', 'mie_range'
                   ];
 
 
@@ -1655,6 +1655,7 @@
 
                     if(!ds.hasOwnProperty(mieVars[i])){
                       that.processedParameters++;
+                      that.checkFlatteningComplete();
                       continue;
                     }
                     if(mieVars[i].indexOf('mie')!==-1){
@@ -1726,6 +1727,7 @@
 
                     if(!ds.hasOwnProperty(rayleighVars[i])){
                       that.processedParameters++;
+                      that.checkFlatteningComplete();
                       continue;
                     }
                     if(rayleighVars[i].indexOf('rayleigh')!==-1){
@@ -2009,19 +2011,33 @@
 
                   } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
 
+                    let startEndVars = [
+                        'mie_wind_result_range_bin_number',
+                        'rayleigh_wind_result_range_bin_number'
+                    ];
+
                     for (var k = 0; k < keys.length; k++) {
+
                       var subK = Object.keys(ds[keys[k]]);
+
                       for (var l = 0; l < subK.length; l++) {
                         
                         if(subK[l] === 'mie_wind_result_wind_velocity' ||
                            subK[l] === 'rayleigh_wind_result_wind_velocity'){
                           // Convert from cm/s to m/s
-                          resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 100; });
+                          resData[subK[l]]= ds[keys[k]][subK[l]].map(
+                            function(x) { return x / 100; }
+                          );
                       //  } else if(
                       //     subK[l] === 'mie_wind_result_COG_range' ||
                       //     subK[l] === 'rayleigh_wind_result_COG_range'){
                       //    // Convert from m to km
                       //    resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 1000; });
+                        } else if(startEndVars.indexOf(subK[l]) !== -1){
+                          resData[subK[l]+'_start'] = ds[keys[k]][subK[l]];
+                          resData[subK[l]+'_end'] = ds[keys[k]][subK[l]].map(
+                            function(x) { return x+1; }
+                          );
                         } else {
                           resData[subK[l]] = ds[keys[k]][subK[l]];
                         }

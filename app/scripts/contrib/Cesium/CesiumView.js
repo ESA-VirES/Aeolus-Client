@@ -141,7 +141,7 @@ define([
 
             var that = this;
 
-            if(localStorage.getItem('filterSelection') !== null){               
+            if(localStorage.getItem('filterSelection') !== null){
                 if(this.graph){
                     this.graph.filters = globals.swarm.get('filters');
                 }
@@ -692,7 +692,7 @@ define([
             this.graph.renderSettings.combinedParameters = {
                 latitude: ['latitude_start', 'latitude_end'],
                 mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
-                rayliegh_altitude: ['rayliegh_altitude_start', 'rayliegh_altitude_end'],
+                rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
                 latitude_of_DEM_intersection: [
                     'latitude_of_DEM_intersection_start',
                     'latitude_of_DEM_intersection_end'
@@ -706,7 +706,7 @@ define([
                 this.graph.renderSettings.xAxis =['time'];
             }else if(band === 'rayleigh_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
-                this.graph.renderSettings.yAxis = ['mie_altitude'];
+                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
                 this.graph.renderSettings.xAxis =['time'];
             }else if(band === 'mie_signal_intensity'){
                 this.graph.renderSettings.colorAxis = ['mie_signal_intensity'];
@@ -763,13 +763,13 @@ define([
                 var dataSlice = {};
                 var dataKeys = Object.keys(data);
                 for (var k = dataKeys.length - 1; k >= 0; k--) {
-                    if (dataKeys[k].indexOf('mie')!==-1){
+                    if (band.indexOf('mie')!==-1 && dataKeys[k].indexOf('mie')!==-1){
                         dataSlice[dataKeys[k]] = 
                         data[dataKeys[k]].slice(dataStartMie, dataEndMie);
-                    } else if (dataKeys[k].indexOf('ray')!==-1){
+                    } else if (band.indexOf('rayleigh')!==-1 && dataKeys[k].indexOf('ray')!==-1){
                         dataSlice[dataKeys[k]] = 
                         data[dataKeys[k]].slice(dataStartRay, dataEndRay);
-                    } else {
+                    } else if(dataKeys[k].indexOf('mie')===-1 && dataKeys[k].indexOf('rayleigh')===-1) {
                         dataSlice[dataKeys[k]] = 
                         data[dataKeys[k]].slice(dataStartMie, dataEndMie);
                     }
