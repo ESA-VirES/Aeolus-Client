@@ -17,7 +17,6 @@ define(['backbone.marionette',
             this.plotType = 'scatter';
             this.sp = undefined;
 
-
             $(window).resize(function() {
                 if(this.graph1){
                     this.graph1.resize();
@@ -144,15 +143,14 @@ define(['backbone.marionette',
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
                         latitude_of_DEM_intersection: [
-                            'rayleigh_latitude_of_DEM_intersection_start',
-                            'rayleigh_latitude_of_DEM_intersection_end'
+                            'latitude_of_DEM_intersection_start',
+                            'latitude_of_DEM_intersection_end'
                         ],
                         longitude_of_DEM_intersection: [
-                            'rayleigh_longitude_of_DEM_intersection_start',
-                            'rayleigh_longitude_of_DEM_intersection_end'
+                            'longitude_of_DEM_intersection_start',
+                            'longitude_of_DEM_intersection_end'
                         ],
-                        time: ['rayleigh_time_start', 'rayleigh_time_end'],
-                        rayleigh_range: ['rayleigh_range_end', 'rayleigh_range_start']
+                        time: ['time_start', 'time_end'],
                     },
                     colorAxis: ['rayleigh_HLOS_wind_speed'],
                     positionAlias: {
@@ -175,15 +173,14 @@ define(['backbone.marionette',
                     combinedParameters: {
                         mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
                         latitude_of_DEM_intersection: [
-                            'mie_latitude_of_DEM_intersection_start',
-                            'mie_latitude_of_DEM_intersection_end'
+                            'latitude_of_DEM_intersection_start',
+                            'latitude_of_DEM_intersection_end'
                         ],
                         longitude_of_DEM_intersection: [
-                            'mie_longitude_of_DEM_intersection_start',
-                            'mie_longitude_of_DEM_intersection_end'
+                            'longitude_of_DEM_intersection_start',
+                            'longitude_of_DEM_intersection_end'
                         ],
-                        time: ['mie_time_start', 'mie_time_end'],
-                        mie_range: ['mie_range_end', 'mie_range_start']
+                        time: ['time_start', 'time_end'],
                     },
                     colorAxis: ['mie_HLOS_wind_speed'],
                     positionAlias: {

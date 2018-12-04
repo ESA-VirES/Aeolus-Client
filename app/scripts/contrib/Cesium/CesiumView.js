@@ -100,28 +100,20 @@ define([
             
              var renderSettings = {
                 xAxis: [
-                    'mie_time'
+                    'time'
                 ],
                 yAxis: [
-                    'mie_altitude'
+                    'altitude'
                 ],
                 //y2Axis: [],
                 combinedParameters: {
-                    mie_latitude: ['mie_latitude_start', 'mie_latitude_end'],
-                    mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
-                    mie_latitude_of_DEM_intersection: [
-                        'mie_latitude_of_DEM_intersection_start',
-                        'mie_latitude_of_DEM_intersection_end'
+                    latitude: ['latitude_start', 'latitude_end'],
+                    altitude: ['altitude_start', 'altitude_end'],
+                    latitude_of_DEM_intersection: [
+                        'latitude_of_DEM_intersection_start',
+                        'latitude_of_DEM_intersection_end'
                     ],
-                    mie_time: ['mie_time_start', 'mie_time_end'],
-
-                    rayleigh_latitude: ['rayleigh_latitude_start', 'rayleigh_latitude_end'],
-                    rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
-                    rayleigh_latitude_of_DEM_intersection: [
-                        'rayleigh_latitude_of_DEM_intersection_start',
-                        'rayleigh_latitude_of_DEM_intersection_end'
-                    ],
-                    rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end'],
+                    time: ['time_start', 'time_end']
                 },
                 colorAxis: ['mie_HLOS_wind_speed']
 
@@ -149,7 +141,7 @@ define([
 
             var that = this;
 
-            if(localStorage.getItem('filterSelection') !== null){               
+            if(localStorage.getItem('filterSelection') !== null){
                 if(this.graph){
                     this.graph.filters = globals.swarm.get('filters');
                 }
@@ -698,43 +690,36 @@ define([
             var dataJumps;
 
             this.graph.renderSettings.combinedParameters = {
-                mie_latitude: ['mie_latitude_start', 'mie_latitude_end'],
+                latitude: ['latitude_start', 'latitude_end'],
                 mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
-                mie_latitude_of_DEM_intersection: [
-                    'mie_latitude_of_DEM_intersection_start',
-                    'mie_latitude_of_DEM_intersection_end'
-                ],
-                mie_time: ['mie_time_start', 'mie_time_end'],
-
-                rayleigh_latitude: ['rayleigh_latitude_start', 'rayleigh_latitude_end'],
                 rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
-                rayleigh_latitude_of_DEM_intersection: [
-                    'rayleigh_latitude_of_DEM_intersection_start',
-                    'rayleigh_latitude_of_DEM_intersection_end'
+                latitude_of_DEM_intersection: [
+                    'latitude_of_DEM_intersection_start',
+                    'latitude_of_DEM_intersection_end'
                 ],
-                rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end'],
+                time: ['time_start', 'time_end']
             };
 
             if(band === 'mie_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
                 this.graph.renderSettings.yAxis = ['mie_altitude'];
-                this.graph.renderSettings.xAxis =['mie_time'];
+                this.graph.renderSettings.xAxis =['time'];
             }else if(band === 'rayleigh_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
                 this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
-                this.graph.renderSettings.xAxis =['rayleigh_time'];
+                this.graph.renderSettings.xAxis =['time'];
             }else if(band === 'mie_signal_intensity'){
                 this.graph.renderSettings.colorAxis = ['mie_signal_intensity'];
                 this.graph.renderSettings.yAxis = ['mie_altitude'];
-                this.graph.renderSettings.xAxis =['mie_time'];
+                this.graph.renderSettings.xAxis =['time'];
             }else if(band === 'rayleigh_signal_channel_A_intensity'){
                 this.graph.renderSettings.colorAxis = ['rayleigh_signal_channel_A_intensity'];
                 this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
-                this.graph.renderSettings.xAxis =['rayleigh_time'];
+                this.graph.renderSettings.xAxis =['time'];
             }else if(band === 'rayleigh_signal_channel_B_intensity'){
                 this.graph.renderSettings.colorAxis = ['rayleigh_signal_channel_B_intensity'];
                 this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
-                this.graph.renderSettings.xAxis =['rayleigh_time'];
+                this.graph.renderSettings.xAxis =['time'];
             }
 
 
@@ -778,12 +763,15 @@ define([
                 var dataSlice = {};
                 var dataKeys = Object.keys(data);
                 for (var k = dataKeys.length - 1; k >= 0; k--) {
-                    if (dataKeys[k].indexOf('mie')!==-1){
+                    if (band.indexOf('mie')!==-1 && dataKeys[k].indexOf('mie')!==-1){
                         dataSlice[dataKeys[k]] = 
                         data[dataKeys[k]].slice(dataStartMie, dataEndMie);
-                    } else if (dataKeys[k].indexOf('ray')!==-1){
+                    } else if (band.indexOf('rayleigh')!==-1 && dataKeys[k].indexOf('ray')!==-1){
                         dataSlice[dataKeys[k]] = 
                         data[dataKeys[k]].slice(dataStartRay, dataEndRay);
+                    } else if(dataKeys[k].indexOf('mie')===-1 && dataKeys[k].indexOf('rayleigh')===-1) {
+                        dataSlice[dataKeys[k]] = 
+                        data[dataKeys[k]].slice(dataStartMie, dataEndMie);
                     }
                 }
 

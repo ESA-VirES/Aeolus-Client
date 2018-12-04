@@ -22,26 +22,13 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 colorscale: 'viridis',
                 extent: [-40,40]
             },
-            'rayleigh_time_start': {
+
+
+            'time_start': {
                 scaleFormat: 'time',
                 timeFormat: 'MJD2000_S'
             },
-            'rayleigh_time_end': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'rayleigh_altitude':{
-                name: 'altitude',
-                uom: 'm'
-            },
-
-
-
-            'mie_time_start': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'mie_time_end': {
+            'time_end': {
                 scaleFormat: 'time',
                 timeFormat: 'MJD2000_S'
             },
@@ -50,7 +37,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 colorscale: 'viridis',
                 extent: [-20,20]
             },
-            'mie_altitude':{
+            'altitude':{
                 name: 'altitude',
                 uom: 'm'
             },
