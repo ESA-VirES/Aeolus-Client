@@ -17,6 +17,7 @@ define(['backbone.marionette',
             this.plotType = 'scatter';
             this.sp = undefined;
 
+
             $(window).resize(function() {
                 if(this.graph1){
                     this.graph1.resize();
@@ -138,6 +139,8 @@ define(['backbone.marionette',
                     yAxis: [
                         'rayleigh_altitude'
                     ],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
                         latitude_of_DEM_intersection: [
@@ -149,6 +152,7 @@ define(['backbone.marionette',
                             'rayleigh_longitude_of_DEM_intersection_end'
                         ],
                         time: ['rayleigh_time_start', 'rayleigh_time_end'],
+                        rayleigh_range: ['rayleigh_range_end', 'rayleigh_range_start']
                     },
                     colorAxis: ['rayleigh_HLOS_wind_speed'],
                     positionAlias: {
@@ -166,6 +170,8 @@ define(['backbone.marionette',
                         'mie_altitude'
                     ],
                     //y2Axis: [],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
                         latitude_of_DEM_intersection: [
@@ -177,6 +183,7 @@ define(['backbone.marionette',
                             'mie_longitude_of_DEM_intersection_end'
                         ],
                         time: ['mie_time_start', 'mie_time_end'],
+                        mie_range: ['mie_range_end', 'mie_range_start']
                     },
                     colorAxis: ['mie_HLOS_wind_speed'],
                     positionAlias: {
@@ -189,6 +196,8 @@ define(['backbone.marionette',
                 'ALD_U_N_2A_mie': {
                     xAxis: 'time',
                     yAxis: [ 'mie_altitude'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
                         time: ['MCA_time_obs_start', 'MCA_time_obs_stop']
@@ -204,6 +213,8 @@ define(['backbone.marionette',
                 'ALD_U_N_2A_rayleigh': {
                     xAxis: 'time',
                     yAxis: [ 'rayleigh_altitude'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
                         time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
@@ -219,9 +230,16 @@ define(['backbone.marionette',
                 'ALD_U_N_2B_mie': {
                     xAxis: 'time',
                     yAxis: [ 'mie_altitude'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         mie_altitude: ['mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'],
                         time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
+                        mie_wind_result_range: ['mie_wind_result_top_range', 'mie_wind_result_bottom_range'],
+                        mie_wind_result_range_bin_number: [
+                            'mie_wind_result_range_bin_number_start',
+                            'mie_wind_result_range_bin_number_end'
+                        ]
                     },
                     colorAxis: ['mie_wind_result_wind_velocity'],
                     positionAlias: {
@@ -234,9 +252,16 @@ define(['backbone.marionette',
                 'ALD_U_N_2B_rayleigh': {
                     xAxis: 'time',
                     yAxis: [ 'rayleigh_altitude'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_wind_result_bottom_altitude', 'rayleigh_wind_result_top_altitude'],
                         time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
+                        rayleigh_wind_result_range: ['rayleigh_wind_result_top_range', 'rayleigh_wind_result_bottom_range'],
+                        rayleigh_wind_result_range_bin_number: [
+                            'rayleigh_wind_result_range_bin_number_start',
+                            'rayleigh_wind_result_range_bin_number_end'
+                        ]
                     },
                     colorAxis: ['rayleigh_wind_result_wind_velocity'],
                     positionAlias: {
@@ -249,9 +274,16 @@ define(['backbone.marionette',
                 'ALD_U_N_2C_mie': {
                     xAxis: 'time',
                     yAxis: [ 'mie_altitude'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         mie_altitude: ['mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'],
                         time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
+                        mie_wind_result_range: ['mie_wind_result_top_range', 'mie_wind_result_bottom_range'],
+                        mie_wind_result_range_bin_number: [
+                            'mie_wind_result_range_bin_number_start',
+                            'mie_wind_result_range_bin_number_end'
+                        ]
                     },
                     colorAxis: ['mie_wind_result_wind_velocity']
 
@@ -259,9 +291,16 @@ define(['backbone.marionette',
                 'ALD_U_N_2C_rayleigh': {
                     xAxis: 'time',
                     yAxis: [ 'rayleigh_altitude'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_wind_result_bottom_altitude', 'rayleigh_wind_result_top_altitude'],
                         time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
+                        rayleigh_wind_result_range: ['rayleigh_wind_result_top_range', 'rayleigh_wind_result_bottom_range'],
+                        rayleigh_wind_result_range_bin_number: [
+                            'rayleigh_wind_result_range_bin_number_start',
+                            'rayleigh_wind_result_range_bin_number_end'
+                        ]
                     },
                     colorAxis: ['rayleigh_wind_result_wind_velocity']
 
@@ -269,6 +308,8 @@ define(['backbone.marionette',
                 AUX_MRC_1B: {
                     xAxis: ['frequency_offset'],
                     yAxis: ['measurement_response'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     colorAxis: [ null ],
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
@@ -279,6 +320,8 @@ define(['backbone.marionette',
                 AUX_MRC_1B_error: {
                     xAxis: ['frequency_offset'],
                     yAxis: ['measurement_error_mie_response'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     colorAxis: [ null ],
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
@@ -289,6 +332,8 @@ define(['backbone.marionette',
                 AUX_RRC_1B: {
                     xAxis: ['frequency_offset'],
                     yAxis: ['measurement_response'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     colorAxis: [ null ],
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
@@ -299,6 +344,8 @@ define(['backbone.marionette',
                 AUX_RRC_1B_error: {
                     xAxis: ['frequency_offset'],
                     yAxis: ['measurement_error_rayleigh_response'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     colorAxis: [ null ],
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
@@ -309,11 +356,15 @@ define(['backbone.marionette',
                 AUX_ISR_1B: {
                     xAxis: 'laser_frequency_offset',
                     yAxis: ['rayleigh_channel_A_response', 'rayleigh_channel_B_response'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     colorAxis: [ null, null ]
                 },
                 AUX_ZWC_1B: {
                     xAxis: 'observation_index',
                     yAxis: ['mie_ground_correction_velocity', 'rayleigh_ground_correction_velocity'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     colorAxis: [ null, null ],
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
@@ -323,11 +374,15 @@ define(['backbone.marionette',
                 'AUX_MET_12_nadir': {
                     xAxis: 'time_nadir',
                     yAxis: ['surface_wind_component_u_nadir'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     colorAxis: [ null, null ]
                 },
                 'AUX_MET_12_off_nadir': {
                     xAxis: 'time_off_nadir',
                     yAxis: ['surface_wind_component_u_off_nadir'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     colorAxis: [ null, null ]
                 }
             };
@@ -369,12 +424,14 @@ define(['backbone.marionette',
 
                 this.graph1 = new graphly.graphly({
                     el: '#graph_1',
-                    margin: {top: 10, left: 120, bottom: 50, right: 40},
+                    margin: {top: 10, left: 100, bottom: 50, right: 40},
                     dataSettings: this.dataSettings,
                     renderSettings: this.renderSettings.mie,
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
-                    ignoreParameters: [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/]
+                    ignoreParameters: [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/],
+                    enableSubXAxis: true,
+                    enableSubYAxis: true
                 });
                 globals.swarm.get('filterManager').setRenderNode('#analyticsFilters');
                 this.graph1.on('pointSelect', function(values){
@@ -385,13 +442,15 @@ define(['backbone.marionette',
             if (this.graph2 === undefined){
                 this.graph2 = new graphly.graphly({
                     el: '#graph_2',
-                    margin: {top: 10, left: 120, bottom: 50, right: 40},
+                    margin: {top: 10, left: 100, bottom: 50, right: 40},
                     dataSettings: this.dataSettings,
                     renderSettings: this.renderSettings.rayleigh,
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
                     connectedGraph: this.graph1,
-                    ignoreParameters: [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/]
+                    ignoreParameters: [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/],
+                    enableSubXAxis: true,
+                    enableSubYAxis: true
                 });
                 this.graph1.connectGraph(this.graph2);
                 this.graph2.on('pointSelect', function(values){
@@ -826,8 +885,6 @@ define(['backbone.marionette',
                         this.graph2.loadData(data['ALD_U_N_1B']);
                         this.graph1.fileSaveString = 'ALD_U_N_1B_mie_plot';
                         this.graph2.fileSaveString = 'ALD_U_N_1B_rayleigh_plot';
-                        this.graph1.resize();
-                        this.graph2.resize();
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_1B']);
@@ -849,8 +906,6 @@ define(['backbone.marionette',
                         this.graph2.loadData(data['ALD_U_N_2A']);
                         this.graph1.fileSaveString = 'ALD_U_N_2A_mie_plot';
                         this.graph2.fileSaveString = 'ALD_U_N_2A_rayleigh_plot';
-                        this.graph1.resize();
-                        this.graph2.resize();
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_2A']);
@@ -872,8 +927,6 @@ define(['backbone.marionette',
                         this.graph2.loadData(data['ALD_U_N_2B']);
                         this.graph1.fileSaveString = 'ALD_U_N_2B_mie_plot';
                         this.graph2.fileSaveString = 'ALD_U_N_2B_rayleigh_plot';
-                        this.graph1.resize();
-                        this.graph2.resize();
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_2B']);
@@ -895,8 +948,6 @@ define(['backbone.marionette',
                         this.graph2.loadData(data['ALD_U_N_2C']);
                         this.graph1.fileSaveString = 'ALD_U_N_2C_mie_plot';
                         this.graph2.fileSaveString = 'ALD_U_N_2C_rayleigh_plot';
-                        this.graph1.resize();
-                        this.graph2.resize();
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_2C']);
@@ -918,8 +969,6 @@ define(['backbone.marionette',
                         this.graph2.loadData(data[idKeys[0]]);
                         this.graph1.fileSaveString = idKeys[0]+'_top';
                         this.graph2.fileSaveString = idKeys[0]+'_bottom';
-                        this.graph1.resize();
-                        this.graph2.resize();
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data[idKeys[0]]);
@@ -940,8 +989,6 @@ define(['backbone.marionette',
                         this.graph2.loadData(data[idKeys[0]]);
                         this.graph1.fileSaveString = idKeys[0]+'_top';
                         this.graph2.fileSaveString = idKeys[0]+'_bottom';
-                        this.graph1.resize();
-                        this.graph2.resize();
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data[idKeys[0]]);
@@ -960,7 +1007,6 @@ define(['backbone.marionette',
                         this.graph1.renderSettings = this.renderSettings[idKeys[0]];
                         this.graph1.loadData(data[idKeys[0]]);
                         this.graph1.fileSaveString = idKeys[0];
-                        this.graph1.resize();
                         this.filterManager.loadData(data[idKeys[0]]);
                     }
 
