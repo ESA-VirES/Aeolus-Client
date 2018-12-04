@@ -56,17 +56,123 @@ define(['backbone.marionette',
                 this.$('#graph_1').append('<div id="analyticsSavebuttonTop"><i class="fa fa-floppy-o analyticsSavebutton" aria-hidden="true"></i></div>');
                 this.$('#graph_2').append('<div id="analyticsSavebuttonBottom"><i class="fa fa-floppy-o analyticsSavebutton" aria-hidden="true"></i></div>');
 
+
+
                 $('#analyticsSavebuttonTop').click(function(){
+                    var bodyContainer = $('<div/>');
+
+                    var typeContainer = $('<div id="typeSelectionContainer"></div>')
+                    var filetypeSelection = $('<select id="filetypeSelection"></select>');
+                    filetypeSelection.append($('<option/>').html('png'));
+                    filetypeSelection.append($('<option/>').html('jpeg'));
+                    filetypeSelection.append($('<option/>').html('svg'));
+                    typeContainer.append(
+                        $('<label for="filetypeSelection" style="margin-right:10px;">Output type</label>')
+                    );
+                    typeContainer.append(filetypeSelection);
+                    var w = $('#graph_1').width();
+                    var h = $('#graph_1').height();
+
+                    var resolutionContainer = $('<div id="resolutionSelectionContainer"></div>')
+                    var resolutionSelection = $('<select id="resolutionSelection"></select>');
+                    resolutionSelection.append($('<option/>').html('normal ('+w+'x'+h+')').val(1));
+                    resolutionSelection.append($('<option/>').html('large ('+w*2+'x'+h*2+')').val(2));
+                    resolutionSelection.append($('<option/>').html('very large ('+w*3+'x'+h*3+')').val(3));
+                    resolutionContainer.append(
+                        $('<label for="resolutionSelection" style="margin-right:10px;">Resolution</label>')
+                    );
+                    resolutionContainer.append(resolutionSelection);
+
+                    bodyContainer.append(typeContainer);
+                    bodyContainer.append(resolutionContainer);
+
+                    var okbutton = $('<button>Ok</button>');
+                    var cancelbutton = $('<button>Cancel</button>');
+                    var buttons = $('<div/>');
+                    buttons.append(okbutton);
+                    buttons.append(cancelbutton);
+
                     if (that.graph1){
-                        that.graph1.saveImage();
+                        var saveimagedialog = w2popup.open({
+                            body: bodyContainer,
+                            buttons: buttons,
+                            title       : w2utils.lang('Image configuration'),
+                            width       : 400,
+                            height      : 200
+                        });
+
+                        okbutton.click(function(){
+                            var selectedType = $('#filetypeSelection')
+                                .find(":selected").text();
+                            var selectedRes = $('#resolutionSelection')
+                                .find(":selected").val();
+                            that.graph1.saveImage(selectedType, selectedRes);
+                            saveimagedialog.close();
+                        });
+                        cancelbutton.click(function(){
+                            saveimagedialog.close();
+                        });
                     }
                 });
 
                 $('#analyticsSavebuttonBottom').click(function(){
+                    var bodyContainer = $('<div/>');
+
+                    var typeContainer = $('<div id="typeSelectionContainer"></div>')
+                    var filetypeSelection = $('<select id="filetypeSelection"></select>');
+                    filetypeSelection.append($('<option/>').html('png'));
+                    filetypeSelection.append($('<option/>').html('jpeg'));
+                    filetypeSelection.append($('<option/>').html('svg'));
+                    typeContainer.append(
+                        $('<label for="filetypeSelection" style="margin-right:10px;">Output type</label>')
+                    );
+                    typeContainer.append(filetypeSelection);
+                    var w = $('#graph_1').width();
+                    var h = $('#graph_1').height();
+
+                    var resolutionContainer = $('<div id="resolutionSelectionContainer"></div>')
+                    var resolutionSelection = $('<select id="resolutionSelection"></select>');
+                    resolutionSelection.append($('<option/>').html('normal ('+w+'x'+h+')').val(1));
+                    resolutionSelection.append($('<option/>').html('large ('+w*2+'x'+h*2+')').val(2));
+                    resolutionSelection.append($('<option/>').html('very large ('+w*3+'x'+h*3+')').val(3));
+                    resolutionContainer.append(
+                        $('<label for="resolutionSelection" style="margin-right:10px;">Resolution</label>')
+                    );
+                    resolutionContainer.append(resolutionSelection);
+
+                    bodyContainer.append(typeContainer);
+                    bodyContainer.append(resolutionContainer);
+
+                    var okbutton = $('<button>Ok</button>');
+                    var cancelbutton = $('<button>Cancel</button>');
+                    var buttons = $('<div/>');
+                    buttons.append(okbutton);
+                    buttons.append(cancelbutton);
+                    
                     if (that.graph2){
-                        that.graph2.saveImage();
+                        var saveimagedialog = w2popup.open({
+                            body: bodyContainer,
+                            buttons: buttons,
+                            title       : w2utils.lang('Image configuration'),
+                            width       : 400,
+                            height      : 200
+                        });
+
+                        okbutton.click(function(){
+                            var selectedType = $('#filetypeSelection')
+                                .find(":selected").text();
+                            var selectedRes = $('#resolutionSelection')
+                                .find(":selected").val();
+                            that.graph2.saveImage(selectedType, selectedRes);
+                            saveimagedialog.close();
+                        });
+                        cancelbutton.click(function(){
+                            saveimagedialog.close();
+                        });
                     }
                 });
+
+                
 
                 this.$('.d3canvas').append('<div id="filterDivContainer"></div>');
                 this.$el.append('<div id="nodataavailable"></div>');
