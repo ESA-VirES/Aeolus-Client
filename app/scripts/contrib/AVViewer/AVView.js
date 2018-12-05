@@ -86,8 +86,8 @@ define(['backbone.marionette',
                     bodyContainer.append(typeContainer);
                     bodyContainer.append(resolutionContainer);
 
-                    var okbutton = $('<button>Ok</button>');
-                    var cancelbutton = $('<button>Cancel</button>');
+                    var okbutton = $('<button style="margin-right:5px;">Ok</button>');
+                    var cancelbutton = $('<button style="margin-left:5px;">Cancel</button>');
                     var buttons = $('<div/>');
                     buttons.append(okbutton);
                     buttons.append(cancelbutton);
@@ -107,9 +107,11 @@ define(['backbone.marionette',
                             var selectedRes = $('#resolutionSelection')
                                 .find(":selected").val();
                             that.graph1.saveImage(selectedType, selectedRes);
+                            bodyContainer.remove();
                             saveimagedialog.close();
                         });
                         cancelbutton.click(function(){
+                            bodyContainer.remove();
                             saveimagedialog.close();
                         });
                     }
@@ -143,8 +145,8 @@ define(['backbone.marionette',
                     bodyContainer.append(typeContainer);
                     bodyContainer.append(resolutionContainer);
 
-                    var okbutton = $('<button>Ok</button>');
-                    var cancelbutton = $('<button>Cancel</button>');
+                    var okbutton = $('<button style="margin-right:5px;">Ok</button>');
+                    var cancelbutton = $('<button style="margin-left:5px;">Cancel</button>');
                     var buttons = $('<div/>');
                     buttons.append(okbutton);
                     buttons.append(cancelbutton);
@@ -164,9 +166,11 @@ define(['backbone.marionette',
                             var selectedRes = $('#resolutionSelection')
                                 .find(":selected").val();
                             that.graph2.saveImage(selectedType, selectedRes);
+                            bodyContainer.remove();
                             saveimagedialog.close();
                         });
                         cancelbutton.click(function(){
+                            bodyContainer.remove();
                             saveimagedialog.close();
                         });
                     }
