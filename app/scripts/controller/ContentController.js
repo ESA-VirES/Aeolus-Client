@@ -181,21 +181,6 @@
                     $('#fileInputJSON').on('change', onChange);
 
                     $('#fileInputJSON').trigger('click');
-
-
-
-                    /*var settingsJSON = JSON.stringify(localStorage);
-                    var blob = new Blob([settingsJSON], {
-                        type: 'text/plain;charset=utf-8'
-                    });
-                    var dateObj = new Date();
-                    var month = ('0' + (dateObj.getUTCMonth() + 1)).slice(-2);
-                    var day = ('0' + dateObj.getUTCDate()).slice(-2);
-                    var year = dateObj.getUTCFullYear();
-
-                    var newdate = ''+year + month + day + '_';
-
-                    saveAs(blob, newdate+'vires_settings.json');*/
                 }
             }
 
