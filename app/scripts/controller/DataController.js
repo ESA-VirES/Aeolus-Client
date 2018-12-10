@@ -115,15 +115,34 @@
                   'surface_altitude_nadir'
                 ],
                 [
+                  'SCA_LOD_variance',
+                  'SCA_middle_bin_extinction_variance',
+                  'SCA_middle_bin_backscatter_variance',
+                  'SCA_middle_bin_LOD_variance',
+                  'SCA_middle_bin_BER_variance',
+                  'ICA_QC_flag',
+                  'SCA_LOD',
+                  'SCA_SR',
+                  'SCA_middle_bin_extinction',
+                  'SCA_middle_bin_backscatter',
+                  'SCA_middle_bin_LOD',
+                  'SCA_middle_bin_BER',
+                  'SCA_time_obs',
                   'SCA_time_obs_start', 'SCA_time_obs_stop',
+                  'rayleigh_altitude_obs',
                   'rayleigh_altitude_obs_top','rayleigh_altitude_obs_bottom',
                   'SCA_extinction', 'SCA_backscatter','SCA_QC_flag',
-                  'SCA_extinction_variance', 'SCA_backscatter_variance','SCA_LOD_variance'
+                  'SCA_extinction_variance', 'SCA_backscatter_variance',
+                  'albedo_off_nadir'
                 ], 
                 [
+                  'MCA_clim_BER',
+                  'MCA_time_obs',
                   'MCA_time_obs_start', 'MCA_time_obs_stop',
-                  'mie_altitude_obs_start', 'mie_altitude_obs_stop',
-                  'MCA_extinction', 'MCA_LOD'
+                  'mie_altitude_obs',
+                  'mie_altitude_obs_top', 'mie_altitude_obs_bottom',
+                  'MCA_extinction', 'MCA_LOD',
+                  'albedo_off_nadir'
                 ],
                 [
                   'mie_wind_result_wind_velocity', 'mie_wind_result_start_time',
@@ -778,7 +797,8 @@
               'rayleigh_bin_quality_flag',
               'mie_bin_quality_flag',
               'rayleigh_reference_pulse_quality_flag',
-              'mie_reference_pulse_quality_flag'
+              'mie_reference_pulse_quality_flag',
+              'albedo_off_nadir'
             ].join(),
             'measurement_fields': [
               'time',
@@ -817,7 +837,8 @@
               'rayleigh_bin_quality_flag',
               'mie_bin_quality_flag',
               'rayleigh_reference_pulse_quality_flag',
-              'mie_reference_pulse_quality_flag'
+              'mie_reference_pulse_quality_flag',
+              'albedo_off_nadir'
             ].join()
           },
           'ALD_U_N_2A': {
@@ -859,7 +880,8 @@
               'ICA_LOD',*/
               'MCA_clim_BER',
               'MCA_extinction',
-              'MCA_LOD'
+              'MCA_LOD',
+              'albedo_off_nadir'
             ].join(),
             'measurement_fields': [
               'L1B_time_meas',
@@ -868,7 +890,7 @@
               'altitude_of_DEM_intersection_meas',
               'mie_altitude_meas',
               'rayleigh_altitude_meas',
-              //'albedo_off_nadir'
+              'albedo_off_nadir'
             ].join(),
             'group_fields': [
               'group_start_time',
@@ -1570,7 +1592,7 @@
 
                   var mieVars = [
                     'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-                    'altitude_of_DEM_intersection',
+                    'altitude_of_DEM_intersection', 'albedo_off_nadir',
                     'mie_altitude', 'mie_range', 'velocity_at_DEM_intersection',
                     'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
                     'mie_HLOS_wind_speed', 'mie_signal_intensity',
@@ -1586,42 +1608,13 @@
                   ];
 
                   var rayleighVars = [
-                    ,
-                    //'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-//'altitude_of_DEM_intersection',
- //'velocity_at_DEM_intersection',
-//'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
-//'average_laser_energy', 'laser_frequency', 
-                    ,
-                    //'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-//'altitude_of_DEM_intersection',
- //'velocity_at_DEM_intersection',
-//'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
-//'average_laser_energy', 'laser_frequency', 
-                    'rayleigh_altitude', 'rayleigh_range',,
-                    //'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-//'altitude_of_DEM_intersection',
- //'velocity_at_DEM_intersection',
-//'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
-//'average_laser_energy', 'laser_frequency', 
-                    ,
-                    //'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-//'altitude_of_DEM_intersection',
- //'velocity_at_DEM_intersection',
-//'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
-//'average_laser_energy', 'laser_frequency', 
+                    'rayleigh_altitude', 'rayleigh_range',
                     'rayleigh_HLOS_wind_speed', 'rayleigh_signal_channel_A_intensity',
                     'rayleigh_signal_channel_B_intensity', //'rayleigh_signal_intensity',
                     'rayleigh_ground_velocity', 'rayleigh_HBE_ground_velocity',
                     'rayleigh_total_ZWC',
                     'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', //'rayleigh_SNR',
                     'rayleigh_bin_quality_flag', 'rayleigh_error_quantifier',
-                    ,
-                    //'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-//'altitude_of_DEM_intersection',
- //'velocity_at_DEM_intersection',
-//'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
-//'average_laser_energy', 'laser_frequency', 
                     'rayleigh_bin_quality_flag', 'rayleigh_reference_pulse_quality_flag',
                     'rayleigh_origin',
                     'rayleigh_mean_emitted_frequency', 'rayleigh_emitted_frequency_std_dev'
@@ -2011,7 +2004,7 @@
 
                   } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
 
-                    let startEndVars = [
+                    var startEndVars = [
                         'mie_wind_result_range_bin_number',
                         'rayleigh_wind_result_range_bin_number'
                     ];

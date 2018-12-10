@@ -301,13 +301,13 @@ define(['backbone.marionette',
 
                 },
                 'ALD_U_N_2A_mie': {
-                    xAxis: 'time',
+                    xAxis: 'MCA_time',
                     yAxis: [ 'mie_altitude'],
                     additionalXTicks: [],
                     additionalYTicks: [],
                     combinedParameters: {
                         mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
-                        time: ['MCA_time_obs_start', 'MCA_time_obs_stop']
+                        MCA_time: ['MCA_time_obs_start', 'MCA_time_obs_stop']
                     },
                     colorAxis: ['MCA_extinction'],
                     positionAlias: {
@@ -318,13 +318,13 @@ define(['backbone.marionette',
 
                 },
                 'ALD_U_N_2A_rayleigh': {
-                    xAxis: 'time',
+                    xAxis: 'SCA_time',
                     yAxis: [ 'rayleigh_altitude'],
                     additionalXTicks: [],
                     additionalYTicks: [],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
-                        time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
+                        SCA_time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
                     },
                     colorAxis: ['SCA_extinction'],
                     positionAlias: {
