@@ -127,15 +127,40 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             'mie_wind_result_SNR':{
                 uom: null
             },
-            'mie_wind_result_HLOS_error':{
-                uom: 'm/s'
-            },
             'mie_wind_result_COG_range':{
                 uom: 'km'
             },
-            'rayleigh_wind_result_HLOS_error':{
-                uom: 'm/s'
+
+            'mie_wind_result_HLOS_error':{
+                uom: 'm/s',
+                nullValue: 1.7e+38
             },
+            'rayleigh_wind_result_HLOS_error':{
+                uom: 'm/s',
+                nullValue: 1.7e+38
+            },
+
+            'mie_wind_result_scattering_ratio': {
+                nullValue: 1.7e+38
+            },
+            'rayleigh_wind_result_scattering_ratio': {
+                nullValue: 1.7e+38
+            },
+
+            'rayleigh_wind_result_reference_pressure':{
+                nullValue:4294967295
+            },
+            'mie_wind_result_reference_pressure':{
+                nullValue:4294967295
+            },
+
+            'rayleigh_wind_result_reference_temperature': {
+                nullValue: 65535
+            },
+            'mie_wind_result_reference_temperature': {
+                nullValue: 65535
+            },
+
             'rayleigh_wind_result_COG_range':{
                 uom: 'km'
             },
