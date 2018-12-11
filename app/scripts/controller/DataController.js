@@ -103,16 +103,22 @@
                   'average_laser_energy', 'laser_frequency'
                 ],
                 [
+                  'time_off_nadir',
                   'surface_wind_component_u_off_nadir',
                   'surface_wind_component_v_off_nadir',
                   'surface_pressure_off_nadir',
-                  'surface_altitude_off_nadir'
+                  'surface_altitude_off_nadir',
+                  'latitude_nadir',
+                  'longitude_nadir'
                 ],
                 [
+                  'time_nadir',
                   'surface_wind_component_u_nadir',
                   'surface_wind_component_v_nadir',
                   'surface_pressure_nadir',
-                  'surface_altitude_nadir'
+                  'surface_altitude_nadir',
+                  'latitude_off_nadir',
+                  'longitude_off_nadir'
                 ],
                 [
                   'SCA_LOD_variance',
@@ -1421,8 +1427,15 @@
             'surface_wind_component_v_off_nadir',
             'surface_wind_component_v_nadir',
             'surface_pressure_off_nadir','surface_pressure_nadir',
-            'surface_altitude_off_nadir', 'surface_altitude_nadir'
+            'surface_altitude_off_nadir', 'surface_altitude_nadir',
+            'latitude_nadir',
+            'longitude_nadir',
+            'latitude_off_nadir',
+            'longitude_off_nadir',
             // TODO: 2D data is very big, how can we handle it?
+            //'layer_altitude_nadir',
+            //'layer_temperature_nadir'
+
           ].join()
 
         }

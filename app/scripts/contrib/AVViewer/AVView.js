@@ -1086,8 +1086,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         $('#graph_1').css('height', '49%');
                         $('#graph_2').css('height', '49%');
-                        this.graph1.ignoreParameters = [];
-                        this.graph2.ignoreParameters = [];
+                        this.graph1.ignoreParameters = [/_off_nadir.*/];
+                        this.graph2.ignoreParameters = [/^((?!_off_nadir).)*$/];
                         this.graph1.debounceActive = true;
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;

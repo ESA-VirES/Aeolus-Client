@@ -976,7 +976,6 @@
                     "name": "Mie Ground Correction Velocity"
                 },
                 "rayleigh_ground_correction_velocity": {
-                    "selected": true,
                     "range": [-100, 100],
                     "uom": "m/s",
                     "colorscale": "plasma",
@@ -1040,8 +1039,22 @@
                 "protocol": "WPS",
                 "url": "http://localhost:9000/vires00/ows"
             },
-            "process" : "aeolus:level1B:AUX:MET",
-            "parameters": {},
+            "process" : "aeolus:AUX:MET",
+            "parameters": {
+                "surface_pressure_off_nadir": {
+                    "selected": true,
+                    "range": [55000, 105000],
+                    "uom": "Pa",
+                    "colorscale": "viridis",
+                    "name": "Surface pressure off nadir"
+                },
+                "surface_pressure_nadir": {
+                    "uom": "Pa",
+                    "range": [55000, 105000],
+                    "colorscale": "viridis",
+                    "name": "Surface pressure nadir"
+                }
+            },
             "download_parameters": {
                 "Timestamp": {
                     "uom": null,

@@ -1795,29 +1795,42 @@ define([
 
         createPointCollection: function(data, cov_id, alpha, height){
 
-            if(!data.hasOwnProperty('lon_of_DEM_intersection')){
+            var currProd = globals.products.find(
+                function(p){return p.get('download').id === cov_id;}
+            );
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
+
+            var latPar, lonPar;
+            if (cov_id === 'AUX_MET_12'){
+                if(band.indexOf('_off_nadir') !== -1){
+                    latPar = 'latitude_off_nadir';
+                    lonPar = 'longitude_off_nadir';
+                } else {
+                    latPar = 'latitude_nadir';
+                    lonPar = 'longitude_nadir';
+                }
+            } else {
+                latPar = 'lat_of_DEM_intersection';
+                lonPar = 'lon_of_DEM_intersection';
+            }
+
+            if(!data.hasOwnProperty(latPar) || !data.hasOwnProperty(lonPar) ){
                 // If data does not have required position information
                 // do not try to render it
                 return;
             }
 
-            var currProd = globals.products.find(
-                function(p){return p.get('download').id === cov_id;}
-            );
 
             var pointCollection;
-
-            if(!this.map.scene.context._gl.getExtension('EXT_frag_depth')){
-                pointCollection._rs = 
-                    Cesium.RenderState.fromCache({
-                        depthTest : {
-                            enabled : true,
-                            func : Cesium.DepthFunction.LESS
-                        },
-                        depthMask : false,
-                        blending : Cesium.BlendingState.ALPHA_BLEND
-                    });
-            }
 
             if(currProd.hasOwnProperty('points')){
                 currProd.points.removeAll();
@@ -1831,17 +1844,19 @@ define([
                 currProd.points = pointCollection;
             }
 
+            if(!this.map.scene.context._gl.getExtension('EXT_frag_depth')){
+                pointCollection._rs = 
+                    Cesium.RenderState.fromCache({
+                        depthTest : {
+                            enabled : true,
+                            func : Cesium.DepthFunction.LESS
+                        },
+                        depthMask : false,
+                        blending : Cesium.BlendingState.ALPHA_BLEND
+                    });
+            }
 
-            var parameters = currProd.get('parameters');
-            var band;
-            var keys = _.keys(parameters);
-            _.each(keys, function(key){
-                if(parameters[key].selected){
-                    band = key;
-                }
-            });
-            var style = parameters[band].colorscale;
-            var range = parameters[band].range;
+
 
             alpha = currProd.get('opacity');
 
@@ -1877,14 +1892,14 @@ define([
                     continue;
                 }
 
-                positions.push(data['lon_of_DEM_intersection'][i]+1);
-                positions.push(data['lat_of_DEM_intersection'][i]);
+                positions.push(data[lonPar][i]+1);
+                positions.push(data[latPar][i]);
 
                 var color = this.plot.getColor(data[band][i]);
                 var options = {
                     position : new Cesium.Cartesian3.fromDegrees(
-                        data['lon_of_DEM_intersection'][i],
-                        data['lat_of_DEM_intersection'][i]/*,
+                        data[lonPar][i],
+                        data[latPar][i]/*,
                         height*/
                     ),
                     color : new Cesium.Color.fromBytes(
