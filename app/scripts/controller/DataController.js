@@ -2270,10 +2270,18 @@
 
                   }
 
-                   var tmpdata = {};
+                  var tmpdata = {};
                   tmpdata[collectionId] = resData;
 
-                  if($.isEmptyObject(resData)){
+                  // Check if all arrays are empty
+                  var empty = true;
+                  for (var k in resData){
+                    if(resData[k].length !== 0){
+                      empty = false;
+                    }
+                  }
+
+                  if($.isEmptyObject(resData) || empty){
                     globals.swarm.set({data: {}});
                   } else {
                     globals.swarm.set({data: tmpdata});
