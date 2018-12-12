@@ -344,7 +344,8 @@ define(['backbone.marionette',
                         mie_wind_result_range_bin_number: [
                             'mie_wind_result_range_bin_number_start',
                             'mie_wind_result_range_bin_number_end'
-                        ]
+                        ],
+                        mie_wind_result_COG_range: ['mie_wind_result_COG_range_start', 'mie_wind_result_COG_range_end']
                     },
                     colorAxis: ['mie_wind_result_wind_velocity'],
                     positionAlias: {
@@ -366,7 +367,8 @@ define(['backbone.marionette',
                         rayleigh_wind_result_range_bin_number: [
                             'rayleigh_wind_result_range_bin_number_start',
                             'rayleigh_wind_result_range_bin_number_end'
-                        ]
+                        ],
+                        rayleigh_wind_result_COG_range: ['rayleigh_wind_result_COG_range_start', 'rayleigh_wind_result_COG_range_end']
                     },
                     colorAxis: ['rayleigh_wind_result_wind_velocity'],
                     positionAlias: {

@@ -2100,9 +2100,14 @@
 
                   } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
 
-                    var startEndVars = [
+                    var startEndVarsBins = [
                         'mie_wind_result_range_bin_number',
-                        'rayleigh_wind_result_range_bin_number'
+                        'rayleigh_wind_result_range_bin_number',
+                    ];
+
+                    var startEndVars = [
+                      'mie_wind_result_COG_range',
+                      'rayleigh_wind_result_COG_range',
                     ];
 
                     for (var k = 0; k < keys.length; k++) {
@@ -2122,11 +2127,22 @@
                       //     subK[l] === 'rayleigh_wind_result_COG_range'){
                       //    // Convert from m to km
                       //    resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 1000; });
-                        } else if(startEndVars.indexOf(subK[l]) !== -1){
+                        } else if(startEndVarsBins.indexOf(subK[l]) !== -1){
                           resData[subK[l]+'_start'] = ds[keys[k]][subK[l]];
                           resData[subK[l]+'_end'] = ds[keys[k]][subK[l]].map(
                             function(x) { return x+1; }
                           );
+                        } else if(startEndVars.indexOf(subK[l]) !== -1){
+                          resData[subK[l]+'_start'] = ds[keys[k]][subK[l]];
+                          var endArray = [];
+                          for (var idx = 1; idx < ds[keys[k]][subK[l]].length; idx++) {
+                            if(ds[keys[k]][subK[l]][idx] - ds[keys[k]][subK[l]][idx-1] > 0){
+                              endArray.push(ds[keys[k]][subK[l]][idx]);
+                            } else {
+                              endArray.push(ds[keys[k]][subK[l]][idx-1]+20);
+                            }
+                          }
+                          resData[subK[l]+'_end'] = endArray;
                         } else {
                           resData[subK[l]] = ds[keys[k]][subK[l]];
                         }
