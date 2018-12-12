@@ -242,9 +242,7 @@ define(['backbone.marionette',
 
             this.renderSettings = {
                 rayleigh: {
-                    xAxis: [
-                        'time'
-                    ],
+                    xAxis: ['time'],
                     yAxis: [
                         'rayleigh_altitude'
                     ],
@@ -252,6 +250,7 @@ define(['backbone.marionette',
                     additionalYTicks: [],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
+                        rayleigh_range: ['rayleigh_range_start', 'rayleigh_range_end'],
                         latitude_of_DEM_intersection: [
                             'latitude_of_DEM_intersection_start',
                             'latitude_of_DEM_intersection_end'
@@ -271,9 +270,7 @@ define(['backbone.marionette',
 
                 },
                 mie: {
-                    xAxis: [
-                    'time'
-                    ],
+                    xAxis: ['time'],
                     yAxis: [
                         'mie_altitude'
                     ],
@@ -282,6 +279,7 @@ define(['backbone.marionette',
                     additionalYTicks: [],
                     combinedParameters: {
                         mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
+                        mie_range: ['mie_range_start', 'mie_range_end'],
                         latitude_of_DEM_intersection: [
                             'latitude_of_DEM_intersection_start',
                             'latitude_of_DEM_intersection_end'
@@ -1005,8 +1003,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
-                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
-                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
+                        this.graph1.ignoreParameters = [/rayleigh_.*/, /SCA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
+                        this.graph2.ignoreParameters = [/mie_.*/, /MCA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_2A']);
