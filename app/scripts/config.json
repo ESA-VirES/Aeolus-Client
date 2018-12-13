@@ -1053,6 +1053,114 @@
                     "range": [55000, 105000],
                     "colorscale": "viridis",
                     "name": "Surface pressure nadir"
+                },
+                "layer_validity_flag_off_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer validity flag off nadir",
+                    "range": [-1, 1]
+                },
+                "layer_validity_flag_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer validity flag nadir",
+                    "range": [-1, 1]
+                },
+                "layer_temperature_off_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer temperature off nadir",
+                    "range": [180, 300]
+                },
+                "layer_temperature_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer temperature nadir",
+                    "range": [180, 300]
+                },
+                "layer_wind_component_u_off_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer wind component u off nadir",
+                    "range": [-2000, 14000]
+                },
+                "layer_wind_component_u_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "layer wind component u nadir",
+                    "range": [-7000, 4000]
+                },
+                "layer_wind_component_v_off_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "layer wind component v off nadir",
+                    "range": [-2000, 14000]
+                },
+                "layer_wind_component_v_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer wind component v nadir",
+                    "range": [-4000, 2000]
+                },
+                "layer_rel_humidity_off_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer rel humidity off nadir",
+                    "range": [0, 100]
+                },
+                "layer_rel_humidity_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer rel humidity nadir",
+                    "range": [0, 100]
+                },
+                "layer_spec_humidity_off_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer spec humidity off nadir",
+                    "range": [0, 0.003]
+                },
+                "layer_spec_humidity_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer spec humidity nadir",
+                    "range": [0, 0.003]
+                },
+                "layer_cloud_cover_off_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer cloud cover off nadir",
+                    "range": [0, 100]
+                },
+                "layer_cloud_cover_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer cloud cover nadir",
+                    "range": [0, 100]
+                },
+                "layer_cloud_liquid_water_content_off_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer cloud liquid water content off nadir",
+                    "range": [0, 0.0003]
+                },
+                "layer_cloud_liquid_water_content_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer cloud liquid water content nadir",
+                    "range": [0, 0.0003]
+                },
+                "layer_cloud_ice_water_content_off_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer cloud ice water content off nadir",
+                    "range": [0, 0.0003]
+                },
+                "layer_cloud_ice_water_content_nadir": {
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Layer cloud ice water content nadir",
+                    "range": [0, 0.0003]
                 }
             },
             "download_parameters": {

@@ -78,6 +78,13 @@
         <wps:LiteralData>{{rayleigh_wind_fields}}</wps:LiteralData>
       </wps:Data>
     </wps:Input>{{/if}}
+    {{#if scalefactor}}
+     <wps:Input>
+      <ows:Identifier>scalefactor</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{scalefactor}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
     {{#if filters}}
     <wps:Input>
       <ows:Identifier>filters</ows:Identifier>

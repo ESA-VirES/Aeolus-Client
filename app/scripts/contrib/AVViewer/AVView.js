@@ -483,14 +483,22 @@ define(['backbone.marionette',
                     yAxis: ['surface_wind_component_u_nadir'],
                     additionalXTicks: [],
                     additionalYTicks: [],
-                    colorAxis: [ null, null ]
+                    colorAxis: [ null ],
+                    combinedParameters: {
+                        time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
+                        layer_altitude_nadir: ['layer_altitude_nadir_end', 'layer_altitude_nadir_start']
+                    },
                 },
                 'AUX_MET_12_off_nadir': {
                     xAxis: 'time_off_nadir',
                     yAxis: ['surface_wind_component_u_off_nadir'],
                     additionalXTicks: [],
                     additionalYTicks: [],
-                    colorAxis: [ null, null ]
+                    colorAxis: [ null ],
+                    combinedParameters: {
+                        time_off_nadir_combined: ['time_off_nadir_start', 'time_off_nadir_end'],
+                        layer_altitude_off_nadir: ['layer_altitude_off_nadir_end', 'layer_altitude_off_nadir_start']
+                    },
                 }
             };
 
@@ -1081,8 +1089,82 @@ define(['backbone.marionette',
                         this.filterManager.loadData(data[idKeys[0]]);
 
                     } else if(idKeys[0] === 'AUX_MET_12'){
-                        this.graph1.renderSettings =  this.renderSettings[(idKeys[0]+'_nadir')];
-                        this.graph2.renderSettings =  this.renderSettings[(idKeys[0]+'_off_nadir')];
+
+                        // AUX MET combines 1D with 2D data so we need to sort out first
+                        // what rendering settings we will actually use
+                        var params2DNadir = [
+                            'layer_validity_flag_nadir',
+                            //'layer_pressure_nadir',
+                            'layer_temperature_nadir',
+                            'layer_wind_component_u_nadir',
+                            'layer_wind_component_v_nadir',
+                            'layer_rel_humidity_nadir',
+                            'layer_spec_humidity_nadir',
+                            'layer_cloud_cover_nadir',
+                            'layer_cloud_liquid_water_content_nadir',
+                            'layer_cloud_ice_water_content_nadir'
+                        ];
+
+                        var params2DOffNadir = [
+                            'layer_validity_flag_off_nadir',
+                            //'layer_pressure_off_nadir',
+                            'layer_temperature_off_nadir',
+                            'layer_wind_component_u_off_nadir',
+                            'layer_wind_component_v_off_nadir',
+                            'layer_rel_humidity_off_nadir',
+                            'layer_spec_humidity_off_nadir',
+                            'layer_cloud_cover_off_nadir',
+                            'layer_cloud_liquid_water_content_off_nadir',
+                            'layer_cloud_ice_water_content_off_nadir'
+                        ];
+                        var contains2DNadir = false;
+                        var contains2DOffNadir = false;
+                        var param2D = null;
+                        
+                        for (var i = 0; i < this.currentKeys.length; i++) {
+                            if(params2DNadir.indexOf(this.currentKeys[i]) !== -1){
+                                contains2DNadir = true;
+                                param2D = this.currentKeys[i];
+                            }
+                            if(params2DOffNadir.indexOf(this.currentKeys[i]) !== -1){
+                                contains2DOffNadir = true;
+                                param2D = this.currentKeys[i];
+                            }
+                        }
+
+                        if(contains2DNadir){
+                            this.graph1.renderSettings = {
+                                xAxis: 'time_nadir_combined',
+                                yAxis: ['layer_altitude_nadir'],
+                                additionalXTicks: [],
+                                additionalYTicks: [],
+                                colorAxis: [ param2D ],
+                                combinedParameters: {
+                                    time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
+                                    layer_altitude_nadir: ['layer_altitude_nadir_end', 'layer_altitude_nadir_start']
+                                },
+                            };
+                        } else {
+                            this.graph1.renderSettings = this.renderSettings[(idKeys[0]+'_nadir')];
+                        }
+
+                        if(contains2DOffNadir){
+                            this.graph2.renderSettings = {
+                                xAxis: 'time_off_nadir_combined',
+                                yAxis: ['layer_altitude_off_nadir'],
+                                additionalXTicks: [],
+                                additionalYTicks: [],
+                                colorAxis: [ param2D ],
+                                combinedParameters: {
+                                    time_off_nadir_combined: ['time_off_nadir_start', 'time_off_nadir_end'],
+                                    layer_altitude_off_nadir: ['layer_altitude_off_nadir_end', 'layer_altitude_off_nadir_start']
+                                },
+                            };
+                        } else {
+                            this.graph2.renderSettings = this.renderSettings[(idKeys[0]+'_off_nadir')];
+                        }
+
+                        
                         $('#graph_2').show();
                         $('#graph_1').css('height', '49%');
                         $('#graph_2').css('height', '49%');

@@ -4,7 +4,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
 
     var swarm_model = Backbone.Model.extend({data:[]});
     return {
-        version: "1.1",
+        version: '1.1',
         objects: new ObjectStore(),
         selections: new ObjectStore(),
         baseLayers: new Backbone.Collection(),
@@ -22,8 +22,6 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 colorscale: 'viridis',
                 extent: [-40,40]
             },
-
-
             'time_start': {
                 scaleFormat: 'time',
                 timeFormat: 'MJD2000_S'
@@ -38,18 +36,18 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 extent: [-20,20]
             },
             'altitude':{
-                name: 'altitude',
+
                 uom: 'm'
             },
 
             'mie_signal_intensity': {
-                uom: "ACCD counts"
+                uom: 'ACCD counts'
             },
             'rayleigh_signal_channel_A_intensity': {
-                uom: "ACCD counts"
+                uom: 'ACCD counts'
             },
             'rayleigh_signal_channel_B_intensity': {
-                uom: "ACCD counts"
+                uom: 'ACCD counts'
             },
             // L2A
 
@@ -82,23 +80,23 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 timeFormat: 'MJD2000_S'
             },
             'mie_altitude_obs':{
-                name: 'mie altitude',
+
                 uom: 'm'
             },
             'rayleigh_altitude_obs':{
-                name: 'rayleigh altitude',
+
                 uom: 'm'
             },
             'longitude_of_DEM_intersection_obs':{
-                name: 'longitude',
+
                 uom: 'deg'
             },
              'latitude_of_DEM_intersection_obs':{
-                name: 'altitude',
+
                 uom: 'deg'
             },
              'altitude_of_DEM_intersection_obs':{
-                name: 'altitude',
+
                 uom: 'm'
             },
 
@@ -120,8 +118,6 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 scaleFormat: 'time',
                 timeFormat: 'MJD2000_S'
             },
-
-
             // L2B, L2C
 
             'mie_wind_result_SNR':{
@@ -179,15 +175,13 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 extent: [-20,20]
             },
             'rayleigh_wind_result_bottom_altitude':{
-                name: 'altitude',
+
                 uom: 'm'
             },
             'rayleigh_wind_result_top_altitude':{
-                name: 'altitude',
+
                 uom: 'm'
             },
-
-
 
             'mie_wind_result_start_time': {
                 scaleFormat: 'time',
@@ -203,11 +197,11 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 extent: [-20,20]
             },
             'mie_wind_result_bottom_altitude':{
-                name: 'altitude',
+
                 uom: 'm'
             },
             'mie_wind_result_top_altitude':{
-                name: 'altitude',
+
                 uom: 'm'
             },
 
@@ -216,19 +210,19 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 extent: [0, 1],
                 uom: 'bool',
                 colorscale: 'redblue',
-                name: 'Frequency Valid'
+
             },
             'reference_pulse_response_valid': {
                 range: [0, 1],
                 uom: 'bool',
                 colorscale: 'redblue',
-                name: 'Reference Pulse Response Valid'
+
             },
             'measurement_response_valid': {
                 range: [0, 1],
                 uom: 'bool',
                 colorscale: 'redblue',
-                name: 'Measurement Response Valid'
+
             },
             'lat_of_DEM_intersection': {
                 uom: 'deg'
@@ -248,13 +242,13 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 extent: [0, 1],
                 uom: 'bool',
                 colorscale: 'redblue',
-                name: 'Ground Frequency Valid'
+
             },
             'ground_measurement_response_valid': {
                 extent: [0, 1],
                 uom: 'bool',
                 colorscale: 'redblue',
-                name: 'Ground Measurement Response Valid'
+
             },
             'measurement_error_rayleigh_response': {
                 uom: 'a.u.',
@@ -282,13 +276,13 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             // AUX IRC
             'rayleigh_channel_A_response':{
                 uom: 'a.u.',
-                displayName: 'Channel A',
+
                 symbol: 'circle_empty',
                 lineConnect: true
             },
             'rayleigh_channel_B_response':{
                 uom: 'a.u.',
-                displayName: 'Channel B',
+
                 symbol: 'rectangle_empty',
                 lineConnect: true
             },
@@ -313,8 +307,6 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 uom: 'ACCD pixel index'
             },
             
-
-
             // AUX ZWC
             'mie_ground_correction_velocity': {
                 selected: true,
@@ -323,7 +315,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 colorscale: 'redblue',
                 symbol: 'x',
                 lineConnect: true,
-                name: 'Mie Ground Correction Velocity'
+
             },
             'rayleigh_ground_correction_velocity': {
                 selected: true,
@@ -332,7 +324,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 colorscale: 'redblue',
                 symbol: 'triangle_empty',
                 lineConnect: true,
-                name: 'Rayleigh Ground Correction Velocity'
+
             },
             'mie_avg_ground_echo_bin_thickness_above_DEM':{
                 uom: 'm',
@@ -341,9 +333,23 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 uom: 'm',
 
             },
-
-
             // AUX MET
+            'time_nadir_start': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'time_nadir_end': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'time_off_nadir_start': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'time_off_nadir_end': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
             'time_off_nadir': {
                 scaleFormat: 'time',
                 timeFormat: 'MJD2000_S'
@@ -373,6 +379,67 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 uom: 'm',
             }, 'surface_altitude_nadir':{
                 uom: 'm',
+            },
+
+            'layer_validity_flag_off_nadir': {
+                uom: null,
+            },
+            'layer_validity_flag_nadir': {
+                uom: null,
+            },
+            'layer_pressure_off_nadir': {
+                uom: null,
+            },
+            'layer_pressure_nadir': {
+                uom: null,
+            },
+            'layer_temperature_off_nadir': {
+                uom: null,
+            },
+            'layer_temperature_nadir': {
+                uom: null,
+            },
+            'layer_wind_component_u_off_nadir': {
+                uom: null,
+            },
+            'layer_wind_component_u_nadir': {
+                uom: null,
+            },
+            'layer_wind_component_v_off_nadir': {
+                uom: null,
+            },
+            'layer_wind_component_v_nadir': {
+                uom: null,
+            },
+            'layer_rel_humidity_off_nadir': {
+                uom: null,
+            },
+            'layer_rel_humidity_nadir': {
+                uom: null,
+            },
+            'layer_spec_humidity_off_nadir': {
+                uom: null,
+            },
+            'layer_spec_humidity_nadir': {
+                uom: null,
+            },
+            'layer_cloud_cover_off_nadir': {
+                uom: null,
+            },
+            'layer_cloud_cover_nadir': {
+                uom: null,
+            },
+            'layer_cloud_liquid_water_content_off_nadir': {
+                uom: null,
+            },
+            'layer_cloud_liquid_water_content_nadir': {
+                uom: null,
+            },
+            'layer_cloud_ice_water_content_off_nadir': {
+                uom: null,
+            },
+            'layer_cloud_ice_water_content_nadir': {
+                uom: null,
             }
         }
     };
