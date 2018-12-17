@@ -1514,12 +1514,14 @@
           var parameter2Dselected = false;
 
           if(params2DNadir.indexOf(selectedParameter) !== -1){
+            options['fields'] = ['time_nadir', 'latitude_nadir', 'longitude_nadir'];
             options['fields'].push(selectedParameter);
             options['fields'].push('layer_altitude_nadir');
             parameter2Dselected = true;
           }
 
           if(params2DOffNadir.indexOf(selectedParameter) !== -1){
+            options['fields'] = ['time_off_nadir', 'latitude_off_nadir', 'longitude_off_nadir'];
             options['fields'].push(selectedParameter);
             options['fields'].push('layer_altitude_off_nadir');
             parameter2Dselected = true;
@@ -1553,8 +1555,8 @@
             if(scaleFactor>0.8){
               scaleFactor = 1.0;
             }
-            if(scaleFactor<=0){
-              scaleFactor = 0.1;
+            if(scaleFactor<=0.2){
+              scaleFactor = 0.2;
             }
           }
 
@@ -2150,51 +2152,56 @@
 
                     var jumpPos = [];
                     var signCross = [];
-                    for (var i = 1; i < resData.latitude_nadir.length; i++) {
-                      var latdiff = Math.abs(
-                        resData.latitude_nadir[i-1]-
-                        resData.latitude_nadir[i]
-                      );
-                      var londiff = Math.abs(
-                        resData.longitude_nadir[i-1]-
-                        resData.longitude_nadir[i]
-                      ); 
 
-                      if (latdiff >= latStep) {
-                        signCross.push(latdiff>160);
-                        jumpPos.push(i);
-                      }else if (londiff >= lonStep) {
-                        signCross.push(londiff>340);
-                        jumpPos.push(i);
+                    if(resData.hasOwnProperty('latitude_nadir')){
+                      for (var i = 1; i < resData.latitude_nadir.length; i++) {
+                        var latdiff = Math.abs(
+                          resData.latitude_nadir[i-1]-
+                          resData.latitude_nadir[i]
+                        );
+                        var londiff = Math.abs(
+                          resData.longitude_nadir[i-1]-
+                          resData.longitude_nadir[i]
+                        ); 
+
+                        if (latdiff >= latStep) {
+                          signCross.push(latdiff>160);
+                          jumpPos.push(i);
+                        }else if (londiff >= lonStep) {
+                          signCross.push(londiff>340);
+                          jumpPos.push(i);
+                        }
                       }
+
+                      resData['nadir_jumps'] = jumpPos;
+                      resData['nadirSignCross'] = signCross;
                     }
 
-                    resData['nadir_jumps'] = jumpPos;
-                    resData['nadirSignCross'] = signCross;
+                    if(resData.hasOwnProperty('latitude_off_nadir')){
+                      jumpPos = [];
+                      signCross = [];
+                      for (var i = 1; i < resData.latitude_off_nadir.length; i++) {
+                        latdiff = Math.abs(
+                          resData.latitude_off_nadir[i-1]-
+                          resData.latitude_off_nadir[i]
+                        );
+                        londiff = Math.abs(
+                          resData.longitude_off_nadir[i-1]-
+                          resData.longitude_off_nadir[i]
+                        ); 
 
-                    jumpPos = [];
-                    signCross = [];
-                    for (var i = 1; i < resData.latitude_off_nadir.length; i++) {
-                      latdiff = Math.abs(
-                        resData.latitude_off_nadir[i-1]-
-                        resData.latitude_off_nadir[i]
-                      );
-                      londiff = Math.abs(
-                        resData.longitude_nadir[i-1]-
-                        resData.longitude_nadir[i]
-                      ); 
-
-                      if (latdiff >= latStep) {
-                        signCross.push(latdiff>160);
-                        jumpPos.push(i);
-                      }else if (londiff >= lonStep) {
-                        signCross.push(londiff>340);
-                        jumpPos.push(i);
+                        if (latdiff >= latStep) {
+                          signCross.push(latdiff>160);
+                          jumpPos.push(i);
+                        }else if (londiff >= lonStep) {
+                          signCross.push(londiff>340);
+                          jumpPos.push(i);
+                        }
                       }
-                    }
 
-                    resData['off_nadir_jumps'] = jumpPos;
-                    resData['off_nadirSignCross'] = signCross;
+                      resData['off_nadir_jumps'] = jumpPos;
+                      resData['off_nadirSignCross'] = signCross;
+                    }
 
 
                   } else if(collectionId === 'ALD_U_N_2A'){

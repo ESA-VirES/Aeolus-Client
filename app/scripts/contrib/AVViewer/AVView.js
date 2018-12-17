@@ -236,8 +236,27 @@ define(['backbone.marionette',
                     'surface_wind_component_v_off_nadir',
                     'surface_wind_component_v_nadir',
                     'surface_pressure_off_nadir','surface_pressure_nadir',
-                    'surface_altitude_off_nadir', 'surface_altitude_nadir'
-                ]
+                    'surface_altitude_off_nadir', 'surface_altitude_nadir',
+                    // AUX MET 2D
+                    'layer_validity_flag_nadir',
+                    'layer_temperature_nadir',
+                    'layer_wind_component_u_nadir',
+                    'layer_wind_component_v_nadir',
+                    'layer_rel_humidity_nadir',
+                    'layer_spec_humidity_nadir',
+                    'layer_cloud_cover_nadir',
+                    'layer_cloud_liquid_water_content_nadir',
+                    'layer_cloud_ice_water_content_nadir',
+                    'layer_validity_flag_off_nadir',
+                    'layer_temperature_off_nadir',
+                    'layer_wind_component_u_off_nadir',
+                    'layer_wind_component_v_off_nadir',
+                    'layer_rel_humidity_off_nadir',
+                    'layer_spec_humidity_off_nadir',
+                    'layer_cloud_cover_off_nadir',
+                    'layer_cloud_liquid_water_content_off_nadir',
+                    'layer_cloud_ice_water_content_off_nadir'
+                ];
             }
 
             this.renderSettings = {
@@ -1133,6 +1152,7 @@ define(['backbone.marionette',
                         }
 
                         if(contains2DNadir){
+                            this.graph1.ignoreParameters = [/_off_nadir.*/, /jumps.*/, /SignCross.*/, 'time_nadir', 'latitude_nadir', 'longitude_nadir'];
                             this.graph1.renderSettings = {
                                 xAxis: 'time_nadir_combined',
                                 yAxis: ['layer_altitude_nadir'],
@@ -1149,7 +1169,8 @@ define(['backbone.marionette',
                         }
 
                         if(contains2DOffNadir){
-                            this.graph2.renderSettings = {
+                            this.graph1.ignoreParameters = [/^((?!_off_nadir).)*$/, /jumps.*/, /SignCross.*/, 'time_off_nadir', 'latitude_off_nadir', 'longitude_off_nadir'];
+                            this.graph1.renderSettings = {
                                 xAxis: 'time_off_nadir_combined',
                                 yAxis: ['layer_altitude_off_nadir'],
                                 additionalXTicks: [],
@@ -1164,23 +1185,35 @@ define(['backbone.marionette',
                             this.graph2.renderSettings = this.renderSettings[(idKeys[0]+'_off_nadir')];
                         }
 
-                        
-                        $('#graph_2').show();
-                        $('#graph_1').css('height', '49%');
-                        $('#graph_2').css('height', '49%');
-                        this.graph1.ignoreParameters = [/_off_nadir.*/];
-                        this.graph2.ignoreParameters = [/^((?!_off_nadir).)*$/];
+                        if(contains2DNadir || contains2DOffNadir) {
+                            this.graph1.connectGraph(false);
+                            this.graph2.connectGraph(false);
+                            $('#graph_2').hide();
+                            $('#graph_1').css('height', '99%');
+                            this.graph1.dataSettings = mergedDataSettings;
+                            this.graph2.dataSettings = mergedDataSettings;
+                            this.graph1.loadData(data[idKeys[0]]);
+                            this.graph1.fileSaveString = idKeys[0]+'_top';
+                            this.filterManager.loadData(data[idKeys[0]]);
+                        } else {
+                            $('#graph_2').show();
+                            $('#graph_1').css('height', '49%');
+                            $('#graph_2').css('height', '49%');
+                            this.graph1.ignoreParameters = [/_off_nadir.*/, /jumps.*/, /_start.*/, /_end.*/, /SignCross.*/];
+                            this.graph2.ignoreParameters = [/^((?!_off_nadir).)*$/, /jumps.*/, /_start.*/, /_end.*/, /SignCross.*/];
+                            this.graph1.dataSettings = mergedDataSettings;
+                            this.graph2.dataSettings = mergedDataSettings;
+                            this.graph1.loadData(data[idKeys[0]]);
+                            this.graph2.loadData(data[idKeys[0]]);
+                            this.graph1.fileSaveString = idKeys[0]+'_top';
+                            this.graph2.fileSaveString = idKeys[0]+'_bottom';
+                            this.graph1.connectGraph(this.graph2);
+                            this.graph2.connectGraph(this.graph1);
+                            this.filterManager.loadData(data[idKeys[0]]);
+                        }
                         this.graph1.debounceActive = true;
-                        this.graph1.dataSettings = mergedDataSettings;
-                        this.graph2.dataSettings = mergedDataSettings;
                         this.graph2.debounceActive = true;
-                        this.graph1.loadData(data[idKeys[0]]);
-                        this.graph2.loadData(data[idKeys[0]]);
-                        this.graph1.fileSaveString = idKeys[0]+'_top';
-                        this.graph2.fileSaveString = idKeys[0]+'_bottom';
-                        this.graph1.connectGraph(this.graph2);
-                        this.graph2.connectGraph(this.graph1);
-                        this.filterManager.loadData(data[idKeys[0]]);
+
 
                     }else /*if(idKeys[0] === 'AUX_MRC_1B')*/{
                         this.graph2.data = {};
