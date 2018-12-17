@@ -1532,17 +1532,32 @@
             (this.selected_time.end.getTime() - 
             this.selected_time.start.getTime()) / (24*60*60*1000)
           );
-          if(scaleFactor>0.8){
-            scaleFactor = 1.0;
-          }
-          if(scaleFactor<=0){
-            scaleFactor = 0.1;
-          }
+          
           scaleFactor = Number(scaleFactor.toPrecision(3));
+
           if(parameter2Dselected){
-            scaleFactor = scaleFactor/4;
+
+            if(scaleFactor >= 0.98){
+              scaleFactor = 1.0;
+            } else if(scaleFactor >= 0.5){
+              scaleFactor = Math.pow(scaleFactor,5);
+            } else if(scaleFactor > 0.0){
+              scaleFactor = Math.pow(scaleFactor,3);
+            } 
+
+            if (scaleFactor <= 0.1){
+              scaleFactor = 0.1;
+            }
             scaleFactor = Number(scaleFactor.toPrecision(4));
+          } else {
+            if(scaleFactor>0.8){
+              scaleFactor = 1.0;
+            }
+            if(scaleFactor<=0){
+              scaleFactor = 0.1;
+            }
           }
+
           $('#topBar').append(
             '<div id="auxmetScalfactor">AUX_MET Scale factor: '+
             scaleFactor +
@@ -2129,6 +2144,58 @@
                         }
                       }
                     }
+
+                    var lonStep = 15;
+                    var latStep = 15;
+
+                    var jumpPos = [];
+                    var signCross = [];
+                    for (var i = 1; i < resData.latitude_nadir.length; i++) {
+                      var latdiff = Math.abs(
+                        resData.latitude_nadir[i-1]-
+                        resData.latitude_nadir[i]
+                      );
+                      var londiff = Math.abs(
+                        resData.longitude_nadir[i-1]-
+                        resData.longitude_nadir[i]
+                      ); 
+
+                      if (latdiff >= latStep) {
+                        signCross.push(latdiff>160);
+                        jumpPos.push(i);
+                      }else if (londiff >= lonStep) {
+                        signCross.push(londiff>340);
+                        jumpPos.push(i);
+                      }
+                    }
+
+                    resData['nadir_jumps'] = jumpPos;
+                    resData['nadirSignCross'] = signCross;
+
+                    jumpPos = [];
+                    signCross = [];
+                    for (var i = 1; i < resData.latitude_off_nadir.length; i++) {
+                      latdiff = Math.abs(
+                        resData.latitude_off_nadir[i-1]-
+                        resData.latitude_off_nadir[i]
+                      );
+                      londiff = Math.abs(
+                        resData.longitude_nadir[i-1]-
+                        resData.longitude_nadir[i]
+                      ); 
+
+                      if (latdiff >= latStep) {
+                        signCross.push(latdiff>160);
+                        jumpPos.push(i);
+                      }else if (londiff >= lonStep) {
+                        signCross.push(londiff>340);
+                        jumpPos.push(i);
+                      }
+                    }
+
+                    resData['off_nadir_jumps'] = jumpPos;
+                    resData['off_nadirSignCross'] = signCross;
+
 
                   } else if(collectionId === 'ALD_U_N_2A'){
 
