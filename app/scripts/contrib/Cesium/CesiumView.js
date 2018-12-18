@@ -1849,9 +1849,6 @@ define([
                     band = key;
                 }
             });
-            var style = parameters[band].colorscale;
-            var range = parameters[band].range;
-
 
             var AUXMET2D = [
                 'layer_validity_flag_nadir',
@@ -1901,8 +1898,9 @@ define([
                 return;
             }
 
-
             var pointCollection;
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
 
             if(currProd.hasOwnProperty('points')){
                 currProd.points.removeAll();
