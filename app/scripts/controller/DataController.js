@@ -103,16 +103,22 @@
                   'average_laser_energy', 'laser_frequency'
                 ],
                 [
+                  'time_off_nadir',
                   'surface_wind_component_u_off_nadir',
                   'surface_wind_component_v_off_nadir',
                   'surface_pressure_off_nadir',
-                  'surface_altitude_off_nadir'
+                  'surface_altitude_off_nadir',
+                  'latitude_nadir',
+                  'longitude_nadir'
                 ],
                 [
+                  'time_nadir',
                   'surface_wind_component_u_nadir',
                   'surface_wind_component_v_nadir',
                   'surface_pressure_nadir',
-                  'surface_altitude_nadir'
+                  'surface_altitude_nadir',
+                  'latitude_off_nadir',
+                  'longitude_off_nadir'
                 ],
                 [
                   'SCA_LOD_variance',
@@ -838,7 +844,8 @@
         var process = {
           collectionId: prodId,
           id: this.activeWPSproducts[prodId]
-        }
+        };
+        $('#auxmetScalfactor').remove();
 
         var product = globals.products.find(
             function(p){return p.get('download').id === process.collectionId;}
@@ -848,7 +855,6 @@
 
         var collectionId = product.get('download').id;
 
-        var parameters = '';
         var fieldsList = {
           'ALD_U_N_1B': {
             'observation_fields': [
@@ -1421,9 +1427,12 @@
             'surface_wind_component_v_off_nadir',
             'surface_wind_component_v_nadir',
             'surface_pressure_off_nadir','surface_pressure_nadir',
-            'surface_altitude_off_nadir', 'surface_altitude_nadir'
-            // TODO: 2D data is very big, how can we handle it?
-          ].join()
+            'surface_altitude_off_nadir', 'surface_altitude_nadir',
+            'latitude_nadir',
+            'longitude_nadir',
+            'latitude_off_nadir',
+            'longitude_off_nadir'
+          ]
 
         }
         
@@ -1459,8 +1468,108 @@
             options[fields] = fieldsList[collectionId][fields];
           }
         } else {
-          options["fields"] = fieldsList[collectionId];
+          options['fields'] = fieldsList[collectionId];
         }
+
+        // Add subsampling depending on selected time if AUX MET product selected
+        if(collectionId === 'AUX_MET_12'){
+          
+          // Seelct which fields are necessary based on parameter selected
+          // for product
+          var parameters = product.get('parameters');
+          var selectedParameter;
+          var keys = _.keys(parameters);
+          _.each(keys, function(key){
+              if(parameters[key].selected){
+                  selectedParameter = key;
+              }
+          });
+          
+          var params2DNadir = [
+            'layer_validity_flag_nadir',
+            //'layer_pressure_nadir',
+            'layer_temperature_nadir',
+            'layer_wind_component_u_nadir',
+            'layer_wind_component_v_nadir',
+            'layer_rel_humidity_nadir',
+            'layer_spec_humidity_nadir',
+            'layer_cloud_cover_nadir',
+            'layer_cloud_liquid_water_content_nadir',
+            'layer_cloud_ice_water_content_nadir'
+          ];
+
+          var params2DOffNadir = [
+            'layer_validity_flag_off_nadir',
+            //'layer_pressure_off_nadir',
+            'layer_temperature_off_nadir',
+            'layer_wind_component_u_off_nadir',
+            'layer_wind_component_v_off_nadir',
+            'layer_rel_humidity_off_nadir',
+            'layer_spec_humidity_off_nadir',
+            'layer_cloud_cover_off_nadir',
+            'layer_cloud_liquid_water_content_off_nadir',
+            'layer_cloud_ice_water_content_off_nadir'
+          ];
+
+          var parameter2Dselected = false;
+
+          if(params2DNadir.indexOf(selectedParameter) !== -1){
+            options['fields'] = ['time_nadir', 'latitude_nadir', 'longitude_nadir'];
+            options['fields'].push(selectedParameter);
+            options['fields'].push('layer_altitude_nadir');
+            parameter2Dselected = true;
+          }
+
+          if(params2DOffNadir.indexOf(selectedParameter) !== -1){
+            options['fields'] = ['time_off_nadir', 'latitude_off_nadir', 'longitude_off_nadir'];
+            options['fields'].push(selectedParameter);
+            options['fields'].push('layer_altitude_off_nadir');
+            parameter2Dselected = true;
+          }
+
+          options['fields'] = options['fields'].join();
+
+
+          var scaleFactor = 1.0 - (
+            (this.selected_time.end.getTime() - 
+            this.selected_time.start.getTime()) / (24*60*60*1000)
+          );
+          
+          scaleFactor = Number(scaleFactor.toPrecision(3));
+
+          if(parameter2Dselected){
+
+            if(scaleFactor >= 0.98){
+              scaleFactor = 1.0;
+            } else if(scaleFactor >= 0.5){
+              scaleFactor = Math.pow(scaleFactor,5);
+            } else if(scaleFactor > 0.0){
+              scaleFactor = Math.pow(scaleFactor,3);
+            } 
+
+            if (scaleFactor <= 0.1){
+              scaleFactor = 0.1;
+            }
+            scaleFactor = Number(scaleFactor.toPrecision(4));
+          } else {
+            if(scaleFactor>0.8){
+              scaleFactor = 1.0;
+            }
+            if(scaleFactor<=0.2){
+              scaleFactor = 0.2;
+            }
+          }
+
+          $('#topBar').append(
+            '<div id="auxmetScalfactor">AUX_MET Scale factor: '+
+            scaleFactor +
+            '</div>'
+          );
+
+          options.scalefactor = scaleFactor;
+        }
+
+
 
         options.mimeType = 'application/msgpack';
 
@@ -1974,7 +2083,126 @@
                     }
 
                   } else if(collectionId === 'AUX_MET_12'){
-                    resData = ds;
+
+                    var data2D = [
+                      'layer_temperature_nadir',
+                      'layer_validity_flag_nadir',
+                      'layer_wind_component_u_nadir',
+                      'layer_wind_component_v_nadir',
+                      'layer_rel_humidity_nadir',
+                      'layer_spec_humidity_nadir',
+                      'layer_cloud_cover_nadir',
+                      'layer_cloud_liquid_water_content_nadir',
+                      'layer_cloud_ice_water_content_nadir',
+                      
+                      'layer_temperature_off_nadir',
+                      'layer_validity_flag_off_nadir',
+                      'layer_wind_component_u_off_nadir',
+                      'layer_wind_component_v_off_nadir',
+                      'layer_rel_humidity_off_nadir',
+                      'layer_spec_humidity_off_nadir',
+                      'layer_cloud_cover_off_nadir',
+                      'layer_cloud_liquid_water_content_off_nadir',
+                      'layer_cloud_ice_water_content_off_nadir'
+                    ];
+
+                    var startEndData = [
+                      'layer_altitude_nadir',
+                      'layer_altitude_off_nadir',
+                      //'layer_pressure_nadir',
+                      //'layer_pressure_off_nadir',
+
+                    ];
+
+                    var ySize = 137;
+                    for (var key in ds) {
+                      if( data2D.indexOf(key) !== -1 ){
+                        resData[key] = [];
+                        for (var x = 0; x < ds[key].length-1; x++) {
+                          for (var y = 0; y < ds[key][x].length-1; y++) {
+                            resData[key].push(ds[key][x][y]);
+                          }
+                        }
+                      } else if ( startEndData.indexOf(key) !== -1) {
+                        resData[key+'_start'] = [];
+                        resData[key+'_end'] = [];
+                        for (var x = 0; x < ds[key].length-1; x++) {
+                          for (var y = 0; y < ds[key][x].length-1; y++) {
+                            resData[key+'_start'].push(ds[key][x][y]);
+                            resData[key+'_end'].push(ds[key][x][y+1]);
+                          }
+                        }
+                      } else {
+                        resData[key] = ds[key];
+                        if(key === 'time_nadir' || key === 'time_off_nadir'){
+                          resData[key+'_start'] = [];
+                          resData[key+'_end'] = [];
+                          for (var x = 0; x < ds[key].length-1; x++) {
+                            for (var y = 0; y < ySize-1; y++) {
+                              resData[key+'_start'].push(ds[key][x]);
+                              resData[key+'_end'].push(ds[key][x+1]);
+                            }
+                          }
+                        }
+                      }
+                    }
+
+                    var lonStep = 15;
+                    var latStep = 15;
+
+                    var jumpPos = [];
+                    var signCross = [];
+
+                    if(resData.hasOwnProperty('latitude_nadir')){
+                      for (var i = 1; i < resData.latitude_nadir.length; i++) {
+                        var latdiff = Math.abs(
+                          resData.latitude_nadir[i-1]-
+                          resData.latitude_nadir[i]
+                        );
+                        var londiff = Math.abs(
+                          resData.longitude_nadir[i-1]-
+                          resData.longitude_nadir[i]
+                        ); 
+
+                        if (latdiff >= latStep) {
+                          signCross.push(latdiff>160);
+                          jumpPos.push(i);
+                        }else if (londiff >= lonStep) {
+                          signCross.push(londiff>340);
+                          jumpPos.push(i);
+                        }
+                      }
+
+                      resData['nadir_jumps'] = jumpPos;
+                      resData['nadirSignCross'] = signCross;
+                    }
+
+                    if(resData.hasOwnProperty('latitude_off_nadir')){
+                      jumpPos = [];
+                      signCross = [];
+                      for (var i = 1; i < resData.latitude_off_nadir.length; i++) {
+                        latdiff = Math.abs(
+                          resData.latitude_off_nadir[i-1]-
+                          resData.latitude_off_nadir[i]
+                        );
+                        londiff = Math.abs(
+                          resData.longitude_off_nadir[i-1]-
+                          resData.longitude_off_nadir[i]
+                        ); 
+
+                        if (latdiff >= latStep) {
+                          signCross.push(latdiff>160);
+                          jumpPos.push(i);
+                        }else if (londiff >= lonStep) {
+                          signCross.push(londiff>340);
+                          jumpPos.push(i);
+                        }
+                      }
+
+                      resData['off_nadir_jumps'] = jumpPos;
+                      resData['off_nadirSignCross'] = signCross;
+                    }
+
 
                   } else if(collectionId === 'ALD_U_N_2A'){
 

@@ -197,6 +197,12 @@ var VECTOR_BREAKDOWN = {};
                         }
                         // Make sure process id is also always downloaded from config
                         product_config[i].process = m_p[i].process;
+
+                        // Make sure aux met parameters are up to date
+                        if(product_config[i].download.id === 'AUX_MET_12' && 
+                          !product_config[i].parameters.hasOwnProperty('layer_temperature_off_nadir')){
+                            product_config[i].parameters = m_p[i].parameters;
+                        }
                     }
 
 

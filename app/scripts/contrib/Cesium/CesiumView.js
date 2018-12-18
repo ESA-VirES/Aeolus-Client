@@ -1036,7 +1036,48 @@ define([
                 }
             };
 
-            var currPar = params[cov_id][band];
+            var currPar;
+            var modifier = 1;
+
+            if(cov_id === 'AUX_MET_12'){
+                modifier = 0;
+                if(band.indexOf('off_nadir') !== -1){
+                    currPar = {
+                        lats: 'latitude_off_nadir',
+                        lons: 'longitude_off_nadir',
+                        timeStart: 'time_off_nadir',
+                        timeStop: 'time_off_nadir',
+                        colorAxis: [band],
+                        xAxis:'time_off_nadir_combined',
+                        yAxis: ['layer_altitude_off_nadir'],
+                        combinedParameters: {
+                            time_off_nadir_combined: ['time_off_nadir_start', 'time_off_nadir_end'],
+                            layer_altitude_off_nadir: ['layer_altitude_off_nadir_end', 'layer_altitude_off_nadir_start']
+                        },
+                        jumps: 'off_nadir_jumps',
+                        signCross: 'off_nadirSignCross'
+                    };
+                } else {
+                    currPar = {
+                        lats: 'latitude_nadir',
+                        lons: 'longitude_nadir',
+                        timeStart: 'time_nadir',
+                        timeStop: 'time_nadir',
+                        colorAxis: [band],
+                        xAxis:'time_nadir_combined',
+                        yAxis: ['layer_altitude_nadir'],
+                        combinedParameters: {
+                            time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
+                            layer_altitude_nadir: ['layer_altitude_nadir_end', 'layer_altitude_nadir_start']
+                        },
+                        jumps: 'nadir_jumps',
+                        signCross: 'nadirSignCross'
+                    };
+                }
+            } else {
+                currPar = params[cov_id][band];
+            }
+
             this.graph.renderSettings.combinedParameters = currPar.combinedParameters;
             this.graph.renderSettings.colorAxis = currPar.colorAxis;
             this.graph.renderSettings.yAxis = currPar.yAxis;
@@ -1044,6 +1085,8 @@ define([
             dataJumps = data[currPar.jumps];
             lats = data[currPar.lats];
             lons = data[currPar.lons];
+            //pStartTimes = data[currPar.timeStart];
+            //pStopTimes = data[currPar.timeStop];
             pStartTimes = data[currPar.timeStart];
             pStopTimes = data[currPar.timeStop];
             signCross = data[currPar.signCross];
@@ -1071,7 +1114,7 @@ define([
                         }
                     }
                     if(jIdx<dataJumps.length){
-                        endSlice = dataJumps[jIdx]-1;
+                        endSlice = dataJumps[jIdx]-modifier;
                     }else{
                         endSlice = lats.length-1;
                     }
@@ -1795,29 +1838,71 @@ define([
 
         createPointCollection: function(data, cov_id, alpha, height){
 
-            if(!data.hasOwnProperty('lon_of_DEM_intersection')){
+            var currProd = globals.products.find(
+                function(p){return p.get('download').id === cov_id;}
+            );
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
+            var style = parameters[band].colorscale;
+            var range = parameters[band].range;
+
+
+            var AUXMET2D = [
+                'layer_validity_flag_nadir',
+                //'layer_pressure_nadir',
+                'layer_temperature_nadir',
+                'layer_wind_component_u_nadir',
+                'layer_wind_component_v_nadir',
+                'layer_rel_humidity_nadir',
+                'layer_spec_humidity_nadir',
+                'layer_cloud_cover_nadir',
+                'layer_cloud_liquid_water_content_nadir',
+            
+                'layer_validity_flag_off_nadir',
+                //'layer_pressure_off_nadir',
+                'layer_temperature_off_nadir',
+                'layer_wind_component_u_off_nadir',
+                'layer_wind_component_v_off_nadir',
+                'layer_rel_humidity_off_nadir',
+                'layer_spec_humidity_off_nadir',
+                'layer_cloud_cover_off_nadir',
+                'layer_cloud_liquid_water_content_off_nadir',
+                'layer_cloud_ice_water_content_off_nadir'
+            ];
+            // If selected parameter is from AUX MET and 2D we need to create
+            // a curtain isntead of points
+            if(cov_id === 'AUX_MET_12' && AUXMET2D.indexOf(band)!==-1 ){
+                this.createL2Curtains(data, cov_id);
+                return;
+            } 
+            var latPar, lonPar;
+            if (cov_id === 'AUX_MET_12'){
+                if(band.indexOf('_off_nadir') !== -1){
+                    latPar = 'latitude_off_nadir';
+                    lonPar = 'longitude_off_nadir';
+                } else {
+                    latPar = 'latitude_nadir';
+                    lonPar = 'longitude_nadir';
+                }
+            } else {
+                latPar = 'lat_of_DEM_intersection';
+                lonPar = 'lon_of_DEM_intersection';
+            }
+
+            if(!data.hasOwnProperty(latPar) || !data.hasOwnProperty(lonPar) ){
                 // If data does not have required position information
                 // do not try to render it
                 return;
             }
 
-            var currProd = globals.products.find(
-                function(p){return p.get('download').id === cov_id;}
-            );
 
             var pointCollection;
-
-            if(!this.map.scene.context._gl.getExtension('EXT_frag_depth')){
-                pointCollection._rs = 
-                    Cesium.RenderState.fromCache({
-                        depthTest : {
-                            enabled : true,
-                            func : Cesium.DepthFunction.LESS
-                        },
-                        depthMask : false,
-                        blending : Cesium.BlendingState.ALPHA_BLEND
-                    });
-            }
 
             if(currProd.hasOwnProperty('points')){
                 currProd.points.removeAll();
@@ -1831,17 +1916,19 @@ define([
                 currProd.points = pointCollection;
             }
 
+            if(!this.map.scene.context._gl.getExtension('EXT_frag_depth')){
+                pointCollection._rs = 
+                    Cesium.RenderState.fromCache({
+                        depthTest : {
+                            enabled : true,
+                            func : Cesium.DepthFunction.LESS
+                        },
+                        depthMask : false,
+                        blending : Cesium.BlendingState.ALPHA_BLEND
+                    });
+            }
 
-            var parameters = currProd.get('parameters');
-            var band;
-            var keys = _.keys(parameters);
-            _.each(keys, function(key){
-                if(parameters[key].selected){
-                    band = key;
-                }
-            });
-            var style = parameters[band].colorscale;
-            var range = parameters[band].range;
+
 
             alpha = currProd.get('opacity');
 
@@ -1877,14 +1964,14 @@ define([
                     continue;
                 }
 
-                positions.push(data['lon_of_DEM_intersection'][i]+1);
-                positions.push(data['lat_of_DEM_intersection'][i]);
+                positions.push(data[lonPar][i]+1);
+                positions.push(data[latPar][i]);
 
                 var color = this.plot.getColor(data[band][i]);
                 var options = {
                     position : new Cesium.Cartesian3.fromDegrees(
-                        data['lon_of_DEM_intersection'][i],
-                        data['lat_of_DEM_intersection'][i]/*,
+                        data[lonPar][i],
+                        data[latPar][i]/*,
                         height*/
                     ),
                     color : new Cesium.Color.fromBytes(

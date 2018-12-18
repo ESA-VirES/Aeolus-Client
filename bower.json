@@ -21,7 +21,7 @@
     "bootstrap": "~3.0.1",
     "font-awesome": "~4.5.0",
     "d3.Graphs": "ESA-VirES/AnalyticsViewer#~0.4.17",
-    "cesium": "https://github.com/AnalyticalGraphicsInc/cesium/releases/download/1.39/Cesium-1.39.zip",
+    "cesium": "https://github.com/AnalyticalGraphicsInc/cesium/releases/download/1.20/Cesium-1.20.zip",
     "papaparse": "~4.1.0",
     "plotty": "santilland/plotty#^0.1.1",
     "jqueryui-touch-punch": "*",

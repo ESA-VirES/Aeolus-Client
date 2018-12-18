@@ -70,7 +70,7 @@
             'AUX_RRC_1B': 'aeolus:level1B:AUX:RRC',
             'AUX_ISR_1B': 'aeolus:level1B:AUX:ISR',
             'AUX_ZWC_1B': 'aeolus:level1B:AUX:ZWC',
-            'AUX_MET_12': 'aeolus:level1B:AUX:MET'
+            'AUX_MET_12': 'aeolus:AUX:MET'
           };
           options.processId = pid[di.Products];
           var req_data = wps_fetchFilteredDataAsync(options);
@@ -1301,8 +1301,28 @@
               'surface_wind_component_v_off_nadir',
               'surface_wind_component_v_nadir',
               'surface_pressure_off_nadir','surface_pressure_nadir',
-              'surface_altitude_off_nadir', 'surface_altitude_nadir'
-              // TODO: 2D data is very big, how can we handle it?
+              'surface_altitude_off_nadir', 'surface_altitude_nadir',
+              // 2D data
+              'layer_validity_flag_nadir',
+              'layer_pressure_nadir',
+              'layer_temperature_nadir',
+              'layer_wind_component_u_nadir',
+              'layer_wind_component_v_nadir',
+              'layer_rel_humidity_nadir',
+              'layer_spec_humidity_nadir',
+              'layer_cloud_cover_nadir',
+              'layer_cloud_liquid_water_content_nadir',
+              'layer_cloud_ice_water_content_nadir',
+              'layer_validity_flag_off_nadir',
+              'layer_pressure_off_nadir',
+              'layer_temperature_off_nadir',
+              'layer_wind_component_u_off_nadir',
+              'layer_wind_component_v_off_nadir',
+              'layer_rel_humidity_off_nadir',
+              'layer_spec_humidity_off_nadir',
+              'layer_cloud_cover_off_nadir',
+              'layer_cloud_liquid_water_content_off_nadir',
+              'layer_cloud_ice_water_content_off_nadir'
             ]
 
           };

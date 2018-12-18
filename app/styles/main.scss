@@ -507,3 +507,13 @@ button[active=active] {
   padding-top: 0.8em!important;
   font-size: 1.2em!important;
 }
+
+
+#auxmetScalfactor{
+  font-size: 0.9em;
+  color: white;
+  position: absolute;
+  top:18px;
+  left: 10px;
+  z-index: 1030;
+}
