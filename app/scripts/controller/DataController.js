@@ -1623,6 +1623,7 @@
                   var mieOrigLength = 0;
                   var rayleighUserLength = 0;
                   var rayleighOrigLength = 0;
+                  var mieDiffVars, rayleighDiffVars;
 
                   if(typeof USERVARIABLE !== 'undefined'){
                     var userCollId = 'user_collection_'+ USERVARIABLE;
@@ -1639,13 +1640,13 @@
                       } else if(!$.isEmptyObject(data[userCollId][dataGranularity])){
 
                         // Only create these groups if userdata contains any data
-                        var mieDiffVars = [
+                        mieDiffVars = [
                           'mie_HLOS_wind_speed', 'mie_signal_intensity',
                           'mie_scattering_ratio', 'mie_SNR', 'mie_error_quantifier', 
                           'mie_mean_emitted_frequency', 'mie_emitted_frequency_std_dev'
                         ];
 
-                        var rayleighDiffVars = [
+                        rayleighDiffVars = [
                           'rayleigh_HLOS_wind_speed', 'rayleigh_signal_channel_A_intensity',
                           'rayleigh_signal_channel_B_intensity', 
                           'rayleigh_total_ZWC',
@@ -1791,9 +1792,11 @@
                     'mie_mean_emitted_frequency', 'mie_emitted_frequency_std_dev'
                   ];
 
-                  for (var i = 0; i < mieDiffVars.length; i++) {
-                    mieVars.push(mieDiffVars[i]+'_user');
-                    mieVars.push(mieDiffVars[i]+'_diff');
+                  if(mieDiffVars){
+                    for (var i = 0; i < mieDiffVars.length; i++) {
+                      mieVars.push(mieDiffVars[i]+'_user');
+                      mieVars.push(mieDiffVars[i]+'_diff');
+                    }
                   }
 
                   var rayleighVars = [
@@ -1808,9 +1811,11 @@
                     'rayleigh_mean_emitted_frequency', 'rayleigh_emitted_frequency_std_dev'
                   ];
 
-                  for (var i = 0; i < rayleighDiffVars.length; i++) {
-                    rayleighVars.push(mieDiffVars[i]+'_user');
-                    rayleighVars.push(mieDiffVars[i]+'_diff');
+                  if(rayleighDiffVars){
+                    for (var i = 0; i < rayleighDiffVars.length; i++) {
+                      rayleighVars.push(mieDiffVars[i]+'_user');
+                      rayleighVars.push(mieDiffVars[i]+'_diff');
+                    }
                   }
 
                   var startEndVars = [
