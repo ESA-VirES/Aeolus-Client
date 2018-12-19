@@ -53,7 +53,21 @@ var VECTOR_BREAKDOWN = {};
                     server: 'upload/',
                     onprocessfile: function(error, file){
                         window.setTimeout(
-                            function(){Communicator.mediator.trigger('user:collection:change');},
+                            function(){
+                                Communicator.mediator.trigger('user:collection:change');
+                                globals.products.each(function(prod){
+                                    if(prod.get('visible')){
+                                        var options = { 
+                                            name: prod.get('name'),
+                                            isBaseLayer: false,
+                                            visible: false
+                                        };
+                                        Communicator.mediator.trigger('map:layer:change', options);
+                                        options.visible = true;
+                                        Communicator.mediator.trigger('map:layer:change', options);
+                                    }
+                                });
+                            },
                             1000
                         );
                     }
