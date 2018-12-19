@@ -1436,7 +1436,7 @@
 
         }
         
-        //var USERVARIABLE = 'admin';
+        var USERVARIABLE = 'admin';
 
         var collections = [collectionId];
         if(typeof USERVARIABLE !== 'undefined'){
@@ -1639,56 +1639,39 @@
 
 
                       } else if(!$.isEmptyObject(data[userCollId][dataGranularity])){
+
                         // Only create these groups if userdata contains any data
+                        var mieDiffVars = [
+                          'mie_HLOS_wind_speed', 'mie_signal_intensity',
+                          'mie_scattering_ratio', 'mie_SNR', 'mie_error_quantifier', 
+                          'mie_mean_emitted_frequency', 'mie_emitted_frequency_std_dev'
+                        ];
 
-                        // Check for mie and rayleigh length
-                        var tmpArray = [];
-                        if(ds.hasOwnProperty('mie_HLOS_wind_speed')){
-                          ds['mie_origin'] = [];
-                          for (var i = 0; i < ds.mie_HLOS_wind_speed.length; i++) {
-                            tmpArray = [];
-                            for (var j = 0; j < ds.mie_HLOS_wind_speed[i].length; j++) {
-                              tmpArray.push('original');
-                            }
-                            ds['mie_origin'].push(tmpArray);
-                          }
-                        }
-                        if(ds.hasOwnProperty('rayleigh_HLOS_wind_speed')){
-                          ds['rayleigh_origin'] = [];
-                          for (var i = 0; i < ds.rayleigh_HLOS_wind_speed.length; i++) {
-                            tmpArray = [];
-                            for (var j = 0; j < ds.rayleigh_HLOS_wind_speed[i].length; j++) {
-                              tmpArray.push('original');
-                            }
-                            ds['rayleigh_origin'].push(tmpArray);
-                          }
-                        }
-                        if(data[userCollId][dataGranularity].hasOwnProperty('mie_HLOS_wind_speed')){
-                          data[userCollId][dataGranularity]['mie_origin'] = [];
-                          for (var i = 0; i < data[userCollId][dataGranularity].mie_HLOS_wind_speed.length; i++) {
-                            tmpArray = [];
-                            for (var j = 0; j < data[userCollId][dataGranularity].mie_HLOS_wind_speed[i].length; j++) {
-                              tmpArray.push('user_upload');
-                            }
-                            data[userCollId][dataGranularity]['mie_origin'].push(tmpArray);
-                          }
-                        }
-                        if(data[userCollId][dataGranularity].hasOwnProperty('rayleigh_HLOS_wind_speed')){
-                          data[userCollId][dataGranularity]['rayleigh_origin'] = [];
-                          for (var i = 0; i < data[userCollId][dataGranularity].rayleigh_HLOS_wind_speed.length; i++) {
-                            tmpArray = [];
-                            for (var j = 0; j < data[userCollId][dataGranularity].rayleigh_HLOS_wind_speed[i].length; j++) {
-                              tmpArray.push('user_upload');
-                            }
-                            data[userCollId][dataGranularity]['rayleigh_origin'].push(tmpArray);
-                          }
-                        }
+                        var rayleighDiffVars = [
+                          'rayleigh_HLOS_wind_speed', 'rayleigh_signal_channel_A_intensity',
+                          'rayleigh_signal_channel_B_intensity', 
+                          'rayleigh_total_ZWC',
+                          'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', 
+                          'rayleigh_error_quantifier',
+                          'rayleigh_mean_emitted_frequency', 'rayleigh_emitted_frequency_std_dev'
+                        ];
 
-                        for (var param in ds){
-                          if(data[userCollId][dataGranularity].hasOwnProperty(param)){
-                            ds[param] = ds[param].concat(
-                              data[userCollId][dataGranularity][param]
-                            );
+                        var diffV = mieDiffVars.concat(rayleighDiffVars);
+
+                        for (var kk = 0; kk < diffV.length; kk++) {
+                          if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
+                            ds[diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
+                            ds[diffV[kk]+'_diff'] = [];
+                            var block;
+                            for (var p = 0; p < ds[diffV[kk]].length; p++) {
+                              block = [];
+                              for (var y = 0; y < ds[diffV[kk]][p].length; y++) {
+                                block.push(
+                                  ds[diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
+                                );
+                              }
+                              ds[diffV[kk]+'_diff'].push(block);
+                            }
                           }
                         }
                       }
@@ -1806,11 +1789,14 @@
                     'mie_total_ZWC', 
                     'mie_scattering_ratio', 'mie_SNR', 'mie_error_quantifier', 
                     'average_laser_energy', 'laser_frequency', 
-                    'mie_bin_quality_flag',
                     'mie_reference_pulse_quality_flag',
-                    'mie_origin',
                     'mie_mean_emitted_frequency', 'mie_emitted_frequency_std_dev'
                   ];
+
+                  for (var i = 0; i < mieDiffVars.length; i++) {
+                    mieVars.push(mieDiffVars[i]+'_user');
+                    mieVars.push(mieDiffVars[i]+'_diff');
+                  }
 
                   var rayleighVars = [
                     'rayleigh_altitude', 'rayleigh_range',
@@ -1820,10 +1806,14 @@
                     'rayleigh_total_ZWC',
                     'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', //'rayleigh_SNR',
                     'rayleigh_bin_quality_flag', 'rayleigh_error_quantifier',
-                    'rayleigh_bin_quality_flag', 'rayleigh_reference_pulse_quality_flag',
-                    'rayleigh_origin',
+                    'rayleigh_reference_pulse_quality_flag',
                     'rayleigh_mean_emitted_frequency', 'rayleigh_emitted_frequency_std_dev'
                   ];
+
+                  for (var i = 0; i < rayleighDiffVars.length; i++) {
+                    rayleighVars.push(mieDiffVars[i]+'_user');
+                    rayleighVars.push(mieDiffVars[i]+'_diff');
+                  }
 
                   var startEndVars = [
                     'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
@@ -2026,24 +2016,23 @@
                             // Add identifier array for data
                             ds['observation_index'] = [];
                             data[userCollId]['observation_index'] = [];
-                            ds['origin'] = [];
-                            data[userCollId]['origin'] = [];
                             for (var i = 0; i < origLength; i++) {
-                              ds.origin.push('original');
+                              //ds.origin.push('original');
                               ds.observation_index.push(i);
                             }
                             for (var i = 0; i < userLength; i++) {
-                              data[userCollId].origin.push('user_upload');
+                              //data[userCollId].origin.push('user_upload');
                               data[userCollId].observation_index.push(i);
                             }
                             for (var param in ds){
                               if(data[userCollId].hasOwnProperty(param)){
-                                ds[param] = ds[param].concat(
-                                  data[userCollId][param]
-                                );
+                                ds[param+'_user'] = data[userCollId][param];
+                                ds[param+'_diff'] = [];
+                                for (var p = 0; p < ds[param].length.length; p++) {
+                                  ds[param+'_diff'].push(ds[param][p]-data[userCollId][param][p]);
+                                }
                               }
                             }
-                            keys.push('origin');
                             keys.push('observation_index');
                           }
                         }
@@ -2206,6 +2195,62 @@
 
                   } else if(collectionId === 'ALD_U_N_2A'){
 
+                    if(typeof USERVARIABLE !== 'undefined'){
+                      var userCollId = 'user_collection_'+ USERVARIABLE;
+                      var dataGranularity = product.get('granularity')+'_data';
+
+                      if(data.hasOwnProperty(userCollId)) {
+                        var userdataKeys = Object.keys(data[userCollId]);
+
+                        // Check if only user uploaded data is avaialbe
+                        if($.isEmptyObject(ds)){
+                          ds = data[userCollId];
+                          keys = Object.keys(ds);
+
+                        } else if(!$.isEmptyObject(data[userCollId])){
+
+                          // Only create these groups if userdata contains any data
+                          var diffV = [
+                            'SCA_extinction_variance',
+                            'SCA_backscatter_variance',
+                            'SCA_LOD_variance',
+                            'SCA_middle_bin_extinction_variance',
+                            'SCA_middle_bin_backscatter_variance',
+                            'SCA_middle_bin_LOD_variance',
+                            'SCA_middle_bin_BER_variance',
+                            'SCA_extinction',
+                            'SCA_backscatter',
+                            'SCA_LOD',
+                            'SCA_SR',
+                            'SCA_middle_bin_extinction',
+                            'SCA_middle_bin_backscatter',
+                            'SCA_middle_bin_LOD',
+                            'SCA_middle_bin_BER',
+                            'MCA_clim_BER',
+                            'MCA_extinction',
+                            'MCA_LOD',
+                          ];
+
+                          for (var kk = 0; kk < diffV.length; kk++) {
+                            if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
+                              ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
+                              ds[dataGranularity][diffV[kk]+'_diff'] = [];
+                              var block;
+                              for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
+                                block = [];
+                                for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
+                                  block.push(
+                                    ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
+                                  );
+                                }
+                                ds[dataGranularity][diffV[kk]+'_diff'].push(block);
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+
                     for (var k = 0; k < keys.length; k++) {
                       var subK = Object.keys(ds[keys[k]]);
                       for (var l = 0; l < subK.length; l++) {
@@ -2288,7 +2333,7 @@
                           signCross.push(latdiff>160);
                           jumpPos.push(i);
                         }else if (londiff >= lonStep) {
-                          signCross.push(londiff>340)
+                          signCross.push(londiff>340);
                           jumpPos.push(i);
                         }
                       }
@@ -2327,6 +2372,78 @@
                     }
 
                   } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
+
+                    if(typeof USERVARIABLE !== 'undefined'){
+                      var userCollId = 'user_collection_'+ USERVARIABLE;
+                      var dataGranularity = product.get('granularity')+'_data';
+
+                      if(data.hasOwnProperty(userCollId)) {
+                        var userdataKeys = Object.keys(data[userCollId]);
+
+                        // Check if only user uploaded data is avaialbe
+                        if($.isEmptyObject(ds)){
+                          ds = data[userCollId];
+                          keys = Object.keys(ds);
+
+                        } else if(!$.isEmptyObject(data[userCollId])){
+
+                          // Only create these groups if userdata contains any data
+                          var diffV = [
+                            'mie_wind_result_HLOS_error',
+                            'mie_wind_result_SNR',
+                            'mie_wind_result_scattering_ratio',
+                            'mie_wind_result_observation_type',
+                            'mie_wind_result_validity_flag',
+                            'mie_wind_result_wind_velocity',
+                            'mie_wind_result_integration_length',
+                            'mie_wind_result_num_of_measurements',
+                            'rayleigh_wind_result_HLOS_error',
+                            'rayleigh_wind_result_scattering_ratio',
+                            'rayleigh_wind_result_observation_type',
+                            'rayleigh_wind_result_validity_flag',
+                            'rayleigh_wind_result_wind_velocity',
+                            'rayleigh_wind_result_integration_length',
+                            'rayleigh_wind_result_num_of_measurements',
+                            'rayleigh_wind_result_reference_pressure',
+                            'rayleigh_wind_result_reference_temperature',
+                            'rayleigh_wind_result_reference_backscatter_ratio'
+                          ];
+
+                          for (var kk = 0; kk < diffV.length; kk++) {
+                            var dataGranularity = 'mie_wind_data';
+                            if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
+                              ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
+                              ds[dataGranularity][diffV[kk]+'_diff'] = [];
+                              var block;
+                              for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
+                                block = [];
+                                for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
+                                  block.push(
+                                    ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
+                                  );
+                                }
+                                ds[dataGranularity][diffV[kk]+'_diff'].push(block);
+                              }
+                            }
+                            dataGranularity = 'rayleigh_wind_data';
+                            if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
+                              ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
+                              ds[dataGranularity][diffV[kk]+'_diff'] = [];
+                              var block;
+                              for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
+                                block = [];
+                                for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
+                                  block.push(
+                                    ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
+                                  );
+                                }
+                                ds[dataGranularity][diffV[kk]+'_diff'].push(block);
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
 
                     var startEndVarsBins = [
                         'mie_wind_result_range_bin_number',
@@ -2463,22 +2580,23 @@
                           if(typeof origLength !== 'undefined' && 
                              typeof userLength !== 'undefined'){
                             // Add identifier array for data
-                            ds['origin'] = [[]];
-                            data[userCollId]['origin'] = [[]];
-                            for (var i = 0; i < origLength; i++) {
-                              ds.origin[0].push('original');
-                            }
-                            for (var i = 0; i < userLength; i++) {
-                              data[userCollId].origin[0].push('user_upload');
-                            }
-                            for (var param in ds){
-                              if(data[userCollId].hasOwnProperty(param)){
-                                ds[param] = ds[param].concat(
-                                  data[userCollId][param]
-                                );
+                            //ds['origin'] = [[]];
+                            //data[userCollId]['origin'] = [[]];
+
+                            var dsK = Object.keys(ds);
+                            for (var kk = 0; kk < dsK.length; kk++) {
+                              if(data[userCollId].hasOwnProperty(dsK[kk])){
+                                ds[dsK[kk]+'_user'] = data[userCollId][dsK[kk]];
+                                ds[dsK[kk]+'_diff'] = [[]];
+                                keys.push(dsK[kk]+'_user');
+                                keys.push(dsK[kk]+'_diff');
+                                for (var p = 0; p < ds[dsK[kk]][0].length; p++) {
+                                  ds[dsK[kk]+'_diff'][0].push(
+                                    ds[dsK[kk]][0][p]-data[userCollId][dsK[kk]][0][p]
+                                  );
+                                }
                               }
                             }
-                            keys.push('origin');
                           }
                         }
                       }

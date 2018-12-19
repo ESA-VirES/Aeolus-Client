@@ -1090,6 +1090,30 @@ define(['backbone.marionette',
 
                         this.graph1.renderSettings =  this.renderSettings[idKeys[0]];
                         this.graph2.renderSettings =  this.renderSettings[(idKeys[0]+'_error')];
+
+                        // Remove diff if no longer available
+                        if(this.graph1.renderSettings.yAxis[0].indexOf('_diff') !== -1){
+                            this.graph1.renderSettings.yAxis[0] = 
+                                this.graph1.renderSettings.yAxis[0].substring(
+                                    0, 
+                                    this.graph1.renderSettings.yAxis[0].length-5
+                                );
+                        }
+                        if(this.graph2.renderSettings.yAxis[0].indexOf('_diff') !== -1){
+                            this.graph2.renderSettings.yAxis[0] = 
+                                this.graph2.renderSettings.yAxis[0].substring(
+                                    0, 
+                                    this.graph2.renderSettings.yAxis[0].length-5
+                                );
+                        }
+                        // Add diff if user uploaded data is avaialble
+                        if(this.currentKeys.indexOf(this.graph1.renderSettings.yAxis[0]+'_diff') !== -1){
+                            this.graph1.renderSettings.yAxis[0] = this.graph1.renderSettings.yAxis[0]+'_diff';
+                        }
+                        if(this.currentKeys.indexOf(this.graph2.renderSettings.yAxis[0]+'_diff') !== -1){
+                            this.graph2.renderSettings.yAxis[0] = this.graph2.renderSettings.yAxis[0]+'_diff';
+                        }
+
                         $('#graph_2').show();
                         $('#graph_1').css('height', '49%');
                         $('#graph_2').css('height', '49%');
@@ -1215,7 +1239,34 @@ define(['backbone.marionette',
                         this.graph2.debounceActive = true;
 
 
-                    }else /*if(idKeys[0] === 'AUX_MRC_1B')*/{
+                    }else /*if(idKeys[0] === 'AUX_ISR_1B')*/{
+
+                        // Remove diff if no longer available
+                        if(this.graph1.renderSettings.yAxis[0].indexOf('_diff') !== -1){
+                            this.graph1.renderSettings.yAxis[0] = 
+                                this.graph1.renderSettings.yAxis[0].substring(
+                                    0, 
+                                    this.graph1.renderSettings.yAxis[0].length-5
+                                );
+                        }
+                        if(this.graph1.renderSettings.yAxis.length>1 &&
+                            this.graph1.renderSettings.yAxis[1].indexOf('_diff') !== -1){
+                            this.graph1.renderSettings.yAxis[1] = 
+                                this.graph1.renderSettings.yAxis[1].substring(
+                                    0, 
+                                    this.graph1.renderSettings.yAxis[1].length-5
+                                );
+                        }
+                        // Add diff if user uploaded data is avaialble
+                        if(this.currentKeys.indexOf(this.graph1.renderSettings.yAxis[0]+'_diff') !== -1){
+                            this.graph1.renderSettings.yAxis[0] = this.graph1.renderSettings.yAxis[0]+'_diff';
+                        }
+                        if(this.graph1.renderSettings.yAxis.length>1 &&
+                            this.currentKeys.indexOf(this.graph1.renderSettings.yAxis[1]+'_diff') !== -1){
+                            this.graph1.renderSettings.yAxis[1] = this.graph1.renderSettings.yAxis[1]+'_diff';
+                        }
+
+
                         this.graph2.data = {};
                         $('#graph_1').css('height', '99%');
                         $('#graph_2').hide();
