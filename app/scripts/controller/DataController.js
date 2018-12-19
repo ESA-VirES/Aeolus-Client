@@ -2195,6 +2195,62 @@
 
                   } else if(collectionId === 'ALD_U_N_2A'){
 
+                    if(typeof USERVARIABLE !== 'undefined'){
+                      var userCollId = 'user_collection_'+ USERVARIABLE;
+                      var dataGranularity = product.get('granularity')+'_data';
+
+                      if(data.hasOwnProperty(userCollId)) {
+                        var userdataKeys = Object.keys(data[userCollId]);
+
+                        // Check if only user uploaded data is avaialbe
+                        if($.isEmptyObject(ds)){
+                          ds = data[userCollId];
+                          keys = Object.keys(ds);
+
+                        } else if(!$.isEmptyObject(data[userCollId])){
+
+                          // Only create these groups if userdata contains any data
+                          var diffV = [
+                            'SCA_extinction_variance',
+                            'SCA_backscatter_variance',
+                            'SCA_LOD_variance',
+                            'SCA_middle_bin_extinction_variance',
+                            'SCA_middle_bin_backscatter_variance',
+                            'SCA_middle_bin_LOD_variance',
+                            'SCA_middle_bin_BER_variance',
+                            'SCA_extinction',
+                            'SCA_backscatter',
+                            'SCA_LOD',
+                            'SCA_SR',
+                            'SCA_middle_bin_extinction',
+                            'SCA_middle_bin_backscatter',
+                            'SCA_middle_bin_LOD',
+                            'SCA_middle_bin_BER',
+                            'MCA_clim_BER',
+                            'MCA_extinction',
+                            'MCA_LOD',
+                          ];
+
+                          for (var kk = 0; kk < diffV.length; kk++) {
+                            if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
+                              ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
+                              ds[dataGranularity][diffV[kk]+'_diff'] = [];
+                              var block;
+                              for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
+                                block = [];
+                                for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
+                                  block.push(
+                                    ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
+                                  );
+                                }
+                                ds[dataGranularity][diffV[kk]+'_diff'].push(block);
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+
                     for (var k = 0; k < keys.length; k++) {
                       var subK = Object.keys(ds[keys[k]]);
                       for (var l = 0; l < subK.length; l++) {
@@ -2277,7 +2333,7 @@
                           signCross.push(latdiff>160);
                           jumpPos.push(i);
                         }else if (londiff >= lonStep) {
-                          signCross.push(londiff>340)
+                          signCross.push(londiff>340);
                           jumpPos.push(i);
                         }
                       }
@@ -2316,6 +2372,78 @@
                     }
 
                   } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
+
+                    if(typeof USERVARIABLE !== 'undefined'){
+                      var userCollId = 'user_collection_'+ USERVARIABLE;
+                      var dataGranularity = product.get('granularity')+'_data';
+
+                      if(data.hasOwnProperty(userCollId)) {
+                        var userdataKeys = Object.keys(data[userCollId]);
+
+                        // Check if only user uploaded data is avaialbe
+                        if($.isEmptyObject(ds)){
+                          ds = data[userCollId];
+                          keys = Object.keys(ds);
+
+                        } else if(!$.isEmptyObject(data[userCollId])){
+
+                          // Only create these groups if userdata contains any data
+                          var diffV = [
+                            'mie_wind_result_HLOS_error',
+                            'mie_wind_result_SNR',
+                            'mie_wind_result_scattering_ratio',
+                            'mie_wind_result_observation_type',
+                            'mie_wind_result_validity_flag',
+                            'mie_wind_result_wind_velocity',
+                            'mie_wind_result_integration_length',
+                            'mie_wind_result_num_of_measurements',
+                            'rayleigh_wind_result_HLOS_error',
+                            'rayleigh_wind_result_scattering_ratio',
+                            'rayleigh_wind_result_observation_type',
+                            'rayleigh_wind_result_validity_flag',
+                            'rayleigh_wind_result_wind_velocity',
+                            'rayleigh_wind_result_integration_length',
+                            'rayleigh_wind_result_num_of_measurements',
+                            'rayleigh_wind_result_reference_pressure',
+                            'rayleigh_wind_result_reference_temperature',
+                            'rayleigh_wind_result_reference_backscatter_ratio'
+                          ];
+
+                          for (var kk = 0; kk < diffV.length; kk++) {
+                            var dataGranularity = 'mie_wind_data';
+                            if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
+                              ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
+                              ds[dataGranularity][diffV[kk]+'_diff'] = [];
+                              var block;
+                              for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
+                                block = [];
+                                for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
+                                  block.push(
+                                    ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
+                                  );
+                                }
+                                ds[dataGranularity][diffV[kk]+'_diff'].push(block);
+                              }
+                            }
+                            dataGranularity = 'rayleigh_wind_data';
+                            if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
+                              ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
+                              ds[dataGranularity][diffV[kk]+'_diff'] = [];
+                              var block;
+                              for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
+                                block = [];
+                                for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
+                                  block.push(
+                                    ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
+                                  );
+                                }
+                                ds[dataGranularity][diffV[kk]+'_diff'].push(block);
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
 
                     var startEndVarsBins = [
                         'mie_wind_result_range_bin_number',
