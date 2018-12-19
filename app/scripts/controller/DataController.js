@@ -1436,8 +1436,6 @@
 
         }
         
-        var USERVARIABLE = 'admin';
-
         var collections = [collectionId];
         if(typeof USERVARIABLE !== 'undefined'){
             collections.push('user_collection_'+ USERVARIABLE);
