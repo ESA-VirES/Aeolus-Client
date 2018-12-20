@@ -56,17 +56,127 @@ define(['backbone.marionette',
                 this.$('#graph_1').append('<div id="analyticsSavebuttonTop"><i class="fa fa-floppy-o analyticsSavebutton" aria-hidden="true"></i></div>');
                 this.$('#graph_2').append('<div id="analyticsSavebuttonBottom"><i class="fa fa-floppy-o analyticsSavebutton" aria-hidden="true"></i></div>');
 
+
+
                 $('#analyticsSavebuttonTop').click(function(){
+                    var bodyContainer = $('<div/>');
+
+                    var typeContainer = $('<div id="typeSelectionContainer"></div>')
+                    var filetypeSelection = $('<select id="filetypeSelection"></select>');
+                    filetypeSelection.append($('<option/>').html('png'));
+                    filetypeSelection.append($('<option/>').html('jpeg'));
+                    filetypeSelection.append($('<option/>').html('svg'));
+                    typeContainer.append(
+                        $('<label for="filetypeSelection" style="margin-right:10px;">Output type</label>')
+                    );
+                    typeContainer.append(filetypeSelection);
+                    var w = $('#graph_1').width();
+                    var h = $('#graph_1').height();
+
+                    var resolutionContainer = $('<div id="resolutionSelectionContainer"></div>')
+                    var resolutionSelection = $('<select id="resolutionSelection"></select>');
+                    resolutionSelection.append($('<option/>').html('normal ('+w+'x'+h+')').val(1));
+                    resolutionSelection.append($('<option/>').html('large ('+w*2+'x'+h*2+')').val(2));
+                    resolutionSelection.append($('<option/>').html('very large ('+w*3+'x'+h*3+')').val(3));
+                    resolutionContainer.append(
+                        $('<label for="resolutionSelection" style="margin-right:10px;">Resolution</label>')
+                    );
+                    resolutionContainer.append(resolutionSelection);
+
+                    bodyContainer.append(typeContainer);
+                    bodyContainer.append(resolutionContainer);
+
+                    var okbutton = $('<button style="margin-right:5px;">Ok</button>');
+                    var cancelbutton = $('<button style="margin-left:5px;">Cancel</button>');
+                    var buttons = $('<div/>');
+                    buttons.append(okbutton);
+                    buttons.append(cancelbutton);
+
                     if (that.graph1){
-                        that.graph1.saveImage();
+                        var saveimagedialog = w2popup.open({
+                            body: bodyContainer,
+                            buttons: buttons,
+                            title       : w2utils.lang('Image configuration'),
+                            width       : 400,
+                            height      : 200
+                        });
+
+                        okbutton.click(function(){
+                            var selectedType = $('#filetypeSelection')
+                                .find(":selected").text();
+                            var selectedRes = $('#resolutionSelection')
+                                .find(":selected").val();
+                            that.graph1.saveImage(selectedType, selectedRes);
+                            bodyContainer.remove();
+                            saveimagedialog.close();
+                        });
+                        cancelbutton.click(function(){
+                            bodyContainer.remove();
+                            saveimagedialog.close();
+                        });
                     }
                 });
 
                 $('#analyticsSavebuttonBottom').click(function(){
+                    var bodyContainer = $('<div/>');
+
+                    var typeContainer = $('<div id="typeSelectionContainer"></div>')
+                    var filetypeSelection = $('<select id="filetypeSelection"></select>');
+                    filetypeSelection.append($('<option/>').html('png'));
+                    filetypeSelection.append($('<option/>').html('jpeg'));
+                    filetypeSelection.append($('<option/>').html('svg'));
+                    typeContainer.append(
+                        $('<label for="filetypeSelection" style="margin-right:10px;">Output type</label>')
+                    );
+                    typeContainer.append(filetypeSelection);
+                    var w = $('#graph_1').width();
+                    var h = $('#graph_1').height();
+
+                    var resolutionContainer = $('<div id="resolutionSelectionContainer"></div>')
+                    var resolutionSelection = $('<select id="resolutionSelection"></select>');
+                    resolutionSelection.append($('<option/>').html('normal ('+w+'x'+h+')').val(1));
+                    resolutionSelection.append($('<option/>').html('large ('+w*2+'x'+h*2+')').val(2));
+                    resolutionSelection.append($('<option/>').html('very large ('+w*3+'x'+h*3+')').val(3));
+                    resolutionContainer.append(
+                        $('<label for="resolutionSelection" style="margin-right:10px;">Resolution</label>')
+                    );
+                    resolutionContainer.append(resolutionSelection);
+
+                    bodyContainer.append(typeContainer);
+                    bodyContainer.append(resolutionContainer);
+
+                    var okbutton = $('<button style="margin-right:5px;">Ok</button>');
+                    var cancelbutton = $('<button style="margin-left:5px;">Cancel</button>');
+                    var buttons = $('<div/>');
+                    buttons.append(okbutton);
+                    buttons.append(cancelbutton);
+                    
                     if (that.graph2){
-                        that.graph2.saveImage();
+                        var saveimagedialog = w2popup.open({
+                            body: bodyContainer,
+                            buttons: buttons,
+                            title       : w2utils.lang('Image configuration'),
+                            width       : 400,
+                            height      : 200
+                        });
+
+                        okbutton.click(function(){
+                            var selectedType = $('#filetypeSelection')
+                                .find(":selected").text();
+                            var selectedRes = $('#resolutionSelection')
+                                .find(":selected").val();
+                            that.graph2.saveImage(selectedType, selectedRes);
+                            bodyContainer.remove();
+                            saveimagedialog.close();
+                        });
+                        cancelbutton.click(function(){
+                            bodyContainer.remove();
+                            saveimagedialog.close();
+                        });
                     }
                 });
+
+                
 
                 this.$('.d3canvas').append('<div id="filterDivContainer"></div>');
                 this.$el.append('<div id="nodataavailable"></div>');
@@ -126,29 +236,49 @@ define(['backbone.marionette',
                     'surface_wind_component_v_off_nadir',
                     'surface_wind_component_v_nadir',
                     'surface_pressure_off_nadir','surface_pressure_nadir',
-                    'surface_altitude_off_nadir', 'surface_altitude_nadir'
-                ]
+                    'surface_altitude_off_nadir', 'surface_altitude_nadir',
+                    // AUX MET 2D
+                    'layer_validity_flag_nadir',
+                    'layer_temperature_nadir',
+                    'layer_wind_component_u_nadir',
+                    'layer_wind_component_v_nadir',
+                    'layer_rel_humidity_nadir',
+                    'layer_spec_humidity_nadir',
+                    'layer_cloud_cover_nadir',
+                    'layer_cloud_liquid_water_content_nadir',
+                    'layer_cloud_ice_water_content_nadir',
+                    'layer_validity_flag_off_nadir',
+                    'layer_temperature_off_nadir',
+                    'layer_wind_component_u_off_nadir',
+                    'layer_wind_component_v_off_nadir',
+                    'layer_rel_humidity_off_nadir',
+                    'layer_spec_humidity_off_nadir',
+                    'layer_cloud_cover_off_nadir',
+                    'layer_cloud_liquid_water_content_off_nadir',
+                    'layer_cloud_ice_water_content_off_nadir'
+                ];
             }
 
             this.renderSettings = {
                 rayleigh: {
-                    xAxis: [
-                        'time'
-                    ],
+                    xAxis: ['time'],
                     yAxis: [
                         'rayleigh_altitude'
                     ],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
+                        rayleigh_range: ['rayleigh_range_start', 'rayleigh_range_end'],
                         latitude_of_DEM_intersection: [
-                            'rayleigh_latitude_of_DEM_intersection_start',
-                            'rayleigh_latitude_of_DEM_intersection_end'
+                            'latitude_of_DEM_intersection_start',
+                            'latitude_of_DEM_intersection_end'
                         ],
                         longitude_of_DEM_intersection: [
-                            'rayleigh_longitude_of_DEM_intersection_start',
-                            'rayleigh_longitude_of_DEM_intersection_end'
+                            'longitude_of_DEM_intersection_start',
+                            'longitude_of_DEM_intersection_end'
                         ],
-                        time: ['rayleigh_time_start', 'rayleigh_time_end'],
+                        time: ['time_start', 'time_end'],
                     },
                     colorAxis: ['rayleigh_HLOS_wind_speed'],
                     positionAlias: {
@@ -159,24 +289,25 @@ define(['backbone.marionette',
 
                 },
                 mie: {
-                    xAxis: [
-                    'time'
-                    ],
+                    xAxis: ['time'],
                     yAxis: [
                         'mie_altitude'
                     ],
                     //y2Axis: [],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
+                        mie_range: ['mie_range_start', 'mie_range_end'],
                         latitude_of_DEM_intersection: [
-                            'mie_latitude_of_DEM_intersection_start',
-                            'mie_latitude_of_DEM_intersection_end'
+                            'latitude_of_DEM_intersection_start',
+                            'latitude_of_DEM_intersection_end'
                         ],
                         longitude_of_DEM_intersection: [
-                            'mie_longitude_of_DEM_intersection_start',
-                            'mie_longitude_of_DEM_intersection_end'
+                            'longitude_of_DEM_intersection_start',
+                            'longitude_of_DEM_intersection_end'
                         ],
-                        time: ['mie_time_start', 'mie_time_end'],
+                        time: ['time_start', 'time_end'],
                     },
                     colorAxis: ['mie_HLOS_wind_speed'],
                     positionAlias: {
@@ -187,11 +318,13 @@ define(['backbone.marionette',
 
                 },
                 'ALD_U_N_2A_mie': {
-                    xAxis: 'time',
+                    xAxis: 'MCA_time',
                     yAxis: [ 'mie_altitude'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
-                        time: ['MCA_time_obs_start', 'MCA_time_obs_stop']
+                        MCA_time: ['MCA_time_obs_start', 'MCA_time_obs_stop']
                     },
                     colorAxis: ['MCA_extinction'],
                     positionAlias: {
@@ -202,11 +335,13 @@ define(['backbone.marionette',
 
                 },
                 'ALD_U_N_2A_rayleigh': {
-                    xAxis: 'time',
+                    xAxis: 'SCA_time',
                     yAxis: [ 'rayleigh_altitude'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
-                        time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
+                        SCA_time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
                     },
                     colorAxis: ['SCA_extinction'],
                     positionAlias: {
@@ -219,9 +354,17 @@ define(['backbone.marionette',
                 'ALD_U_N_2B_mie': {
                     xAxis: 'time',
                     yAxis: [ 'mie_altitude'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         mie_altitude: ['mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'],
                         time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
+                        mie_wind_result_range: ['mie_wind_result_top_range', 'mie_wind_result_bottom_range'],
+                        mie_wind_result_range_bin_number: [
+                            'mie_wind_result_range_bin_number_start',
+                            'mie_wind_result_range_bin_number_end'
+                        ],
+                        mie_wind_result_COG_range: ['mie_wind_result_COG_range_start', 'mie_wind_result_COG_range_end']
                     },
                     colorAxis: ['mie_wind_result_wind_velocity'],
                     positionAlias: {
@@ -234,9 +377,17 @@ define(['backbone.marionette',
                 'ALD_U_N_2B_rayleigh': {
                     xAxis: 'time',
                     yAxis: [ 'rayleigh_altitude'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_wind_result_bottom_altitude', 'rayleigh_wind_result_top_altitude'],
                         time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
+                        rayleigh_wind_result_range: ['rayleigh_wind_result_top_range', 'rayleigh_wind_result_bottom_range'],
+                        rayleigh_wind_result_range_bin_number: [
+                            'rayleigh_wind_result_range_bin_number_start',
+                            'rayleigh_wind_result_range_bin_number_end'
+                        ],
+                        rayleigh_wind_result_COG_range: ['rayleigh_wind_result_COG_range_start', 'rayleigh_wind_result_COG_range_end']
                     },
                     colorAxis: ['rayleigh_wind_result_wind_velocity'],
                     positionAlias: {
@@ -249,9 +400,16 @@ define(['backbone.marionette',
                 'ALD_U_N_2C_mie': {
                     xAxis: 'time',
                     yAxis: [ 'mie_altitude'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         mie_altitude: ['mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'],
                         time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
+                        mie_wind_result_range: ['mie_wind_result_top_range', 'mie_wind_result_bottom_range'],
+                        mie_wind_result_range_bin_number: [
+                            'mie_wind_result_range_bin_number_start',
+                            'mie_wind_result_range_bin_number_end'
+                        ]
                     },
                     colorAxis: ['mie_wind_result_wind_velocity']
 
@@ -259,9 +417,16 @@ define(['backbone.marionette',
                 'ALD_U_N_2C_rayleigh': {
                     xAxis: 'time',
                     yAxis: [ 'rayleigh_altitude'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_wind_result_bottom_altitude', 'rayleigh_wind_result_top_altitude'],
                         time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
+                        rayleigh_wind_result_range: ['rayleigh_wind_result_top_range', 'rayleigh_wind_result_bottom_range'],
+                        rayleigh_wind_result_range_bin_number: [
+                            'rayleigh_wind_result_range_bin_number_start',
+                            'rayleigh_wind_result_range_bin_number_end'
+                        ]
                     },
                     colorAxis: ['rayleigh_wind_result_wind_velocity']
 
@@ -269,6 +434,8 @@ define(['backbone.marionette',
                 AUX_MRC_1B: {
                     xAxis: ['frequency_offset'],
                     yAxis: ['measurement_response'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     colorAxis: [ null ],
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
@@ -279,6 +446,8 @@ define(['backbone.marionette',
                 AUX_MRC_1B_error: {
                     xAxis: ['frequency_offset'],
                     yAxis: ['measurement_error_mie_response'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     colorAxis: [ null ],
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
@@ -289,6 +458,8 @@ define(['backbone.marionette',
                 AUX_RRC_1B: {
                     xAxis: ['frequency_offset'],
                     yAxis: ['measurement_response'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     colorAxis: [ null ],
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
@@ -299,6 +470,8 @@ define(['backbone.marionette',
                 AUX_RRC_1B_error: {
                     xAxis: ['frequency_offset'],
                     yAxis: ['measurement_error_rayleigh_response'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     colorAxis: [ null ],
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
@@ -309,11 +482,15 @@ define(['backbone.marionette',
                 AUX_ISR_1B: {
                     xAxis: 'laser_frequency_offset',
                     yAxis: ['rayleigh_channel_A_response', 'rayleigh_channel_B_response'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     colorAxis: [ null, null ]
                 },
                 AUX_ZWC_1B: {
                     xAxis: 'observation_index',
                     yAxis: ['mie_ground_correction_velocity', 'rayleigh_ground_correction_velocity'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
                     colorAxis: [ null, null ],
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
@@ -323,12 +500,24 @@ define(['backbone.marionette',
                 'AUX_MET_12_nadir': {
                     xAxis: 'time_nadir',
                     yAxis: ['surface_wind_component_u_nadir'],
-                    colorAxis: [ null, null ]
+                    additionalXTicks: [],
+                    additionalYTicks: [],
+                    colorAxis: [ null ],
+                    combinedParameters: {
+                        time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
+                        layer_altitude_nadir: ['layer_altitude_nadir_end', 'layer_altitude_nadir_start']
+                    },
                 },
                 'AUX_MET_12_off_nadir': {
                     xAxis: 'time_off_nadir',
                     yAxis: ['surface_wind_component_u_off_nadir'],
-                    colorAxis: [ null, null ]
+                    additionalXTicks: [],
+                    additionalYTicks: [],
+                    colorAxis: [ null ],
+                    combinedParameters: {
+                        time_off_nadir_combined: ['time_off_nadir_start', 'time_off_nadir_end'],
+                        layer_altitude_off_nadir: ['layer_altitude_off_nadir_end', 'layer_altitude_off_nadir_start']
+                    },
                 }
             };
 
@@ -369,12 +558,14 @@ define(['backbone.marionette',
 
                 this.graph1 = new graphly.graphly({
                     el: '#graph_1',
-                    margin: {top: 10, left: 120, bottom: 50, right: 40},
+                    margin: {top: 10, left: 100, bottom: 50, right: 40},
                     dataSettings: this.dataSettings,
                     renderSettings: this.renderSettings.mie,
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
-                    ignoreParameters: [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/]
+                    ignoreParameters: [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/],
+                    enableSubXAxis: true,
+                    enableSubYAxis: true
                 });
                 globals.swarm.get('filterManager').setRenderNode('#analyticsFilters');
                 this.graph1.on('pointSelect', function(values){
@@ -385,13 +576,15 @@ define(['backbone.marionette',
             if (this.graph2 === undefined){
                 this.graph2 = new graphly.graphly({
                     el: '#graph_2',
-                    margin: {top: 10, left: 120, bottom: 50, right: 40},
+                    margin: {top: 10, left: 100, bottom: 50, right: 40},
                     dataSettings: this.dataSettings,
                     renderSettings: this.renderSettings.rayleigh,
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
                     connectedGraph: this.graph1,
-                    ignoreParameters: [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/]
+                    ignoreParameters: [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/],
+                    enableSubXAxis: true,
+                    enableSubYAxis: true
                 });
                 this.graph1.connectGraph(this.graph2);
                 this.graph2.on('pointSelect', function(values){
@@ -826,8 +1019,6 @@ define(['backbone.marionette',
                         this.graph2.loadData(data['ALD_U_N_1B']);
                         this.graph1.fileSaveString = 'ALD_U_N_1B_mie_plot';
                         this.graph2.fileSaveString = 'ALD_U_N_1B_rayleigh_plot';
-                        this.graph1.resize();
-                        this.graph2.resize();
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_1B']);
@@ -841,16 +1032,14 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
-                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
-                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
+                        this.graph1.ignoreParameters = [/rayleigh_.*/, /SCA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
+                        this.graph2.ignoreParameters = [/mie_.*/, /MCA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_2A']);
                         this.graph2.loadData(data['ALD_U_N_2A']);
                         this.graph1.fileSaveString = 'ALD_U_N_2A_mie_plot';
                         this.graph2.fileSaveString = 'ALD_U_N_2A_rayleigh_plot';
-                        this.graph1.resize();
-                        this.graph2.resize();
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_2A']);
@@ -872,8 +1061,6 @@ define(['backbone.marionette',
                         this.graph2.loadData(data['ALD_U_N_2B']);
                         this.graph1.fileSaveString = 'ALD_U_N_2B_mie_plot';
                         this.graph2.fileSaveString = 'ALD_U_N_2B_rayleigh_plot';
-                        this.graph1.resize();
-                        this.graph2.resize();
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_2B']);
@@ -895,8 +1082,6 @@ define(['backbone.marionette',
                         this.graph2.loadData(data['ALD_U_N_2C']);
                         this.graph1.fileSaveString = 'ALD_U_N_2C_mie_plot';
                         this.graph2.fileSaveString = 'ALD_U_N_2C_rayleigh_plot';
-                        this.graph1.resize();
-                        this.graph2.resize();
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_2C']);
@@ -905,6 +1090,30 @@ define(['backbone.marionette',
 
                         this.graph1.renderSettings =  this.renderSettings[idKeys[0]];
                         this.graph2.renderSettings =  this.renderSettings[(idKeys[0]+'_error')];
+
+                        // Remove diff if no longer available
+                        if(this.graph1.renderSettings.yAxis[0].indexOf('_diff') !== -1){
+                            this.graph1.renderSettings.yAxis[0] = 
+                                this.graph1.renderSettings.yAxis[0].substring(
+                                    0, 
+                                    this.graph1.renderSettings.yAxis[0].length-5
+                                );
+                        }
+                        if(this.graph2.renderSettings.yAxis[0].indexOf('_diff') !== -1){
+                            this.graph2.renderSettings.yAxis[0] = 
+                                this.graph2.renderSettings.yAxis[0].substring(
+                                    0, 
+                                    this.graph2.renderSettings.yAxis[0].length-5
+                                );
+                        }
+                        // Add diff if user uploaded data is avaialble
+                        if(this.currentKeys.indexOf(this.graph1.renderSettings.yAxis[0]+'_diff') !== -1){
+                            this.graph1.renderSettings.yAxis[0] = this.graph1.renderSettings.yAxis[0]+'_diff';
+                        }
+                        if(this.currentKeys.indexOf(this.graph2.renderSettings.yAxis[0]+'_diff') !== -1){
+                            this.graph2.renderSettings.yAxis[0] = this.graph2.renderSettings.yAxis[0]+'_diff';
+                        }
+
                         $('#graph_2').show();
                         $('#graph_1').css('height', '49%');
                         $('#graph_2').css('height', '49%');
@@ -918,35 +1127,146 @@ define(['backbone.marionette',
                         this.graph2.loadData(data[idKeys[0]]);
                         this.graph1.fileSaveString = idKeys[0]+'_top';
                         this.graph2.fileSaveString = idKeys[0]+'_bottom';
-                        this.graph1.resize();
-                        this.graph2.resize();
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data[idKeys[0]]);
 
                     } else if(idKeys[0] === 'AUX_MET_12'){
-                        this.graph1.renderSettings =  this.renderSettings[(idKeys[0]+'_nadir')];
-                        this.graph2.renderSettings =  this.renderSettings[(idKeys[0]+'_off_nadir')];
-                        $('#graph_2').show();
-                        $('#graph_1').css('height', '49%');
-                        $('#graph_2').css('height', '49%');
-                        this.graph1.ignoreParameters = [];
-                        this.graph2.ignoreParameters = [];
-                        this.graph1.debounceActive = true;
-                        this.graph1.dataSettings = mergedDataSettings;
-                        this.graph2.dataSettings = mergedDataSettings;
-                        this.graph2.debounceActive = true;
-                        this.graph1.loadData(data[idKeys[0]]);
-                        this.graph2.loadData(data[idKeys[0]]);
-                        this.graph1.fileSaveString = idKeys[0]+'_top';
-                        this.graph2.fileSaveString = idKeys[0]+'_bottom';
-                        this.graph1.resize();
-                        this.graph2.resize();
-                        this.graph1.connectGraph(this.graph2);
-                        this.graph2.connectGraph(this.graph1);
-                        this.filterManager.loadData(data[idKeys[0]]);
 
-                    }else /*if(idKeys[0] === 'AUX_MRC_1B')*/{
+                        // AUX MET combines 1D with 2D data so we need to sort out first
+                        // what rendering settings we will actually use
+                        var params2DNadir = [
+                            'layer_validity_flag_nadir',
+                            //'layer_pressure_nadir',
+                            'layer_temperature_nadir',
+                            'layer_wind_component_u_nadir',
+                            'layer_wind_component_v_nadir',
+                            'layer_rel_humidity_nadir',
+                            'layer_spec_humidity_nadir',
+                            'layer_cloud_cover_nadir',
+                            'layer_cloud_liquid_water_content_nadir',
+                            'layer_cloud_ice_water_content_nadir'
+                        ];
+
+                        var params2DOffNadir = [
+                            'layer_validity_flag_off_nadir',
+                            //'layer_pressure_off_nadir',
+                            'layer_temperature_off_nadir',
+                            'layer_wind_component_u_off_nadir',
+                            'layer_wind_component_v_off_nadir',
+                            'layer_rel_humidity_off_nadir',
+                            'layer_spec_humidity_off_nadir',
+                            'layer_cloud_cover_off_nadir',
+                            'layer_cloud_liquid_water_content_off_nadir',
+                            'layer_cloud_ice_water_content_off_nadir'
+                        ];
+                        var contains2DNadir = false;
+                        var contains2DOffNadir = false;
+                        var param2D = null;
+                        
+                        for (var i = 0; i < this.currentKeys.length; i++) {
+                            if(params2DNadir.indexOf(this.currentKeys[i]) !== -1){
+                                contains2DNadir = true;
+                                param2D = this.currentKeys[i];
+                            }
+                            if(params2DOffNadir.indexOf(this.currentKeys[i]) !== -1){
+                                contains2DOffNadir = true;
+                                param2D = this.currentKeys[i];
+                            }
+                        }
+
+                        if(contains2DNadir){
+                            this.graph1.ignoreParameters = [/_off_nadir.*/, /jumps.*/, /SignCross.*/, 'time_nadir', 'latitude_nadir', 'longitude_nadir'];
+                            this.graph1.renderSettings = {
+                                xAxis: 'time_nadir_combined',
+                                yAxis: ['layer_altitude_nadir'],
+                                additionalXTicks: [],
+                                additionalYTicks: [],
+                                colorAxis: [ param2D ],
+                                combinedParameters: {
+                                    time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
+                                    layer_altitude_nadir: ['layer_altitude_nadir_end', 'layer_altitude_nadir_start']
+                                },
+                            };
+                        } else {
+                            this.graph1.renderSettings = this.renderSettings[(idKeys[0]+'_nadir')];
+                        }
+
+                        if(contains2DOffNadir){
+                            this.graph1.ignoreParameters = [/^((?!_off_nadir).)*$/, /jumps.*/, /SignCross.*/, 'time_off_nadir', 'latitude_off_nadir', 'longitude_off_nadir'];
+                            this.graph1.renderSettings = {
+                                xAxis: 'time_off_nadir_combined',
+                                yAxis: ['layer_altitude_off_nadir'],
+                                additionalXTicks: [],
+                                additionalYTicks: [],
+                                colorAxis: [ param2D ],
+                                combinedParameters: {
+                                    time_off_nadir_combined: ['time_off_nadir_start', 'time_off_nadir_end'],
+                                    layer_altitude_off_nadir: ['layer_altitude_off_nadir_end', 'layer_altitude_off_nadir_start']
+                                },
+                            };
+                        } else {
+                            this.graph2.renderSettings = this.renderSettings[(idKeys[0]+'_off_nadir')];
+                        }
+
+                        if(contains2DNadir || contains2DOffNadir) {
+                            this.graph1.connectGraph(false);
+                            this.graph2.connectGraph(false);
+                            $('#graph_2').hide();
+                            $('#graph_1').css('height', '99%');
+                            this.graph1.dataSettings = mergedDataSettings;
+                            this.graph2.dataSettings = mergedDataSettings;
+                            this.graph1.loadData(data[idKeys[0]]);
+                            this.graph1.fileSaveString = idKeys[0]+'_top';
+                            this.filterManager.loadData(data[idKeys[0]]);
+                        } else {
+                            $('#graph_2').show();
+                            $('#graph_1').css('height', '49%');
+                            $('#graph_2').css('height', '49%');
+                            this.graph1.ignoreParameters = [/_off_nadir.*/, /jumps.*/, /_start.*/, /_end.*/, /SignCross.*/];
+                            this.graph2.ignoreParameters = [/^((?!_off_nadir).)*$/, /jumps.*/, /_start.*/, /_end.*/, /SignCross.*/];
+                            this.graph1.dataSettings = mergedDataSettings;
+                            this.graph2.dataSettings = mergedDataSettings;
+                            this.graph1.loadData(data[idKeys[0]]);
+                            this.graph2.loadData(data[idKeys[0]]);
+                            this.graph1.fileSaveString = idKeys[0]+'_top';
+                            this.graph2.fileSaveString = idKeys[0]+'_bottom';
+                            this.graph1.connectGraph(this.graph2);
+                            this.graph2.connectGraph(this.graph1);
+                            this.filterManager.loadData(data[idKeys[0]]);
+                        }
+                        this.graph1.debounceActive = true;
+                        this.graph2.debounceActive = true;
+
+
+                    }else /*if(idKeys[0] === 'AUX_ISR_1B')*/{
+
+                        // Remove diff if no longer available
+                        if(this.graph1.renderSettings.yAxis[0].indexOf('_diff') !== -1){
+                            this.graph1.renderSettings.yAxis[0] = 
+                                this.graph1.renderSettings.yAxis[0].substring(
+                                    0, 
+                                    this.graph1.renderSettings.yAxis[0].length-5
+                                );
+                        }
+                        if(this.graph1.renderSettings.yAxis.length>1 &&
+                            this.graph1.renderSettings.yAxis[1].indexOf('_diff') !== -1){
+                            this.graph1.renderSettings.yAxis[1] = 
+                                this.graph1.renderSettings.yAxis[1].substring(
+                                    0, 
+                                    this.graph1.renderSettings.yAxis[1].length-5
+                                );
+                        }
+                        // Add diff if user uploaded data is avaialble
+                        if(this.currentKeys.indexOf(this.graph1.renderSettings.yAxis[0]+'_diff') !== -1){
+                            this.graph1.renderSettings.yAxis[0] = this.graph1.renderSettings.yAxis[0]+'_diff';
+                        }
+                        if(this.graph1.renderSettings.yAxis.length>1 &&
+                            this.currentKeys.indexOf(this.graph1.renderSettings.yAxis[1]+'_diff') !== -1){
+                            this.graph1.renderSettings.yAxis[1] = this.graph1.renderSettings.yAxis[1]+'_diff';
+                        }
+
+
                         this.graph2.data = {};
                         $('#graph_1').css('height', '99%');
                         $('#graph_2').hide();
@@ -960,7 +1280,6 @@ define(['backbone.marionette',
                         this.graph1.renderSettings = this.renderSettings[idKeys[0]];
                         this.graph1.loadData(data[idKeys[0]]);
                         this.graph1.fileSaveString = idKeys[0];
-                        this.graph1.resize();
                         this.filterManager.loadData(data[idKeys[0]]);
                     }
 

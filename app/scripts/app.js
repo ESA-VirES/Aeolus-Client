@@ -53,7 +53,21 @@ var VECTOR_BREAKDOWN = {};
                     server: 'upload/',
                     onprocessfile: function(error, file){
                         window.setTimeout(
-                            function(){Communicator.mediator.trigger('user:collection:change');},
+                            function(){
+                                Communicator.mediator.trigger('user:collection:change');
+                                globals.products.each(function(prod){
+                                    if(prod.get('visible')){
+                                        var options = { 
+                                            name: prod.get('name'),
+                                            isBaseLayer: false,
+                                            visible: false
+                                        };
+                                        Communicator.mediator.trigger('map:layer:change', options);
+                                        options.visible = true;
+                                        Communicator.mediator.trigger('map:layer:change', options);
+                                    }
+                                });
+                            },
                             1000
                         );
                     }
@@ -197,6 +211,12 @@ var VECTOR_BREAKDOWN = {};
                         }
                         // Make sure process id is also always downloaded from config
                         product_config[i].process = m_p[i].process;
+
+                        // Make sure aux met parameters are up to date
+                        if(product_config[i].download.id === 'AUX_MET_12' && 
+                          !product_config[i].parameters.hasOwnProperty('layer_temperature_off_nadir')){
+                            product_config[i].parameters = m_p[i].parameters;
+                        }
                     }
 
 
