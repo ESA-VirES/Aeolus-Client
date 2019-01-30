@@ -435,6 +435,12 @@
           '</div>'
         );
 
+        this.$el.find("#dsd_info_cb").off();
+        this.$el.find("#dsd_info").empty();
+        this.$el.find("#dsd_info").html(
+          '<div class="checkbox" style="margin-left:3px;"><label><input type="checkbox" value="" id="dsd_info_cb">Download data set descriptors (DSD)</label></div>'
+        );
+
         this.$el.find("#custom_time_cb").off();
         this.$el.find("#custom_time").empty();
 
@@ -937,6 +943,11 @@
         if(Object.keys(filters).length > 0){
           options["filters"] = JSON.stringify(filters);
         }
+
+        if ($('#dsd_info_cb').is(':checked')) {
+          options.dsdInfo = true;
+        }
+        
 
         // Custom variables
         if ($('#custom_parameter_cb').is(':checked')) {

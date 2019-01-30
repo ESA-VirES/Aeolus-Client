@@ -1,5 +1,6 @@
 /* eslint-disable indent */
 
+
 (function() {
   'use strict';
 
@@ -1813,8 +1814,8 @@
 
                   if(rayleighDiffVars){
                     for (var i = 0; i < rayleighDiffVars.length; i++) {
-                      rayleighVars.push(mieDiffVars[i]+'_user');
-                      rayleighVars.push(mieDiffVars[i]+'_diff');
+                      rayleighVars.push(rayleighDiffVars[i]+'_user');
+                      rayleighVars.push(rayleighDiffVars[i]+'_diff');
                     }
                   }
 

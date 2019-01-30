@@ -52,6 +52,11 @@
                     this.onUpdateUserCollection
                 );
 
+                this.listenTo(
+                    Communicator.mediator, 'layer:granularity:beforechange',
+                    this.onLayerGranularityBeforeChanged
+                );
+
                 
 
                 Communicator.reqres.setHandler('get:time', this.returnTime);
@@ -104,6 +109,7 @@
                 }
 
                 this.activeWPSproducts = [];
+                this.defaultSelectionLimit = (60*60*24);  //1 Day
 
                 var initopt = {
                     domain: {
@@ -123,7 +129,7 @@
                     brushTooltip: true,
                     debounce: 300,
                     ticksize: 10,
-                    selectionLimit: (60*60*24), //1 Days
+                    selectionLimit: this.defaultSelectionLimit,
                     datasets: []
                 };
 
@@ -336,12 +342,50 @@
                     });
             },
 
+            onLayerGranularityBeforeChanged: function(prodId, triggerChange){
+                var trigCh = defaultFor(triggerChange, true);
+                var prod = globals.products.find(function(model) { 
+                    return model.get('download').id === prodId;
+                });
+                if(prod.get('granularity') === 'measurement'){
+                    var maxtime = 100*60; // 199 minutes ~1 orbit
+                    this.slider.options.selectionLimit = maxtime;
+
+                    var currT = Communicator.mediator.timeOfInterest;
+                    // Check to see if current selection is too large
+                    if (prod.get('visible') && Math.ceil(
+                        (currT.end.getTime() - currT.start.getTime())/1000) > maxtime ){
+                        var newEnd = new Date(currT.start.getTime()+maxtime*1000);
+                        this.slider.select(currT.start, newEnd);
+                        showMessage('success',
+                             'The time interval selected has been reduced. '+
+                             'Measurement granularity is very densly packed, '+
+                             'this only allows visualization of a smaller subset '+
+                             'then for observations', 35
+                        );
+                    } else if(trigCh){
+                        Communicator.mediator.trigger("layer:granularity:changed", prodId);
+                    }
+                } else if(trigCh){
+                    this.slider.options.selectionLimit = this.defaultSelectionLimit;
+                    Communicator.mediator.trigger("layer:granularity:changed", prodId);
+                }
+
+                
+
+            },
+
 
             changeLayer: function (options) {
                 if (!options.isBaseLayer){
                     var product = globals.products.find(function(model) { return model.get('name') === options.name; });
                     if (product){
                         if(options.visible && product.get('timeSlider')){
+
+                            // Check to see if we need to limit time selection
+                            // if selected product is set to measurement level
+                            this.onLayerGranularityBeforeChanged(product.get('download').id, false);
+
                             var extent = {left: -180, bottom: -90, right: 180, top: 90};
                             try{
                                 extent = Communicator.reqres.request('map:get:extent');

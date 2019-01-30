@@ -300,8 +300,7 @@
                         $("#granularity_selection").on('change', function(){
                             var granularity = $("#granularity_selection").find("option:selected").val();
                             that.model.set('granularity', granularity);
-                            Communicator.mediator.trigger("layer:granularity:changed", that.model.get("download").id);
-                            Communicator.mediator.trigger("layer:parameters:changed", that.model.get("download").id);
+                            Communicator.mediator.trigger("layer:granularity:beforechange", that.model.get("download").id);
                         });
                     }
                 }
