@@ -87,11 +87,16 @@
                 }else{
                     // If time not in localstorage use default of current date
                     // minus 12 hours
-                    selectionstart = new Date();
+                    /*selectionstart = new Date();
                     selectionstart.setUTCHours(selectionstart.getUTCHours() - 12);
 
                     selectionend = new Date(selectionstart.getTime());
-                    selectionend.setUTCHours(selectionend.getUTCHours() + 1);
+                    selectionend.setUTCHours(selectionend.getUTCHours() + 1);*/
+
+                    // TODO: Temporary overwrite to show last available data
+                    // as default
+                    selectionstart = new Date('2019-01-13T00:09:15Z');
+                    selectionend = new Date('2019-01-13T01:21:44Z');
 
                 }
 
@@ -101,11 +106,17 @@
                     domainStart = new Date(domain[0]);
                     domainEnd = new Date(domain[1]);
                 }else{
-                    domainStart = new Date();
+                    /*domainStart = new Date();
                     domainStart.setUTCHours(domainStart.getUTCHours() - 36);
 
                     domainEnd = new Date();
-                    domainEnd.setUTCHours(domainEnd.getUTCHours() + 12);
+                    domainEnd.setUTCHours(domainEnd.getUTCHours() + 12);*/
+
+                    // TODO: Temporary overwrite to show last available data
+                    // as default
+                    domainStart = new Date('2019-01-11T23:50:00Z');
+                    domainEnd = new Date('2019-01-14T01:45:00Z');
+
                 }
 
                 this.activeWPSproducts = [];
