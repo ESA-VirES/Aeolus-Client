@@ -7,13 +7,11 @@ define([
     'models/MapModel',
     'globals',
     'papaparse',
-    'hbs!tmpl/wps_get_field_lines',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
     'plotty'
-], function( Marionette, Communicator, App, MapModel, globals, Papa,
-             tmplGetFieldLines) {
+], function( Marionette, Communicator, App, MapModel, globals, Papa) {
     'use strict';
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
@@ -905,6 +903,16 @@ define([
                 function(p){return p.get('download').id === cov_id;}
             );
 
+            // TODO: If group collection is selected for now we do not create
+            // curtains
+            if(currProd.get('granularity') === 'group'){
+                if(currProd.hasOwnProperty('curtains')){
+                    currProd.curtains.removeAll();
+                    curtainCollection = currProd.curtains;
+                }
+                return;
+            }
+
             var curtainCollection;
 
             if(currProd.hasOwnProperty('curtains')){
@@ -1703,7 +1711,6 @@ define([
                                             this.activeFL.splice(this.activeFL.indexOf(product.get('download').id), 1);
                                         }
                                     }
-                                    this.checkFieldLines();
                                 }else{
 
                                     cesLayer = product.get('ces_layer');
@@ -2661,7 +2668,6 @@ define([
                         outlineWidth: 2
                     }
                 });
-                this.checkFieldLines();
                 $('#bb_selection').html('Clear Selection');
 
             }else{
@@ -2683,67 +2689,6 @@ define([
             },this);
         },
 
-        checkFieldLines: function(){
-            if(this.activeFL.length>0 && this.bboxsel){
-                var url, modelId, color, band, style, range, logarithmic,
-                    parameters, name;
-                globals.products.each(function(product) {
-                    if(this.activeFL.indexOf(product.get('download').id)!==-1){
-                        name = product.get('name');
-                        url = product.get('views')[0].urls[0];
-                        modelId = product.get('download').id;
-                        color = product.get('color');
-                        color = color.substring(1, color.length);
-                        parameters = product.get('parameters');
-                        _.each(_.keys(parameters), function(key){
-                            if(parameters[key].selected){
-                                band = key;
-                            }
-                        });
-                        style = parameters[band].colorscale;
-                        range = parameters[band].range;
-                        logarithmic = parameters[band].logarithmic;
-
-                        if(this.FLCollection.hasOwnProperty( name )) {
-                            this.map.scene.primitives.remove(this.FLCollection[name]);
-                            delete this.FLCollection[name];
-                        }
-
-                        var that = this;
-
-                        $.post( url, tmplGetFieldLines({
-                            'model_ids': modelId,
-                            'begin_time': getISODateTimeString(this.beginTime),
-                            'end_time': getISODateTimeString(this.endTime),
-                            'bbox': this.bboxsel[0] +','+ this.bboxsel[1] +','+
-                                    this.bboxsel[2] +','+ this.bboxsel[3],
-                            'style': style,
-                            'range_min': range[0],
-                            'range_max': range[1],
-                            'log_scale': logarithmic
-                        }))
-                        .done(function( data ) {
-                            Papa.parse(data, {
-                                header: true,
-                                dynamicTyping: true,
-                                complete: function(results) {
-                                    that.createPrimitives(results, name);
-                                }
-                            });
-                        });
-                    }
-                }, this);
-            }else{
-                _.each(_.keys(this.FLCollection), function(key){
-                    this.map.scene.primitives.remove(this.FLCollection[key]);
-                    delete this.FLCollection[key];
-                }, this);
-            }
-        },
-
-        onFieldlinesChanged: function(){
-            this.checkFieldLines();
-        },
 
         createPrimitives: function(results, name){
             var parseddata = {};
@@ -2879,7 +2824,6 @@ define([
                     //this.checkShc(product, product.get('visible'));
                 }
             }, this);
-            this.checkFieldLines();
         },
 
         onSetExtent: function(bbox) {

@@ -207,6 +207,10 @@ define(['backbone.marionette',
                     'SCA_backscatter','SCA_QC_flag',
                     'SCA_extinction_variance', 'SCA_backscatter_variance','SCA_LOD_variance',
                     'mie_altitude_obs','MCA_LOD',
+                    // L2A group
+                    'group_backscatter_variance', 'group_extinction_variance',
+                    'group_extinction', /*'group_backscatter',*/ 'group_LOD_variance',
+                    'group_LOD', 'group_SR',
                     // L2B, L2C
                     'mie_wind_result_SNR', 'mie_wind_result_HLOS_error',
                     'mie_wind_result_COG_range',
@@ -349,6 +353,20 @@ define(['backbone.marionette',
                         'longitude': 'longitude_of_DEM_intersection_obs',
                         'altitude': 'rayleigh_altitude'
                     }
+
+                },
+                'ALD_U_N_2A_group':{
+                    xAxis: 'measurements',
+                    yAxis: [
+                        'altitude',
+                    ],
+                    combinedParameters: {
+                        altitude: ['alt_start', 'alt_end'],
+                        measurements: ['meas_start', 'meas_end']
+                    },
+                    colorAxis: [
+                        'group_backscatter_variance'
+                    ],
 
                 },
                 'ALD_U_N_2B_mie': {
@@ -998,7 +1016,11 @@ define(['backbone.marionette',
                             }
                         }
                     });
-                    
+
+                    var currProd = globals.products.find(
+                        function(p){return p.get('download').id === idKeys[0];}
+                    );
+
 
                     $('#nodataavailable').hide();
                     //this.graph.loadData(data);
@@ -1025,24 +1047,38 @@ define(['backbone.marionette',
 
                      }else if(idKeys[0] === 'ALD_U_N_2A'){
 
-                        this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2A_mie;
-                        this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2A_rayleigh;
-                        $('#graph_1').css('height', '49%');
-                        $('#graph_2').css('height', '49%');
-                        $('#graph_2').show();
-                        this.graph1.debounceActive = true;
-                        this.graph2.debounceActive = true;
-                        this.graph1.ignoreParameters = [/rayleigh_.*/, /SCA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
-                        this.graph2.ignoreParameters = [/mie_.*/, /MCA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
-                        this.graph1.dataSettings = mergedDataSettings;
-                        this.graph2.dataSettings = mergedDataSettings;
-                        this.graph1.loadData(data['ALD_U_N_2A']);
-                        this.graph2.loadData(data['ALD_U_N_2A']);
-                        this.graph1.fileSaveString = 'ALD_U_N_2A_mie_plot';
-                        this.graph2.fileSaveString = 'ALD_U_N_2A_rayleigh_plot';
-                        this.graph1.connectGraph(this.graph2);
-                        this.graph2.connectGraph(this.graph1);
-                        this.filterManager.loadData(data['ALD_U_N_2A']);
+                        if(currProd.get('granularity') === 'group'){
+                            this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2A_group;
+                            this.graph1.connectGraph(false);
+                            this.graph2.connectGraph(false);
+                            $('#graph_2').hide();
+                            $('#graph_1').css('height', '99%');
+                            this.graph1.dataSettings = mergedDataSettings;
+                            this.graph2.dataSettings = mergedDataSettings;
+                            this.graph1.loadData(data[idKeys[0]]);
+                            this.graph1.fileSaveString = idKeys[0]+'_top';
+                            this.filterManager.loadData(data[idKeys[0]]);
+                        } else {
+                            this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2A_mie;
+                            this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2A_rayleigh;
+                            $('#graph_1').css('height', '49%');
+                            $('#graph_2').css('height', '49%');
+                            $('#graph_2').show();
+                            this.graph1.debounceActive = true;
+                            this.graph2.debounceActive = true;
+                            this.graph1.ignoreParameters = [/rayleigh_.*/, /SCA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
+                            this.graph2.ignoreParameters = [/mie_.*/, /MCA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
+                            this.graph1.dataSettings = mergedDataSettings;
+                            this.graph2.dataSettings = mergedDataSettings;
+                            this.graph1.loadData(data['ALD_U_N_2A']);
+                            this.graph2.loadData(data['ALD_U_N_2A']);
+                            this.graph1.fileSaveString = 'ALD_U_N_2A_mie_plot';
+                            this.graph2.fileSaveString = 'ALD_U_N_2A_rayleigh_plot';
+                            this.graph1.connectGraph(this.graph2);
+                            this.graph2.connectGraph(this.graph1);
+                            this.filterManager.loadData(data['ALD_U_N_2A']);
+                        }
+
 
                      }else if(idKeys[0] === 'ALD_U_N_2B'){
 

@@ -10,15 +10,14 @@
     'backbone',
     'communicator',
     'globals',
-    'hbs!tmpl/wps_fetchData',
-    'hbs!tmpl/wps_l1b',
+    'hbs!tmpl/wps_dataRequest',
     'app',
     'papaparse',
     'msgpack',
     'graphly'
   ],
 
-  function( Backbone, Communicator, globals, wps_fetchDataTmpl, wps_l1bTmpl, App, Papa) {
+  function( Backbone, Communicator, globals, wps_dataRequestTmpl, App, Papa) {
 
     var DataController = Backbone.Marionette.Controller.extend({
 
@@ -840,6 +839,238 @@
         this.checkFlatteningComplete();
       },
 
+
+      handleL2ADataResponse: function(product, data, collectionId){
+        var ds = data[collectionId];
+        var keys = Object.keys(ds);
+        var resData = {};
+        var gran = product.get('granularity');
+
+        if(typeof USERVARIABLE !== 'undefined'){
+          var userCollId = 'user_collection_'+ USERVARIABLE;
+          var dataGranularity = gran + '_data';
+
+          if(data.hasOwnProperty(userCollId)) {
+            var userdataKeys = Object.keys(data[userCollId]);
+
+            // Check if only user uploaded data is avaialbe
+            if($.isEmptyObject(ds)){
+              ds = data[userCollId];
+              keys = Object.keys(ds);
+
+            } else if(!$.isEmptyObject(data[userCollId])){
+
+              // Only create these groups if userdata contains any data
+              var diffV = [
+                'SCA_extinction_variance',
+                'SCA_backscatter_variance',
+                'SCA_LOD_variance',
+                'SCA_middle_bin_extinction_variance',
+                'SCA_middle_bin_backscatter_variance',
+                'SCA_middle_bin_LOD_variance',
+                'SCA_middle_bin_BER_variance',
+                'SCA_extinction',
+                'SCA_backscatter',
+                'SCA_LOD',
+                'SCA_SR',
+                'SCA_middle_bin_extinction',
+                'SCA_middle_bin_backscatter',
+                'SCA_middle_bin_LOD',
+                'SCA_middle_bin_BER',
+                'MCA_clim_BER',
+                'MCA_extinction',
+                'MCA_LOD',
+              ];
+
+              for (var kk = 0; kk < diffV.length; kk++) {
+                if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
+                  ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
+                  ds[dataGranularity][diffV[kk]+'_diff'] = [];
+                  var block;
+                  for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
+                    block = [];
+                    for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
+                      block.push(
+                        ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
+                      );
+                    }
+                    ds[dataGranularity][diffV[kk]+'_diff'].push(block);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // Switch between granularities
+
+        if(gran === 'group'){
+          // L2A
+          var meas_start = [];
+          var meas_end = [];
+          var alt_start = [];
+          var alt_end = [];
+          var gD = data.ALD_U_N_2A.group_data;
+          var oD = data.ALD_U_N_2A.observation_data;
+
+          for (var i = 0; i < gD.group_start_obs.length; i++) {
+              var currObsStart = gD.group_start_obs[i]-1;
+              //var currObsEnd = gD.group_end_obs[i]; // Not needed yet as start and end is equal
+              var currMeasStart = (currObsStart*30) + gD.group_start_meas_obs[i];
+              var currMeasEnd = (currObsStart*30) + gD.group_end_meas_obs[i];
+              var heighBinIndex = gD.group_height_bin_index[i]-1;
+              var currAltStart = oD.mie_altitude_obs[currObsStart][heighBinIndex];
+              var currAltEnd = oD.mie_altitude_obs[currObsStart][heighBinIndex+1];
+              
+              // TODO: In theory we should filter out -1 values, not sure if these
+              // apply equally to all parameters...
+              //if(gD.group_backscatter[i] !==-1){}
+
+              meas_start.push(currMeasStart);
+              meas_end.push(currMeasEnd);
+              alt_start.push(currAltEnd);
+              alt_end.push(currAltStart);
+           }
+
+          resData.alt_start = alt_start;
+          resData.alt_end = alt_end;
+          resData.meas_start = meas_start;
+          resData.meas_end = meas_end;
+          resData.group_backscatter_variance = gD.group_backscatter_variance;
+          resData.group_extinction_variance = gD.group_extinction_variance;
+          resData.group_extinction = gD.group_extinction;
+          resData.group_backscatter = gD.group_backscatter;
+          resData.group_LOD_variance = gD.group_LOD_variance;
+          resData.group_LOD = gD.group_LOD;
+          resData.group_SR = gD.group_SR;
+
+        } else {
+
+          for (var k = 0; k < keys.length; k++) {
+            var subK = Object.keys(ds[keys[k]]);
+            for (var l = 0; l < subK.length; l++) {
+              var curArr = ds[keys[k]][subK[l]];
+              if( Array.isArray(curArr[0]) ){
+                if(subK[l].includes('altitude')){
+                  // Create bottom and top arrays
+                  var tmpArrBottom = [];
+                  var tmpArrTop = [];
+                  for (var i = 0; i < curArr.length; i++) {
+                    for (var j = 0; j < 24; j++) {
+                      tmpArrBottom.push(curArr[i][j]);
+                      tmpArrTop.push(curArr[i][j+1]);
+                    }
+                  }
+                  resData[subK[l]+'_bottom'] = tmpArrBottom;
+                  resData[subK[l]+'_top'] = tmpArrTop;
+                } else {
+                  resData[subK[l]] = [].concat.apply([], ds[keys[k]][subK[l]]);
+                }
+              }else{
+
+                var tmpArr = [];
+                for (var i = 0; i < curArr.length; i++) {
+                  for (var j = 0; j < 24; j++) {
+                    tmpArr.push(curArr[i]);
+                  }
+                }
+                resData[subK[l]+'_orig'] = curArr;
+                resData[subK[l]] = tmpArr;
+              }
+            }
+          }
+
+          // Check if data is actually available
+          if((resData.hasOwnProperty('SCA_time_obs') && resData['SCA_time_obs'].length > 0) && 
+             (resData.hasOwnProperty('MCA_time_obs') && resData['MCA_time_obs'].length > 0) ) {
+                                
+            // Create new start and stop time to allow rendering
+            resData['SCA_time_obs_start'] = resData['SCA_time_obs'].slice();
+            resData['SCA_time_obs_stop'] = resData['SCA_time_obs'].slice(24, resData['SCA_time_obs'].length);
+            resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
+            resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].slice(24, resData['MCA_time_obs'].length);
+
+            resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
+            resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].slice(1, resData['SCA_time_obs_orig'].length);
+            resData['MCA_time_obs_orig_start'] = resData['MCA_time_obs_orig'].slice();
+            resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].slice(1, resData['MCA_time_obs_orig'].length);
+            // Add element with additional 12ms as it should be the default
+            // time interval between observations
+            // TODO: make sure this is acceptable! As there seems to be some 
+            // minor deviations at start and end of observations
+            var lastValSCA =  resData['SCA_time_obs_orig'].slice(-1)[0]+12;
+            var lastValMCA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
+            for (var i = 0; i < 24; i++) {
+              resData['SCA_time_obs_stop'].push(lastValSCA);
+              resData['MCA_time_obs_stop'].push(lastValMCA);
+            }
+            resData['SCA_time_obs_orig_stop'].push(lastValSCA);
+            resData['MCA_time_obs_orig_stop'].push(lastValMCA);
+
+            var lonStep = 15;
+            var latStep = 15;
+
+
+
+            var jumpPos = [];
+            var signCross = [];
+            for (var i = 1; i < resData.latitude_of_DEM_intersection_obs_orig.length; i++) {
+              var latdiff = Math.abs(
+                resData.latitude_of_DEM_intersection_obs_orig[i-1]-
+                resData.latitude_of_DEM_intersection_obs_orig[i]
+              );
+              var londiff = Math.abs(
+                resData.longitude_of_DEM_intersection_obs_orig[i-1]-
+                resData.longitude_of_DEM_intersection_obs_orig[i]
+              ); 
+              // TODO: slicing not working correctly for L2a
+              if (latdiff >= latStep) {
+                signCross.push(latdiff>160);
+                jumpPos.push(i);
+              }else if (londiff >= lonStep) {
+                signCross.push(londiff>340);
+                jumpPos.push(i);
+              }
+            }
+
+            var jumpPos2 = [];
+            var signCross2 = [];
+            for (var i = 1; i < resData.latitude_of_DEM_intersection_obs.length; i++) {
+              var latdiff = Math.abs(
+                resData.latitude_of_DEM_intersection_obs[i-1]-
+                resData.latitude_of_DEM_intersection_obs[i]
+              );
+              var londiff = Math.abs(
+                resData.longitude_of_DEM_intersection_obs[i-1]-
+                resData.longitude_of_DEM_intersection_obs[i]
+              ); 
+
+              if (latdiff >= latStep) {
+                signCross2.push(latdiff>160);
+                jumpPos2.push(i);
+              }else if (londiff >= lonStep) {
+                signCross2.push(londiff>340)
+                jumpPos2.push(i);
+              }
+            }
+
+            // Remove elements where there is a jump
+            for (var j = 0; j < jumpPos2.length; j++) {
+              if(!signCross2[j]){
+                for (var key in resData){
+                  resData[key].splice(jumpPos2[j]-24,24);
+                }
+              }
+            }
+            resData.jumps = jumpPos;
+            resData.signCross = signCross;
+          }
+
+        }
+
+        return resData;
+      },
+
       sendRequest: function(prodId){
        
         var process = {
@@ -995,8 +1226,18 @@
               'rayleigh_altitude_meas',
               'albedo_off_nadir'
             ].join(),
-            'group_fields': [
+              'group_fields': [
+              'group_start_obs',
+              'group_end_obs',
+              'group_start_meas_obs',
+              'group_end_meas_obs',
               'group_start_time',
+              'group_end_time',
+              'group_height_bin_index',
+              'group_backscatter',
+              'group_backscatter_variance',
+              'group_extinction_variance'
+              /*'group_start_time',
               'group_end_time',
               'group_centroid_time',
               'group_middle_bin_start_altitude',
@@ -1031,7 +1272,7 @@
               'group_middle_bin_BER_bottom',
               //'scene_classification_aladin_cloud_flag',
               'scene_classification_NWP_cloud_flag',
-              'scene_classification_group_class_reliability'
+              'scene_classification_group_class_reliability'*/
             ].join(),
           },
           'ALD_U_N_2B': {
@@ -1435,7 +1676,17 @@
             'longitude_off_nadir'
           ]
 
-        }
+        };
+
+        var requestOptions = {
+          l2a_group: {
+            //measurement_fields: 'altitude_of_DEM_intersection_meas,mie_altitude_meas',
+            observation_fields: 'altitude_of_DEM_intersection_obs,mie_altitude_obs,rayleigh_altitude_obs'/*+'latitude_of_DEM_intersection_obs,longitude_of_DEM_intersection_obs'*/,
+            group_fields: 'group_start_obs,group_end_obs,group_start_meas_obs,group_end_meas_obs,group_start_time,group_end_time,group_height_bin_index,'+
+                          'group_extinction,group_backscatter,group_backscatter_variance,group_extinction_variance,group_LOD_variance,group_LOD,group_SR'
+
+          }
+        };
         
         var collections = [collectionId];
         if(typeof USERVARIABLE !== 'undefined'){
@@ -1456,9 +1707,11 @@
           options["bbox_upper"] = bb.e + " " + bb.n;
         }
 
-        
-        if(collectionId.indexOf('AUX')===-1){
-          var gran = product.get('granularity');
+
+        var gran = product.get('granularity');
+        if(collectionId === 'ALD_U_N_2A'  && gran === 'group'){
+          $.extend(options, requestOptions.l2a_group);
+        } else if(collectionId.indexOf('AUX')===-1){
           if(gran === 'wind-accumulation-result'){
             options['mie_wind_fields'] = fieldsList[collectionId]['mie_wind_fields'];
             options['rayleigh_wind_fields'] = fieldsList[collectionId]['rayleigh_wind_fields'];
@@ -1572,7 +1825,7 @@
 
         options.mimeType = 'application/msgpack';
 
-        var body = wps_l1bTmpl(options);
+        var body = wps_dataRequestTmpl(options);
 
         if(this.xhr !== null){
           // A request has been sent that is not yet been returned so we need to cancel it
@@ -2199,181 +2452,7 @@
 
                   } else if(collectionId === 'ALD_U_N_2A'){
 
-                    if(typeof USERVARIABLE !== 'undefined'){
-                      var userCollId = 'user_collection_'+ USERVARIABLE;
-                      var dataGranularity = product.get('granularity')+'_data';
-
-                      if(data.hasOwnProperty(userCollId)) {
-                        var userdataKeys = Object.keys(data[userCollId]);
-
-                        // Check if only user uploaded data is avaialbe
-                        if($.isEmptyObject(ds)){
-                          ds = data[userCollId];
-                          keys = Object.keys(ds);
-
-                        } else if(!$.isEmptyObject(data[userCollId])){
-
-                          // Only create these groups if userdata contains any data
-                          var diffV = [
-                            'SCA_extinction_variance',
-                            'SCA_backscatter_variance',
-                            'SCA_LOD_variance',
-                            'SCA_middle_bin_extinction_variance',
-                            'SCA_middle_bin_backscatter_variance',
-                            'SCA_middle_bin_LOD_variance',
-                            'SCA_middle_bin_BER_variance',
-                            'SCA_extinction',
-                            'SCA_backscatter',
-                            'SCA_LOD',
-                            'SCA_SR',
-                            'SCA_middle_bin_extinction',
-                            'SCA_middle_bin_backscatter',
-                            'SCA_middle_bin_LOD',
-                            'SCA_middle_bin_BER',
-                            'MCA_clim_BER',
-                            'MCA_extinction',
-                            'MCA_LOD',
-                          ];
-
-                          for (var kk = 0; kk < diffV.length; kk++) {
-                            if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
-                              ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
-                              ds[dataGranularity][diffV[kk]+'_diff'] = [];
-                              var block;
-                              for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
-                                block = [];
-                                for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
-                                  block.push(
-                                    ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
-                                  );
-                                }
-                                ds[dataGranularity][diffV[kk]+'_diff'].push(block);
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-
-                    for (var k = 0; k < keys.length; k++) {
-                      var subK = Object.keys(ds[keys[k]]);
-                      for (var l = 0; l < subK.length; l++) {
-                        var curArr = ds[keys[k]][subK[l]];
-                        if( Array.isArray(curArr[0]) ){
-                          if(subK[l].includes('altitude')){
-                            // Create bottom and top arrays
-                            var tmpArrBottom = [];
-                            var tmpArrTop = [];
-                            for (var i = 0; i < curArr.length; i++) {
-                              for (var j = 0; j < 24; j++) {
-                                tmpArrBottom.push(curArr[i][j]);
-                                tmpArrTop.push(curArr[i][j+1]);
-                              }
-                            }
-                            resData[subK[l]+'_bottom'] = tmpArrBottom;
-                            resData[subK[l]+'_top'] = tmpArrTop;
-                          } else {
-                            resData[subK[l]] = [].concat.apply([], ds[keys[k]][subK[l]]);
-                          }
-                        }else{
-
-                          var tmpArr = [];
-                          for (var i = 0; i < curArr.length; i++) {
-                            for (var j = 0; j < 24; j++) {
-                              tmpArr.push(curArr[i]);
-                            }
-                          }
-                          resData[subK[l]+'_orig'] = curArr;
-                          resData[subK[l]] = tmpArr;
-                        }
-                      }
-                    }
-
-                    // Check if data is actually available
-                    if((resData.hasOwnProperty('SCA_time_obs') && resData['SCA_time_obs'].length > 0) && 
-                       (resData.hasOwnProperty('MCA_time_obs') && resData['MCA_time_obs'].length > 0) ) {
-                                          
-                      // Create new start and stop time to allow rendering
-                      resData['SCA_time_obs_start'] = resData['SCA_time_obs'].slice();
-                      resData['SCA_time_obs_stop'] = resData['SCA_time_obs'].slice(24, resData['SCA_time_obs'].length);
-                      resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
-                      resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].slice(24, resData['MCA_time_obs'].length);
-
-                      resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
-                      resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].slice(1, resData['SCA_time_obs_orig'].length);
-                      resData['MCA_time_obs_orig_start'] = resData['MCA_time_obs_orig'].slice();
-                      resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].slice(1, resData['MCA_time_obs_orig'].length);
-                      // Add element with additional 12ms as it should be the default
-                      // time interval between observations
-                      // TODO: make sure this is acceptable! As there seems to be some 
-                      // minor deviations at start and end of observations
-                      var lastValSCA =  resData['SCA_time_obs_orig'].slice(-1)[0]+12;
-                      var lastValMCA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
-                      for (var i = 0; i < 24; i++) {
-                        resData['SCA_time_obs_stop'].push(lastValSCA);
-                        resData['MCA_time_obs_stop'].push(lastValMCA);
-                      }
-                      resData['SCA_time_obs_orig_stop'].push(lastValSCA);
-                      resData['MCA_time_obs_orig_stop'].push(lastValMCA);
-
-                      var lonStep = 15;
-                      var latStep = 15;
-
-
-
-                      var jumpPos = [];
-                      var signCross = [];
-                      for (var i = 1; i < resData.latitude_of_DEM_intersection_obs_orig.length; i++) {
-                        var latdiff = Math.abs(
-                          resData.latitude_of_DEM_intersection_obs_orig[i-1]-
-                          resData.latitude_of_DEM_intersection_obs_orig[i]
-                        );
-                        var londiff = Math.abs(
-                          resData.longitude_of_DEM_intersection_obs_orig[i-1]-
-                          resData.longitude_of_DEM_intersection_obs_orig[i]
-                        ); 
-                        // TODO: slicing not working correctly for L2a
-                        if (latdiff >= latStep) {
-                          signCross.push(latdiff>160);
-                          jumpPos.push(i);
-                        }else if (londiff >= lonStep) {
-                          signCross.push(londiff>340);
-                          jumpPos.push(i);
-                        }
-                      }
-
-                      var jumpPos2 = [];
-                      var signCross2 = [];
-                      for (var i = 1; i < resData.latitude_of_DEM_intersection_obs.length; i++) {
-                        var latdiff = Math.abs(
-                          resData.latitude_of_DEM_intersection_obs[i-1]-
-                          resData.latitude_of_DEM_intersection_obs[i]
-                        );
-                        var londiff = Math.abs(
-                          resData.longitude_of_DEM_intersection_obs[i-1]-
-                          resData.longitude_of_DEM_intersection_obs[i]
-                        ); 
-
-                        if (latdiff >= latStep) {
-                          signCross2.push(latdiff>160);
-                          jumpPos2.push(i);
-                        }else if (londiff >= lonStep) {
-                          signCross2.push(londiff>340)
-                          jumpPos2.push(i);
-                        }
-                      }
-
-                      // Remove elements where there is a jump
-                      for (var j = 0; j < jumpPos2.length; j++) {
-                        if(!signCross2[j]){
-                          for (var key in resData){
-                            resData[key].splice(jumpPos2[j]-24,24);
-                          }
-                        }
-                      }
-                      resData.jumps = jumpPos;
-                      resData.signCross = signCross;
-                    }
+                    resData = that.handleL2ADataResponse(product, data, collectionId);
 
                   } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
 

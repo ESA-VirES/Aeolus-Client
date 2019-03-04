@@ -35,6 +35,13 @@
         <wps:LiteralData>{{aux_type}}</wps:LiteralData>
       </wps:Data>
     </wps:Input>{{/if}}
+    {{#if group_fields}}
+    <wps:Input>
+      <ows:Identifier>group_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{group_fields}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
     {{#if observation_fields}}
     <wps:Input>
       <ows:Identifier>observation_fields</ows:Identifier>
