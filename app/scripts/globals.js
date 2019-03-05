@@ -154,6 +154,16 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
 
             // L2B, L2C
 
+            'mie_meas_map': {
+                colorscale: 'jet',
+                csDiscrete: true
+            },
+
+            'rayleigh_meas_map': {
+                colorscale: 'jet',
+                csDiscrete: true
+            },
+
             'mie_wind_result_SNR':{
                 uom: null
             },

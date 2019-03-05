@@ -42,6 +42,20 @@
         <wps:LiteralData>{{group_fields}}</wps:LiteralData>
       </wps:Data>
     </wps:Input>{{/if}}
+    {{#if mie_grouping_fields}}
+    <wps:Input>
+      <ows:Identifier>mie_grouping_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{mie_grouping_fields}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
+    {{#if rayleigh_grouping_fields}}
+    <wps:Input>
+      <ows:Identifier>rayleigh_grouping_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{rayleigh_grouping_fields}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
     {{#if observation_fields}}
     <wps:Input>
       <ows:Identifier>observation_fields</ows:Identifier>

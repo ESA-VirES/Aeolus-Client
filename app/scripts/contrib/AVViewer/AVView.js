@@ -415,6 +415,34 @@ define(['backbone.marionette',
                     }
 
                 },
+                'ALD_U_N_2B_mie_group': {
+                    xAxis: 'measurements',
+                    yAxis: [
+                        'bins',
+                    ],
+                    combinedParameters: {
+                        bins: ['mie_bins_end', 'mie_bins_start'],
+                        measurements: ['mie_meas_start', 'mie_meas_end']
+                    },
+                    colorAxis: [
+                        'mie_meas_map',
+                    ],
+                    reversedYAxis: true
+                },
+                'ALD_U_N_2B_rayleigh_group': {
+                    xAxis: 'measurements',
+                    yAxis: [
+                        'bins',
+                    ],
+                    combinedParameters: {
+                        bins: ['rayleigh_bins_end', 'rayleigh_bins_start'],
+                        measurements: ['rayleigh_meas_start', 'rayleigh_meas_end']
+                    },
+                    colorAxis: [
+                        'rayleigh_meas_map',
+                    ],
+                    reversedYAxis: true
+                },
                 'ALD_U_N_2C_mie': {
                     xAxis: 'time',
                     yAxis: [ 'mie_altitude'],
@@ -583,7 +611,8 @@ define(['backbone.marionette',
                     displayParameterLabel: false,
                     ignoreParameters: [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/],
                     enableSubXAxis: true,
-                    enableSubYAxis: true
+                    enableSubYAxis: true,
+                    colorAxisTickFormat: '.2s'
                 });
                 globals.swarm.get('filterManager').setRenderNode('#analyticsFilters');
                 this.graph1.on('pointSelect', function(values){
@@ -602,7 +631,8 @@ define(['backbone.marionette',
                     connectedGraph: this.graph1,
                     ignoreParameters: [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/],
                     enableSubXAxis: true,
-                    enableSubYAxis: true
+                    enableSubYAxis: true,
+                    colorAxisTickFormat: '.2s'
                 });
                 this.graph1.connectGraph(this.graph2);
                 this.graph2.on('pointSelect', function(values){
@@ -1081,9 +1111,13 @@ define(['backbone.marionette',
 
 
                      }else if(idKeys[0] === 'ALD_U_N_2B'){
-
-                        this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2B_mie;
-                        this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2B_rayleigh;
+                        if(currProd.get('granularity') === 'group'){
+                            this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2B_mie_group;
+                            this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2B_rayleigh_group;
+                        } else {
+                            this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2B_mie;
+                            this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2B_rayleigh;
+                        }
                         $('#graph_1').css('height', '49%');
                         $('#graph_2').css('height', '49%');
                         $('#graph_2').show();
@@ -1093,13 +1127,28 @@ define(['backbone.marionette',
                         this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
-                        this.graph1.loadData(data['ALD_U_N_2B']);
-                        this.graph2.loadData(data['ALD_U_N_2B']);
+                        
                         this.graph1.fileSaveString = 'ALD_U_N_2B_mie_plot';
                         this.graph2.fileSaveString = 'ALD_U_N_2B_rayleigh_plot';
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_2B']);
+
+                        if(currProd.get('granularity') === 'group'){
+                            // If groups only load subset of data
+                            var pos = 20 * 30;
+                            var pageSize = 23 * 30;
+                            var slicedData = {};
+                            var ds = data['ALD_U_N_2B'];
+                            for (var key in ds){
+                                slicedData[key] = ds[key].slice(pos, pageSize).flat();
+                            }
+                            this.graph1.loadData(slicedData);
+                            this.graph2.loadData(slicedData);
+                        } else {
+                            this.graph1.loadData(data['ALD_U_N_2B']);
+                            this.graph2.loadData(data['ALD_U_N_2B']);
+                        }
 
                      }else if(idKeys[0] === 'ALD_U_N_2C'){
 
