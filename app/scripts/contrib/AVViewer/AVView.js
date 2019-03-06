@@ -1144,13 +1144,13 @@ define(['backbone.marionette',
                             var slicedData = {};
                             var ds = data['ALD_U_N_2B'];
                             var maxLength = 0;
+
                             for (var key in ds){
                                 if(maxLength<ds[key].length){
                                     maxLength = ds[key].length;
                                 }
-                                slicedData[key] = ds[key].slice(pos*30, ((pos+pageSize)*30)).flat();
+                                slicedData[key] = ds[key].slice(pos, ((pos+pageSize))).flat();
                             }
-                            maxLength = (maxLength / 30);
                             // Add interaction buttons to go through observation
                             // groups
                             //$('body').append('<button id="observationRight">></button>');
@@ -1178,7 +1178,7 @@ define(['backbone.marionette',
                                 var slicedData = {};
                                 var ds = data['ALD_U_N_2B'];
                                 for (var key in ds){
-                                    slicedData[key] = ds[key].slice(pos*30, ((pos+pageSize)*30)).flat();
+                                    slicedData[key] = ds[key].slice(pos, ((pos+pageSize))).flat();
                                 }
                                 $('#observationLabel').text(
                                     (pos+1)+'-'+(pos+3)+' / '+maxLength
@@ -1198,7 +1198,7 @@ define(['backbone.marionette',
                                 var slicedData = {};
                                 var ds = data['ALD_U_N_2B'];
                                 for (var key in ds){
-                                    slicedData[key] = ds[key].slice(pos*30, ((pos+pageSize)*30)).flat();
+                                    slicedData[key] = ds[key].slice(pos, ((pos+pageSize))).flat();
                                 }
                                 $('#observationLabel').text(
                                     pos+'-'+(pos+3)+' / '+maxLength
@@ -1209,6 +1209,7 @@ define(['backbone.marionette',
 
                             this.graph1.loadData(slicedData);
                             this.graph2.loadData(slicedData);
+
                         } else {
                             this.graph1.loadData(data['ALD_U_N_2B']);
                             this.graph2.loadData(data['ALD_U_N_2B']);

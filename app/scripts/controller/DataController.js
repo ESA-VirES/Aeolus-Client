@@ -1163,34 +1163,40 @@
           var mie_measurement_map = [];
 
 
-          var maxLength = ds.measurement_data.mie_measurement_map.length;
-          var minLength = 0;
-          //var maxLength = 3*30;
-          //var minLength = 
+          var mGD = ds.mie_grouping_data.mie_grouping_start_obs;
 
-          for (var i = minLength; i < maxLength; i++) {
+          for (var i = 0; i < mGD.length; i++) {
+
+              var measStart = mGD[i]*30;
               var obs_mie_bins_start = [];
               var obs_mie_bins_end = [];
               var obs_mie_meas_start = [];
               var obs_mie_meas_end = [];
               var obs_mie_measurement_map = [];
-              for (var j=0; j<ds.measurement_data.mie_measurement_map[i].length; j++){
-                  if(ds.measurement_data.mie_measurement_map[i][j] !== 0){
+
+              for (var j=0; j<ds.measurement_data.mie_measurement_map[measStart].length; j++){
+
+                // Iterate over the 30 measurements of the observation
+                for (var m=0; m<30; m++) {
+
+                  if(ds.measurement_data.mie_measurement_map[measStart+m][j] !== 0){
                       obs_mie_bins_start.push(j);
                       obs_mie_bins_end.push(j+1);
-                      obs_mie_meas_start.push(i);
-                      obs_mie_meas_end.push(i+1);
+                      obs_mie_meas_start.push(measStart+m);
+                      obs_mie_meas_end.push((measStart+m+1));
                       obs_mie_measurement_map.push(
-                        ds.measurement_data.mie_measurement_map[i][j]
+                        ds.measurement_data.mie_measurement_map[measStart+m][j]
                       );
                   }
+                }
               }
               mie_bins_start.push(obs_mie_bins_start);
               mie_bins_end.push(obs_mie_bins_end);
               mie_meas_start.push(obs_mie_meas_start);
               mie_meas_end.push(obs_mie_meas_end);
               mie_measurement_map.push(obs_mie_measurement_map);
-           }
+
+          }
 
           var rayleigh_bins_start = [];
           var rayleigh_bins_end = [];
@@ -1198,31 +1204,40 @@
           var rayleigh_meas_end = [];
           var rayleigh_measurement_map = [];
 
-          maxLength = ds.measurement_data.rayleigh_measurement_map.length;
+          var rGD = ds.rayleigh_grouping_data.rayleigh_grouping_start_obs;
 
-          for (var i = minLength; i < maxLength; i++) {
+          for (var i = 0; i < rGD.length; i++) {
+
+              var measStart = rGD[i]*30;
               var obs_rayleigh_bins_start = [];
               var obs_rayleigh_bins_end = [];
               var obs_rayleigh_meas_start = [];
               var obs_rayleigh_meas_end = [];
               var obs_rayleigh_measurement_map = [];
-              for (var j=0; j<ds.measurement_data.rayleigh_measurement_map[i].length; j++){
-                  if(ds.measurement_data.rayleigh_measurement_map[i][j] !== 0){
+
+              for (var j=0; j<ds.measurement_data.rayleigh_measurement_map[measStart].length; j++){
+
+                // Iterate over the 30 measurements of the observation
+                for (var m=0; m<30; m++) {
+
+                  if(ds.measurement_data.rayleigh_measurement_map[measStart+m][j] !== 0){
                       obs_rayleigh_bins_start.push(j);
                       obs_rayleigh_bins_end.push(j+1);
-                      obs_rayleigh_meas_start.push(i);
-                      obs_rayleigh_meas_end.push(i+1);
+                      obs_rayleigh_meas_start.push(measStart+m);
+                      obs_rayleigh_meas_end.push((measStart+m+1));
                       obs_rayleigh_measurement_map.push(
-                        ds.measurement_data.rayleigh_measurement_map[i][j]
+                        ds.measurement_data.rayleigh_measurement_map[measStart+m][j]
                       );
                   }
+                }
               }
               rayleigh_bins_start.push(obs_rayleigh_bins_start);
               rayleigh_bins_end.push(obs_rayleigh_bins_end);
               rayleigh_meas_start.push(obs_rayleigh_meas_start);
               rayleigh_meas_end.push(obs_rayleigh_meas_end);
               rayleigh_measurement_map.push(obs_rayleigh_measurement_map);
-           }
+
+          }
 
 
           resData.mie_bins_start = mie_bins_start;
