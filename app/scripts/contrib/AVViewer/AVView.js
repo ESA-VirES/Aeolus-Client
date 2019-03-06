@@ -983,6 +983,9 @@ define(['backbone.marionette',
                     firstLoad = true;
                 }
 
+                // Cleanup
+                 $('#buttonContainer').remove();
+
                 // If data parameters have changed
                 if (!firstLoad && !_.isEqual(this.prevParams, idKeys)){
                     // Define which parameters should be selected defaultwise as filtering
@@ -1136,13 +1139,74 @@ define(['backbone.marionette',
 
                         if(currProd.get('granularity') === 'group'){
                             // If groups only load subset of data
-                            var pos = 20 * 30;
-                            var pageSize = 23 * 30;
+                            var pos = 0;
+                            var pageSize = 3;
                             var slicedData = {};
                             var ds = data['ALD_U_N_2B'];
+                            var maxLength = 0;
                             for (var key in ds){
-                                slicedData[key] = ds[key].slice(pos, pageSize).flat();
+                                if(maxLength<ds[key].length){
+                                    maxLength = ds[key].length;
+                                }
+                                slicedData[key] = ds[key].slice(pos*30, ((pos+pageSize)*30)).flat();
                             }
+                            maxLength = (maxLength / 30);
+                            // Add interaction buttons to go through observation
+                            // groups
+                            //$('body').append('<button id="observationRight">></button>');
+                            $('#graph_container').append(
+                                '<div id="buttonContainer"></div>'
+                            );
+                            $('#buttonContainer').append(
+                                '<button id="observationLeft" type="button" class="btn btn-success darkbutton dropdown-toggle"><</button>'
+                            );
+                            $('#buttonContainer').append(
+                                '<div id="observationLabel">'+(pos+1)+'-'+(pos+3)+' / '+maxLength+'</div>'
+                            );
+                            $('#buttonContainer').append(
+                                '<button id="observationRight" type="button" class="btn btn-success darkbutton dropdown-toggle">></button>'
+                            );
+                            var that = this;
+
+                            $('#observationRight').click(function(){
+                                pos+=3;
+                                if(pos>=maxLength-4){
+                                    $('#observationRight').attr('disabled', 'disabled');
+                                }
+                                $('#observationLeft').removeAttr('disabled');
+
+                                var slicedData = {};
+                                var ds = data['ALD_U_N_2B'];
+                                for (var key in ds){
+                                    slicedData[key] = ds[key].slice(pos*30, ((pos+pageSize)*30)).flat();
+                                }
+                                $('#observationLabel').text(
+                                    (pos+1)+'-'+(pos+3)+' / '+maxLength
+                                );
+                                that.graph1.loadData(slicedData);
+                                that.graph2.loadData(slicedData);
+                            });
+
+                            $('#observationLeft').attr('disabled', 'disabled');
+                            $('#observationLeft').click(function(){
+                                pos-=3;
+                                if(pos<=0){
+                                    $('#observationLeft').attr('disabled', 'disabled');
+                                }
+                                $('#observationRight').removeAttr('disabled');
+
+                                var slicedData = {};
+                                var ds = data['ALD_U_N_2B'];
+                                for (var key in ds){
+                                    slicedData[key] = ds[key].slice(pos*30, ((pos+pageSize)*30)).flat();
+                                }
+                                $('#observationLabel').text(
+                                    pos+'-'+(pos+3)+' / '+maxLength
+                                );
+                                that.graph1.loadData(slicedData);
+                                that.graph2.loadData(slicedData);
+                            });
+
                             this.graph1.loadData(slicedData);
                             this.graph2.loadData(slicedData);
                         } else {
