@@ -1161,6 +1161,7 @@
           var mie_meas_start = [];
           var mie_meas_end = [];
           var mie_measurement_map = [];
+          var mie_obs_start = [];
 
 
           var mGD = ds.mie_grouping_data.mie_grouping_start_obs;
@@ -1173,6 +1174,11 @@
               var obs_mie_meas_start = [];
               var obs_mie_meas_end = [];
               var obs_mie_measurement_map = [];
+              mie_obs_start.push(mGD[i]);
+
+              if(measStart>=ds.measurement_data.mie_measurement_map.length){
+                continue;
+              }
 
               for (var j=0; j<ds.measurement_data.mie_measurement_map[measStart].length; j++){
 
@@ -1198,11 +1204,19 @@
 
           }
 
+          resData.mie_bins_start = mie_bins_start;
+          resData.mie_bins_end = mie_bins_end;
+          resData.mie_meas_start = mie_meas_start;
+          resData.mie_meas_end = mie_meas_end;
+          resData.mie_meas_map = mie_measurement_map;
+          resData.mie_obs_start = mie_obs_start;
+
           var rayleigh_bins_start = [];
           var rayleigh_bins_end = [];
           var rayleigh_meas_start = [];
           var rayleigh_meas_end = [];
           var rayleigh_measurement_map = [];
+          var rayleigh_obs_start = [];
 
           var rGD = ds.rayleigh_grouping_data.rayleigh_grouping_start_obs;
 
@@ -1214,6 +1228,11 @@
               var obs_rayleigh_meas_start = [];
               var obs_rayleigh_meas_end = [];
               var obs_rayleigh_measurement_map = [];
+              rayleigh_obs_start.push(rGD[i]);
+
+              if(measStart>=ds.measurement_data.rayleigh_measurement_map.length){
+                continue;
+              }
 
               for (var j=0; j<ds.measurement_data.rayleigh_measurement_map[measStart].length; j++){
 
@@ -1239,18 +1258,12 @@
 
           }
 
-
-          resData.mie_bins_start = mie_bins_start;
-          resData.mie_bins_end = mie_bins_end;
-          resData.mie_meas_start = mie_meas_start;
-          resData.mie_meas_end = mie_meas_end;
-          resData.mie_meas_map = mie_measurement_map;
-
           resData.rayleigh_bins_start = rayleigh_bins_start;
           resData.rayleigh_bins_end = rayleigh_bins_end;
           resData.rayleigh_meas_start = rayleigh_meas_start;
           resData.rayleigh_meas_end = rayleigh_meas_end;
           resData.rayleigh_meas_map = rayleigh_measurement_map;
+          resData.rayleigh_obs_start = rayleigh_obs_start;
 
         } else {
           var startEndVarsBins = [

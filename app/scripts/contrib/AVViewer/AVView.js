@@ -50,6 +50,20 @@ define(['backbone.marionette',
                 typeof this.graph2 === 'undefined') {
                 this.$el.append('<div class="d3canvas"></div>');
                 this.$('.d3canvas').append('<div id="graph_container"></div>');
+
+                // Set height of graph depending on 
+                var filtersMinimized = localStorage.getItem('filtersMinimized');
+                if(filtersMinimized === null){
+                    filtersMinimized = false;
+                } else {
+                    filtersMinimized = JSON.parse(filtersMinimized);
+                }
+
+                if(filtersMinimized){
+                    $('#filterSelectDrop').css('opacity', 0);
+                    $('#analyticsFilters').css('opacity', 0);
+                    $('#graph_container').css('height', '99%');
+                }
                 this.$('#graph_container').append('<div id="graph_1"></div>');
                 this.$('#graph_container').append('<div id="graph_2"></div>');
 
@@ -786,30 +800,35 @@ define(['backbone.marionette',
             var height = '99%';
             var opacity = 0.0;
             var direction = 'up';
-
             if($('#minimizeFilters').hasClass('minimized')){
                 height = ($('#graph_container').height() - 270)+'px';
                 opacity = 1.0;
                 direction = 'down';
                 $('#minimizeFilters').attr('class', 'visible');
+                localStorage.setItem(
+                    'filtersMinimized', JSON.stringify(false)
+                );
             } else {
                 $('#minimizeFilters').attr('class', 'minimized');
+                localStorage.setItem(
+                    'filtersMinimized', JSON.stringify(true)
+                );
             }
 
             $('#filterSelectDrop').animate({ opacity: opacity  }, 1000);
-
             $('#analyticsFilters').animate({ opacity: opacity  }, 1000);
-
             $('#graph_container').animate({ height: height  }, {
                 step: function( now, fx ) {
-                    //that.graph1.resize();
+                    //that.graph.resize();
                 },
                 done: function(){
                     $('#minimizeFilters i').attr('class', 
                         'fa fa-chevron-circle-'+direction
                     );
-                    that.graph1.resize();
-                    if($('#graph_2').is(":visible")){
+                    if(that.graph1){
+                        that.graph1.resize();
+                    }
+                    if(that.graph2){
                         that.graph2.resize();
                     }
                 }
@@ -827,15 +846,41 @@ define(['backbone.marionette',
             $('#resetFilters').off();
             filCon.append('<button id="resetFilters" type="button" class="btn btn-success darkbutton">Reset filters</button>');
             $('#resetFilters').click(function(){
-                that.filterManager.resetManager();
+                that.graph.filterManager.resetManager();
             });
 
+
+            // Set height of graph depending on 
+            var filtersMinimized = localStorage.getItem('filtersMinimized');
+            if(filtersMinimized === null){
+                filtersMinimized = false;
+            } else {
+                filtersMinimized = JSON.parse(filtersMinimized);
+            }
+
+            var direction = 'down';
+            if(filtersMinimized){
+                direction = 'up';
+            }
 
             $('#minimizeFilters').off();
             $('#minimizeFilters').remove();
             $('#filterDivContainer').append(
-                '<div id="minimizeFilters" class="visible"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></div>'
+                '<div id="minimizeFilters" class="visible"><i class="fa fa-chevron-circle-'+direction+'" aria-hidden="true"></i></div>'
             );
+
+            var filtersMinimized = localStorage.getItem('filtersMinimized');
+            if(filtersMinimized === null){
+                filtersMinimized = false;
+            } else {
+                filtersMinimized = JSON.parse(filtersMinimized);
+            }
+
+            if(filtersMinimized){
+                $('#minimizeFilters').addClass('minimized');
+            } else {
+                $('#minimizeFilters').addClass('visible');
+            }
 
             $('#minimizeFilters').click(this.changeFilterDisplayStatus.bind(this));
 
@@ -860,16 +905,6 @@ define(['backbone.marionette',
                 delete aUOM[key];
               }
             }
-
-
-            // Remove unwanted parameters
-            /*if(aUOM.hasOwnProperty('Timestamp')){delete aUOM.Timestamp;}
-            if(aUOM.hasOwnProperty('timestamp')){delete aUOM.timestamp;}
-            if(aUOM.hasOwnProperty('q_NEC_CRF')){delete aUOM.q_NEC_CRF;}
-            if(aUOM.hasOwnProperty('GPS_Position')){delete aUOM.GPS_Position;}
-            if(aUOM.hasOwnProperty('LEO_Position')){delete aUOM.LEO_Position;}
-            if(aUOM.hasOwnProperty('Spacecraft')){delete aUOM.Spacecraft;}
-            if(aUOM.hasOwnProperty('id')){delete aUOM.id;}*/
 
             $('#filterSelectDrop').prepend(
               '<div class="w2ui-field"> <button id="analyticsAddFilter" type="button" class="btn btn-success darkbutton dropdown-toggle">Add filter <span class="caret"></span></button> <input type="list" id="inputAnalyticsAddfilter"></div>'
@@ -966,6 +1001,21 @@ define(['backbone.marionette',
             }
         },
 
+        getObservationPositions: function(pos, stepSize, param, data){
+            var obsData = [];
+            if((pos+stepSize)>=data[param].length){
+                stepSize = stepSize - ((pos+stepSize)-data[param].length)-1;
+            }
+            for (var i = 0; i < stepSize; i++) {
+                obsData.push([
+                    data[param][(pos+i)]*30,
+                    data[param][(pos+i+1)]*30,
+                    data[param][(pos+i)]
+                ]);
+            }
+            return obsData;
+        },
+
         reloadData: function(model, data) {
             // If element already has plot rendering
             if( $(this.el).html()){
@@ -984,7 +1034,12 @@ define(['backbone.marionette',
                 }
 
                 // Cleanup
-                 $('#buttonContainer').remove();
+                $('#buttonContainer').remove();
+
+                this.graph1.removeGroupArrows();
+                this.graph2.removeGroupArrows();
+                this.graph1.margin.bottom = 50;
+                this.graph2.margin.bottom = 50;
 
                 // If data parameters have changed
                 if (!firstLoad && !_.isEqual(this.prevParams, idKeys)){
@@ -1138,6 +1193,12 @@ define(['backbone.marionette',
                         this.filterManager.loadData(data['ALD_U_N_2B']);
 
                         if(currProd.get('granularity') === 'group'){
+
+                            // Change to "full view" if filters are shown
+                            if(!$('#minimizeFilters').hasClass('minimized')){
+                                this.changeFilterDisplayStatus();
+                            }
+                            
                             // If groups only load subset of data
                             var pos = 0;
                             var pageSize = 3;
@@ -1151,6 +1212,20 @@ define(['backbone.marionette',
                                 }
                                 slicedData[key] = ds[key].slice(pos, ((pos+pageSize))).flat();
                             }
+
+                            this.graph1.addGroupArrows(
+                                this.getObservationPositions(
+                                    pos, pageSize, 'mie_obs_start', ds
+                                )
+                            );
+                            this.graph2.addGroupArrows(
+                                this.getObservationPositions(
+                                    pos, pageSize, 'rayleigh_obs_start', ds
+                                )
+                            );
+
+                            this.graph1.margin.bottom = 80;
+                            this.graph2.margin.bottom = 80;
                             // Add interaction buttons to go through observation
                             // groups
                             //$('body').append('<button id="observationRight">></button>');
@@ -1183,6 +1258,17 @@ define(['backbone.marionette',
                                 $('#observationLabel').text(
                                     (pos+1)+'-'+(pos+3)+' / '+maxLength
                                 );
+                                
+                                that.graph1.addGroupArrows(
+                                    that.getObservationPositions(
+                                        pos, pageSize, 'mie_obs_start', ds
+                                    )
+                                );
+                                that.graph2.addGroupArrows(
+                                    that.getObservationPositions(
+                                        pos, pageSize, 'rayleigh_obs_start', ds
+                                    )
+                                );
                                 that.graph1.loadData(slicedData);
                                 that.graph2.loadData(slicedData);
                             });
@@ -1202,6 +1288,16 @@ define(['backbone.marionette',
                                 }
                                 $('#observationLabel').text(
                                     pos+'-'+(pos+3)+' / '+maxLength
+                                );
+                                that.graph1.addGroupArrows(
+                                    that.getObservationPositions(
+                                        pos, pageSize, 'mie_obs_start', ds
+                                    )
+                                );
+                                that.graph2.addGroupArrows(
+                                    that.getObservationPositions(
+                                        pos, pageSize, 'rayleigh_obs_start', ds
+                                    )
                                 );
                                 that.graph1.loadData(slicedData);
                                 that.graph2.loadData(slicedData);
