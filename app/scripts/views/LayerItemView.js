@@ -121,6 +121,26 @@
             onChange: function(evt){
 
                 var visible = evt.target.checked;
+                
+                if(visible){
+                    // Activate setting directly when product is being activated
+                    if (_.isUndefined(App.layerSettings.isClosed) || App.layerSettings.isClosed) {
+                        App.layerSettings.setModel(this.model);
+                        App.optionsBar.show(App.layerSettings);
+                        $('#optionsBar').fadeTo(100, 0.3, function() {$(this).fadeTo(100, 1.0); });
+                    } else {
+                        if(!App.layerSettings.sameModel(this.model)){
+                            App.layerSettings.setModel(this.model);
+                            App.optionsBar.show(App.layerSettings);
+                            $('#optionsBar').fadeTo(100, 0.3, function() { $(this).fadeTo(100, 1.0); });
+                        }
+                    }
+                } else {
+                    if (!(_.isUndefined(App.layerSettings.isClosed) || App.layerSettings.isClosed)) {
+                        App.optionsBar.close();
+                    }
+                }
+
                 var isBaseLayer = false;
                 if (this.model.get('view').isBaseLayer){
                     isBaseLayer = true;
