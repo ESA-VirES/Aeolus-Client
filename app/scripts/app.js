@@ -124,6 +124,47 @@ var VECTOR_BREAKDOWN = {};
                     })
                 );
 
+                // Check if version of service is set and if it differs from the
+                // current version
+                if(localStorage.getItem('serviceVersion') !== null){
+                    var serviceVersion = JSON.parse(
+                        localStorage.getItem('serviceVersion')
+                    );
+                    if(serviceVersion!==globals.version){
+                        // A new version has been loaded, here we could 
+                        // differentiate which version was previous and which
+                        // one ist the new, for now we reset and save the new
+                        // version
+                        showMessage('success',
+                            'A new version ('+globals.version+') of the service has been released. '+
+                            'Your configuration has been updated.</br>'+
+                            'You can find information on the changes in the '+
+                            '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
+                        );
+                        localStorage.clear();
+                        localStorage.setItem(
+                            'serviceVersion',
+                            JSON.stringify(globals.version)
+                        );
+                    }
+                } else {
+                    // This should be the case when loading version 2.3 for the 
+                    // first time (or when the localstorage is empty)
+                    localStorage.clear();
+
+                    localStorage.setItem(
+                        'serviceVersion',
+                        JSON.stringify(globals.version)
+                    );
+                    
+                    showMessage('success',
+                        'A new version ('+globals.version+') of the service has been released. '+
+                        'Your configuration has been updated.</br>'+
+                        'You can find information on the changes in the '+
+                        '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
+                    );
+                }
+
 
                 //Base Layers are loaded and added to the global collection
                 // If there are already saved baselayer config in the local
@@ -185,6 +226,15 @@ var VECTOR_BREAKDOWN = {};
                 // storage use that instead
 
                 if(localStorage.getItem('productsConfig') !== null){
+
+                    showMessage('success',
+                         'The configuration of your last visit has been loaded, '+
+                         'if you would like to reset to the default configuration click '+
+                         '<b><a href="javascript:void(0);" onclick="'+clickEvent+'">here</a></b> '+
+                         'or on the Reset button above.', 35
+                    );
+
+
                     // Need to check if we need to migrate user data to new version (new data)
                     var product_config = JSON.parse(localStorage.getItem('productsConfig'));
 
@@ -365,22 +415,6 @@ var VECTOR_BREAKDOWN = {};
 
                 var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
 
-                showMessage('success',
-                     'The configuration of your last visit has been loaded, '+
-                     'if you would like to reset to the default configuration click '+
-                     '<b><a href="javascript:void(0);" onclick="'+clickEvent+'">here</a></b> '+
-                     'or on the Reset button above.', 35);
-
-
-                /*for (var i = globals.swarm.activeProducts.length - 1; i >= 0; i--) {
-                    globals.products.forEach(function(p){
-                        if(p.get("download").id == globals.swarm.activeProducts[i]){
-                            if(!p.get("visible")){
-                                p.set("visible", true);
-                            }
-                        }
-                    });
-                }*/
 
                 this.productsView = new v.LayerSelectionView({
                     collection: globals.products,
