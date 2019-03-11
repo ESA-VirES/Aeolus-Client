@@ -145,7 +145,7 @@
                 }
 
                 // Tracking of layers
-                if(event === 'map:layer:change'){
+                if(event === 'map:layer:change' || event === 'layer:granularity:changed'){
 
                     // Check what type of layer and modify group accordingly
                     if(param.isBaseLayer){

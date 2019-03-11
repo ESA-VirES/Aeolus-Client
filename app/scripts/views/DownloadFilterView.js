@@ -20,7 +20,7 @@
     'hbs!tmpl/FilterTemplate',
     'hbs!tmpl/DownloadProcess',
     'hbs!tmpl/CoverageDownloadPost',
-    'hbs!tmpl/wps_l1b',
+    'hbs!tmpl/wps_dataRequest',
     'underscore',
     'w2ui',
     'w2popup'
