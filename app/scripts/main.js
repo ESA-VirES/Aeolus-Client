@@ -56,7 +56,8 @@ function defaultFor(arg, val) { return typeof arg !== 'undefined' ? arg : val; }
         //  console.log("link: " + nodes.item(i).href);
         // }
 
-        var configurl = defaultFor(CONFIG_URL, "scripts/config.json");
+        var configurl = defaultFor(CONFIG_URL, 'scripts/config.json');
+        configurl+='?bust='+globals.version;
         $.get(configurl, function(values) {
             
             // Configure Debug options
