@@ -1166,6 +1166,10 @@
 
           var mGD = ds.mie_grouping_data.mie_grouping_start_obs;
 
+          if(typeof mGD === 'undefined'){
+            return;
+          }
+
           for (var i = 0; i < mGD.length; i++) {
 
               var measStart = mGD[i]*30;
@@ -2866,9 +2870,10 @@
                     globals.swarm.set({data: {}});
                   } else {
                     globals.swarm.set({data: tmpdata});
+                    // TODO: Merge data for filtermanager?
+                    that.filterManager.loadData(resData);
                   }
-                  // TODO: Merge data for filtermanager?
-                  that.filterManager.loadData(resData);
+                  
 
                 }
                 that.xhr = null;
