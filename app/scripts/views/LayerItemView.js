@@ -122,7 +122,7 @@
 
                 var visible = evt.target.checked;
                 
-                if(visible){
+                if(visible && this.model.get('download').id !== 'AUX_ISR_1B'){
                     // Activate setting directly when product is being activated
                     if (_.isUndefined(App.layerSettings.isClosed) || App.layerSettings.isClosed) {
                         App.layerSettings.setModel(this.model);
