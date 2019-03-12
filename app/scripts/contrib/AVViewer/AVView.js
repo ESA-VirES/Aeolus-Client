@@ -1001,21 +1001,6 @@ define(['backbone.marionette',
             }
         },
 
-        getObservationPositions: function(pos, stepSize, param, data){
-            var obsData = [];
-            if((pos+stepSize)>=data[param].length){
-                stepSize = stepSize - ((pos+stepSize)-data[param].length)-1;
-            }
-            for (var i = 0; i < stepSize; i++) {
-                obsData.push([
-                    data[param][(pos+i)]*30,
-                    data[param][(pos+i+1)]*30,
-                    data[param][(pos+i)]
-                ]);
-            }
-            return obsData;
-        },
-
         reloadData: function(model, data) {
             // If element already has plot rendering
             if( $(this.el).html()){
@@ -1181,8 +1166,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
-                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/];
-                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/];
+                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/, /.*groupArrows/];
+                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/, /.*groupArrows/];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
                         
@@ -1214,14 +1199,10 @@ define(['backbone.marionette',
                             }
 
                             this.graph1.addGroupArrows(
-                                this.getObservationPositions(
-                                    pos, pageSize, 'mie_obs_start', ds
-                                )
+                                ds.mie_groupArrows.slice(pos, ((pos+pageSize)))
                             );
                             this.graph2.addGroupArrows(
-                                this.getObservationPositions(
-                                    pos, pageSize, 'rayleigh_obs_start', ds
-                                )
+                                ds.rayleigh_groupArrows.slice(pos, ((pos+pageSize)))
                             );
 
                             this.graph1.margin.bottom = 80;
@@ -1260,14 +1241,10 @@ define(['backbone.marionette',
                                 );
                                 
                                 that.graph1.addGroupArrows(
-                                    that.getObservationPositions(
-                                        pos, pageSize, 'mie_obs_start', ds
-                                    )
+                                    ds.mie_groupArrows.slice(pos, ((pos+pageSize)))
                                 );
                                 that.graph2.addGroupArrows(
-                                    that.getObservationPositions(
-                                        pos, pageSize, 'rayleigh_obs_start', ds
-                                    )
+                                    ds.rayleigh_groupArrows.slice(pos, ((pos+pageSize)))
                                 );
                                 that.graph1.loadData(slicedData);
                                 that.graph2.loadData(slicedData);
@@ -1290,14 +1267,10 @@ define(['backbone.marionette',
                                     pos+'-'+(pos+3)+' / '+maxLength
                                 );
                                 that.graph1.addGroupArrows(
-                                    that.getObservationPositions(
-                                        pos, pageSize, 'mie_obs_start', ds
-                                    )
+                                    ds.mie_groupArrows.slice(pos, ((pos+pageSize)))
                                 );
                                 that.graph2.addGroupArrows(
-                                    that.getObservationPositions(
-                                        pos, pageSize, 'rayleigh_obs_start', ds
-                                    )
+                                    ds.rayleigh_groupArrows.slice(pos, ((pos+pageSize)))
                                 );
                                 that.graph1.loadData(slicedData);
                                 that.graph2.loadData(slicedData);
