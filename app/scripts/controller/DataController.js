@@ -1172,6 +1172,11 @@
           var mME = ds.mie_grouping_data.mie_grouping_end_meas_per_obs;
           var mie_groupArrows = [];
 
+          if(typeof mGS === 'undefined'){
+            // empty dataset just retunr
+            return;
+          }
+
           for (var i = 0; i < mGS.length; i++) {
 
               var mMeasStart = (((mGS[i]-1)*observationMeasSize) + mMS[i])-1;

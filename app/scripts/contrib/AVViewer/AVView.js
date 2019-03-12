@@ -1019,7 +1019,8 @@ define(['backbone.marionette',
                 }
 
                 // Cleanup
-                $('#buttonContainer').remove();
+                $('#mieButtonContainer').remove();
+                $('#rayleighButtonContainer').remove();
 
                 this.graph1.removeGroupArrows();
                 this.graph2.removeGroupArrows();
@@ -1096,6 +1097,7 @@ define(['backbone.marionette',
 
 
                     $('#nodataavailable').hide();
+                    $('#graph_2').css('margin-top', '0px');
                     //this.graph.loadData(data);
                     // TODO: Iterate through all ids and load to corresponding graphs
                     if(idKeys[0] === 'ALD_U_N_1B'){
@@ -1155,13 +1157,16 @@ define(['backbone.marionette',
 
                      }else if(idKeys[0] === 'ALD_U_N_2B'){
                         if(currProd.get('granularity') === 'group'){
+                            $('#graph_1').css('height', '47%');
+                            $('#graph_2').css('margin-top', '20px');
                             this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2B_mie_group;
                             this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2B_rayleigh_group;
                         } else {
+                            $('#graph_1').css('height', '49%');
                             this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2B_mie;
                             this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2B_rayleigh;
                         }
-                        $('#graph_1').css('height', '49%');
+                        
                         $('#graph_2').css('height', '49%');
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
@@ -1185,99 +1190,174 @@ define(['backbone.marionette',
                             }
                             
                             // If groups only load subset of data
-                            var pos = 0;
+                            var miePos = 0;
+                            var rayleighPos = 0;
                             var pageSize = 3;
-                            var slicedData = {};
+                            var mieSlicedData = {};
+                            var rayleighSlicedData = {};
                             var ds = data['ALD_U_N_2B'];
-                            var maxLength = 0;
+                            var mieLength = ds.mie_obs_start.length;
+                            var rayleighLength = ds.rayleigh_obs_start.length;
 
                             for (var key in ds){
-                                if(maxLength<ds[key].length){
-                                    maxLength = ds[key].length;
+                                if(key.indexOf('rayleigh')!==-1){
+                                    rayleighSlicedData[key] = ds[key].slice(
+                                        rayleighPos, ((rayleighPos+pageSize))
+                                    ).flat();
+                                } else {
+                                    mieSlicedData[key] = ds[key].slice(
+                                        miePos, ((miePos+pageSize))
+                                    ).flat();
                                 }
-                                slicedData[key] = ds[key].slice(pos, ((pos+pageSize))).flat();
                             }
 
+
                             this.graph1.addGroupArrows(
-                                ds.mie_groupArrows.slice(pos, ((pos+pageSize)))
+                                ds.mie_groupArrows.slice(miePos, ((miePos+pageSize)))
                             );
                             this.graph2.addGroupArrows(
-                                ds.rayleigh_groupArrows.slice(pos, ((pos+pageSize)))
+                                ds.rayleigh_groupArrows.slice(rayleighPos, ((rayleighPos+pageSize)))
                             );
 
                             this.graph1.margin.bottom = 80;
                             this.graph2.margin.bottom = 80;
+
                             // Add interaction buttons to go through observation
                             // groups
-                            //$('body').append('<button id="observationRight">></button>');
                             $('#graph_container').append(
-                                '<div id="buttonContainer"></div>'
+                                '<div id="mieButtonContainer"></div>'
                             );
-                            $('#buttonContainer').append(
-                                '<button id="observationLeft" type="button" class="btn btn-success darkbutton dropdown-toggle"><</button>'
+                            $('#mieButtonContainer').append(
+                                '<button id="mieObservationLeft" type="button" class="btn btn-success darkbutton dropdown-toggle"><</button>'
                             );
-                            $('#buttonContainer').append(
-                                '<div id="observationLabel">'+(pos+1)+'-'+(pos+3)+' / '+maxLength+'</div>'
+                            $('#mieButtonContainer').append(
+                                '<div id="mieObservationLabel">'+(miePos)+'-'+(miePos+2)+' / '+mieLength+'</div>'
                             );
-                            $('#buttonContainer').append(
-                                '<button id="observationRight" type="button" class="btn btn-success darkbutton dropdown-toggle">></button>'
+                            $('#mieButtonContainer').append(
+                                '<button id="mieObservationRight" type="button" class="btn btn-success darkbutton dropdown-toggle">></button>'
                             );
                             var that = this;
 
-                            $('#observationRight').click(function(){
-                                pos+=3;
-                                if(pos>=maxLength-4){
-                                    $('#observationRight').attr('disabled', 'disabled');
+                            $('#mieObservationRight').click(function(){
+                                miePos+=3;
+                                if(miePos>=mieLength-4){
+                                    $('#mieObservationRight').attr('disabled', 'disabled');
                                 }
-                                $('#observationLeft').removeAttr('disabled');
+                                $('#mieObservationLeft').removeAttr('disabled');
 
                                 var slicedData = {};
                                 var ds = data['ALD_U_N_2B'];
                                 for (var key in ds){
-                                    slicedData[key] = ds[key].slice(pos, ((pos+pageSize))).flat();
+                                    if(key.indexOf('mie')!==-1){
+                                        slicedData[key] = ds[key].slice(
+                                            miePos, ((miePos+pageSize))
+                                        ).flat();
+                                    }
                                 }
-                                $('#observationLabel').text(
-                                    (pos+1)+'-'+(pos+3)+' / '+maxLength
+                                $('#mieObservationLabel').text(
+                                    (miePos)+'-'+(miePos+2)+' / '+mieLength
                                 );
                                 
                                 that.graph1.addGroupArrows(
-                                    ds.mie_groupArrows.slice(pos, ((pos+pageSize)))
-                                );
-                                that.graph2.addGroupArrows(
-                                    ds.rayleigh_groupArrows.slice(pos, ((pos+pageSize)))
+                                    ds.mie_groupArrows.slice(miePos, ((miePos+pageSize)))
                                 );
                                 that.graph1.loadData(slicedData);
-                                that.graph2.loadData(slicedData);
                             });
 
-                            $('#observationLeft').attr('disabled', 'disabled');
-                            $('#observationLeft').click(function(){
-                                pos-=3;
-                                if(pos<=0){
-                                    $('#observationLeft').attr('disabled', 'disabled');
+                            $('#mieObservationLeft').attr('disabled', 'disabled');
+                            $('#mieObservationLeft').click(function(){
+                                miePos-=3;
+                                if(miePos<=0){
+                                    $('#mieObservationLeft').attr('disabled', 'disabled');
                                 }
-                                $('#observationRight').removeAttr('disabled');
+                                $('#mieObservationRight').removeAttr('disabled');
 
                                 var slicedData = {};
                                 var ds = data['ALD_U_N_2B'];
                                 for (var key in ds){
-                                    slicedData[key] = ds[key].slice(pos, ((pos+pageSize))).flat();
+                                    if(key.indexOf('mie')!==-1){
+                                        slicedData[key] = ds[key].slice(
+                                            miePos, ((miePos+pageSize))
+                                        ).flat();
+                                    }
                                 }
-                                $('#observationLabel').text(
-                                    pos+'-'+(pos+3)+' / '+maxLength
+                                $('#mieObservationLabel').text(
+                                    miePos+'-'+(miePos+2)+' / '+mieLength
                                 );
                                 that.graph1.addGroupArrows(
-                                    ds.mie_groupArrows.slice(pos, ((pos+pageSize)))
-                                );
-                                that.graph2.addGroupArrows(
-                                    ds.rayleigh_groupArrows.slice(pos, ((pos+pageSize)))
+                                    ds.mie_groupArrows.slice(miePos, ((miePos+pageSize)))
                                 );
                                 that.graph1.loadData(slicedData);
+                            });
+
+                            // Add interaction buttons to go through observation
+                            // groups
+                            $('#graph_container').append(
+                                '<div id="rayleighButtonContainer"></div>'
+                            );
+                            $('#rayleighButtonContainer').append(
+                                '<button id="rayleighObservationLeft" type="button" class="btn btn-success darkbutton dropdown-toggle"><</button>'
+                            );
+                            $('#rayleighButtonContainer').append(
+                                '<div id="rayleighObservationLabel">'+(rayleighPos)+'-'+(rayleighPos+2)+' / '+rayleighLength+'</div>'
+                            );
+                            $('#rayleighButtonContainer').append(
+                                '<button id="rayleighObservationRight" type="button" class="btn btn-success darkbutton dropdown-toggle">></button>'
+                            );
+
+                            $('#rayleighObservationRight').click(function(){
+                                rayleighPos+=3;
+                                if(rayleighPos>=rayleighLength-4){
+                                    $('#rayleighObservationRight').attr('disabled', 'disabled');
+                                }
+                                $('#rayleighObservationLeft').removeAttr('disabled');
+
+                                var slicedData = {};
+                                var ds = data['ALD_U_N_2B'];
+                                for (var key in ds){
+                                    if(key.indexOf('rayleigh')!==-1){
+                                        slicedData[key] = ds[key].slice(
+                                            rayleighPos, ((rayleighPos+pageSize))
+                                        ).flat();
+                                    }
+                                }
+                                $('#rayleighObservationLabel').text(
+                                    (rayleighPos)+'-'+(rayleighPos+2)+' / '+rayleighLength
+                                );
+                                that.graph2.addGroupArrows(
+                                    ds.rayleigh_groupArrows.slice(rayleighPos, ((rayleighPos+pageSize)))
+                                );
                                 that.graph2.loadData(slicedData);
                             });
 
-                            this.graph1.loadData(slicedData);
-                            this.graph2.loadData(slicedData);
+                            $('#rayleighObservationLeft').attr('disabled', 'disabled');
+                            $('#rayleighObservationLeft').click(function(){
+                                rayleighPos-=3;
+                                if(rayleighPos<=0){
+                                    $('#rayleighObservationLeft').attr('disabled', 'disabled');
+                                }
+                                $('#rayleighObservationRight').removeAttr('disabled');
+
+                                var slicedData = {};
+                                var ds = data['ALD_U_N_2B'];
+                                for (var key in ds){
+                                    if(key.indexOf('rayleigh')!==-1){
+                                        slicedData[key] = ds[key].slice(
+                                            rayleighPos, ((rayleighPos+pageSize))
+                                        ).flat();
+                                    }
+                                }
+                                $('#rayleighObservationLabel').text(
+                                    rayleighPos+'-'+(rayleighPos+2)+' / '+rayleighLength
+                                );
+                                that.graph2.addGroupArrows(
+                                    ds.rayleigh_groupArrows.slice(rayleighPos, ((rayleighPos+pageSize)))
+                                );
+                                that.graph2.loadData(slicedData);
+                            });
+
+                            this.graph1.loadData(mieSlicedData);
+                            this.graph2.loadData(rayleighSlicedData);
 
                         } else {
                             this.graph1.loadData(data['ALD_U_N_2B']);

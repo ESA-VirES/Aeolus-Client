@@ -359,14 +359,22 @@
     
 }
 
-#buttonContainer{
+#mieButtonContainer{
     width: 100%;
     text-align: center;
-    bottom: 20px;
+    top: 40%;
+    z-index: 500;
+    position: absolute;
+}
+
+#rayleighButtonContainer{
+    width: 100%;
+    text-align: center;
+    /*top: 48%;*/
     z-index: 500;
 }
 
-#observationLabel{
+#mieObservationLabel, #rayleighObservationLabel{
     display: inline;
     margin-left: 10px;
     margin-right: 10px;
