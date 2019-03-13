@@ -581,6 +581,51 @@ define(['backbone.marionette',
                 }
             };
 
+            this.groupSelected = {
+                'ALD_U_N_1B': ['mie', 'rayleigh'],
+                'ALD_U_N_2A': ['MCA', 'SCA'],
+                /*'ALD_U_N_2B': [],
+                'ALD_U_N_2C': [],
+                'AUX_MRC_1B': [],
+                'AUX_RRC_1B': [],
+                'AUX_ISR_1B': [],
+                'AUX_ZWC_1B': [],
+                'AUX_MET_12': []*/
+            };
+
+            this.visualizationGroups = {
+                'ALD_U_N_1B': {
+                    'mie': [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/],
+                    'rayleigh':[/mie.*/, 'positions', 'stepPositions', /.*_jumps/]
+                },
+                'ALD_U_N_2A': {
+                    'MCA': [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/],
+                    'SCA':[/mie.*/, 'positions', 'stepPositions', /.*_jumps/],
+                    'ICA': [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/]
+                },
+                /*'ALD_U_N_2B': {
+
+                },
+                'ALD_U_N_2C': {
+
+                },
+                'AUX_MRC_1B': {
+
+                },
+                'AUX_RRC_1B': {
+
+                },
+                'AUX_ISR_1B': {
+
+                },
+                'AUX_ZWC_1B': {
+
+                },
+                'AUX_MET_12': {
+
+                }*/
+            };
+
 
             this.dataSettings = globals.dataSettings;
 
@@ -1030,42 +1075,16 @@ define(['backbone.marionette',
                 // If data parameters have changed
                 if (!firstLoad && !_.isEqual(this.prevParams, idKeys)){
                     // Define which parameters should be selected defaultwise as filtering
-
-                        // Check if configured filters apply to new data
-                        /*for (var fKey in this.filterManager.brushes){
-                            if(idKeys.indexOf(fKey) === -1){
-                                delete this.filterManager.brushes[fKey];
-                            }
-                        }
-
-                        for(var filKey in this.filterManager.filters){
-                            if(idKeys.indexOf(filKey) === -1){
-                                delete this.filterManager.filters[fKey];
-                            }
-                        }
-
-                        for(var filgraphKey in this.filters){
-                            if(idKeys.indexOf(filgraphKey) === -1){
-                                delete this.graph.filters[fKey];
-                            }
-                        }
-
-                        for (var i = filterstouse.length - 1; i >= 0; i--) {
-                            if(this.selectedFilterList.indexOf(filterstouse[i]) === -1){
-                                this.selectedFilterList.push(filterstouse[i]);
-                            }
-                        }*/
-
-                        var setts = this.filterManager.filterSettings;
-                        setts.visibleFilters = this.selectedFilterList;
+                    var setts = this.filterManager.filterSettings;
+                    setts.visibleFilters = this.selectedFilterList;
 
 
-                        this.filterManager.updateFilterSettings(setts);
-                        localStorage.setItem(
-                            'selectedFilterList',
-                            JSON.stringify(this.selectedFilterList)
-                        );
-                        this.renderFilterList();
+                    this.filterManager.updateFilterSettings(setts);
+                    localStorage.setItem(
+                        'selectedFilterList',
+                        JSON.stringify(this.selectedFilterList)
+                    );
+                    this.renderFilterList();
                 }
 
                 if(idKeys.length > 0){
@@ -1101,6 +1120,46 @@ define(['backbone.marionette',
                     //this.graph.loadData(data);
                     // TODO: Iterate through all ids and load to corresponding graphs
                     if(idKeys[0] === 'ALD_U_N_1B'){
+                        var cP = idKeys[0];
+                        var visG = this.visualizationGroups[cP];
+                        var visGKeys = Object.keys(visG);
+
+                        var s1 = $('<select id="graph1Select" />');
+                        for(var key in visG) {
+                            var ops = {value: key, text: key};
+                            if(this.groupSelected[cP][0] === key){
+                                ops.selected = true;
+                            }
+                            $('<option />', ops).appendTo(s1);
+                        }
+                        s1.appendTo('#graph_1');
+
+                        var that = this;
+                        s1.change(function(){
+                            var sel = $(this).val();
+                            that.groupSelected[cP][0] = sel;
+                            that.graph1.renderSettings =  that.renderSettings[sel];
+                            that.graph1.ignoreParameters = visG[sel];
+                            that.graph1.loadData(data[cP]);
+                        });
+
+                        var s2 = $('<select id="graph2Select" />');
+                        for(var key in visG) {
+                            var ops = {value: key, text: key};
+                            if(this.groupSelected[cP][1] === key){
+                                ops.selected = true;
+                            }
+                            $('<option />', ops).appendTo(s2);
+                        }
+                        s2.appendTo('#graph_2');
+                        s2.change(function(){
+                            var sel = $(this).val();
+                            that.groupSelected[cP][1] = sel;
+                            that.graph2.renderSettings =  that.renderSettings[sel];
+                            that.graph2.ignoreParameters = visG[sel];
+                            that.graph2.loadData(data[cP]);
+                        });
+
                         this.graph1.renderSettings =  this.renderSettings.mie;
                         this.graph2.renderSettings =  this.renderSettings.rayleigh;
                         $('#graph_1').css('height', '49%');
@@ -1108,8 +1167,8 @@ define(['backbone.marionette',
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
-                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, 'signCross'];
-                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/, 'signCross'];
+                        this.graph1.ignoreParameters = visG[this.groupSelected[cP][0]];
+                        this.graph2.ignoreParameters = visG[this.groupSelected[cP][1]];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_1B']);
