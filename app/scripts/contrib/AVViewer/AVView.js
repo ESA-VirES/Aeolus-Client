@@ -1053,7 +1053,7 @@ define(['backbone.marionette',
             }
         },
 
-        createGroupVisualizationSelection(cP, data, timeString){
+        createGroupVisualizationSelection: function(cP, data, timeString){
 
             var visG = this.visualizationGroups[cP];
 
