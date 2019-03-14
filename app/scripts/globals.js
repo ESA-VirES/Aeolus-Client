@@ -120,6 +120,20 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 scaleFormat: 'time',
                 timeFormat: 'MJD2000_S'
             },
+            'ICA_time_obs_start': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'ICA_time_obs_stop': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'ICA_extinction':{
+                nullValue: -1000000
+            },
+            'ICA_backscatter':{
+                nullValue: -1000000
+            },
 
             // L2A Group
             'group_backscatter_variance':{

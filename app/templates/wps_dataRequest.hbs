@@ -71,6 +71,14 @@
       </wps:Data>
     </wps:Input>
     {{/if}}
+    {{#if ica_fields}}
+    <wps:Input>
+      <ows:Identifier>ica_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{ica_fields}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    {{/if}}
     {{#if mie_profile_fields}}
     <wps:Input>
       <ows:Identifier>mie_profile_fields</ows:Identifier>

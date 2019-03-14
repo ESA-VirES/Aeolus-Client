@@ -89,6 +89,7 @@
 
 #graph_container {
     height: calc(100% - 270px);
+    padding-top: 20px;
 }
 
 #filterDivContainer {
@@ -222,7 +223,7 @@
     position: absolute;
     height: 25px;
     width: 25px;
-    top: 30px;
+    top: -2px;
     z-index: 5;
     left: 5px;
     cursor: pointer;
@@ -362,7 +363,7 @@
 #mieButtonContainer{
     width: 100%;
     text-align: center;
-    top: 40%;
+    top: 42%;
     z-index: 500;
     position: absolute;
 }
@@ -378,4 +379,13 @@
     display: inline;
     margin-left: 10px;
     margin-right: 10px;
+}
+
+
+#graph1Select, #graph2Select{
+    position: absolute;
+    left: 50%;
+    width: 100px;
+    margin-left: -50px;
+    top: -10px;
 }
