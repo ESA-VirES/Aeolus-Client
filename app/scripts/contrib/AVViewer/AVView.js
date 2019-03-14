@@ -1053,7 +1053,7 @@ define(['backbone.marionette',
             }
         },
 
-        createGroupVisualizationSelection(cP, data){
+        createGroupVisualizationSelection(cP, data, timeString){
 
             var visG = this.visualizationGroups[cP];
 
@@ -1071,7 +1071,10 @@ define(['backbone.marionette',
             s1.change(function(){
                 var sel = $(this).val();
                 that.groupSelected[cP][0] = sel;
-                that.graph1.renderSettings =  that.renderSettings[cP+'_'+sel];
+                // Clone settings so they are not modified between plots
+                that.graph1.fileSaveString = cP+'_'+sel+'_'+timeString;
+                var sets1 = $.extend(true,{},that.renderSettings[cP+'_'+sel]);
+                that.graph1.renderSettings = sets1;
                 that.graph1.ignoreParameters = visG[sel];
                 that.graph1.loadData(data[cP]);
             });
@@ -1088,7 +1091,10 @@ define(['backbone.marionette',
             s2.change(function(){
                 var sel = $(this).val();
                 that.groupSelected[cP][1] = sel;
-                that.graph2.renderSettings =  that.renderSettings[cP+'_'+sel];
+                
+                that.graph2.fileSaveString = cP+'_'+sel+'_'+timeString;
+                var sets2 = $.extend(true,{},that.renderSettings[cP+'_'+sel]);
+                that.graph2.renderSettings =  sets2;
                 that.graph2.ignoreParameters = visG[sel];
                 that.graph2.loadData(data[cP]);
             });
@@ -1172,14 +1178,22 @@ define(['backbone.marionette',
                     var cP = idKeys[0];
                     var sel = this.groupSelected[cP];
                     var visG = this.visualizationGroups[cP];
+                    var sT = Communicator.reqres.request('get:time');
+                    var timeString = getISODateTimeString(sT.start).slice(0,-5)+
+                        '_'+getISODateTimeString(sT.end).slice(0,-5);
                     //var visGKeys = Object.keys(visG);
                     //this.graph.loadData(data);
                     // TODO: Iterate through all ids and load to corresponding graphs
                     if(cP === 'ALD_U_N_1B'){
 
-                        this.createGroupVisualizationSelection(cP, data);
-                        this.graph1.renderSettings = this.renderSettings[cP+'_'+sel[0]];
-                        this.graph2.renderSettings = this.renderSettings[cP+'_'+sel[1]];
+                        this.createGroupVisualizationSelection(cP, data, timeString);
+                        // Clone settings so they are not modified between plots
+                        var sets1 = $.extend(true,{},this.renderSettings[cP+'_'+sel[0]]);
+                        var sets2 = $.extend(true,{},this.renderSettings[cP+'_'+sel[1]]);
+                        this.graph1.renderSettings = sets1;
+                        this.graph2.renderSettings = sets2;
+                        this.graph1.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
+                        this.graph2.fileSaveString = cP+'_'+sel[1]+'_'+timeString;
                         $('#graph_1').css('height', '49%');
                         $('#graph_2').css('height', '49%');
                         $('#graph_2').show();
@@ -1191,8 +1205,6 @@ define(['backbone.marionette',
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_1B']);
                         this.graph2.loadData(data['ALD_U_N_1B']);
-                        this.graph1.fileSaveString = 'ALD_U_N_1B_mie_plot';
-                        this.graph2.fileSaveString = 'ALD_U_N_1B_rayleigh_plot';
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_1B']);
@@ -1208,12 +1220,17 @@ define(['backbone.marionette',
                             this.graph1.dataSettings = mergedDataSettings;
                             this.graph2.dataSettings = mergedDataSettings;
                             this.graph1.loadData(data[idKeys[0]]);
-                            this.graph1.fileSaveString = idKeys[0]+'_top';
                             this.filterManager.loadData(data[idKeys[0]]);
+                            this.graph1.fileSaveString = 'ALD_U_N_2A_mie_group_plot'+'_'+timeString;
+                            this.graph2.fileSaveString = 'ALD_U_N_2A_rayleigh_group_plot'+'_'+timeString;
                         } else {
-                            this.createGroupVisualizationSelection(cP, data);
-                            this.graph1.renderSettings = this.renderSettings[cP+'_'+sel[0]];
-                            this.graph2.renderSettings = this.renderSettings[cP+'_'+sel[1]];
+                            this.createGroupVisualizationSelection(cP, data, timeString);
+                            var sets1 = $.extend(true,{},this.renderSettings[cP+'_'+sel[0]]);
+                            var sets2 = $.extend(true,{},this.renderSettings[cP+'_'+sel[1]]);
+                            this.graph1.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
+                            this.graph2.fileSaveString = cP+'_'+sel[1]+'_'+timeString;
+                            this.graph1.renderSettings = sets1;
+                            this.graph2.renderSettings = sets2;
                             $('#graph_1').css('height', '49%');
                             $('#graph_2').css('height', '49%');
                             $('#graph_2').show();
@@ -1225,8 +1242,6 @@ define(['backbone.marionette',
                             this.graph2.dataSettings = mergedDataSettings;
                             this.graph1.loadData(data['ALD_U_N_2A']);
                             this.graph2.loadData(data['ALD_U_N_2A']);
-                            this.graph1.fileSaveString = 'ALD_U_N_2A_mie_plot';
-                            this.graph2.fileSaveString = 'ALD_U_N_2A_rayleigh_plot';
                             this.graph1.connectGraph(this.graph2);
                             this.graph2.connectGraph(this.graph1);
                             this.filterManager.loadData(data['ALD_U_N_2A']);
@@ -1239,11 +1254,17 @@ define(['backbone.marionette',
                             $('#graph_2').css('margin-top', '20px');
                             this.graph1.renderSettings = this.renderSettings.ALD_U_N_2B_mie_group;
                             this.graph2.renderSettings = this.renderSettings.ALD_U_N_2B_rayleigh_group;
+                            this.graph1.fileSaveString = 'ALD_U_N_2B_mie_group_plot'+'_'+timeString;
+                            this.graph2.fileSaveString = 'ALD_U_N_2B_rayleigh_group_plot'+'_'+timeString;
                         } else {
-                            this.createGroupVisualizationSelection(cP, data);
+                            this.createGroupVisualizationSelection(cP, data, timeString);
                             $('#graph_1').css('height', '49%');
-                            this.graph1.renderSettings = this.renderSettings[cP+'_'+sel[0]];
-                            this.graph2.renderSettings = this.renderSettings[cP+'_'+sel[1]];
+                            var sets1 = $.extend(true,{},this.renderSettings[cP+'_'+sel[0]]);
+                            var sets2 = $.extend(true,{},this.renderSettings[cP+'_'+sel[1]]);
+                            this.graph1.renderSettings = sets1;
+                            this.graph2.renderSettings = sets2;
+                            this.graph1.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
+                            this.graph2.fileSaveString = cP+'_'+sel[1]+'_'+timeString;
                         }
                         
                         $('#graph_2').css('height', '49%');
@@ -1254,9 +1275,6 @@ define(['backbone.marionette',
                         this.graph2.ignoreParameters = visG[this.groupSelected[cP][1]];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
-                        
-                        this.graph1.fileSaveString = 'ALD_U_N_2B_mie_plot';
-                        this.graph2.fileSaveString = 'ALD_U_N_2B_rayleigh_plot';
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_2B']);
@@ -1458,8 +1476,8 @@ define(['backbone.marionette',
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_2C']);
                         this.graph2.loadData(data['ALD_U_N_2C']);
-                        this.graph1.fileSaveString = 'ALD_U_N_2C_mie_plot';
-                        this.graph2.fileSaveString = 'ALD_U_N_2C_rayleigh_plot';
+                        this.graph1.fileSaveString = 'ALD_U_N_2C_mie_plot'+'_'+timeString;
+                        this.graph2.fileSaveString = 'ALD_U_N_2C_rayleigh_plot'+'_'+timeString;
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data['ALD_U_N_2C']);
@@ -1503,8 +1521,8 @@ define(['backbone.marionette',
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data[idKeys[0]]);
                         this.graph2.loadData(data[idKeys[0]]);
-                        this.graph1.fileSaveString = idKeys[0]+'_top';
-                        this.graph2.fileSaveString = idKeys[0]+'_bottom';
+                        this.graph1.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
+                        this.graph2.fileSaveString = idKeys[0]+'_bottom'+'_'+timeString;
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
                         this.filterManager.loadData(data[idKeys[0]]);
@@ -1595,7 +1613,7 @@ define(['backbone.marionette',
                             this.graph1.dataSettings = mergedDataSettings;
                             this.graph2.dataSettings = mergedDataSettings;
                             this.graph1.loadData(data[idKeys[0]]);
-                            this.graph1.fileSaveString = idKeys[0]+'_top';
+                            this.graph1.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
                             this.filterManager.loadData(data[idKeys[0]]);
                         } else {
                             $('#graph_2').show();
@@ -1607,8 +1625,8 @@ define(['backbone.marionette',
                             this.graph2.dataSettings = mergedDataSettings;
                             this.graph1.loadData(data[idKeys[0]]);
                             this.graph2.loadData(data[idKeys[0]]);
-                            this.graph1.fileSaveString = idKeys[0]+'_top';
-                            this.graph2.fileSaveString = idKeys[0]+'_bottom';
+                            this.graph1.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
+                            this.graph2.fileSaveString = idKeys[0]+'_bottom'+'_'+timeString;
                             this.graph1.connectGraph(this.graph2);
                             this.graph2.connectGraph(this.graph1);
                             this.filterManager.loadData(data[idKeys[0]]);
@@ -1657,7 +1675,7 @@ define(['backbone.marionette',
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph1.renderSettings = this.renderSettings[idKeys[0]];
                         this.graph1.loadData(data[idKeys[0]]);
-                        this.graph1.fileSaveString = idKeys[0];
+                        this.graph1.fileSaveString = idKeys[0]+'_'+timeString;
                         this.filterManager.loadData(data[idKeys[0]]);
                     }
 
