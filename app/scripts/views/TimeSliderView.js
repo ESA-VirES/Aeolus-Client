@@ -393,6 +393,10 @@
                     if (product){
                         if(options.visible && product.get('timeSlider')){
 
+                            if(product.get('download').id === 'ADAM_albedo'){
+                                return;
+                            }
+
                             // Check to see if we need to limit time selection
                             // if selected product is set to measurement level
                             this.onLayerGranularityBeforeChanged(product.get('download').id, false);
