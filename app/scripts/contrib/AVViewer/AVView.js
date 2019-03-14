@@ -602,8 +602,8 @@ define(['backbone.marionette',
             this.groupSelected = {
                 'ALD_U_N_1B': ['mie', 'rayleigh'],
                 'ALD_U_N_2A': ['MCA', 'SCA'],
-                /*'ALD_U_N_2B': [],
-                'ALD_U_N_2C': [],
+                'ALD_U_N_2B': ['mie', 'rayleigh'],
+                /*'ALD_U_N_2C': [],
                 'AUX_MRC_1B': [],
                 'AUX_RRC_1B': [],
                 'AUX_ISR_1B': [],
@@ -621,27 +621,16 @@ define(['backbone.marionette',
                     'SCA': [/mie_.*/, /MCA.*/, /ICA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'],
                     'ICA': [/rayleigh_.*/, /mie_.*/, /MCA.*/, /SCA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross']
                 },
-                /*'ALD_U_N_2B': {
-
-                },
-                'ALD_U_N_2C': {
-
-                },
-                'AUX_MRC_1B': {
-
-                },
-                'AUX_RRC_1B': {
-
-                },
-                'AUX_ISR_1B': {
-
-                },
-                'AUX_ZWC_1B': {
-
-                },
-                'AUX_MET_12': {
-
-                }*/
+                'ALD_U_N_2B': {
+                    'mie': [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/, /.*groupArrows/],
+                    'rayleigh': [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/, /.*groupArrows/]
+                },/*
+                'ALD_U_N_2C': {},
+                'AUX_MRC_1B': {},
+                'AUX_RRC_1B': {},
+                'AUX_ISR_1B': {},
+                'AUX_ZWC_1B': {},
+                'AUX_MET_12': {}*/
             };
 
 
@@ -1248,20 +1237,21 @@ define(['backbone.marionette',
                         if(currProd.get('granularity') === 'group'){
                             $('#graph_1').css('height', '47%');
                             $('#graph_2').css('margin-top', '20px');
-                            this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2B_mie_group;
-                            this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2B_rayleigh_group;
+                            this.graph1.renderSettings = this.renderSettings.ALD_U_N_2B_mie_group;
+                            this.graph2.renderSettings = this.renderSettings.ALD_U_N_2B_rayleigh_group;
                         } else {
+                            this.createGroupVisualizationSelection(cP, data);
                             $('#graph_1').css('height', '49%');
-                            this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2B_mie;
-                            this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2B_rayleigh;
+                            this.graph1.renderSettings = this.renderSettings[cP+'_'+sel[0]];
+                            this.graph2.renderSettings = this.renderSettings[cP+'_'+sel[1]];
                         }
                         
                         $('#graph_2').css('height', '49%');
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
-                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/, /.*groupArrows/];
-                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/, /.*groupArrows/];
+                        this.graph1.ignoreParameters = visG[this.groupSelected[cP][0]];
+                        this.graph2.ignoreParameters = visG[this.groupSelected[cP][1]];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
                         
