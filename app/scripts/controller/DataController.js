@@ -950,6 +950,19 @@
 
         } else {
 
+          if(ds.ica_data.hasOwnProperty('ICA_time_obs') && ds.ica_data['ICA_time_obs'].length > 0) {
+            var bins_start = [];
+            var bins_end = [];
+            for (var ica = 0; ica < ds.ica_data['ICA_time_obs'].length; ica++) {
+              for (var i = 0; i < 24; i++) {
+                bins_start.push(i+1);
+                bins_end.push(i);
+              }
+            }
+            ds.ica_data['ICA_bins_start'] = bins_start;
+            ds.ica_data['ICA_bins_end'] = bins_end;
+          }
+
           for (var k = 0; k < keys.length; k++) {
             var subK = Object.keys(ds[keys[k]]);
             for (var l = 0; l < subK.length; l++) {
@@ -971,49 +984,61 @@
                   resData[subK[l]] = [].concat.apply([], ds[keys[k]][subK[l]]);
                 }
               }else{
-
-                var tmpArr = [];
-                for (var i = 0; i < curArr.length; i++) {
-                  for (var j = 0; j < 24; j++) {
-                    tmpArr.push(curArr[i]);
+                if(subK[l].indexOf('ICA_bins')===-1){
+                  var tmpArr = [];
+                  for (var i = 0; i < curArr.length; i++) {
+                    for (var j = 0; j < 24; j++) {
+                      tmpArr.push(curArr[i]);
+                    }
                   }
+                  resData[subK[l]+'_orig'] = curArr;
+                  resData[subK[l]] = tmpArr;
+                } else {
+                  resData[subK[l]] = curArr;
                 }
-                resData[subK[l]+'_orig'] = curArr;
-                resData[subK[l]] = tmpArr;
+                
               }
             }
           }
 
           // Check if data is actually available
           if((resData.hasOwnProperty('SCA_time_obs') && resData['SCA_time_obs'].length > 0) && 
-             (resData.hasOwnProperty('MCA_time_obs') && resData['MCA_time_obs'].length > 0) ) {
-                                
+             (resData.hasOwnProperty('MCA_time_obs') && resData['MCA_time_obs'].length > 0) && 
+             (resData.hasOwnProperty('ICA_time_obs') && resData['ICA_time_obs'].length > 0)) {
+
+
             // Create new start and stop time to allow rendering
             resData['SCA_time_obs_start'] = resData['SCA_time_obs'].slice();
             resData['SCA_time_obs_stop'] = resData['SCA_time_obs'].slice(24, resData['SCA_time_obs'].length);
             resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
             resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].slice(24, resData['MCA_time_obs'].length);
+            resData['ICA_time_obs_start'] = resData['ICA_time_obs'].slice();
+            resData['ICA_time_obs_stop'] = resData['ICA_time_obs'].slice(24, resData['ICA_time_obs'].length);
 
             resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
             resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].slice(1, resData['SCA_time_obs_orig'].length);
             resData['MCA_time_obs_orig_start'] = resData['MCA_time_obs_orig'].slice();
             resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].slice(1, resData['MCA_time_obs_orig'].length);
+            resData['ICA_time_obs_orig_start'] = resData['ICA_time_obs_orig'].slice();
+            resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].slice(1, resData['ICA_time_obs_orig'].length);
             // Add element with additional 12ms as it should be the default
             // time interval between observations
             // TODO: make sure this is acceptable! As there seems to be some 
             // minor deviations at start and end of observations
             var lastValSCA =  resData['SCA_time_obs_orig'].slice(-1)[0]+12;
             var lastValMCA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
+            var lastValICA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
             for (var i = 0; i < 24; i++) {
               resData['SCA_time_obs_stop'].push(lastValSCA);
               resData['MCA_time_obs_stop'].push(lastValMCA);
+              resData['ICA_time_obs_stop'].push(lastValICA);
             }
             resData['SCA_time_obs_orig_stop'].push(lastValSCA);
             resData['MCA_time_obs_orig_stop'].push(lastValMCA);
+            resData['ICA_time_obs_orig_stop'].push(lastValICA);
 
             var lonStep = 15;
             var latStep = 15;
-
 
 
             var jumpPos = [];
@@ -1053,7 +1078,7 @@
                 signCross2.push(latdiff>160);
                 jumpPos2.push(i);
               }else if (londiff >= lonStep) {
-                signCross2.push(londiff>340)
+                signCross2.push(londiff>340);
                 jumpPos2.push(i);
               }
             }
@@ -1519,7 +1544,6 @@
               'L1B_start_time_obs',
               'L1B_centroid_time_obs',
               'SCA_time_obs',
-              //'ICA_time_obs',
               'MCA_time_obs',
               'longitude_of_DEM_intersection_obs',
               'latitude_of_DEM_intersection_obs',
@@ -1537,7 +1561,6 @@
               'SCA_middle_bin_backscatter_variance',
               'SCA_middle_bin_LOD_variance',
               'SCA_middle_bin_BER_variance',
-              //'ICA_QC_flag',
               'SCA_extinction',
               'SCA_backscatter',
               'SCA_LOD',
@@ -1546,14 +1569,18 @@
               'SCA_middle_bin_backscatter',
               'SCA_middle_bin_LOD',
               'SCA_middle_bin_BER',
-              /*'ICA_filling_case',
-              'ICA_extinction',
-              'ICA_backscatter',
-              'ICA_LOD',*/
               'MCA_clim_BER',
               'MCA_extinction',
               'MCA_LOD',
               'albedo_off_nadir'
+            ].join(),
+            'ica_fields': [
+              'ICA_time_obs',
+              'ICA_QC_flag',
+              'ICA_filling_case',
+              'ICA_extinction',
+              'ICA_backscatter',
+              'ICA_LOD'
             ].join(),
             'measurement_fields': [
               'L1B_time_meas',
@@ -2054,6 +2081,10 @@
         var gran = product.get('granularity');
         if(collectionId === 'ALD_U_N_2A'  && gran === 'group'){
           $.extend(options, requestOptions.l2a_group);
+        } else if(collectionId === 'ALD_U_N_2A'){
+          var fields = gran+'_fields';
+          options[fields] = fieldsList[collectionId][fields];
+          options.ica_fields = fieldsList[collectionId].ica_fields;
         } else if(collectionId === 'ALD_U_N_2B'  && gran === 'group'){
           $.extend(options, requestOptions.l2b_group);
         } else if(collectionId.indexOf('AUX')===-1){

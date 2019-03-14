@@ -278,7 +278,7 @@ define(['backbone.marionette',
             }
 
             this.renderSettings = {
-                rayleigh: {
+                'ALD_U_N_1B_rayleigh': {
                     xAxis: ['time'],
                     yAxis: [
                         'rayleigh_altitude'
@@ -306,7 +306,7 @@ define(['backbone.marionette',
                     }
 
                 },
-                mie: {
+                'ALD_U_N_1B_mie': {
                     xAxis: ['time'],
                     yAxis: [
                         'mie_altitude'
@@ -335,7 +335,7 @@ define(['backbone.marionette',
                     }
 
                 },
-                'ALD_U_N_2A_mie': {
+                'ALD_U_N_2A_MCA': {
                     xAxis: 'MCA_time',
                     yAxis: [ 'mie_altitude'],
                     additionalXTicks: [],
@@ -352,7 +352,7 @@ define(['backbone.marionette',
                     }
 
                 },
-                'ALD_U_N_2A_rayleigh': {
+                'ALD_U_N_2A_SCA': {
                     xAxis: 'SCA_time',
                     yAxis: [ 'rayleigh_altitude'],
                     additionalXTicks: [],
@@ -367,6 +367,24 @@ define(['backbone.marionette',
                         'longitude': 'longitude_of_DEM_intersection_obs',
                         'altitude': 'rayleigh_altitude'
                     }
+
+                },
+                'ALD_U_N_2A_ICA': {
+                    xAxis: 'ICA_time',
+                    yAxis: [ 'bins'],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
+                    combinedParameters: {
+                        bins: ['ICA_bins_start', 'ICA_bins_end'],
+                        ICA_time: ['ICA_time_obs_start', 'ICA_time_obs_stop'],
+                    },
+                    colorAxis: ['ICA_backscatter'],
+                    positionAlias: {
+                        'latitude': 'latitude_of_DEM_intersection_obs',
+                        'longitude': 'longitude_of_DEM_intersection_obs',
+                        'altitude': 'rayleigh_altitude'
+                    },
+                    reversedYAxis: true
 
                 },
                 'ALD_U_N_2A_group':{
@@ -599,9 +617,9 @@ define(['backbone.marionette',
                     'rayleigh':[/mie.*/, 'positions', 'stepPositions', /.*_jumps/]
                 },
                 'ALD_U_N_2A': {
-                    'MCA': [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/],
-                    'SCA':[/mie.*/, 'positions', 'stepPositions', /.*_jumps/],
-                    'ICA': [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/]
+                    'MCA': [/rayleigh_.*/, /SCA.*/, /ICA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'],
+                    'SCA': [/mie_.*/, /MCA.*/, /ICA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'],
+                    'ICA': [/rayleigh_.*/, /mie_.*/, /MCA.*/, /SCA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross']
                 },
                 /*'ALD_U_N_2B': {
 
@@ -665,7 +683,7 @@ define(['backbone.marionette',
                     el: '#graph_1',
                     margin: {top: 10, left: 100, bottom: 50, right: 40},
                     dataSettings: this.dataSettings,
-                    renderSettings: this.renderSettings.mie,
+                    renderSettings: this.renderSettings['ALD_U_N_1B_mie'],
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
                     ignoreParameters: [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/],
@@ -684,7 +702,7 @@ define(['backbone.marionette',
                     el: '#graph_2',
                     margin: {top: 10, left: 100, bottom: 50, right: 40},
                     dataSettings: this.dataSettings,
-                    renderSettings: this.renderSettings.rayleigh,
+                    renderSettings: this.renderSettings['ALD_U_N_1B_rayleigh'],
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
                     connectedGraph: this.graph1,
@@ -1046,6 +1064,47 @@ define(['backbone.marionette',
             }
         },
 
+        createGroupVisualizationSelection(cP, data){
+
+            var visG = this.visualizationGroups[cP];
+
+            var s1 = $('<select id="graph1Select" />');
+            for(var key in visG) {
+                var ops = {value: key, text: key};
+                if(this.groupSelected[cP][0] === key){
+                    ops.selected = true;
+                }
+                $('<option />', ops).appendTo(s1);
+            }
+            s1.appendTo('#graph_1');
+
+            var that = this;
+            s1.change(function(){
+                var sel = $(this).val();
+                that.groupSelected[cP][0] = sel;
+                that.graph1.renderSettings =  that.renderSettings[cP+'_'+sel];
+                that.graph1.ignoreParameters = visG[sel];
+                that.graph1.loadData(data[cP]);
+            });
+
+            var s2 = $('<select id="graph2Select" />');
+            for(var key in visG) {
+                var ops = {value: key, text: key};
+                if(this.groupSelected[cP][1] === key){
+                    ops.selected = true;
+                }
+                $('<option />', ops).appendTo(s2);
+            }
+            s2.appendTo('#graph_2');
+            s2.change(function(){
+                var sel = $(this).val();
+                that.groupSelected[cP][1] = sel;
+                that.graph2.renderSettings =  that.renderSettings[cP+'_'+sel];
+                that.graph2.ignoreParameters = visG[sel];
+                that.graph2.loadData(data[cP]);
+            });
+        },
+
         reloadData: function(model, data) {
             // If element already has plot rendering
             if( $(this.el).html()){
@@ -1071,6 +1130,9 @@ define(['backbone.marionette',
                 this.graph2.removeGroupArrows();
                 this.graph1.margin.bottom = 50;
                 this.graph2.margin.bottom = 50;
+
+                $('#graph1Select').remove();
+                $('#graph2Select').remove();
 
                 // If data parameters have changed
                 if (!firstLoad && !_.isEqual(this.prevParams, idKeys)){
@@ -1117,58 +1179,25 @@ define(['backbone.marionette',
 
                     $('#nodataavailable').hide();
                     $('#graph_2').css('margin-top', '0px');
+
+                    var cP = idKeys[0];
+                    var sel = this.groupSelected[cP];
+                    var visG = this.visualizationGroups[cP];
+                    //var visGKeys = Object.keys(visG);
                     //this.graph.loadData(data);
                     // TODO: Iterate through all ids and load to corresponding graphs
-                    if(idKeys[0] === 'ALD_U_N_1B'){
-                        var cP = idKeys[0];
-                        var visG = this.visualizationGroups[cP];
-                        var visGKeys = Object.keys(visG);
+                    if(cP === 'ALD_U_N_1B'){
 
-                        var s1 = $('<select id="graph1Select" />');
-                        for(var key in visG) {
-                            var ops = {value: key, text: key};
-                            if(this.groupSelected[cP][0] === key){
-                                ops.selected = true;
-                            }
-                            $('<option />', ops).appendTo(s1);
-                        }
-                        s1.appendTo('#graph_1');
-
-                        var that = this;
-                        s1.change(function(){
-                            var sel = $(this).val();
-                            that.groupSelected[cP][0] = sel;
-                            that.graph1.renderSettings =  that.renderSettings[sel];
-                            that.graph1.ignoreParameters = visG[sel];
-                            that.graph1.loadData(data[cP]);
-                        });
-
-                        var s2 = $('<select id="graph2Select" />');
-                        for(var key in visG) {
-                            var ops = {value: key, text: key};
-                            if(this.groupSelected[cP][1] === key){
-                                ops.selected = true;
-                            }
-                            $('<option />', ops).appendTo(s2);
-                        }
-                        s2.appendTo('#graph_2');
-                        s2.change(function(){
-                            var sel = $(this).val();
-                            that.groupSelected[cP][1] = sel;
-                            that.graph2.renderSettings =  that.renderSettings[sel];
-                            that.graph2.ignoreParameters = visG[sel];
-                            that.graph2.loadData(data[cP]);
-                        });
-
-                        this.graph1.renderSettings =  this.renderSettings.mie;
-                        this.graph2.renderSettings =  this.renderSettings.rayleigh;
+                        this.createGroupVisualizationSelection(cP, data);
+                        this.graph1.renderSettings = this.renderSettings[cP+'_'+sel[0]];
+                        this.graph2.renderSettings = this.renderSettings[cP+'_'+sel[1]];
                         $('#graph_1').css('height', '49%');
                         $('#graph_2').css('height', '49%');
                         $('#graph_2').show();
                         this.graph1.debounceActive = true;
                         this.graph2.debounceActive = true;
-                        this.graph1.ignoreParameters = visG[this.groupSelected[cP][0]];
-                        this.graph2.ignoreParameters = visG[this.groupSelected[cP][1]];
+                        this.graph1.ignoreParameters = visG[sel[0]];
+                        this.graph2.ignoreParameters = visG[sel[1]];
                         this.graph1.dataSettings = mergedDataSettings;
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.loadData(data['ALD_U_N_1B']);
@@ -1193,15 +1222,16 @@ define(['backbone.marionette',
                             this.graph1.fileSaveString = idKeys[0]+'_top';
                             this.filterManager.loadData(data[idKeys[0]]);
                         } else {
-                            this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2A_mie;
-                            this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2A_rayleigh;
+                            this.createGroupVisualizationSelection(cP, data);
+                            this.graph1.renderSettings = this.renderSettings[cP+'_'+sel[0]];
+                            this.graph2.renderSettings = this.renderSettings[cP+'_'+sel[1]];
                             $('#graph_1').css('height', '49%');
                             $('#graph_2').css('height', '49%');
                             $('#graph_2').show();
                             this.graph1.debounceActive = true;
                             this.graph2.debounceActive = true;
-                            this.graph1.ignoreParameters = [/rayleigh_.*/, /SCA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
-                            this.graph2.ignoreParameters = [/mie_.*/, /MCA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'];
+                            this.graph1.ignoreParameters = visG[this.groupSelected[cP][0]];
+                            this.graph2.ignoreParameters = visG[this.groupSelected[cP][1]];
                             this.graph1.dataSettings = mergedDataSettings;
                             this.graph2.dataSettings = mergedDataSettings;
                             this.graph1.loadData(data['ALD_U_N_2A']);
