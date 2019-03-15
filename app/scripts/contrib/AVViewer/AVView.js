@@ -613,8 +613,8 @@ define(['backbone.marionette',
 
             this.visualizationGroups = {
                 'ALD_U_N_1B': {
-                    'mie': [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/],
-                    'rayleigh':[/mie.*/, 'positions', 'stepPositions', /.*_jumps/]
+                    'mie': [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, 'signCross'],
+                    'rayleigh':[/mie.*/, 'positions', 'stepPositions', /.*_jumps/, 'signCross']
                 },
                 'ALD_U_N_2A': {
                     'MCA': [/rayleigh_.*/, /SCA.*/, /ICA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'],
