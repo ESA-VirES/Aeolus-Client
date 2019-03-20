@@ -913,6 +913,10 @@
           var alt_end = [];
           var gD = data.ALD_U_N_2A.group_data;
           var oD = data.ALD_U_N_2A.observation_data;
+
+          if( $.isEmptyObject(gD) || $.isEmptyObject(oD) ){
+            return;
+          }
           var observationOffset = gD.group_start_obs[0]-1;
           for (var i = 0; i < gD.group_start_obs.length; i++) {
               var currObsStart = (gD.group_start_obs[i]-1)-observationOffset;
@@ -1591,7 +1595,7 @@
               'rayleigh_altitude_meas',
               'albedo_off_nadir'
             ].join(),
-              'group_fields': [
+            'group_fields': [
               'group_start_obs',
               'group_end_obs',
               'group_start_meas_obs',
