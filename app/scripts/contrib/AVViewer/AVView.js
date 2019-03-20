@@ -898,7 +898,7 @@ define(['backbone.marionette',
             $('#resetFilters').off();
             filCon.append('<button id="resetFilters" type="button" class="btn btn-success darkbutton">Reset filters</button>');
             $('#resetFilters').click(function(){
-                that.graph.filterManager.resetManager();
+                that.filterManager.resetManager();
             });
 
 
