@@ -557,8 +557,14 @@
                 var details = evt.originalEvent.detail;
                 if (details.params.bbox){
                     var oneDay=1000*60*60*24;
+                    // In order to avoid overlap of product we remove a delta 
+                    // from the time selection, 1 minute seems to be a good compromise
+                    var delta = (1000*60);
                     if ( Math.ceil( (details.end - details.start)/oneDay)<10 ){
-                        this.slider.select(details.start, details.end);
+                        this.slider.select(
+                            new Date(details.start.getTime()+delta),
+                            new Date(details.end.getTime()-delta)
+                        );
                         Communicator.mediator.trigger('map:set:extent', details.params.bbox);
                     }
                 }
