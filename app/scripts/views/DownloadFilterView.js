@@ -1123,7 +1123,8 @@
             'ALD_U_N_2B': {
                 'mie_profile_fields': [
                   'mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection',
-                  'mie_profile_datetime_start', 'mie_profile_datetime_stop'
+                  'mie_profile_datetime_start', 'mie_profile_datetime_stop',
+                  'mie_wind_profile_observation_type'
                 ],
                 'mie_wind_fields': [
                   'mie_wind_result_wind_velocity', 'mie_wind_result_start_time',
@@ -1132,10 +1133,12 @@
                   'mie_wind_result_SNR', 'mie_wind_result_HLOS_error', 'mie_wind_result_COG_altitude',
                   'mie_wind_result_COG_range', 'mie_wind_result_QC_flags_1',
                   'mie_wind_result_QC_flags_2', 'mie_wind_result_QC_flags_3',
+                  'mie_wind_result_id'
                 ],
                 'rayleigh_profile_fields': [
                   'rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection',
-                  'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop'
+                  'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop',
+                  'rayleigh_wind_profile_observation_type'
                 ],
                 'rayleigh_wind_fields': [
                   'rayleigh_wind_result_wind_velocity', 'rayleigh_wind_result_start_time',
@@ -1144,6 +1147,7 @@
                   'rayleigh_wind_result_HLOS_error', 'rayleigh_wind_result_COG_altitude',
                   'rayleigh_wind_result_COG_range', 'rayleigh_wind_result_QC_flags_1',
                   'rayleigh_wind_result_QC_flags_2', 'rayleigh_wind_result_QC_flags_3',
+                  'rayleigh_wind_result_id'
                 ],
                 'mie_grouping_fields': [
                   'mie_grouping_start_obs',
