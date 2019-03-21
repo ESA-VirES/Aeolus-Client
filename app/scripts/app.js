@@ -49,6 +49,9 @@ var VECTOR_BREAKDOWN = {};
                 // Create a multi file upload component
                 const pond = FilePond.create({
                     allowMultiple: true,
+                    labelIdle: ('Drag & Drop your files or <span class="filepond--label-action"> Browse </span><br>'+
+                                'Use uncompressed product file (DBL, EEF)<br>'+
+                                'Additional information in the <a target="_blank" href="/accounts/faq">FAQ</a>'),
                     name: 'file',
                     server: 'upload/',
                     onprocessfile: function(error, file){
