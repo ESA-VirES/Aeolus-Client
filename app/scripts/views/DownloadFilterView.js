@@ -840,14 +840,11 @@
 
         if (days>timelimit){
           var newStart = new Date(et_obj.getTime()-(1000*60*60*24*timelimit));
-          w2confirm('The currently selected time interval is too large, the maximum allowed for '+
-            currCol +' in original format is '+timelimit+' days.'+
-            ' Would you like to reduce your selection automatically and send the request?'+
-            ' The selected time would be: </br>'+getISODateTimeString(newStart)+' / '+
-              options.end_time+ '.')
-            .yes(function () {
-              options.begin_time = getISODateTimeString(newStart)
-              sendProcessingRequest(options);
+          w2alert('The currently selected time interval is too large, the maximum allowed for '+
+            currCol +' in original format is '+timelimit+' days. Please update your time selection.')
+            .ok(function () {
+              /*options.begin_time = getISODateTimeString(newStart)
+              sendProcessingRequest(options);*/
             });
         }else{
           sendProcessingRequest(options);
@@ -1495,14 +1492,11 @@
             granString = ' with '+downGran+' granularity' 
           }
           var newStart = new Date(et_obj.getTime()-(1000*60*60*24*timelimit));
-          w2confirm('The currently selected time interval is too large, the maximum allowed for '+
-            currCol + granString  +' is '+timelimit+' days.'+
-            ' Would you like to reduce your selection automatically and send the request?'+
-            ' The selected time would be: </br>'+getISODateTimeString(newStart)+' / '+
-              options.end_time+ '.')
-            .yes(function () {
-              options.begin_time = getISODateTimeString(newStart)
-              sendProcessingRequest(options);
+          w2alert('The currently selected time interval is too large, the maximum allowed for '+
+            currCol + granString  +' is '+timelimit+' days. Please update your time selection.')
+            .ok(function () {
+              /*options.begin_time = getISODateTimeString(newStart)
+              sendProcessingRequest(options);*/
             });
         }else{
           sendProcessingRequest(options);
