@@ -414,7 +414,7 @@
         this.filterManager = new FilterManager({
             filterSettings: filterSettings,
             replaceUnderlines: true,
-            filterAxisTickFormat: 'customSc'
+            filterAxisTickFormat: 'customExp'
         });
 
         globals.swarm.set('filterManager', this.filterManager);
