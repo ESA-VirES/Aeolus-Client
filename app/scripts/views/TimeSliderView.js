@@ -258,7 +258,16 @@
                     id: collectionId,
                     url: '/ows'
                 };
-                  
+
+
+                var actProds = globals.products.filter(function (p) {
+                    return (p.get('visible') && p.get('download').id !== 'ADAM_albedo');
+                });
+
+                if(actProds.length === 1){
+                    attrs['currActive'] = actProds[0].get('download').id;
+                }
+
                 this.slider.addDataset({
                     id: collectionId,
                     color: '#1122ff',
@@ -337,16 +346,28 @@
             fetchWPS: function(start, end, params, callback){
                 var request = this.url + '?service=wps&request=execute&version=1.0.0&identifier=getTimeData&DataInputs=collection='+
                 this.id + ';begin_time='+getISODateTimeString(start)+';end_time='+getISODateTimeString(end)+'&RawDataOutput=times';
+                var currActive = this.currActive;
                 d3.csv(request)
                     .row(function (row) {
-                        return [
-                            new Date(row.starttime),
-                            new Date(row.endtime), 
-                            {
-                                id: row.identifier,
-                                bbox: row.bbox.replace(/[()]/g,'').split(',').map(parseFloat)
+                        if(typeof currActive === 'undefined'){
+                            return [
+                                new Date(row.starttime), new Date(row.endtime), 
+                                {
+                                    id: row.identifier,
+                                    bbox: row.bbox.replace(/[()]/g,'').split(',').map(parseFloat)
+                                }
+                            ];
+                        } else {
+                            if(row.identifier.indexOf(currActive) !== -1){
+                                return [
+                                    new Date(row.starttime), new Date(row.endtime), 
+                                    {
+                                        id: row.identifier,
+                                        bbox: row.bbox.replace(/[()]/g,'').split(',').map(parseFloat)
+                                    }
+                                ];
                             }
-                        ];
+                        }
                     })
                     .get(function(error, rows) { 
                         callback(rows);
@@ -386,12 +407,49 @@
 
             },
 
+            updateUserCollection: function(){
+                // Add possible user collections
+                var collectionId;
+                if(typeof USERVARIABLE !== 'undefined'){
+                    collectionId = 'user_collection_'+ USERVARIABLE;
+                } else {
+                    collectionId = 'user_collection_admin';
+                }
+
+                var attrs = {
+                    id: collectionId,
+                    url: '/ows'
+                };
+
+
+                var actProds = globals.products.filter(function (p) {
+                    return (p.get('visible') && p.get('download').id !== 'ADAM_albedo');
+                });
+
+                if(actProds.length === 1){
+                    attrs['currActive'] = actProds[0].get('download').id;
+                }
+
+                if(this.slider.datasets.hasOwnProperty(collectionId)){
+                    this.slider.datasets[collectionId].source = {
+                        fetch: this.fetchWPS.bind(attrs)
+                    };
+                }
+                this.slider.reloadDataset(collectionId);
+            },
+
 
             changeLayer: function (options) {
                 if (!options.isBaseLayer){
                     var product = globals.products.find(function(model) { return model.get('name') === options.name; });
                     if (product){
                         if(options.visible && product.get('timeSlider')){
+
+                            if(product.get('download').id === 'ADAM_albedo'){
+                                return;
+                            }
+
+                            this.updateUserCollection();
 
                             // Check to see if we need to limit time selection
                             // if selected product is set to measurement level
@@ -499,8 +557,14 @@
                 var details = evt.originalEvent.detail;
                 if (details.params.bbox){
                     var oneDay=1000*60*60*24;
+                    // In order to avoid overlap of product we remove a delta 
+                    // from the time selection, 1 minute seems to be a good compromise
+                    var delta = (1000*60);
                     if ( Math.ceil( (details.end - details.start)/oneDay)<10 ){
-                        this.slider.select(details.start, details.end);
+                        this.slider.select(
+                            new Date(details.start.getTime()+delta),
+                            new Date(details.end.getTime()-delta)
+                        );
                         Communicator.mediator.trigger('map:set:extent', details.params.bbox);
                     }
                 }

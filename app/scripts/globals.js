@@ -4,7 +4,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
 
     var swarm_model = Backbone.Model.extend({data:[]});
     return {
-        version: '1.2',
+        version: '1.3',
         objects: new ObjectStore(),
         selections: new ObjectStore(),
         baseLayers: new Backbone.Collection(),
@@ -57,7 +57,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 extent: [-20, 20]
             },
             'SCA_extinction_variance': {
-                uom: 'm^-2'
+                uom: 'm^-2',
+                nullValue: -1
             },
             'SCA_backscatter': {
                 uom: '10-6 * m^-1* sr^-1',
@@ -65,7 +66,11 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 extent: [-20, 20]
             },
             'SCA_backscatter_variance': {
-                uom: 'm^-2*sr^-2'
+                uom: 'm^-2*sr^-2',
+                nullValue: -1
+            },
+            'SCA_LOD_variance': {
+                nullValue: -1
             },
             'SCA_time_obs':{
                 scaleFormat: 'time',
@@ -88,15 +93,12 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 uom: 'm'
             },
             'longitude_of_DEM_intersection_obs':{
-
                 uom: 'deg'
             },
-             'latitude_of_DEM_intersection_obs':{
-
+            'latitude_of_DEM_intersection_obs':{
                 uom: 'deg'
             },
-             'altitude_of_DEM_intersection_obs':{
-
+            'altitude_of_DEM_intersection_obs':{
                 uom: 'm'
             },
 
@@ -118,7 +120,63 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 scaleFormat: 'time',
                 timeFormat: 'MJD2000_S'
             },
+            'ICA_time_obs_start': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'ICA_time_obs_stop': {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'ICA_extinction':{
+                nullValue: -1000000
+            },
+            'ICA_backscatter':{
+                nullValue: -1000000
+            },
+
+            // L2A Group
+            'group_backscatter_variance':{
+                uom: 'm^-2*sr^-2',
+                nullValue: -1
+            },
+            'group_extinction_variance':{
+                uom: 'm^-2',
+                nullValue: -1
+            },
+            'group_extinction':{
+                uom: '10-6 * m^-1',
+                nullValue: -1
+            },
+            'group_backscatter':{
+                uom: '10-6 * m^-1* sr^-1',
+                nullValue: -1
+            },
+            'group_LOD_variance':{
+                uom: null,
+                nullValue: -1
+            },
+            'group_LOD':{
+                uom: null,
+                //nullValue: 1.7e+38
+            },
+            'group_SR':{
+                uom: null,
+                //nullValue: 1.7e+38
+            },
+
+
             // L2B, L2C
+
+            'mie_meas_map': {
+                colorscale: 'jet',
+                csDiscrete: true
+            },
+
+            'rayleigh_meas_map': {
+                colorscale: 'jet',
+                csDiscrete: true
+            },
 
             'mie_wind_result_SNR':{
                 uom: null

@@ -10,15 +10,14 @@
     'backbone',
     'communicator',
     'globals',
-    'hbs!tmpl/wps_fetchData',
-    'hbs!tmpl/wps_l1b',
+    'hbs!tmpl/wps_dataRequest',
     'app',
     'papaparse',
     'msgpack',
     'graphly'
   ],
 
-  function( Backbone, Communicator, globals, wps_fetchDataTmpl, wps_l1bTmpl, App, Papa) {
+  function( Backbone, Communicator, globals, wps_dataRequestTmpl, App, Papa) {
 
     var DataController = Backbone.Marionette.Controller.extend({
 
@@ -414,7 +413,8 @@
 
         this.filterManager = new FilterManager({
             filterSettings: filterSettings,
-            replaceUnderlines: true
+            replaceUnderlines: true,
+            filterAxisTickFormat: 'customExp'
         });
 
         globals.swarm.set('filterManager', this.filterManager);
@@ -840,6 +840,604 @@
         this.checkFlatteningComplete();
       },
 
+
+      handleL2ADataResponse: function(product, data, collectionId){
+        var ds = data[collectionId];
+        var keys = Object.keys(ds);
+        var resData = {};
+        var gran = product.get('granularity');
+
+        if(typeof USERVARIABLE !== 'undefined'){
+          var userCollId = 'user_collection_'+ USERVARIABLE;
+          var dataGranularity = gran + '_data';
+
+          if(data.hasOwnProperty(userCollId)) {
+            var userdataKeys = Object.keys(data[userCollId]);
+
+            // Check if only user uploaded data is avaialbe
+            if($.isEmptyObject(ds)){
+              ds = data[userCollId];
+              keys = Object.keys(ds);
+
+            } else if(!$.isEmptyObject(data[userCollId])){
+
+              // Only create these groups if userdata contains any data
+              var diffV = [
+                'SCA_extinction_variance',
+                'SCA_backscatter_variance',
+                'SCA_LOD_variance',
+                'SCA_middle_bin_extinction_variance',
+                'SCA_middle_bin_backscatter_variance',
+                'SCA_middle_bin_LOD_variance',
+                'SCA_middle_bin_BER_variance',
+                'SCA_extinction',
+                'SCA_backscatter',
+                'SCA_LOD',
+                'SCA_SR',
+                'SCA_middle_bin_extinction',
+                'SCA_middle_bin_backscatter',
+                'SCA_middle_bin_LOD',
+                'SCA_middle_bin_BER',
+                'MCA_clim_BER',
+                'MCA_extinction',
+                'MCA_LOD',
+              ];
+
+              for (var kk = 0; kk < diffV.length; kk++) {
+                if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
+                  ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
+                  ds[dataGranularity][diffV[kk]+'_diff'] = [];
+                  var block;
+                  for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
+                    block = [];
+                    for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
+                      block.push(
+                        ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
+                      );
+                    }
+                    ds[dataGranularity][diffV[kk]+'_diff'].push(block);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // Switch between granularities
+
+        if(gran === 'group'){
+          // L2A
+          var meas_start = [];
+          var meas_end = [];
+          var alt_start = [];
+          var alt_end = [];
+          var gD = data.ALD_U_N_2A.group_data;
+          var oD = data.ALD_U_N_2A.observation_data;
+
+          if( $.isEmptyObject(gD) || $.isEmptyObject(oD) ){
+            return;
+          }
+          var observationOffset = gD.group_start_obs[0]-1;
+          for (var i = 0; i < gD.group_start_obs.length; i++) {
+              var currObsStart = (gD.group_start_obs[i]-1)-observationOffset;
+              //var currObsEnd = gD.group_end_obs[i]; // Not needed yet as start and end is equal
+              var currMeasStart = ((currObsStart+observationOffset)*30) + gD.group_start_meas_obs[i];
+              var currMeasEnd = ((currObsStart+observationOffset)*30) + gD.group_end_meas_obs[i];
+              var heighBinIndex = gD.group_height_bin_index[i]-1;
+              if(typeof oD.mie_altitude_obs[currObsStart] !== 'undefined'){
+                var currAltStart = oD.mie_altitude_obs[currObsStart][heighBinIndex];
+                var currAltEnd = oD.mie_altitude_obs[currObsStart][heighBinIndex+1];
+                
+                // TODO: In theory we should filter out -1 values, not sure if these
+                // apply equally to all parameters...
+                //if(gD.group_backscatter[i] !==-1){}
+
+                meas_start.push(currMeasStart);
+                meas_end.push(currMeasEnd);
+                alt_start.push(currAltEnd);
+                alt_end.push(currAltStart);
+              }
+              
+           }
+
+          resData.alt_start = alt_start;
+          resData.alt_end = alt_end;
+          resData.meas_start = meas_start;
+          resData.meas_end = meas_end;
+          resData.group_backscatter_variance = gD.group_backscatter_variance;
+          resData.group_extinction_variance = gD.group_extinction_variance;
+          resData.group_extinction = gD.group_extinction;
+          resData.group_backscatter = gD.group_backscatter;
+          resData.group_LOD_variance = gD.group_LOD_variance;
+          resData.group_LOD = gD.group_LOD;
+          resData.group_SR = gD.group_SR;
+
+        } else {
+
+          if(ds.ica_data.hasOwnProperty('ICA_time_obs') && ds.ica_data['ICA_time_obs'].length > 0) {
+            var bins_start = [];
+            var bins_end = [];
+            for (var ica = 0; ica < ds.ica_data['ICA_time_obs'].length; ica++) {
+              for (var i = 0; i < 24; i++) {
+                bins_start.push(i+1);
+                bins_end.push(i);
+              }
+            }
+            ds.ica_data['ICA_bins_start'] = bins_start;
+            ds.ica_data['ICA_bins_end'] = bins_end;
+          }
+
+          for (var k = 0; k < keys.length; k++) {
+            var subK = Object.keys(ds[keys[k]]);
+            for (var l = 0; l < subK.length; l++) {
+              var curArr = ds[keys[k]][subK[l]];
+              if( Array.isArray(curArr[0]) ){
+                if(subK[l].includes('altitude')){
+                  // Create bottom and top arrays
+                  var tmpArrBottom = [];
+                  var tmpArrTop = [];
+                  for (var i = 0; i < curArr.length; i++) {
+                    for (var j = 0; j < 24; j++) {
+                      tmpArrBottom.push(curArr[i][j]);
+                      tmpArrTop.push(curArr[i][j+1]);
+                    }
+                  }
+                  resData[subK[l]+'_bottom'] = tmpArrBottom;
+                  resData[subK[l]+'_top'] = tmpArrTop;
+                } else {
+                  resData[subK[l]] = [].concat.apply([], ds[keys[k]][subK[l]]);
+                }
+              }else{
+                if(subK[l].indexOf('ICA_bins')===-1){
+                  var tmpArr = [];
+                  for (var i = 0; i < curArr.length; i++) {
+                    for (var j = 0; j < 24; j++) {
+                      tmpArr.push(curArr[i]);
+                    }
+                  }
+                  resData[subK[l]+'_orig'] = curArr;
+                  resData[subK[l]] = tmpArr;
+                } else {
+                  resData[subK[l]] = curArr;
+                }
+                
+              }
+            }
+          }
+
+          // Check if data is actually available
+          if((resData.hasOwnProperty('SCA_time_obs') && resData['SCA_time_obs'].length > 0) && 
+             (resData.hasOwnProperty('MCA_time_obs') && resData['MCA_time_obs'].length > 0) && 
+             (resData.hasOwnProperty('ICA_time_obs') && resData['ICA_time_obs'].length > 0)) {
+
+
+            // Create new start and stop time to allow rendering
+            resData['SCA_time_obs_start'] = resData['SCA_time_obs'].slice();
+            resData['SCA_time_obs_stop'] = resData['SCA_time_obs'].slice(24, resData['SCA_time_obs'].length);
+            resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
+            resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].slice(24, resData['MCA_time_obs'].length);
+            resData['ICA_time_obs_start'] = resData['ICA_time_obs'].slice();
+            resData['ICA_time_obs_stop'] = resData['ICA_time_obs'].slice(24, resData['ICA_time_obs'].length);
+
+            resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
+            resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].slice(1, resData['SCA_time_obs_orig'].length);
+            resData['MCA_time_obs_orig_start'] = resData['MCA_time_obs_orig'].slice();
+            resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].slice(1, resData['MCA_time_obs_orig'].length);
+            resData['ICA_time_obs_orig_start'] = resData['ICA_time_obs_orig'].slice();
+            resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].slice(1, resData['ICA_time_obs_orig'].length);
+            // Add element with additional 12ms as it should be the default
+            // time interval between observations
+            // TODO: make sure this is acceptable! As there seems to be some 
+            // minor deviations at start and end of observations
+            var lastValSCA =  resData['SCA_time_obs_orig'].slice(-1)[0]+12;
+            var lastValMCA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
+            var lastValICA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
+            for (var i = 0; i < 24; i++) {
+              resData['SCA_time_obs_stop'].push(lastValSCA);
+              resData['MCA_time_obs_stop'].push(lastValMCA);
+              resData['ICA_time_obs_stop'].push(lastValICA);
+            }
+            resData['SCA_time_obs_orig_stop'].push(lastValSCA);
+            resData['MCA_time_obs_orig_stop'].push(lastValMCA);
+            resData['ICA_time_obs_orig_stop'].push(lastValICA);
+
+            var lonStep = 15;
+            var latStep = 15;
+
+
+            var jumpPos = [];
+            var signCross = [];
+            for (var i = 1; i < resData.latitude_of_DEM_intersection_obs_orig.length; i++) {
+              var latdiff = Math.abs(
+                resData.latitude_of_DEM_intersection_obs_orig[i-1]-
+                resData.latitude_of_DEM_intersection_obs_orig[i]
+              );
+              var londiff = Math.abs(
+                resData.longitude_of_DEM_intersection_obs_orig[i-1]-
+                resData.longitude_of_DEM_intersection_obs_orig[i]
+              ); 
+              // TODO: slicing not working correctly for L2a
+              if (latdiff >= latStep) {
+                signCross.push(latdiff>160);
+                jumpPos.push(i);
+              }else if (londiff >= lonStep) {
+                signCross.push(londiff>340);
+                jumpPos.push(i);
+              }
+            }
+
+            var jumpPos2 = [];
+            var signCross2 = [];
+            for (var i = 1; i < resData.latitude_of_DEM_intersection_obs.length; i++) {
+              var latdiff = Math.abs(
+                resData.latitude_of_DEM_intersection_obs[i-1]-
+                resData.latitude_of_DEM_intersection_obs[i]
+              );
+              var londiff = Math.abs(
+                resData.longitude_of_DEM_intersection_obs[i-1]-
+                resData.longitude_of_DEM_intersection_obs[i]
+              ); 
+
+              if (latdiff >= latStep) {
+                signCross2.push(latdiff>160);
+                jumpPos2.push(i);
+              }else if (londiff >= lonStep) {
+                signCross2.push(londiff>340);
+                jumpPos2.push(i);
+              }
+            }
+
+            // Remove elements where there is a jump
+            for (var j = 0; j < jumpPos2.length; j++) {
+              if(!signCross2[j]){
+                for (var key in resData){
+                  resData[key].splice(jumpPos2[j]-24,24);
+                }
+              }
+            }
+            resData.jumps = jumpPos;
+            resData.signCross = signCross;
+          }
+
+        }
+
+        return resData;
+      },
+
+      handleL2BCDataResponse: function(product, data, collectionId){
+
+        var ds = data[collectionId];
+        var keys = Object.keys(ds);
+        var resData = {};
+        var gran = product.get('granularity');
+
+        if(typeof USERVARIABLE !== 'undefined'){
+          var userCollId = 'user_collection_'+ USERVARIABLE;
+          var dataGranularity = product.get('granularity')+'_data';
+
+          if(data.hasOwnProperty(userCollId)) {
+            var userdataKeys = Object.keys(data[userCollId]);
+
+            // Check if only user uploaded data is avaialbe
+            if($.isEmptyObject(ds)){
+              ds = data[userCollId];
+              keys = Object.keys(ds);
+
+            } else if(!$.isEmptyObject(data[userCollId])){
+
+              // Only create these groups if userdata contains any data
+              var diffV = [
+                'mie_wind_result_HLOS_error',
+                'mie_wind_result_SNR',
+                'mie_wind_result_scattering_ratio',
+                'mie_wind_result_observation_type',
+                'mie_wind_result_validity_flag',
+                'mie_wind_result_wind_velocity',
+                'mie_wind_result_integration_length',
+                'mie_wind_result_num_of_measurements',
+                'rayleigh_wind_result_HLOS_error',
+                'rayleigh_wind_result_scattering_ratio',
+                'rayleigh_wind_result_observation_type',
+                'rayleigh_wind_result_validity_flag',
+                'rayleigh_wind_result_wind_velocity',
+                'rayleigh_wind_result_integration_length',
+                'rayleigh_wind_result_num_of_measurements',
+                'rayleigh_wind_result_reference_pressure',
+                'rayleigh_wind_result_reference_temperature',
+                'rayleigh_wind_result_reference_backscatter_ratio'
+              ];
+
+              for (var kk = 0; kk < diffV.length; kk++) {
+                var dataGranularity = 'mie_wind_data';
+                if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
+                  ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
+                  ds[dataGranularity][diffV[kk]+'_diff'] = [];
+                  var block;
+                  for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
+                    block = [];
+                    for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
+                      block.push(
+                        ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
+                      );
+                    }
+                    ds[dataGranularity][diffV[kk]+'_diff'].push(block);
+                  }
+                }
+                dataGranularity = 'rayleigh_wind_data';
+                if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
+                  ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
+                  ds[dataGranularity][diffV[kk]+'_diff'] = [];
+                  var block;
+                  for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
+                    block = [];
+                    for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
+                      block.push(
+                        ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
+                      );
+                    }
+                    ds[dataGranularity][diffV[kk]+'_diff'].push(block);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        if(gran === 'group'){
+
+          var observationMeasSize = 30;
+
+
+          var mie_bins_start = [];
+          var mie_bins_end = [];
+          var mie_meas_start = [];
+          var mie_meas_end = [];
+          var mie_measurement_map = [];
+          var mie_obs_start = [];
+
+          var mGS = ds.mie_grouping_data.mie_grouping_start_obs;
+          var mGE = ds.mie_grouping_data.mie_grouping_end_obs;
+          var mMS = ds.mie_grouping_data.mie_grouping_start_meas_per_obs;
+          var mME = ds.mie_grouping_data.mie_grouping_end_meas_per_obs;
+          var mie_groupArrows = [];
+
+          if(typeof mGS === 'undefined'){
+            // empty dataset just retunr
+            return;
+          }
+
+          for (var i = 0; i < mGS.length; i++) {
+
+              var mMeasStart = (((mGS[i]-1)*observationMeasSize) + mMS[i])-1;
+              var mMeasEnd = ((mGE[i]-1)*observationMeasSize) + mME[i];
+              var mMeasDelta = (mMeasEnd - mMeasStart)-1;
+
+              mie_groupArrows.push([
+                mMeasStart,
+                mMeasEnd,
+                i
+              ]);
+
+              var obs_mie_bins_start = [];
+              var obs_mie_bins_end = [];
+              var obs_mie_meas_start = [];
+              var obs_mie_meas_end = [];
+              var obs_mie_measurement_map = [];
+              mie_obs_start.push(mGS[i]);
+
+              if(mMeasStart>=ds.measurement_data.mie_measurement_map.length){
+                continue;
+              }
+
+              for (var j=0; j<ds.measurement_data.mie_measurement_map[mMeasStart].length; j++){
+
+                for (var m=0; m<=mMeasDelta; m++) {
+                  if((mMeasStart+m)>ds.measurement_data.mie_measurement_map.length){
+                    console.log(mMeasStart);
+                  }
+                  if(ds.measurement_data.mie_measurement_map[mMeasStart+m][j] !== 0){
+                      obs_mie_bins_start.push(j);
+                      obs_mie_bins_end.push(j+1);
+                      obs_mie_meas_start.push(mMeasStart+m);
+                      obs_mie_meas_end.push((mMeasStart+m+1));
+                      obs_mie_measurement_map.push(
+                        ds.measurement_data.mie_measurement_map[mMeasStart+m][j]
+                      );
+                  }
+                }
+              }
+              mie_bins_start.push(obs_mie_bins_start);
+              mie_bins_end.push(obs_mie_bins_end);
+              mie_meas_start.push(obs_mie_meas_start);
+              mie_meas_end.push(obs_mie_meas_end);
+              mie_measurement_map.push(obs_mie_measurement_map);
+          }
+
+          resData.mie_bins_start = mie_bins_start;
+          resData.mie_bins_end = mie_bins_end;
+          resData.mie_meas_start = mie_meas_start;
+          resData.mie_meas_end = mie_meas_end;
+          resData.mie_meas_map = mie_measurement_map;
+          resData.mie_obs_start = mie_obs_start;
+          resData.mie_groupArrows = mie_groupArrows;
+
+
+          var rayleigh_bins_start = [];
+          var rayleigh_bins_end = [];
+          var rayleigh_meas_start = [];
+          var rayleigh_meas_end = [];
+          var rayleigh_measurement_map = [];
+          var rayleigh_obs_start = [];
+
+          var rGS = ds.rayleigh_grouping_data.rayleigh_grouping_start_obs;
+          var rGE = ds.rayleigh_grouping_data.rayleigh_grouping_end_obs;
+          var rMS = ds.rayleigh_grouping_data.rayleigh_grouping_start_meas_per_obs;
+          var rME = ds.rayleigh_grouping_data.rayleigh_grouping_end_meas_per_obs;
+          var rayleigh_groupArrows = [];
+
+          for (var i = 0; i < rGS.length; i++) {
+
+              var rMeasStart = (((rGS[i]-1)*observationMeasSize) + rMS[i])-1;
+              var rMeasEnd = ((rGE[i]-1)*observationMeasSize) + rME[i];
+              var rMeasDelta = (rMeasEnd - rMeasStart)-1;
+
+              rayleigh_groupArrows.push([
+                rMeasStart,
+                rMeasEnd,
+                i
+              ]);
+
+              var obs_rayleigh_bins_start = [];
+              var obs_rayleigh_bins_end = [];
+              var obs_rayleigh_meas_start = [];
+              var obs_rayleigh_meas_end = [];
+              var obs_rayleigh_measurement_map = [];
+              rayleigh_obs_start.push(rGS[i]);
+
+              if(rMeasStart>=ds.measurement_data.rayleigh_measurement_map.length){
+                continue;
+              }
+
+              for (var j=0; j<ds.measurement_data.rayleigh_measurement_map[rMeasStart].length; j++){
+
+                for (var m=0; m<=rMeasDelta; m++) {
+                  if((rMeasStart+m)>ds.measurement_data.rayleigh_measurement_map.length){
+                    console.log(rMeasStart);
+                  }
+                  if(ds.measurement_data.rayleigh_measurement_map[rMeasStart+m][j] !== 0){
+                      obs_rayleigh_bins_start.push(j);
+                      obs_rayleigh_bins_end.push(j+1);
+                      obs_rayleigh_meas_start.push(rMeasStart+m);
+                      obs_rayleigh_meas_end.push((rMeasStart+m+1));
+                      obs_rayleigh_measurement_map.push(
+                        ds.measurement_data.rayleigh_measurement_map[rMeasStart+m][j]
+                      );
+                  }
+                }
+              }
+              rayleigh_bins_start.push(obs_rayleigh_bins_start);
+              rayleigh_bins_end.push(obs_rayleigh_bins_end);
+              rayleigh_meas_start.push(obs_rayleigh_meas_start);
+              rayleigh_meas_end.push(obs_rayleigh_meas_end);
+              rayleigh_measurement_map.push(obs_rayleigh_measurement_map);
+          }
+
+          resData.rayleigh_bins_start = rayleigh_bins_start;
+          resData.rayleigh_bins_end = rayleigh_bins_end;
+          resData.rayleigh_meas_start = rayleigh_meas_start;
+          resData.rayleigh_meas_end = rayleigh_meas_end;
+          resData.rayleigh_meas_map = rayleigh_measurement_map;
+          resData.rayleigh_obs_start = rayleigh_obs_start;
+          resData.rayleigh_groupArrows = rayleigh_groupArrows;
+
+        } else {
+          var startEndVarsBins = [
+              'mie_wind_result_range_bin_number',
+              'rayleigh_wind_result_range_bin_number',
+          ];
+
+          var startEndVars = [
+            'mie_wind_result_COG_range',
+            'rayleigh_wind_result_COG_range',
+          ];
+
+          for (var k = 0; k < keys.length; k++) {
+
+            var subK = Object.keys(ds[keys[k]]);
+
+            for (var l = 0; l < subK.length; l++) {
+              
+              if(subK[l] === 'mie_wind_result_wind_velocity' ||
+                 subK[l] === 'rayleigh_wind_result_wind_velocity'){
+                // Convert from cm/s to m/s
+                resData[subK[l]]= ds[keys[k]][subK[l]].map(
+                  function(x) { return x / 100; }
+                );
+            //  } else if(
+            //     subK[l] === 'mie_wind_result_COG_range' ||
+            //     subK[l] === 'rayleigh_wind_result_COG_range'){
+            //    // Convert from m to km
+            //    resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 1000; });
+              } else if(startEndVarsBins.indexOf(subK[l]) !== -1){
+                resData[subK[l]+'_start'] = ds[keys[k]][subK[l]];
+                resData[subK[l]+'_end'] = ds[keys[k]][subK[l]].map(
+                  function(x) { return x+1; }
+                );
+              } else if(startEndVars.indexOf(subK[l]) !== -1){
+                resData[subK[l]+'_start'] = ds[keys[k]][subK[l]];
+                var endArray = [];
+                for (var idx = 1; idx < ds[keys[k]][subK[l]].length; idx++) {
+                  if(ds[keys[k]][subK[l]][idx] - ds[keys[k]][subK[l]][idx-1] > 0){
+                    endArray.push(ds[keys[k]][subK[l]][idx]);
+                  } else {
+                    endArray.push(ds[keys[k]][subK[l]][idx-1]+20);
+                  }
+                }
+                resData[subK[l]+'_end'] = endArray;
+              } else {
+                resData[subK[l]] = ds[keys[k]][subK[l]];
+              }
+            }
+          }
+          var lonStep = 15;
+          var latStep = 15;
+
+          var mieSignCross = []; 
+          var mieJumpPositions = [];
+          if(ds.hasOwnProperty('mie_wind_data') && 
+             ds.mie_wind_data.hasOwnProperty('mie_wind_result_lat_of_DEM_intersection') &&
+             ds.mie_wind_data.hasOwnProperty('mie_wind_result_lon_of_DEM_intersection') ){
+
+            var miewindLat = ds.mie_wind_data.mie_wind_result_lat_of_DEM_intersection;
+            var miewindLon = ds.mie_wind_data.mie_wind_result_lon_of_DEM_intersection;
+            for (var i = 1; i < miewindLat.length; i++) {
+              var latdiff = Math.abs(
+                miewindLat[i-1] - miewindLat[i]
+              );
+              var londiff = Math.abs(
+                miewindLon[i-1] - miewindLon[i]
+              ); 
+
+              if (latdiff >= latStep) {
+                mieSignCross.push(latdiff>160);
+                mieJumpPositions.push(i);
+              }else if (londiff >= lonStep) {
+                mieSignCross.push(londiff>340)
+                mieJumpPositions.push(i);
+              }
+            }
+            resData.mie_jumps = mieJumpPositions;
+            resData.mieSignCross = mieSignCross;
+
+            var rayleighSignCross = [];
+            var rayleighJumpPositions = [];
+            var raywindLat = ds.rayleigh_wind_data.rayleigh_wind_result_lat_of_DEM_intersection;
+            var raywindLon = ds.rayleigh_wind_data.rayleigh_wind_result_lon_of_DEM_intersection;
+
+            for (var i = 1; i < raywindLat.length; i++) {
+              var latdiff = Math.abs(
+                raywindLat[i-1] - raywindLat[i]
+              );
+              var londiff = Math.abs(
+                raywindLon[i-1] - raywindLon[i]
+              ); 
+
+              if (latdiff >= latStep) {
+                rayleighSignCross.push(latdiff>160);
+                rayleighJumpPositions.push(i);
+              }else if (londiff >= lonStep) {
+                rayleighSignCross.push(londiff>340)
+                rayleighJumpPositions.push(i);
+              }
+            }
+            resData.rayleigh_jumps = rayleighJumpPositions;
+            resData.rayleighSignCross = rayleighSignCross;
+          }
+        }
+
+        return resData;
+      },
+
       sendRequest: function(prodId){
        
         var process = {
@@ -881,7 +1479,7 @@
               'mie_signal_intensity',
               'rayleigh_signal_channel_A_intensity',
               'rayleigh_signal_channel_B_intensity',
-              //'rayleigh_signal_intensity',
+              'rayleigh_signal_intensity',
               'mie_ground_velocity',
               'rayleigh_ground_velocity',
               'mie_HBE_ground_velocity',
@@ -892,7 +1490,7 @@
               'mie_SNR',
               'rayleigh_channel_A_SNR',
               'rayleigh_channel_B_SNR',
-              //'rayleigh_SNR',
+              'rayleigh_SNR',
               'mie_error_quantifier',
               'rayleigh_error_quantifier',
               'average_laser_energy',
@@ -924,17 +1522,17 @@
               'rayleigh_mean_emitted_frequency',
               'mie_emitted_frequency_std_dev',
               'rayleigh_emitted_frequency_std_dev',
-              //'mie_signal_intensity',
-              //'rayleigh_signal_channel_A_intensity',
-              //'rayleigh_signal_channel_B_intensity',
-              //'rayleigh_signal_intensity',
+              'mie_signal_intensity',
+              'rayleigh_signal_channel_A_intensity',
+              'rayleigh_signal_channel_B_intensity',
+              'rayleigh_signal_intensity',
               'mie_ground_velocity',
               'rayleigh_ground_velocity',
               'mie_scattering_ratio',
-              /*'mie_SNR',
+              'mie_SNR',
               'rayleigh_channel_A_SNR',
               'rayleigh_channel_B_SNR',
-              'rayleigh_SNR',*/
+              'rayleigh_SNR',
               'average_laser_energy',
               'laser_frequency',
               'rayleigh_bin_quality_flag',
@@ -950,7 +1548,6 @@
               'L1B_start_time_obs',
               'L1B_centroid_time_obs',
               'SCA_time_obs',
-              //'ICA_time_obs',
               'MCA_time_obs',
               'longitude_of_DEM_intersection_obs',
               'latitude_of_DEM_intersection_obs',
@@ -968,7 +1565,6 @@
               'SCA_middle_bin_backscatter_variance',
               'SCA_middle_bin_LOD_variance',
               'SCA_middle_bin_BER_variance',
-              //'ICA_QC_flag',
               'SCA_extinction',
               'SCA_backscatter',
               'SCA_LOD',
@@ -977,14 +1573,18 @@
               'SCA_middle_bin_backscatter',
               'SCA_middle_bin_LOD',
               'SCA_middle_bin_BER',
-              /*'ICA_filling_case',
-              'ICA_extinction',
-              'ICA_backscatter',
-              'ICA_LOD',*/
               'MCA_clim_BER',
               'MCA_extinction',
               'MCA_LOD',
               'albedo_off_nadir'
+            ].join(),
+            'ica_fields': [
+              'ICA_time_obs',
+              'ICA_QC_flag',
+              'ICA_filling_case',
+              'ICA_extinction',
+              'ICA_backscatter',
+              'ICA_LOD'
             ].join(),
             'measurement_fields': [
               'L1B_time_meas',
@@ -996,7 +1596,17 @@
               'albedo_off_nadir'
             ].join(),
             'group_fields': [
+              'group_start_obs',
+              'group_end_obs',
+              'group_start_meas_obs',
+              'group_end_meas_obs',
               'group_start_time',
+              'group_end_time',
+              'group_height_bin_index',
+              'group_backscatter',
+              'group_backscatter_variance',
+              'group_extinction_variance'
+              /*'group_start_time',
               'group_end_time',
               'group_centroid_time',
               'group_middle_bin_start_altitude',
@@ -1031,7 +1641,7 @@
               'group_middle_bin_BER_bottom',
               //'scene_classification_aladin_cloud_flag',
               'scene_classification_NWP_cloud_flag',
-              'scene_classification_group_class_reliability'
+              'scene_classification_group_class_reliability'*/
             ].join(),
           },
           'ALD_U_N_2B': {
@@ -1435,7 +2045,22 @@
             'longitude_off_nadir'
           ]
 
-        }
+        };
+
+        var requestOptions = {
+          l2a_group: {
+            //measurement_fields: 'altitude_of_DEM_intersection_meas,mie_altitude_meas',
+            observation_fields: 'altitude_of_DEM_intersection_obs,mie_altitude_obs,rayleigh_altitude_obs'/*+'latitude_of_DEM_intersection_obs,longitude_of_DEM_intersection_obs'*/,
+            group_fields: 'group_start_obs,group_end_obs,group_start_meas_obs,group_end_meas_obs,group_start_time,group_end_time,group_height_bin_index,'+
+                          'group_extinction,group_backscatter,group_backscatter_variance,group_extinction_variance,group_LOD_variance,group_LOD,group_SR'
+
+          },
+          l2b_group: {
+            measurement_fields: 'mie_measurement_map,rayleigh_measurement_map',
+            mie_grouping_fields: 'mie_grouping_start_obs,mie_grouping_end_obs,mie_grouping_start_meas_per_obs,mie_grouping_end_meas_per_obs',
+            rayleigh_grouping_fields: 'rayleigh_grouping_start_obs,rayleigh_grouping_end_obs,rayleigh_grouping_start_meas_per_obs,rayleigh_grouping_end_meas_per_obs'
+          }
+        };
         
         var collections = [collectionId];
         if(typeof USERVARIABLE !== 'undefined'){
@@ -1456,9 +2081,17 @@
           options["bbox_upper"] = bb.e + " " + bb.n;
         }
 
-        
-        if(collectionId.indexOf('AUX')===-1){
-          var gran = product.get('granularity');
+
+        var gran = product.get('granularity');
+        if(collectionId === 'ALD_U_N_2A'  && gran === 'group'){
+          $.extend(options, requestOptions.l2a_group);
+        } else if(collectionId === 'ALD_U_N_2A'){
+          var fields = gran+'_fields';
+          options[fields] = fieldsList[collectionId][fields];
+          options.ica_fields = fieldsList[collectionId].ica_fields;
+        } else if(collectionId === 'ALD_U_N_2B'  && gran === 'group'){
+          $.extend(options, requestOptions.l2b_group);
+        } else if(collectionId.indexOf('AUX')===-1){
           if(gran === 'wind-accumulation-result'){
             options['mie_wind_fields'] = fieldsList[collectionId]['mie_wind_fields'];
             options['rayleigh_wind_fields'] = fieldsList[collectionId]['rayleigh_wind_fields'];
@@ -1572,7 +2205,7 @@
 
         options.mimeType = 'application/msgpack';
 
-        var body = wps_l1bTmpl(options);
+        var body = wps_dataRequestTmpl(options);
 
         if(this.xhr !== null){
           // A request has been sent that is not yet been returned so we need to cancel it
@@ -1649,7 +2282,7 @@
 
                         rayleighDiffVars = [
                           'rayleigh_HLOS_wind_speed', 'rayleigh_signal_channel_A_intensity',
-                          'rayleigh_signal_channel_B_intensity', 
+                          'rayleigh_signal_channel_B_intensity', 'rayleigh_signal_intensity',
                           'rayleigh_total_ZWC',
                           'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', 
                           'rayleigh_error_quantifier',
@@ -1803,10 +2436,10 @@
                   var rayleighVars = [
                     'rayleigh_altitude', 'rayleigh_range',
                     'rayleigh_HLOS_wind_speed', 'rayleigh_signal_channel_A_intensity',
-                    'rayleigh_signal_channel_B_intensity', //'rayleigh_signal_intensity',
+                    'rayleigh_signal_channel_B_intensity', 'rayleigh_signal_intensity',
                     'rayleigh_ground_velocity', 'rayleigh_HBE_ground_velocity',
                     'rayleigh_total_ZWC',
-                    'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', //'rayleigh_SNR',
+                    'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', 'rayleigh_SNR',
                     'rayleigh_bin_quality_flag', 'rayleigh_error_quantifier',
                     'rayleigh_reference_pulse_quality_flag',
                     'rayleigh_mean_emitted_frequency', 'rayleigh_emitted_frequency_std_dev'
@@ -2068,11 +2701,13 @@
                     }
 
                     if(!resData.hasOwnProperty('observation_index')){
-                      var obsIndex = [];
-                      for (var j = 1; j <= resData[keys[0]].length; j++) {
-                        obsIndex.push(j);
+                      if(!$.isEmptyObject(resData)){
+                        var obsIndex = [];
+                        for (var j = 1; j <= resData[keys[0]].length; j++) {
+                          obsIndex.push(j);
+                        }
+                        resData['observation_index'] = obsIndex;
                       }
-                      resData['observation_index'] = obsIndex;
                     }
 
                   } else if(collectionId === 'AUX_MET_12'){
@@ -2199,358 +2834,11 @@
 
                   } else if(collectionId === 'ALD_U_N_2A'){
 
-                    if(typeof USERVARIABLE !== 'undefined'){
-                      var userCollId = 'user_collection_'+ USERVARIABLE;
-                      var dataGranularity = product.get('granularity')+'_data';
+                    resData = that.handleL2ADataResponse(product, data, collectionId);
 
-                      if(data.hasOwnProperty(userCollId)) {
-                        var userdataKeys = Object.keys(data[userCollId]);
+                  } else if(collectionId === 'ALD_U_N_2B' || collectionId === 'ALD_U_N_2C'){
 
-                        // Check if only user uploaded data is avaialbe
-                        if($.isEmptyObject(ds)){
-                          ds = data[userCollId];
-                          keys = Object.keys(ds);
-
-                        } else if(!$.isEmptyObject(data[userCollId])){
-
-                          // Only create these groups if userdata contains any data
-                          var diffV = [
-                            'SCA_extinction_variance',
-                            'SCA_backscatter_variance',
-                            'SCA_LOD_variance',
-                            'SCA_middle_bin_extinction_variance',
-                            'SCA_middle_bin_backscatter_variance',
-                            'SCA_middle_bin_LOD_variance',
-                            'SCA_middle_bin_BER_variance',
-                            'SCA_extinction',
-                            'SCA_backscatter',
-                            'SCA_LOD',
-                            'SCA_SR',
-                            'SCA_middle_bin_extinction',
-                            'SCA_middle_bin_backscatter',
-                            'SCA_middle_bin_LOD',
-                            'SCA_middle_bin_BER',
-                            'MCA_clim_BER',
-                            'MCA_extinction',
-                            'MCA_LOD',
-                          ];
-
-                          for (var kk = 0; kk < diffV.length; kk++) {
-                            if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
-                              ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
-                              ds[dataGranularity][diffV[kk]+'_diff'] = [];
-                              var block;
-                              for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
-                                block = [];
-                                for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
-                                  block.push(
-                                    ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
-                                  );
-                                }
-                                ds[dataGranularity][diffV[kk]+'_diff'].push(block);
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-
-                    for (var k = 0; k < keys.length; k++) {
-                      var subK = Object.keys(ds[keys[k]]);
-                      for (var l = 0; l < subK.length; l++) {
-                        var curArr = ds[keys[k]][subK[l]];
-                        if( Array.isArray(curArr[0]) ){
-                          if(subK[l].includes('altitude')){
-                            // Create bottom and top arrays
-                            var tmpArrBottom = [];
-                            var tmpArrTop = [];
-                            for (var i = 0; i < curArr.length; i++) {
-                              for (var j = 0; j < 24; j++) {
-                                tmpArrBottom.push(curArr[i][j]);
-                                tmpArrTop.push(curArr[i][j+1]);
-                              }
-                            }
-                            resData[subK[l]+'_bottom'] = tmpArrBottom;
-                            resData[subK[l]+'_top'] = tmpArrTop;
-                          } else {
-                            resData[subK[l]] = [].concat.apply([], ds[keys[k]][subK[l]]);
-                          }
-                        }else{
-
-                          var tmpArr = [];
-                          for (var i = 0; i < curArr.length; i++) {
-                            for (var j = 0; j < 24; j++) {
-                              tmpArr.push(curArr[i]);
-                            }
-                          }
-                          resData[subK[l]+'_orig'] = curArr;
-                          resData[subK[l]] = tmpArr;
-                        }
-                      }
-                    }
-
-                    // Check if data is actually available
-                    if((resData.hasOwnProperty('SCA_time_obs') && resData['SCA_time_obs'].length > 0) && 
-                       (resData.hasOwnProperty('MCA_time_obs') && resData['MCA_time_obs'].length > 0) ) {
-                                          
-                      // Create new start and stop time to allow rendering
-                      resData['SCA_time_obs_start'] = resData['SCA_time_obs'].slice();
-                      resData['SCA_time_obs_stop'] = resData['SCA_time_obs'].slice(24, resData['SCA_time_obs'].length);
-                      resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
-                      resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].slice(24, resData['MCA_time_obs'].length);
-
-                      resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
-                      resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].slice(1, resData['SCA_time_obs_orig'].length);
-                      resData['MCA_time_obs_orig_start'] = resData['MCA_time_obs_orig'].slice();
-                      resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].slice(1, resData['MCA_time_obs_orig'].length);
-                      // Add element with additional 12ms as it should be the default
-                      // time interval between observations
-                      // TODO: make sure this is acceptable! As there seems to be some 
-                      // minor deviations at start and end of observations
-                      var lastValSCA =  resData['SCA_time_obs_orig'].slice(-1)[0]+12;
-                      var lastValMCA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
-                      for (var i = 0; i < 24; i++) {
-                        resData['SCA_time_obs_stop'].push(lastValSCA);
-                        resData['MCA_time_obs_stop'].push(lastValMCA);
-                      }
-                      resData['SCA_time_obs_orig_stop'].push(lastValSCA);
-                      resData['MCA_time_obs_orig_stop'].push(lastValMCA);
-
-                      var lonStep = 15;
-                      var latStep = 15;
-
-
-
-                      var jumpPos = [];
-                      var signCross = [];
-                      for (var i = 1; i < resData.latitude_of_DEM_intersection_obs_orig.length; i++) {
-                        var latdiff = Math.abs(
-                          resData.latitude_of_DEM_intersection_obs_orig[i-1]-
-                          resData.latitude_of_DEM_intersection_obs_orig[i]
-                        );
-                        var londiff = Math.abs(
-                          resData.longitude_of_DEM_intersection_obs_orig[i-1]-
-                          resData.longitude_of_DEM_intersection_obs_orig[i]
-                        ); 
-                        // TODO: slicing not working correctly for L2a
-                        if (latdiff >= latStep) {
-                          signCross.push(latdiff>160);
-                          jumpPos.push(i);
-                        }else if (londiff >= lonStep) {
-                          signCross.push(londiff>340);
-                          jumpPos.push(i);
-                        }
-                      }
-
-                      var jumpPos2 = [];
-                      var signCross2 = [];
-                      for (var i = 1; i < resData.latitude_of_DEM_intersection_obs.length; i++) {
-                        var latdiff = Math.abs(
-                          resData.latitude_of_DEM_intersection_obs[i-1]-
-                          resData.latitude_of_DEM_intersection_obs[i]
-                        );
-                        var londiff = Math.abs(
-                          resData.longitude_of_DEM_intersection_obs[i-1]-
-                          resData.longitude_of_DEM_intersection_obs[i]
-                        ); 
-
-                        if (latdiff >= latStep) {
-                          signCross2.push(latdiff>160);
-                          jumpPos2.push(i);
-                        }else if (londiff >= lonStep) {
-                          signCross2.push(londiff>340)
-                          jumpPos2.push(i);
-                        }
-                      }
-
-                      // Remove elements where there is a jump
-                      for (var j = 0; j < jumpPos2.length; j++) {
-                        if(!signCross2[j]){
-                          for (var key in resData){
-                            resData[key].splice(jumpPos2[j]-24,24);
-                          }
-                        }
-                      }
-                      resData.jumps = jumpPos;
-                      resData.signCross = signCross;
-                    }
-
-                  } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
-
-                    if(typeof USERVARIABLE !== 'undefined'){
-                      var userCollId = 'user_collection_'+ USERVARIABLE;
-                      var dataGranularity = product.get('granularity')+'_data';
-
-                      if(data.hasOwnProperty(userCollId)) {
-                        var userdataKeys = Object.keys(data[userCollId]);
-
-                        // Check if only user uploaded data is avaialbe
-                        if($.isEmptyObject(ds)){
-                          ds = data[userCollId];
-                          keys = Object.keys(ds);
-
-                        } else if(!$.isEmptyObject(data[userCollId])){
-
-                          // Only create these groups if userdata contains any data
-                          var diffV = [
-                            'mie_wind_result_HLOS_error',
-                            'mie_wind_result_SNR',
-                            'mie_wind_result_scattering_ratio',
-                            'mie_wind_result_observation_type',
-                            'mie_wind_result_validity_flag',
-                            'mie_wind_result_wind_velocity',
-                            'mie_wind_result_integration_length',
-                            'mie_wind_result_num_of_measurements',
-                            'rayleigh_wind_result_HLOS_error',
-                            'rayleigh_wind_result_scattering_ratio',
-                            'rayleigh_wind_result_observation_type',
-                            'rayleigh_wind_result_validity_flag',
-                            'rayleigh_wind_result_wind_velocity',
-                            'rayleigh_wind_result_integration_length',
-                            'rayleigh_wind_result_num_of_measurements',
-                            'rayleigh_wind_result_reference_pressure',
-                            'rayleigh_wind_result_reference_temperature',
-                            'rayleigh_wind_result_reference_backscatter_ratio'
-                          ];
-
-                          for (var kk = 0; kk < diffV.length; kk++) {
-                            var dataGranularity = 'mie_wind_data';
-                            if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
-                              ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
-                              ds[dataGranularity][diffV[kk]+'_diff'] = [];
-                              var block;
-                              for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
-                                block = [];
-                                for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
-                                  block.push(
-                                    ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
-                                  );
-                                }
-                                ds[dataGranularity][diffV[kk]+'_diff'].push(block);
-                              }
-                            }
-                            dataGranularity = 'rayleigh_wind_data';
-                            if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
-                              ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
-                              ds[dataGranularity][diffV[kk]+'_diff'] = [];
-                              var block;
-                              for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
-                                block = [];
-                                for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
-                                  block.push(
-                                    ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
-                                  );
-                                }
-                                ds[dataGranularity][diffV[kk]+'_diff'].push(block);
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-
-                    var startEndVarsBins = [
-                        'mie_wind_result_range_bin_number',
-                        'rayleigh_wind_result_range_bin_number',
-                    ];
-
-                    var startEndVars = [
-                      'mie_wind_result_COG_range',
-                      'rayleigh_wind_result_COG_range',
-                    ];
-
-                    for (var k = 0; k < keys.length; k++) {
-
-                      var subK = Object.keys(ds[keys[k]]);
-
-                      for (var l = 0; l < subK.length; l++) {
-                        
-                        if(subK[l] === 'mie_wind_result_wind_velocity' ||
-                           subK[l] === 'rayleigh_wind_result_wind_velocity'){
-                          // Convert from cm/s to m/s
-                          resData[subK[l]]= ds[keys[k]][subK[l]].map(
-                            function(x) { return x / 100; }
-                          );
-                      //  } else if(
-                      //     subK[l] === 'mie_wind_result_COG_range' ||
-                      //     subK[l] === 'rayleigh_wind_result_COG_range'){
-                      //    // Convert from m to km
-                      //    resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 1000; });
-                        } else if(startEndVarsBins.indexOf(subK[l]) !== -1){
-                          resData[subK[l]+'_start'] = ds[keys[k]][subK[l]];
-                          resData[subK[l]+'_end'] = ds[keys[k]][subK[l]].map(
-                            function(x) { return x+1; }
-                          );
-                        } else if(startEndVars.indexOf(subK[l]) !== -1){
-                          resData[subK[l]+'_start'] = ds[keys[k]][subK[l]];
-                          var endArray = [];
-                          for (var idx = 1; idx < ds[keys[k]][subK[l]].length; idx++) {
-                            if(ds[keys[k]][subK[l]][idx] - ds[keys[k]][subK[l]][idx-1] > 0){
-                              endArray.push(ds[keys[k]][subK[l]][idx]);
-                            } else {
-                              endArray.push(ds[keys[k]][subK[l]][idx-1]+20);
-                            }
-                          }
-                          resData[subK[l]+'_end'] = endArray;
-                        } else {
-                          resData[subK[l]] = ds[keys[k]][subK[l]];
-                        }
-                      }
-                    }
-                    var lonStep = 15;
-                    var latStep = 15;
-
-                    var mieSignCross = []; 
-                    var mieJumpPositions = [];
-                    if(ds.hasOwnProperty('mie_wind_data') && 
-                       ds.mie_wind_data.hasOwnProperty('mie_wind_result_lat_of_DEM_intersection') &&
-                       ds.mie_wind_data.hasOwnProperty('mie_wind_result_lon_of_DEM_intersection') ){
-
-                      var miewindLat = ds.mie_wind_data.mie_wind_result_lat_of_DEM_intersection;
-                      var miewindLon = ds.mie_wind_data.mie_wind_result_lon_of_DEM_intersection;
-                      for (var i = 1; i < miewindLat.length; i++) {
-                        var latdiff = Math.abs(
-                          miewindLat[i-1] - miewindLat[i]
-                        );
-                        var londiff = Math.abs(
-                          miewindLon[i-1] - miewindLon[i]
-                        ); 
-
-                        if (latdiff >= latStep) {
-                          mieSignCross.push(latdiff>160);
-                          mieJumpPositions.push(i);
-                        }else if (londiff >= lonStep) {
-                          mieSignCross.push(londiff>340)
-                          mieJumpPositions.push(i);
-                        }
-                      }
-                      resData.mie_jumps = mieJumpPositions;
-                      resData.mieSignCross = mieSignCross;
-
-                      var rayleighSignCross = [];
-                      var rayleighJumpPositions = [];
-                      var raywindLat = ds.rayleigh_wind_data.rayleigh_wind_result_lat_of_DEM_intersection;
-                      var raywindLon = ds.rayleigh_wind_data.rayleigh_wind_result_lon_of_DEM_intersection;
-
-                      for (var i = 1; i < raywindLat.length; i++) {
-                        var latdiff = Math.abs(
-                          raywindLat[i-1] - raywindLat[i]
-                        );
-                        var londiff = Math.abs(
-                          raywindLon[i-1] - raywindLon[i]
-                        ); 
-
-                        if (latdiff >= latStep) {
-                          rayleighSignCross.push(latdiff>160);
-                          rayleighJumpPositions.push(i);
-                        }else if (londiff >= lonStep) {
-                          rayleighSignCross.push(londiff>340)
-                          rayleighJumpPositions.push(i);
-                        }
-                      }
-                      resData.rayleigh_jumps = rayleighJumpPositions;
-                      resData.rayleighSignCross = rayleighSignCross;
-                    }
+                    resData = that.handleL2BCDataResponse(product, data, collectionId);
 
                   } else {
                     // We land here for MRC, RRC and ISR
@@ -2651,9 +2939,10 @@
                     globals.swarm.set({data: {}});
                   } else {
                     globals.swarm.set({data: tmpdata});
+                    // TODO: Merge data for filtermanager?
+                    that.filterManager.loadData(resData);
                   }
-                  // TODO: Merge data for filtermanager?
-                  that.filterManager.loadData(resData);
+                  
 
                 }
                 that.xhr = null;

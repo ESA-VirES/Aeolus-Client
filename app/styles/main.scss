@@ -517,3 +517,15 @@ button[active=active] {
   left: 10px;
   z-index: 1030;
 }
+
+.nav.navbar-nav li a{
+  max-width: 140px; 
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden; 
+}
+
+.nav.navbar-nav a{
+  padding-left: 8px;
+  padding-right: 8px;
+}

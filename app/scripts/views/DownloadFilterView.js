@@ -9,6 +9,37 @@
     'filters': 'Filters'
   }
 
+  var timeLimits = {
+      'ALD_U_N_1B': {
+          'measurement': 3,
+          'observation': 60,
+          'original': 2
+      },
+      'ALD_U_N_2A': {
+          'group': 60,
+          'observation': 60,
+          'original': 10
+      },
+      'ALD_U_N_2B': {
+          'wind-accumulation-result': 40,
+          'group': 40,
+          'original': 5
+      },
+      'ALD_U_N_2C': {
+          'wind-accumulation-result': 40,
+          'observation': 40,
+          'original': 5
+      },
+      'AUX_MET_12': {
+        'original': 1
+      }/*,
+      'AUX_MRC_1B': {},
+      'AUX_RRC_1B': {},
+      'AUX_ISR_1B': {},
+      'AUX_ZWC_1B': {},
+      */
+  };
+
 
   var root = this;
   root.define([
@@ -20,7 +51,7 @@
     'hbs!tmpl/FilterTemplate',
     'hbs!tmpl/DownloadProcess',
     'hbs!tmpl/CoverageDownloadPost',
-    'hbs!tmpl/wps_l1b',
+    'hbs!tmpl/wps_dataRequest',
     'underscore',
     'w2ui',
     'w2popup'
@@ -780,7 +811,7 @@
           }   
         },this);
 
-        var req_data = wps_fetchFilteredDataAsync(options);
+        
         var that = this;
 
         // Do some sanity checks before starting process
@@ -789,7 +820,8 @@
         var difference_ms = et_obj.getTime() - bt_obj.getTime();
         var days = Math.round(difference_ms/(1000*60*60*24));
 
-        var sendProcessingRequest = function(){
+        var sendProcessingRequest = function(options){
+          var req_data = wps_fetchFilteredDataAsync(options);
           toggleDownloadButton(false);
           $.post( url, req_data, 'xml' )
             .done(function( response ) {
@@ -800,19 +832,22 @@
             });
         };
 
-        if (days>50 && filters.length==0){
-          w2confirm('The current selection will most likely exceed the download limit, please make sure to add filters to further subset your selection. <br> Would you still like to proceed?')
-            .yes(function () {
-              sendProcessingRequest();
-            });
+        var currCol = collections[0];
+        var timelimit = 60;
+        if(timeLimits.hasOwnProperty(currCol)){
+          timelimit = timeLimits[currCol].original;
+        }
 
-        }else if (days>50){
-          w2confirm('The current selected time interval is large and could result in a large download file if filters are not restrictive. The process runs in the background and the browser does not need to be open.<br>Are you sure you want to proceed?')
-            .yes(function () {
-              sendProcessingRequest();
+        if (days>timelimit){
+          var newStart = new Date(et_obj.getTime()-(1000*60*60*24*timelimit));
+          w2alert('The currently selected time interval is too large, the maximum allowed for '+
+            currCol +' in original format is '+timelimit+' days. Please update your time selection.')
+            .ok(function () {
+              /*options.begin_time = getISODateTimeString(newStart)
+              sendProcessingRequest(options);*/
             });
         }else{
-          sendProcessingRequest();
+          sendProcessingRequest(options);
         }
 
       },
@@ -1040,17 +1075,17 @@
                 'AOCS_yaw_angle',
                 'mie_HLOS_wind_speed',
                 'rayleigh_HLOS_wind_speed',
-                //'mie_signal_intensity',
-                //'rayleigh_signal_channel_A_intensity',
-                //'rayleigh_signal_channel_B_intensity',
-                //'rayleigh_signal_intensity',
+                'mie_signal_intensity',
+                'rayleigh_signal_channel_A_intensity',
+                'rayleigh_signal_channel_B_intensity',
+                'rayleigh_signal_intensity',
                 'mie_ground_velocity',
                 'rayleigh_ground_velocity',
                 'mie_scattering_ratio',
-                /*'mie_SNR',
+                'mie_SNR',
                 'rayleigh_channel_A_SNR',
                 'rayleigh_channel_B_SNR',
-                'rayleigh_SNR',*/
+                'rayleigh_SNR',
                 'average_laser_energy',
                 'laser_frequency',
                 'rayleigh_bin_quality_flag',
@@ -1068,9 +1103,66 @@
                 'SCA_extinction_variance', 'SCA_backscatter_variance','SCA_LOD_variance', 
                 'MCA_extinction', 'MCA_time_obs', 'MCA_LOD',
                 'SCA_QC_flag'
+              ],
+              'group_fields':[
+                'group_start_obs',
+                'group_end_obs',
+                'group_start_meas_obs',
+                'group_end_meas_obs',
+                'group_start_time',
+                'group_end_time',
+                'group_height_bin_index',
+                'group_extinction',
+                'group_backscatter',
+                'group_backscatter_variance',
+                'group_extinction_variance',
+                'group_LOD_variance',
+                'group_LOD,group_SR'
               ]
             },
             'ALD_U_N_2B': {
+                'mie_profile_fields': [
+                  'mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection',
+                  'mie_profile_datetime_start', 'mie_profile_datetime_stop',
+                  'mie_wind_profile_observation_type'
+                ],
+                'mie_wind_fields': [
+                  'mie_wind_result_wind_velocity', 'mie_wind_result_start_time',
+                  'mie_wind_result_stop_time', 'mie_wind_result_bottom_altitude',
+                  'mie_wind_result_top_altitude',
+                  'mie_wind_result_SNR', 'mie_wind_result_HLOS_error', 'mie_wind_result_COG_altitude',
+                  'mie_wind_result_COG_range', 'mie_wind_result_QC_flags_1',
+                  'mie_wind_result_QC_flags_2', 'mie_wind_result_QC_flags_3',
+                  'mie_wind_result_id'
+                ],
+                'rayleigh_profile_fields': [
+                  'rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection',
+                  'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop',
+                  'rayleigh_wind_profile_observation_type'
+                ],
+                'rayleigh_wind_fields': [
+                  'rayleigh_wind_result_wind_velocity', 'rayleigh_wind_result_start_time',
+                  'rayleigh_wind_result_stop_time', 'rayleigh_wind_result_bottom_altitude',
+                  'rayleigh_wind_result_top_altitude',
+                  'rayleigh_wind_result_HLOS_error', 'rayleigh_wind_result_COG_altitude',
+                  'rayleigh_wind_result_COG_range', 'rayleigh_wind_result_QC_flags_1',
+                  'rayleigh_wind_result_QC_flags_2', 'rayleigh_wind_result_QC_flags_3',
+                  'rayleigh_wind_result_id'
+                ],
+                'mie_grouping_fields': [
+                  'mie_grouping_start_obs',
+                  'mie_grouping_end_obs',
+                  'mie_grouping_start_meas_per_obs',
+                  'mie_grouping_end_meas_per_obs'
+                ],
+                'rayleigh_grouping_fields': [
+                  'rayleigh_grouping_start_obs',
+                  'rayleigh_grouping_end_obs',
+                  'rayleigh_grouping_start_meas_per_obs',
+                  'rayleigh_grouping_end_meas_per_obs'
+                ]
+            },
+            'ALD_U_N_2C': {
                 'mie_profile_fields': [
                   'mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection',
                   'mie_profile_datetime_start', 'mie_profile_datetime_stop'
@@ -1095,32 +1187,18 @@
                   'rayleigh_wind_result_COG_range', 'rayleigh_wind_result_QC_flags_1',
                   'rayleigh_wind_result_QC_flags_2', 'rayleigh_wind_result_QC_flags_3',
                 ],
-            },
-            'ALD_U_N_2C': {
-                 'mie_profile_fields': [
-                  'mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection',
-                  'mie_profile_datetime_start', 'mie_profile_datetime_stop'
+                'mie_grouping_fields': [
+                  'mie_grouping_start_obs',
+                  'mie_grouping_end_obs',
+                  'mie_grouping_start_meas_per_obs',
+                  'mie_grouping_end_meas_per_obs'
                 ],
-                'mie_wind_fields': [
-                  'mie_wind_result_wind_velocity', 'mie_wind_result_start_time',
-                  'mie_wind_result_stop_time', 'mie_wind_result_bottom_altitude',
-                  'mie_wind_result_top_altitude',
-                  'mie_wind_result_SNR', 'mie_wind_result_HLOS_error', 'mie_wind_result_COG_altitude',
-                  'mie_wind_result_COG_range', 'mie_wind_result_QC_flags_1',
-                  'mie_wind_result_QC_flags_2', 'mie_wind_result_QC_flags_3',
-                ],
-                'rayleigh_profile_fields': [
-                  'rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection',
-                  'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop'
-                ],
-                'rayleigh_wind_fields': [
-                  'rayleigh_wind_result_wind_velocity', 'rayleigh_wind_result_start_time',
-                  'rayleigh_wind_result_stop_time', 'rayleigh_wind_result_bottom_altitude',
-                  'rayleigh_wind_result_top_altitude',
-                  'rayleigh_wind_result_HLOS_error', 'rayleigh_wind_result_COG_altitude',
-                  'rayleigh_wind_result_COG_range', 'rayleigh_wind_result_QC_flags_1',
-                  'rayleigh_wind_result_QC_flags_2', 'rayleigh_wind_result_QC_flags_3',
-                ],
+                'rayleigh_grouping_fields': [
+                  'rayleigh_grouping_start_obs',
+                  'rayleigh_grouping_end_obs',
+                  'rayleigh_grouping_start_meas_per_obs',
+                  'rayleigh_grouping_end_meas_per_obs'
+                ]
              },
             'AUX_MRC_1B': [
               'lat_of_DEM_intersection',
@@ -1339,20 +1417,34 @@
           };
 
           var variables = [];
+          var downGran = null;
           _.each(this.model.get("products"), function(prod){
             if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
               var collectionId = prod.get("download").id;
 
               // TODO: This only takes into account having one product selected
               options.processId = prod.get('process');
+              downGran = prod.get('granularity');
               if(collectionId === 'ALD_U_N_1B'){
                 // Check what granularity is selected and only show relevant parameters
                 var granularity = prod.get('granularity')+'_fields';
                 options[granularity] = fieldsList[collectionId][granularity];
+
               } else if(collectionId === 'ALD_U_N_2A'){
-                options = Object.assign(options, fieldsList[collectionId]);
-              } else if(collectionId === 'ALD_U_N_2C' || collectionId === 'ALD_U_N_2B'){
-                options = Object.assign(options, fieldsList[collectionId]);
+                var granularity = prod.get('granularity')+'_fields';
+                options[granularity] = fieldsList[collectionId][granularity];
+
+              } else if(collectionId === 'ALD_U_N_2B' || collectionId === 'ALD_U_N_2C'){
+                var granularity = prod.get('granularity');
+                if(granularity === 'wind-accumulation-result'){
+                  options['mie_wind_fields'] = fieldsList[collectionId]['mie_wind_fields'];
+                  options['mie_profile_fields'] = fieldsList[collectionId]['mie_profile_fields'];
+                  options['rayleigh_wind_fields'] = fieldsList[collectionId]['rayleigh_wind_fields'];
+                  options['rayleigh_profile_fields'] = fieldsList[collectionId]['rayleigh_profile_fields'];
+                } else if (granularity === 'group'){
+                  options['mie_grouping_fields'] = fieldsList[collectionId]['mie_grouping_fields'];
+                  options['rayleigh_grouping_fields'] = fieldsList[collectionId]['rayleigh_grouping_fields'];
+                }
               } else {
                 options["fields"] = fieldsList[collectionId];
               }
@@ -1372,16 +1464,15 @@
           }   
         },this);
 
-        var req_data = wps_fetchFilteredDataAsync(options);
         var that = this;
 
-        // Do some sanity checks before starting process
 
         // Calculate the difference in milliseconds
         var difference_ms = et_obj.getTime() - bt_obj.getTime();
         var days = Math.round(difference_ms/(1000*60*60*24));
 
-        var sendProcessingRequest = function(){
+        var sendProcessingRequest = function(options){
+          var req_data = wps_fetchFilteredDataAsync(options);
           toggleDownloadButton(false);
           $.post( url, req_data, 'xml' )
             .done(function( response ) {
@@ -1392,19 +1483,27 @@
             });
         };
 
-        if (days>50 && filters.length==0){
-          w2confirm('The current selection will most likely exceed the download limit, please make sure to add filters to further subset your selection. <br> Would you still like to proceed?')
-            .yes(function () {
-              sendProcessingRequest();
-            });
+        
+        var currCol = collections[0];
+        var timelimit = 60;
+        if(timeLimits.hasOwnProperty(currCol)){
+          timelimit = timeLimits[currCol][downGran];
+        }
 
-        }else if (days>50){
-          w2confirm('The current selected time interval is large and could result in a large download file if filters are not restrictive. The process runs in the background and the browser does not need to be open.<br>Are you sure you want to proceed?')
-            .yes(function () {
-              sendProcessingRequest();
+        if (days>timelimit){
+          var granString = '';
+          if(downGran) {
+            granString = ' with '+downGran+' granularity' 
+          }
+          var newStart = new Date(et_obj.getTime()-(1000*60*60*24*timelimit));
+          w2alert('The currently selected time interval is too large, the maximum allowed for '+
+            currCol + granString  +' is '+timelimit+' days. Please update your time selection.')
+            .ok(function () {
+              /*options.begin_time = getISODateTimeString(newStart)
+              sendProcessingRequest(options);*/
             });
         }else{
-          sendProcessingRequest();
+          sendProcessingRequest(options);
         }
 
       },
