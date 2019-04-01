@@ -670,7 +670,7 @@ define(['backbone.marionette',
 
                 this.graph1 = new graphly.graphly({
                     el: '#graph_1',
-                    margin: {top: 10, left: 100, bottom: 50, right: 65},
+                    margin: {top: 10, left: 100, bottom: 50, right: 70},
                     dataSettings: this.dataSettings,
                     renderSettings: this.renderSettings['ALD_U_N_1B_mie'],
                     filterManager: globals.swarm.get('filterManager'),
@@ -690,7 +690,7 @@ define(['backbone.marionette',
             if (this.graph2 === undefined){
                 this.graph2 = new graphly.graphly({
                     el: '#graph_2',
-                    margin: {top: 10, left: 100, bottom: 50, right: 65},
+                    margin: {top: 10, left: 100, bottom: 50, right: 70},
                     dataSettings: this.dataSettings,
                     renderSettings: this.renderSettings['ALD_U_N_1B_rayleigh'],
                     filterManager: globals.swarm.get('filterManager'),
