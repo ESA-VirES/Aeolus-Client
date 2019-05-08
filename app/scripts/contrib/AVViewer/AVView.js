@@ -790,6 +790,14 @@ define(['backbone.marionette',
                 this.graph1.on('axisChange', function () {
                     that.savePlotConfig(that.graph1, 'G1');
                 });
+
+                this.graph1.on('axisExtentChanged', function () {
+                    // Save parameter style changes
+                    localStorage.setItem(
+                        'dataSettings',
+                        JSON.stringify(globals.dataSettings)
+                    );
+                });
             }
 
             if (this.graph2 === undefined){
@@ -828,6 +836,14 @@ define(['backbone.marionette',
 
                 this.graph2.on('axisChange', function () {
                     that.savePlotConfig(that.graph2, 'G2');
+                });
+
+                this.graph2.on('axisExtentChanged', function () {
+                    // Save parameter style changes
+                    localStorage.setItem(
+                        'dataSettings',
+                        JSON.stringify(globals.dataSettings)
+                    );
                 });
             }
 
