@@ -16,6 +16,7 @@ define(['backbone.marionette',
             this.requestUrl = '';
             this.plotType = 'scatter';
             this.sp = undefined;
+            this.currentKeys = [];
 
             $(window).resize(function() {
                 if(this.graph1){
@@ -26,6 +27,82 @@ define(['backbone.marionette',
                 }
             }.bind(this));
             this.connectDataEvents();
+        },
+
+        savePlotConfig: function(graph, prefix){
+            
+            localStorage.setItem(
+                (prefix+'xAxisSelection'),
+                JSON.stringify(graph.renderSettings.xAxis)
+            );
+            localStorage.setItem(
+                (prefix+'yAxisSelection'),
+                JSON.stringify(graph.renderSettings.yAxis)
+            );
+            localStorage.setItem(
+                (prefix+'y2AxisSelection'),
+                JSON.stringify(graph.renderSettings.y2Axis)
+            );
+
+            localStorage.setItem(
+                (prefix+'colorAxisSelection'),
+                JSON.stringify(graph.renderSettings.colorAxis)
+            );
+
+            localStorage.setItem(
+                (prefix+'colorAxis2Selection'),
+                JSON.stringify(graph.renderSettings.colorAxis2)
+            );
+
+        },
+
+        extendSettings: function(settings, prefix){
+
+            var currSets = $.extend(true,{},settings);
+
+            var allInside = true;
+            var xax = JSON.parse(localStorage.getItem(prefix+'xAxisSelection'));
+            var yax = JSON.parse(localStorage.getItem(prefix+'yAxisSelection'));
+            var y2ax = JSON.parse(localStorage.getItem(prefix+'y2AxisSelection'));
+            var colax = JSON.parse(localStorage.getItem(prefix+'colorAxisSelection'));
+
+            var comb = [].concat(xax, yax, y2ax, colax);
+            for (var i = comb.length - 1; i >= 0; i--) {
+                if(comb[i] === null){
+                    continue;
+                }
+                if(this.currentKeys.indexOf(comb[i]) === -1){
+                    if(settings.combinedParameters.hasOwnProperty(comb[i])){
+                        var combined = settings.combinedParameters[comb[i]];
+                        for (var j = combined.length - 1; j >= 0; j--) {
+                            if(this.currentKeys.indexOf(combined[j]) === -1){
+                                allInside = false;
+                            }
+                        }
+                    } else {
+                        allInside = false;
+                    }
+                }
+            }
+
+            if(!allInside){
+                return settings;
+            }
+
+            if (localStorage.getItem(prefix+'xAxisSelection') !== null) {
+                currSets.xAxis = xax;
+            }
+            if (localStorage.getItem(prefix+'yAxisSelection') !== null) {
+                currSets.yAxis = yax;
+            }
+            if (localStorage.getItem(prefix+'y2AxisSelection') !== null) {
+                currSets.y2Axis = y2ax;
+            }
+            if (localStorage.getItem(prefix+'colorAxisSelection') !== null) {
+                currSets.colorAxis = colax;
+            }
+
+            return currSets;
         },
 
         onShow: function() {
@@ -515,6 +592,7 @@ define(['backbone.marionette',
                     additionalXTicks: [],
                     additionalYTicks: [],
                     colorAxis: [ null ],
+                    combinedParameters: {},
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
                         'longitude': 'lon_of_DEM_intersection',
@@ -527,6 +605,7 @@ define(['backbone.marionette',
                     additionalXTicks: [],
                     additionalYTicks: [],
                     colorAxis: [ null ],
+                    combinedParameters: {},
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
                         'longitude': 'lon_of_DEM_intersection',
@@ -539,6 +618,7 @@ define(['backbone.marionette',
                     additionalXTicks: [],
                     additionalYTicks: [],
                     colorAxis: [ null ],
+                    combinedParameters: {},
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
                         'longitude': 'lon_of_DEM_intersection',
@@ -551,6 +631,7 @@ define(['backbone.marionette',
                     additionalXTicks: [],
                     additionalYTicks: [],
                     colorAxis: [ null ],
+                    combinedParameters: {},
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
                         'longitude': 'lon_of_DEM_intersection',
@@ -562,7 +643,8 @@ define(['backbone.marionette',
                     yAxis: ['rayleigh_channel_A_response', 'rayleigh_channel_B_response'],
                     additionalXTicks: [],
                     additionalYTicks: [],
-                    colorAxis: [ null, null ]
+                    colorAxis: [ null, null ],
+                    combinedParameters: {},
                 },
                 AUX_ZWC_1B: {
                     xAxis: 'observation_index',
@@ -570,6 +652,7 @@ define(['backbone.marionette',
                     additionalXTicks: [],
                     additionalYTicks: [],
                     colorAxis: [ null, null ],
+                    combinedParameters: {},
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
                         'longitude': 'lon_of_DEM_intersection'
@@ -611,6 +694,10 @@ define(['backbone.marionette',
                 'AUX_MET_12': []*/
             };
 
+            if (localStorage.getItem('groupSelected') !== null) {
+                this.groupSelected = JSON.parse(localStorage.getItem('groupSelected'));
+            }
+
             this.visualizationGroups = {
                 'ALD_U_N_1B': {
                     'mie': [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, 'signCross'],
@@ -636,6 +723,12 @@ define(['backbone.marionette',
 
             this.dataSettings = globals.dataSettings;
 
+            // Check if styling settings have been saved
+            if (localStorage.getItem('dataSettings') !== null) {
+                this.dataSettings = JSON.parse(localStorage.getItem('dataSettings'));
+                globals.dataSettings = this.dataSettings;
+            }
+
             // Check for already defined data settings
             globals.products.each(function(product) {
 
@@ -653,26 +746,26 @@ define(['backbone.marionette',
                 var parameters = currProd.get('parameters');
                 var band;
                 var keys = _.keys(parameters);
-                _.each(keys, function(key){
-                    if(parameters[key].hasOwnProperty('colorscale')){
-                        this.dataSettings[key].colorscale = parameters[key].colorscale;
-                    }
-                    if(parameters[key].hasOwnProperty('range')){
-                        this.dataSettings[key].extent = parameters[key].range;
-                    }
-                }, this);
+
             }, this);
+
+            var that = this;
 
             if (this.graph1 === undefined){
 
                 this.filterManager = globals.swarm.get('filterManager');
                 this.filterManager.visibleFilters = this.selectedFilterList;
 
+                var sel = that.groupSelected['ALD_U_N_1B'][0];
+                var currRenderSetts = this.extendSettings(
+                    this.renderSettings['ALD_U_N_1B_'+sel], 'G1'
+                );
+
                 this.graph1 = new graphly.graphly({
                     el: '#graph_1',
                     margin: {top: 10, left: 100, bottom: 50, right: 70},
                     dataSettings: this.dataSettings,
-                    renderSettings: this.renderSettings['ALD_U_N_1B_mie'],
+                    renderSettings: currRenderSetts,
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
                     ignoreParameters: [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/],
@@ -685,14 +778,32 @@ define(['backbone.marionette',
                 this.graph1.on('pointSelect', function(values){
                     Communicator.mediator.trigger('cesium:highlight:point', values);
                 });
+                this.graph1.on('styleChange', function () {
+                    // Save parameter style changes
+                    localStorage.setItem(
+                        'dataSettings',
+                        JSON.stringify(globals.dataSettings)
+                    );
+                    that.savePlotConfig(that.graph1, 'G1');
+                });
+
+                this.graph1.on('axisChange', function () {
+                    that.savePlotConfig(that.graph1, 'G1');
+                });
             }
 
             if (this.graph2 === undefined){
+
+                var sel = that.groupSelected['ALD_U_N_1B'][1];
+                var currRenderSetts = this.extendSettings(
+                    this.renderSettings['ALD_U_N_1B_'+sel], 'G2'
+                );
+
                 this.graph2 = new graphly.graphly({
                     el: '#graph_2',
                     margin: {top: 10, left: 100, bottom: 50, right: 70},
                     dataSettings: this.dataSettings,
-                    renderSettings: this.renderSettings['ALD_U_N_1B_rayleigh'],
+                    renderSettings: currRenderSetts,
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
                     connectedGraph: this.graph1,
@@ -705,6 +816,18 @@ define(['backbone.marionette',
                 this.graph1.connectGraph(this.graph2);
                 this.graph2.on('pointSelect', function(values){
                     Communicator.mediator.trigger('cesium:highlight:point', values);
+                });
+                this.graph2.on('styleChange', function () {
+                    // Save parameter style changes
+                    localStorage.setItem(
+                        'dataSettings',
+                        JSON.stringify(globals.dataSettings)
+                    );
+                    that.savePlotConfig(that.graph2, 'G2');
+                });
+
+                this.graph2.on('axisChange', function () {
+                    that.savePlotConfig(that.graph2, 'G2');
                 });
             }
 
@@ -1052,6 +1175,11 @@ define(['backbone.marionette',
                 this.graph2.dataSettings = this.dataSettings;
                 this.graph2.renderData();
                 this.graph2.createColorScales();
+
+                localStorage.setItem(
+                    'dataSettings',
+                    JSON.stringify(globals.dataSettings)
+                );
             }
         },
 
@@ -1079,6 +1207,10 @@ define(['backbone.marionette',
                 that.graph1.renderSettings = sets1;
                 that.graph1.ignoreParameters = visG[sel];
                 that.graph1.loadData(data[cP]);
+                localStorage.setItem(
+                    'groupSelected',
+                    JSON.stringify(that.groupSelected)
+                );
             });
 
             var s2 = $('<select id="graph2Select" />');
@@ -1099,6 +1231,10 @@ define(['backbone.marionette',
                 that.graph2.renderSettings =  sets2;
                 that.graph2.ignoreParameters = visG[sel];
                 that.graph2.loadData(data[cP]);
+                localStorage.setItem(
+                    'groupSelected',
+                    JSON.stringify(that.groupSelected)
+                );
             });
         },
 
@@ -1146,6 +1282,21 @@ define(['backbone.marionette',
                     this.renderFilterList();
                 }
 
+                var sT = Communicator.reqres.request('get:time');
+                var timeString = getISODateTimeString(sT.start).slice(0,-5)+
+                    '_'+getISODateTimeString(sT.end).slice(0,-5);
+
+
+
+                if(data.length>0 && _.isEqual(this.previousKeys, this.currentKeys) ){
+                    this.graph1.loadData(data[idKeys[0]]);
+                    this.graph2.loadData(data[idKeys[0]]);
+                    this.filterManager.loadData(data[idKeys[0]]);
+                    this.createGroupVisualizationSelection(
+                        idKeys[0], data, timeString);
+                    return;
+                }
+
                 if(idKeys.length > 0){
                     // Cleanup info button
                     $('#additionalProductInfo').off();
@@ -1180,18 +1331,26 @@ define(['backbone.marionette',
                     var cP = idKeys[0];
                     var sel = this.groupSelected[cP];
                     var visG = this.visualizationGroups[cP];
-                    var sT = Communicator.reqres.request('get:time');
-                    var timeString = getISODateTimeString(sT.start).slice(0,-5)+
-                        '_'+getISODateTimeString(sT.end).slice(0,-5);
-                    //var visGKeys = Object.keys(visG);
-                    //this.graph.loadData(data);
-                    // TODO: Iterate through all ids and load to corresponding graphs
+
+                    var rSKey1 = cP;
+                    var rSKey2 = cP;
+
+                    if(sel){
+                        rSKey1 = cP+'_'+sel[0];
+                        rSKey2 = cP+'_'+sel[1];
+                    }
+
+                    var sets1 = this.extendSettings(
+                        this.renderSettings[rSKey1], 'G1'
+                    );
+                    var sets2 = this.extendSettings(
+                        this.renderSettings[rSKey2], 'G2'
+                    );
+
                     if(cP === 'ALD_U_N_1B'){
 
                         this.createGroupVisualizationSelection(cP, data, timeString);
-                        // Clone settings so they are not modified between plots
-                        var sets1 = $.extend(true,{},this.renderSettings[cP+'_'+sel[0]]);
-                        var sets2 = $.extend(true,{},this.renderSettings[cP+'_'+sel[1]]);
+
                         this.graph1.renderSettings = sets1;
                         this.graph2.renderSettings = sets2;
                         this.graph1.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
@@ -1227,8 +1386,6 @@ define(['backbone.marionette',
                             this.graph2.fileSaveString = 'ALD_U_N_2A_rayleigh_group_plot'+'_'+timeString;
                         } else {
                             this.createGroupVisualizationSelection(cP, data, timeString);
-                            var sets1 = $.extend(true,{},this.renderSettings[cP+'_'+sel[0]]);
-                            var sets2 = $.extend(true,{},this.renderSettings[cP+'_'+sel[1]]);
                             this.graph1.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
                             this.graph2.fileSaveString = cP+'_'+sel[1]+'_'+timeString;
                             this.graph1.renderSettings = sets1;
@@ -1261,8 +1418,6 @@ define(['backbone.marionette',
                         } else {
                             this.createGroupVisualizationSelection(cP, data, timeString);
                             $('#graph_1').css('height', '49%');
-                            var sets1 = $.extend(true,{},this.renderSettings[cP+'_'+sel[0]]);
-                            var sets2 = $.extend(true,{},this.renderSettings[cP+'_'+sel[1]]);
                             this.graph1.renderSettings = sets1;
                             this.graph2.renderSettings = sets2;
                             this.graph1.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
@@ -1486,8 +1641,15 @@ define(['backbone.marionette',
 
                      }else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
 
-                        this.graph1.renderSettings =  this.renderSettings[idKeys[0]];
-                        this.graph2.renderSettings =  this.renderSettings[(idKeys[0]+'_error')];
+
+                        var sets1 = this.extendSettings(
+                            this.renderSettings[idKeys[0]], 'G1'
+                        );
+                        var sets2 = this.extendSettings(
+                            this.renderSettings[(idKeys[0]+'_error')], 'G2'
+                        );
+                        this.graph1.renderSettings = sets1;
+                        this.graph2.renderSettings = sets2;
 
                         // Remove diff if no longer available
                         if(this.graph1.renderSettings.yAxis[0].indexOf('_diff') !== -1){
@@ -1664,7 +1826,6 @@ define(['backbone.marionette',
                             this.graph1.renderSettings.yAxis[1] = this.graph1.renderSettings.yAxis[1]+'_diff';
                         }
 
-
                         this.graph2.data = {};
                         $('#graph_1').css('height', '99%');
                         $('#graph_2').hide();
@@ -1675,7 +1836,7 @@ define(['backbone.marionette',
                         this.graph1.connectGraph(false);
                         this.graph2.connectGraph(false);
                         this.graph1.dataSettings = mergedDataSettings;
-                        this.graph1.renderSettings = this.renderSettings[idKeys[0]];
+                        this.graph1.renderSettings = sets1;
                         this.graph1.loadData(data[idKeys[0]]);
                         this.graph1.fileSaveString = idKeys[0]+'_'+timeString;
                         this.filterManager.loadData(data[idKeys[0]]);
@@ -1733,6 +1894,8 @@ define(['backbone.marionette',
                             
                         });
                     }
+
+                    this.previousKeys = this.currentKeys;
 
                 }else{
                     $('#nodataavailable').show();
