@@ -1570,7 +1570,7 @@
             'observation_fields': [
               'L1B_start_time_obs',
               'L1B_centroid_time_obs',
-              'SCA_time_obs',
+              
               'MCA_time_obs',
               'longitude_of_DEM_intersection_obs',
               'latitude_of_DEM_intersection_obs',
@@ -1578,8 +1578,23 @@
               'geoid_separation_obs',
               'mie_altitude_obs',
               'rayleigh_altitude_obs',
-              'SCA_middle_bin_altitude_obs',
               'L1B_num_of_meas_per_obs',
+              'MCA_clim_BER',
+              'MCA_extinction',
+              'MCA_LOD',
+              'albedo_off_nadir'
+            ].join(),
+            'ica_fields': [
+              'ICA_time_obs',
+              'ICA_QC_flag',
+              'ICA_filling_case',
+              'ICA_extinction',
+              'ICA_backscatter',
+              'ICA_LOD'
+            ].join(),
+            'sca_fields': [
+              'SCA_time_obs',
+              'SCA_middle_bin_altitude_obs',
               'SCA_QC_flag',
               'SCA_extinction_variance',
               'SCA_backscatter_variance',
@@ -1595,19 +1610,7 @@
               'SCA_middle_bin_extinction',
               'SCA_middle_bin_backscatter',
               'SCA_middle_bin_LOD',
-              'SCA_middle_bin_BER',
-              'MCA_clim_BER',
-              'MCA_extinction',
-              'MCA_LOD',
-              'albedo_off_nadir'
-            ].join(),
-            'ica_fields': [
-              'ICA_time_obs',
-              'ICA_QC_flag',
-              'ICA_filling_case',
-              'ICA_extinction',
-              'ICA_backscatter',
-              'ICA_LOD'
+              'SCA_middle_bin_BER'
             ].join(),
             'measurement_fields': [
               'L1B_time_meas',
@@ -2117,6 +2120,7 @@
           var fields = gran+'_fields';
           options[fields] = fieldsList[collectionId][fields];
           options.ica_fields = fieldsList[collectionId].ica_fields;
+          options.sca_fields = fieldsList[collectionId].sca_fields;
         } else if(collectionId === 'ALD_U_N_2B'  && gran === 'group'){
           $.extend(options, requestOptions.l2b_group);
         } else if(collectionId === 'ALD_U_N_2C'  && gran === 'group'){
