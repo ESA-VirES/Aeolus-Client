@@ -1197,8 +1197,20 @@
 
           var mGS = ds.mie_grouping_data.mie_grouping_start_obs;
           var mGE = ds.mie_grouping_data.mie_grouping_end_obs;
-          var mMS = ds.mie_grouping_data.mie_grouping_start_meas_per_obs;
-          var mME = ds.mie_grouping_data.mie_grouping_end_meas_per_obs;
+
+          var mMS, mME;
+          if(ds.mie_grouping_data.hasOwnProperty('mie_grouping_start_meas_per_obs')){
+            mMS = ds.mie_grouping_data.mie_grouping_start_meas_per_obs;
+          } else if(ds.mie_grouping_data.hasOwnProperty('mie_grouping_start_meas_obs')){
+            mMS = ds.mie_grouping_data.mie_grouping_start_meas_obs;
+          }
+          if(ds.mie_grouping_data.hasOwnProperty('mie_grouping_end_meas_per_obs')){
+            mME = ds.mie_grouping_data.mie_grouping_end_meas_per_obs;
+          } else if(ds.mie_grouping_data.hasOwnProperty('mie_grouping_end_meas_obs')){
+            mME = ds.mie_grouping_data.mie_grouping_end_meas_obs;
+          }
+
+
           var mie_groupArrows = [];
 
           if(typeof mGS === 'undefined'){
@@ -1271,8 +1283,19 @@
 
           var rGS = ds.rayleigh_grouping_data.rayleigh_grouping_start_obs;
           var rGE = ds.rayleigh_grouping_data.rayleigh_grouping_end_obs;
-          var rMS = ds.rayleigh_grouping_data.rayleigh_grouping_start_meas_per_obs;
-          var rME = ds.rayleigh_grouping_data.rayleigh_grouping_end_meas_per_obs;
+
+          var rMS, rME;
+          if(ds.rayleigh_grouping_data.hasOwnProperty('rayleigh_grouping_start_meas_per_obs')){
+            rMS = ds.rayleigh_grouping_data.rayleigh_grouping_start_meas_per_obs;
+          } else if(ds.rayleigh_grouping_data.hasOwnProperty('rayleigh_grouping_start_meas_obs')){
+            rMS = ds.rayleigh_grouping_data.rayleigh_grouping_start_meas_obs;
+          }
+          if(ds.rayleigh_grouping_data.hasOwnProperty('rayleigh_grouping_end_meas_per_obs')){
+            rME = ds.rayleigh_grouping_data.rayleigh_grouping_end_meas_per_obs;
+          } else if(ds.rayleigh_grouping_data.hasOwnProperty('rayleigh_grouping_end_meas_obs')){
+            rME = ds.rayleigh_grouping_data.rayleigh_grouping_end_meas_obs;
+          }
+
           var rayleigh_groupArrows = [];
 
           for (var i = 0; i < rGS.length; i++) {
@@ -2059,6 +2082,11 @@
             measurement_fields: 'mie_measurement_map,rayleigh_measurement_map',
             mie_grouping_fields: 'mie_grouping_start_obs,mie_grouping_end_obs,mie_grouping_start_meas_per_obs,mie_grouping_end_meas_per_obs',
             rayleigh_grouping_fields: 'rayleigh_grouping_start_obs,rayleigh_grouping_end_obs,rayleigh_grouping_start_meas_per_obs,rayleigh_grouping_end_meas_per_obs'
+          },
+          l2c_group: {
+            measurement_fields: 'mie_measurement_map,rayleigh_measurement_map',
+            mie_grouping_fields: 'mie_grouping_start_obs,mie_grouping_end_obs,mie_grouping_start_meas_obs,mie_grouping_end_meas_obs',
+            rayleigh_grouping_fields: 'rayleigh_grouping_start_obs,rayleigh_grouping_end_obs,rayleigh_grouping_start_meas_obs,rayleigh_grouping_end_meas_obs'
           }
         };
         
@@ -2091,7 +2119,9 @@
           options.ica_fields = fieldsList[collectionId].ica_fields;
         } else if(collectionId === 'ALD_U_N_2B'  && gran === 'group'){
           $.extend(options, requestOptions.l2b_group);
-        } else if(collectionId.indexOf('AUX')===-1){
+        } else if(collectionId === 'ALD_U_N_2C'  && gran === 'group'){
+          $.extend(options, requestOptions.l2c_group);
+        }else if(collectionId.indexOf('AUX')===-1){
           if(gran === 'wind-accumulation-result'){
             options['mie_wind_fields'] = fieldsList[collectionId]['mie_wind_fields'];
             options['rayleigh_wind_fields'] = fieldsList[collectionId]['rayleigh_wind_fields'];

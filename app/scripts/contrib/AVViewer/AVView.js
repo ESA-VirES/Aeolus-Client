@@ -585,6 +585,34 @@ define(['backbone.marionette',
                     },
                     colorAxis: ['rayleigh_wind_result_wind_velocity']
 
+                }
+                ,'ALD_U_N_2C_mie_group': {
+                    xAxis: 'measurements',
+                    yAxis: [
+                        'bins',
+                    ],
+                    combinedParameters: {
+                        bins: ['mie_bins_end', 'mie_bins_start'],
+                        measurements: ['mie_meas_start', 'mie_meas_end']
+                    },
+                    colorAxis: [
+                        'mie_meas_map',
+                    ],
+                    reversedYAxis: true
+                },
+                'ALD_U_N_2C_rayleigh_group': {
+                    xAxis: 'measurements',
+                    yAxis: [
+                        'bins',
+                    ],
+                    combinedParameters: {
+                        bins: ['rayleigh_bins_end', 'rayleigh_bins_start'],
+                        measurements: ['rayleigh_meas_start', 'rayleigh_meas_end']
+                    },
+                    colorAxis: [
+                        'rayleigh_meas_map',
+                    ],
+                    reversedYAxis: true
                 },
                 AUX_MRC_1B: {
                     xAxis: ['frequency_offset'],
@@ -686,8 +714,8 @@ define(['backbone.marionette',
                 'ALD_U_N_1B': ['mie', 'rayleigh'],
                 'ALD_U_N_2A': ['MCA', 'SCA'],
                 'ALD_U_N_2B': ['mie', 'rayleigh'],
-                /*'ALD_U_N_2C': [],
-                'AUX_MRC_1B': [],
+                'ALD_U_N_2C': ['mie', 'rayleigh']
+                /*'AUX_MRC_1B': [],
                 'AUX_RRC_1B': [],
                 'AUX_ISR_1B': [],
                 'AUX_ZWC_1B': [],
@@ -695,7 +723,10 @@ define(['backbone.marionette',
             };
 
             if (localStorage.getItem('groupSelected') !== null) {
-                this.groupSelected = JSON.parse(localStorage.getItem('groupSelected'));
+                var prevSel = JSON.parse(localStorage.getItem('groupSelected'));
+                for(var k in prevSel){
+                    this.groupSelected[k] = prevSel[k];
+                }
             }
 
             this.visualizationGroups = {
@@ -711,8 +742,12 @@ define(['backbone.marionette',
                 'ALD_U_N_2B': {
                     'mie': [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/, /.*groupArrows/],
                     'rayleigh': [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/, /.*groupArrows/]
-                },/*
-                'ALD_U_N_2C': {},
+                },
+                'ALD_U_N_2C': {
+                    'mie': [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/, /.*groupArrows/],
+                    'rayleigh': [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/, /.*groupArrows/]
+                }
+                /*,
                 'AUX_MRC_1B': {},
                 'AUX_RRC_1B': {},
                 'AUX_ISR_1B': {},
@@ -1423,14 +1458,17 @@ define(['backbone.marionette',
                         }
 
 
-                     }else if(idKeys[0] === 'ALD_U_N_2B'){
+                     }else if(idKeys[0] === 'ALD_U_N_2B' || idKeys[0] === 'ALD_U_N_2C'){
+
+                        var currKey = idKeys[0];
+
                         if(currProd.get('granularity') === 'group'){
                             $('#graph_1').css('height', '47%');
                             $('#graph_2').css('margin-top', '20px');
-                            this.graph1.renderSettings = this.renderSettings.ALD_U_N_2B_mie_group;
-                            this.graph2.renderSettings = this.renderSettings.ALD_U_N_2B_rayleigh_group;
-                            this.graph1.fileSaveString = 'ALD_U_N_2B_mie_group_plot'+'_'+timeString;
-                            this.graph2.fileSaveString = 'ALD_U_N_2B_rayleigh_group_plot'+'_'+timeString;
+                            this.graph1.renderSettings = this.renderSettings[currKey+'_mie_group'];
+                            this.graph2.renderSettings = this.renderSettings[currKey+'_rayleigh_group'];
+                            this.graph1.fileSaveString = currKey+'_mie_group_plot'+'_'+timeString;
+                            this.graph2.fileSaveString = currKey+'_rayleigh_group_plot'+'_'+timeString;
                         } else {
                             this.createGroupVisualizationSelection(cP, data, timeString);
                             $('#graph_1').css('height', '49%');
@@ -1450,7 +1488,7 @@ define(['backbone.marionette',
                         this.graph2.dataSettings = mergedDataSettings;
                         this.graph1.connectGraph(this.graph2);
                         this.graph2.connectGraph(this.graph1);
-                        this.filterManager.loadData(data['ALD_U_N_2B']);
+                        this.filterManager.loadData(data[currKey]);
 
                         if(currProd.get('granularity') === 'group'){
 
@@ -1465,7 +1503,7 @@ define(['backbone.marionette',
                             var pageSize = 3;
                             var mieSlicedData = {};
                             var rayleighSlicedData = {};
-                            var ds = data['ALD_U_N_2B'];
+                            var ds = data[currKey];
                             var mieLength = ds.mie_obs_start.length;
                             var rayleighLength = ds.rayleigh_obs_start.length;
 
@@ -1516,7 +1554,7 @@ define(['backbone.marionette',
                                 $('#mieObservationLeft').removeAttr('disabled');
 
                                 var slicedData = {};
-                                var ds = data['ALD_U_N_2B'];
+                                var ds = data[currKey];
                                 for (var key in ds){
                                     if(key.indexOf('mie')!==-1){
                                         slicedData[key] = ds[key].slice(
@@ -1543,7 +1581,7 @@ define(['backbone.marionette',
                                 $('#mieObservationRight').removeAttr('disabled');
 
                                 var slicedData = {};
-                                var ds = data['ALD_U_N_2B'];
+                                var ds = data[currKey];
                                 for (var key in ds){
                                     if(key.indexOf('mie')!==-1){
                                         slicedData[key] = ds[key].slice(
@@ -1583,7 +1621,7 @@ define(['backbone.marionette',
                                 $('#rayleighObservationLeft').removeAttr('disabled');
 
                                 var slicedData = {};
-                                var ds = data['ALD_U_N_2B'];
+                                var ds = data[currKey];
                                 for (var key in ds){
                                     if(key.indexOf('rayleigh')!==-1){
                                         slicedData[key] = ds[key].slice(
@@ -1609,7 +1647,7 @@ define(['backbone.marionette',
                                 $('#rayleighObservationRight').removeAttr('disabled');
 
                                 var slicedData = {};
-                                var ds = data['ALD_U_N_2B'];
+                                var ds = data[currKey];
                                 for (var key in ds){
                                     if(key.indexOf('rayleigh')!==-1){
                                         slicedData[key] = ds[key].slice(
@@ -1630,32 +1668,11 @@ define(['backbone.marionette',
                             this.graph2.loadData(rayleighSlicedData);
 
                         } else {
-                            this.graph1.loadData(data['ALD_U_N_2B']);
-                            this.graph2.loadData(data['ALD_U_N_2B']);
+                            this.graph1.loadData(data[currKey]);
+                            this.graph2.loadData(data[currKey]);
                         }
 
-                     }else if(idKeys[0] === 'ALD_U_N_2C'){
-
-                        this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2C_mie;
-                        this.graph2.renderSettings =  this.renderSettings.ALD_U_N_2C_rayleigh;
-                        $('#graph_1').css('height', '49%');
-                        $('#graph_2').css('height', '49%');
-                        $('#graph_2').show();
-                        this.graph1.debounceActive = true;
-                        this.graph2.debounceActive = true;
-                        this.graph1.ignoreParameters = [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/];
-                        this.graph2.ignoreParameters = [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/];
-                        this.graph1.dataSettings = mergedDataSettings;
-                        this.graph2.dataSettings = mergedDataSettings;
-                        this.graph1.loadData(data['ALD_U_N_2C']);
-                        this.graph2.loadData(data['ALD_U_N_2C']);
-                        this.graph1.fileSaveString = 'ALD_U_N_2C_mie_plot'+'_'+timeString;
-                        this.graph2.fileSaveString = 'ALD_U_N_2C_rayleigh_plot'+'_'+timeString;
-                        this.graph1.connectGraph(this.graph2);
-                        this.graph2.connectGraph(this.graph1);
-                        this.filterManager.loadData(data['ALD_U_N_2C']);
-
-                     }else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
+                     } else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
 
 
                         var sets1 = this.extendSettings(
