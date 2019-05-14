@@ -1096,13 +1096,20 @@
             },
             'ALD_U_N_2A': {
               'observation_fields': [
-                'mie_altitude_obs','rayleigh_altitude_obs',
-                'longitude_of_DEM_intersection_obs', 'latitude_of_DEM_intersection_obs',
-                'altitude_of_DEM_intersection_obs', 
-                'SCA_extinction', 'SCA_time_obs','SCA_backscatter','SCA_LOD', 
-                'SCA_extinction_variance', 'SCA_backscatter_variance','SCA_LOD_variance', 
-                'MCA_extinction', 'MCA_time_obs', 'MCA_LOD',
-                'SCA_QC_flag'
+                'L1B_start_time_obs',
+                'L1B_centroid_time_obs',
+                'MCA_time_obs',
+                'longitude_of_DEM_intersection_obs',
+                'latitude_of_DEM_intersection_obs',
+                'altitude_of_DEM_intersection_obs',
+                'geoid_separation_obs',
+                'mie_altitude_obs',
+                'rayleigh_altitude_obs',
+                'L1B_num_of_meas_per_obs',
+                'MCA_clim_BER',
+                'MCA_extinction',
+                'MCA_LOD',
+                'albedo_off_nadir'
               ],
               'group_fields':[
                 'group_start_obs',
@@ -1118,8 +1125,37 @@
                 'group_extinction_variance',
                 'group_LOD_variance',
                 'group_LOD,group_SR'
+              ],
+              'sca_fields': [
+                'SCA_time_obs',
+                'SCA_middle_bin_altitude_obs',
+                'SCA_QC_flag',
+                'SCA_extinction_variance',
+                'SCA_backscatter_variance',
+                'SCA_LOD_variance',
+                'SCA_middle_bin_extinction_variance',
+                'SCA_middle_bin_backscatter_variance',
+                'SCA_middle_bin_LOD_variance',
+                'SCA_middle_bin_BER_variance',
+                'SCA_extinction',
+                'SCA_backscatter',
+                'SCA_LOD',
+                'SCA_SR',
+                'SCA_middle_bin_extinction',
+                'SCA_middle_bin_backscatter',
+                'SCA_middle_bin_LOD',
+                'SCA_middle_bin_BER'
+              ],
+              'ica_fields': [
+                'ICA_time_obs',
+                'ICA_QC_flag',
+                'ICA_filling_case',
+                'ICA_extinction',
+                'ICA_backscatter',
+                'ICA_LOD'
               ]
             },
+
             'ALD_U_N_2B': {
                 'mie_profile_fields': [
                   'mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection',
@@ -1433,6 +1469,10 @@
               } else if(collectionId === 'ALD_U_N_2A'){
                 var granularity = prod.get('granularity')+'_fields';
                 options[granularity] = fieldsList[collectionId][granularity];
+                if(granularity!=='group_fields'){
+                  options['ica_fields'] = fieldsList[collectionId]['ica_fields'];
+                  options['sca_fields'] = fieldsList[collectionId]['sca_fields'];
+                }
 
               } else if(collectionId === 'ALD_U_N_2B' || collectionId === 'ALD_U_N_2C'){
                 var granularity = prod.get('granularity');
