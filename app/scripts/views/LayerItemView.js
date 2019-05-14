@@ -126,7 +126,8 @@
                     isBaseLayer = true;
                 }
                 
-                if(visible && !isBaseLayer && this.model.get('download').id !== 'AUX_ISR_1B'){
+                if(visible && !isBaseLayer && this.model.hasOwnProperty('download') &&
+                   this.model.get('download').id !== 'AUX_ISR_1B'){
                     // Activate setting directly when product is being activated
                     if (_.isUndefined(App.layerSettings.isClosed) || App.layerSettings.isClosed) {
                         App.layerSettings.setModel(this.model);
