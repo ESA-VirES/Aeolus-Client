@@ -1570,7 +1570,6 @@
             'observation_fields': [
               'L1B_start_time_obs',
               'L1B_centroid_time_obs',
-              
               'MCA_time_obs',
               'longitude_of_DEM_intersection_obs',
               'latitude_of_DEM_intersection_obs',
@@ -1594,23 +1593,23 @@
             ].join(),
             'sca_fields': [
               'SCA_time_obs',
-              'SCA_middle_bin_altitude_obs',
+              //'SCA_middle_bin_altitude_obs',
               'SCA_QC_flag',
               'SCA_extinction_variance',
               'SCA_backscatter_variance',
               'SCA_LOD_variance',
-              'SCA_middle_bin_extinction_variance',
-              'SCA_middle_bin_backscatter_variance',
-              'SCA_middle_bin_LOD_variance',
-              'SCA_middle_bin_BER_variance',
+              //'SCA_middle_bin_extinction_variance',
+              //'SCA_middle_bin_backscatter_variance',
+              //'SCA_middle_bin_LOD_variance',
+              //'SCA_middle_bin_BER_variance',
               'SCA_extinction',
               'SCA_backscatter',
               'SCA_LOD',
               'SCA_SR',
-              'SCA_middle_bin_extinction',
-              'SCA_middle_bin_backscatter',
-              'SCA_middle_bin_LOD',
-              'SCA_middle_bin_BER'
+              //'SCA_middle_bin_extinction',
+              //'SCA_middle_bin_backscatter',
+              //'SCA_middle_bin_LOD',
+              //'SCA_middle_bin_BER'
             ].join(),
             'measurement_fields': [
               'L1B_time_meas',
