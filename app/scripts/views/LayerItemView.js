@@ -121,8 +121,13 @@
             onChange: function(evt){
 
                 var visible = evt.target.checked;
+                var isBaseLayer = false;
+                if (this.model.get('view').isBaseLayer){
+                    isBaseLayer = true;
+                }
                 
-                if(visible && this.model.get('download').id !== 'AUX_ISR_1B'){
+                if(visible && !isBaseLayer && this.model.hasOwnProperty('download') &&
+                   this.model.get('download').id !== 'AUX_ISR_1B'){
                     // Activate setting directly when product is being activated
                     if (_.isUndefined(App.layerSettings.isClosed) || App.layerSettings.isClosed) {
                         App.layerSettings.setModel(this.model);
@@ -141,10 +146,6 @@
                     }
                 }
 
-                var isBaseLayer = false;
-                if (this.model.get('view').isBaseLayer){
-                    isBaseLayer = true;
-                }
                 var options = { 
                     name: this.model.get('name'),
                     isBaseLayer: isBaseLayer,

@@ -680,7 +680,7 @@
             },
             "outlines": true,
             "granularity": "wind-accumulation-result",
-            "granularity_options": ["wind-accumulation-result", "measurement", "group"]
+            "granularity_options": ["wind-accumulation-result", "group"]
         },
         {
             "name": "AUX MRC",
