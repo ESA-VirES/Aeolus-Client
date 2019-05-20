@@ -549,7 +549,10 @@
         });
         var currProdID = currProd.get('download').id;
         var currGran = currProd.get('granularity');
-        var currDownGroups = downloadMatrix[currProdID][currGran];
+        var currDownGroups;
+        if(currGran){
+          currDownGroups = downloadMatrix[currProdID][currGran];
+        }
 
         var availableParameters = [];
         var downloadParameters = currProd.get('download_parameters');
@@ -557,20 +560,28 @@
 
 
         for(var id in downloadParameters){
-
-          var gran = false;
-          for (var dg = currDownGroups.length - 1; dg >= 0; dg--) {
-            if(downloadGroups[currDownGroups[dg]].indexOf(id) !== -1){
-              gran = currDownGroups[dg];
+          if(currProd.hasOwnProperty('download_groups')){
+            var gran = false;
+            for (var dg = currDownGroups.length - 1; dg >= 0; dg--) {
+              if(downloadGroups[currDownGroups[dg]].indexOf(id) !== -1){
+                gran = currDownGroups[dg];
+              }
             }
-          }
-          if(currDownGroups.indexOf(gran)!==-1){
-             availableParameters.push({
-              'id': id, 
-              'uom': downloadParameters[id].uom,
-              'description': downloadParameters[id].name,
-              'granularity': gran
-            });
+            if(currDownGroups.indexOf(gran)!==-1){
+               availableParameters.push({
+                'id': id, 
+                'uom': downloadParameters[id].uom,
+                'description': downloadParameters[id].name,
+                'granularity': gran
+              });
+            }
+          } else {
+            availableParameters.push({
+                'id': id, 
+                'uom': downloadParameters[id].uom,
+                'description': downloadParameters[id].name,
+                'granularity': false
+              });
           }
          
         }
@@ -1024,14 +1035,17 @@
 
             var variables = $('#param_enum').data('selected');
             //variables = variables.map(function(item) {return item.id;});
-
-            for (var i = variables.length - 1; i >= 0; i--) {
-              var gran = variables[i].granularity + '_fields';
-              if(options.hasOwnProperty(gran)){
-                options[gran] += (','+variables[i].id);
-              } else {
-                options[gran] = (''+variables[i].id);
+            if(granularity){
+              for (var i = variables.length - 1; i >= 0; i--) {
+                var gran = variables[i].granularity + '_fields';
+                if(options.hasOwnProperty(gran)){
+                  options[gran] += (','+variables[i].id);
+                } else {
+                  options[gran] = (''+variables[i].id);
+                }
               }
+            } else {
+              options['fields'] = variables.map(function(m){return m.id;}).join(',');
             }
 
           },this);
