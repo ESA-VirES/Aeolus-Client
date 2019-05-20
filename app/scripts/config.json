@@ -1493,9 +1493,7 @@
                 "rayleigh_channel_B_ground_SNR_meas": {"uom": null, "name": "Mean SNR over SNR values of detected ground bins for Rayleigh channel B"},
                 "DEM_height": {"uom": "m", "name": "N_Meas of the observation"}
             },
-            "outlines": false,
-            "granularity": "observation",
-            "granularity_options": ["observation", "measurement"]
+            "outlines": false
         },{
             "name": "AUX MET",
             "timeSlider": true,
