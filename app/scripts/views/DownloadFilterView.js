@@ -524,36 +524,60 @@
 
         });
 
-        var available_parameters = [];
+        var downloadMatrix = {
+          'ALD_U_N_1B': {
+            'observation': ['observation'],
+            'measurement': ['measurement']
+          },
+          'ALD_U_N_2A': {
+            'observation': ['observation', 'ica', 'sca'],
+            'group': ['group', 'measurement']
+          },
+          'ALD_U_N_2B': {
+            'wind-accumulation-result': ['rayleigh_wind', 'mie_wind', 'mie_profile', 'rayleigh_profile'],
+            'group': ['mie_grouping', 'rayleigh_grouping']
+          },
+          'ALD_U_N_2C': {
+            'wind-accumulation-result': ['rayleigh_wind', 'mie_wind', 'mie_profile', 'rayleigh_profile'],
+            'group': ['mie_grouping', 'rayleigh_grouping']
+          }
+        };
 
-        globals.products.each(function(prod) {
-          if (prod.get('visible')) {
-            var downPars = prod.get('download_parameters');
-            for(var id in downPars){
-              available_parameters.push({
-                'id': id, 
-                'uom': downPars[id].uom,
-                'description': downPars[id].name,
-                'granularity': downPars[id].granularity
-              });
+
+        var currProd = globals.products.find(function(p){
+          return p.get('visible')
+        });
+        var currProdID = currProd.get('download').id;
+        var currGran = currProd.get('granularity');
+        var currDownGroups = downloadMatrix[currProdID][currGran];
+
+        var availableParameters = [];
+        var downloadParameters = currProd.get('download_parameters');
+        var downloadGroups = currProd.get('download_groups');
+
+
+        for(var id in downloadParameters){
+
+          var gran = false;
+          for (var dg = currDownGroups.length - 1; dg >= 0; dg--) {
+            if(downloadGroups[currDownGroups[dg]].indexOf(id) !== -1){
+              gran = currDownGroups[dg];
             }
           }
-        }, this);
+          if(currDownGroups.indexOf(gran)!==-1){
+             availableParameters.push({
+              'id': id, 
+              'uom': downloadParameters[id].uom,
+              'description': downloadParameters[id].name,
+              'granularity': gran
+            });
+          }
+         
+        }
 
-        // If the currently selected model has granularity filter out parameters
-        // that have other ganularities defined
-        if(typeof granularity !== 'undefined'){
-          available_parameters = available_parameters.filter(function(item){
-            if(item.granularity){
-              return item.granularity.indexOf(granularity.substring(0,3)) !== -1;
-            } else {
-              return false;
-            }
-          });
-        }  
 
         $('#param_enum').w2field('enum', { 
-            items: _.sortBy(available_parameters, 'id'), // Sort parameters alphabetically 
+            items: _.sortBy(availableParameters, 'id'), // Sort parameters alphabetically 
             openOnFocus: true,
             renderItem: function (item, index, remove) {
                 if(item.id == "Latitude" || item.id == "Longitude" ||
@@ -999,12 +1023,15 @@
             }
 
             var variables = $('#param_enum').data('selected');
-            variables = variables.map(function(item) {return item.id;});
-            variables = variables.join(',');
-            if(typeof granularity !== 'undefined'){
-              options[granularity] = variables;
-            } else {
-              options.fields = variables;
+            //variables = variables.map(function(item) {return item.id;});
+
+            for (var i = variables.length - 1; i >= 0; i--) {
+              var gran = variables[i].granularity + '_fields';
+              if(options.hasOwnProperty(gran)){
+                options[gran] += (','+variables[i].id);
+              } else {
+                options[gran] = (''+variables[i].id);
+              }
             }
 
           },this);
