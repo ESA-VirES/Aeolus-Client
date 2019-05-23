@@ -11,6 +11,24 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
         products: new Backbone.Collection(),
         overlays: new Backbone.Collection(),
         swarm: new swarm_model(),
+        downloadMatrix: {
+          'ALD_U_N_1B': {
+            'observation': ['observation'],
+            'measurement': ['measurement']
+          },
+          'ALD_U_N_2A': {
+            'observation': ['observation', 'ica', 'sca'],
+            'group': ['group', 'measurement']
+          },
+          'ALD_U_N_2B': {
+            'wind-accumulation-result': ['rayleigh_wind', 'mie_wind', 'mie_profile', 'rayleigh_profile'],
+            'group': ['mie_grouping', 'rayleigh_grouping']
+          },
+          'ALD_U_N_2C': {
+            'wind-accumulation-result': ['rayleigh_wind', 'mie_wind', 'mie_profile', 'rayleigh_profile'],
+            'group': ['mie_grouping', 'rayleigh_grouping']
+          }
+        },
         dataSettings: {
 
             time: {
