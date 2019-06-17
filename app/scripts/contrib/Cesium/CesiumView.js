@@ -241,10 +241,10 @@ define([
                     navigationInstructionsInitiallyVisible: false,
                     animation: false,
                     imageryProvider: initialLayer,
-                    terrainProvider : new Cesium.CesiumTerrainProvider({
+                    /*terrainProvider : new Cesium.CesiumTerrainProvider({
                         url : '//tiles.maps.eox.at/dem'
                     }),
-                    terrainExaggeration: 20.0,
+                    terrainExaggeration: 20.0,*/
                     creditContainer: 'cesium_attribution',
                     contextOptions: {webgl: {preserveDrawingBuffer: true}},
                     clock: clock
@@ -422,6 +422,83 @@ define([
             if (!this.map) {
                 this.createMap();
             }
+
+            $(this.el).append(
+                '<input type="file" name="file" id="kmlinput" class="inputfile" accept=".kml"></input>'
+            );
+
+            var that = this;
+
+            $('#kmlinput').change(function(event) {
+                var input = event.target;
+
+                var reader = new FileReader();
+                reader.onload = function(){
+                    var text = reader.result;
+                    var kmlDocument = new DOMParser().parseFromString(text, "application/xml");
+
+                    // clean datasources
+                    that.map.dataSources.removeAll();
+
+                    that.map.flyTo(
+                        that.map.dataSources.add(
+                            Cesium.KmlDataSource.load(kmlDocument, {
+                                camera: that.map.camera,
+                                canvas: that.map.canvas
+                            })
+                        )
+                    );
+                };
+                reader.readAsText(input.files[0]);
+            });
+
+
+            /*
+
+            var kmlDocument = new DOMParser().parseFromString(
+    '<?xml version="1.0" encoding="UTF-8"?>' +
+    '<kml xmlns="http://www.opengis.net/kml/2.2">' +
+    '  <Placemark>' +
+    '    <name>The Empty Box</name>' +
+    '    <Polygon>' +
+    '      <extrude>1</extrude>' +
+    '      <altitudeMode>relativeToGround</altitudeMode>' +
+    '      <outerBoundaryIs>' +
+    '        <LinearRing>' +
+    '          <coordinates>' +
+    '            -90.0,30.0,10000 ' +
+    '            -90.0,31.0,10000 ' +
+    '            -91.0,31.0,10000 ' +
+    '            -91.0,30.0,10000 ' +
+    '          </coordinates>' +
+    '        </LinearRing>' +
+    '      </outerBoundaryIs>' +
+    '      <innerBoundaryIs>' +
+    '        <LinearRing>' +
+    '          <coordinates>' +
+    '            -90.66,30.33,10000 ' +
+    '            -90.33,30.33,10000 ' +
+    '            -90.33,30.66,10000 ' +
+    '            -90.66,30.66,10000 ' +
+    '          </coordinates>' +
+    '        </LinearRing>' +
+    '      </innerBoundaryIs>' +
+    '    </Polygon>' +
+    '  </Placemark>' +
+    '</kml>', "application/xml");
+
+//Load the KML object and move camera to point to it.
+viewer.flyTo(
+    viewer.dataSources.add(
+        Cesium.KmlDataSource.load(kmlDocument, {
+            camera: viewer.camera,
+            canvas: viewer.canvas
+        })
+    )
+);*/
+
+
+
 
             // Check for possible already available selection
             if(localStorage.getItem('areaSelection') !== null){
