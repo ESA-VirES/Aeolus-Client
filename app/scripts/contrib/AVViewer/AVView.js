@@ -714,12 +714,12 @@ define(['backbone.marionette',
                 'ALD_U_N_1B': ['mie', 'rayleigh'],
                 'ALD_U_N_2A': ['MCA', 'SCA'],
                 'ALD_U_N_2B': ['mie', 'rayleigh'],
-                'ALD_U_N_2C': ['mie', 'rayleigh']
+                'ALD_U_N_2C': ['mie', 'rayleigh'],
+                'AUX_MET_12': ['nadir', 'off_nadir']
                 /*'AUX_MRC_1B': [],
                 'AUX_RRC_1B': [],
                 'AUX_ISR_1B': [],
-                'AUX_ZWC_1B': [],
-                'AUX_MET_12': []*/
+                'AUX_ZWC_1B': [],*/
             };
 
             if (localStorage.getItem('groupSelected') !== null) {

@@ -524,36 +524,53 @@
 
         });
 
-        var available_parameters = [];
 
-        globals.products.each(function(prod) {
-          if (prod.get('visible')) {
-            var downPars = prod.get('download_parameters');
-            for(var id in downPars){
-              available_parameters.push({
+        var currProd = globals.products.find(function(p){
+          return p.get('visible')
+        });
+        var currProdID = currProd.get('download').id;
+        var currGran = currProd.get('granularity');
+        var currDownGroups;
+        if(currGran){
+          currDownGroups = globals.downloadMatrix[currProdID][currGran];
+        }
+
+        var availableParameters = [];
+        var downloadParameters = currProd.get('download_parameters');
+        var downloadGroups = currProd.get('download_groups');
+
+
+        for(var id in downloadParameters){
+          if(currProd.attributes.hasOwnProperty('download_groups') && 
+             currProd.attributes.download_groups){
+            var gran = false;
+            for (var dg = currDownGroups.length - 1; dg >= 0; dg--) {
+              if(downloadGroups[currDownGroups[dg]].indexOf(id) !== -1){
+                gran = currDownGroups[dg];
+              }
+            }
+            if(currDownGroups.indexOf(gran)!==-1){
+               availableParameters.push({
                 'id': id, 
-                'uom': downPars[id].uom,
-                'description': downPars[id].name,
-                'granularity': downPars[id].granularity
+                'uom': downloadParameters[id].uom,
+                'description': downloadParameters[id].name,
+                'granularity': gran
               });
             }
+          } else {
+            availableParameters.push({
+                'id': id, 
+                'uom': downloadParameters[id].uom,
+                'description': downloadParameters[id].name,
+                'granularity': false
+              });
           }
-        }, this);
+         
+        }
 
-        // If the currently selected model has granularity filter out parameters
-        // that have other ganularities defined
-        if(typeof granularity !== 'undefined'){
-          available_parameters = available_parameters.filter(function(item){
-            if(item.granularity){
-              return item.granularity.indexOf(granularity.substring(0,3)) !== -1;
-            } else {
-              return false;
-            }
-          });
-        }  
 
         $('#param_enum').w2field('enum', { 
-            items: _.sortBy(available_parameters, 'id'), // Sort parameters alphabetically 
+            items: _.sortBy(availableParameters, 'id'), // Sort parameters alphabetically 
             openOnFocus: true,
             renderItem: function (item, index, remove) {
                 if(item.id == "Latitude" || item.id == "Longitude" ||
@@ -999,12 +1016,18 @@
             }
 
             var variables = $('#param_enum').data('selected');
-            variables = variables.map(function(item) {return item.id;});
-            variables = variables.join(',');
-            if(typeof granularity !== 'undefined'){
-              options[granularity] = variables;
+            //variables = variables.map(function(item) {return item.id;});
+            if(granularity){
+              for (var i = variables.length - 1; i >= 0; i--) {
+                var gran = variables[i].granularity + '_fields';
+                if(options.hasOwnProperty(gran)){
+                  options[gran] += (','+variables[i].id);
+                } else {
+                  options[gran] = (''+variables[i].id);
+                }
+              }
             } else {
-              options.fields = variables;
+              options['fields'] = variables.map(function(m){return m.id;}).join(',');
             }
 
           },this);
@@ -1012,413 +1035,8 @@
           // Use default parameters as described by download
           // product parameters in configuration
 
-            var fieldsList = {
-            'ALD_U_N_1B': {
-              'observation_fields': [
-                'time',
-                'longitude_of_DEM_intersection',
-                'latitude_of_DEM_intersection',
-                'altitude_of_DEM_intersection',
-                'mie_longitude',
-                'mie_latitude',
-                'rayleigh_longitude',
-                'rayleigh_latitude',
-                'mie_altitude',
-                'rayleigh_altitude',
-                'mie_range',
-                'rayleigh_range',
-                'geoid_separation',
-                'velocity_at_DEM_intersection',
-                'AOCS_pitch_angle',
-                'AOCS_roll_angle',
-                'AOCS_yaw_angle',
-                'mie_HLOS_wind_speed',
-                'rayleigh_HLOS_wind_speed',
-                'mie_signal_intensity',
-                'rayleigh_signal_channel_A_intensity',
-                'rayleigh_signal_channel_B_intensity',
-                //'rayleigh_signal_intensity',
-                'mie_ground_velocity',
-                'rayleigh_ground_velocity',
-                'mie_HBE_ground_velocity',
-                'rayleigh_HBE_ground_velocity',
-                'mie_total_ZWC',
-                'rayleigh_total_ZWC',
-                'mie_scattering_ratio',
-                'mie_SNR',
-                'rayleigh_channel_A_SNR',
-                'rayleigh_channel_B_SNR',
-                //'rayleigh_SNR',
-                'mie_error_quantifier',
-                'rayleigh_error_quantifier',
-                'average_laser_energy',
-                'laser_frequency',
-                'rayleigh_bin_quality_flag',
-                'mie_bin_quality_flag',
-                'rayleigh_reference_pulse_quality_flag',
-                'mie_reference_pulse_quality_flag'
-              ],
-              'measurement_fields': [
-                'time',
-                'longitude_of_DEM_intersection',
-                'latitude_of_DEM_intersection',
-                'altitude_of_DEM_intersection',
-                'mie_longitude',
-                'mie_latitude',
-                'rayleigh_longitude',
-                'rayleigh_latitude',
-                'mie_altitude',
-                'rayleigh_altitude',
-                'velocity_at_DEM_intersection',
-                'AOCS_pitch_angle',
-                'AOCS_roll_angle',
-                'AOCS_yaw_angle',
-                'mie_HLOS_wind_speed',
-                'rayleigh_HLOS_wind_speed',
-                'mie_signal_intensity',
-                'rayleigh_signal_channel_A_intensity',
-                'rayleigh_signal_channel_B_intensity',
-                'rayleigh_signal_intensity',
-                'mie_ground_velocity',
-                'rayleigh_ground_velocity',
-                'mie_scattering_ratio',
-                'mie_SNR',
-                'rayleigh_channel_A_SNR',
-                'rayleigh_channel_B_SNR',
-                'rayleigh_SNR',
-                'average_laser_energy',
-                'laser_frequency',
-                'rayleigh_bin_quality_flag',
-                'mie_bin_quality_flag',
-                'rayleigh_reference_pulse_quality_flag',
-                'mie_reference_pulse_quality_flag'
-              ]
-            },
-            'ALD_U_N_2A': {
-              'observation_fields': [
-                'L1B_start_time_obs',
-                'L1B_centroid_time_obs',
-                'MCA_time_obs',
-                'longitude_of_DEM_intersection_obs',
-                'latitude_of_DEM_intersection_obs',
-                'altitude_of_DEM_intersection_obs',
-                'geoid_separation_obs',
-                'mie_altitude_obs',
-                'rayleigh_altitude_obs',
-                'L1B_num_of_meas_per_obs',
-                'MCA_clim_BER',
-                'MCA_extinction',
-                'MCA_LOD',
-                'albedo_off_nadir'
-              ],
-              'group_fields':[
-                'group_start_obs',
-                'group_end_obs',
-                'group_start_meas_obs',
-                'group_end_meas_obs',
-                'group_start_time',
-                'group_end_time',
-                'group_height_bin_index',
-                'group_extinction',
-                'group_backscatter',
-                'group_backscatter_variance',
-                'group_extinction_variance',
-                'group_LOD_variance',
-                'group_LOD,group_SR'
-              ],
-              'sca_fields': [
-                'SCA_time_obs',
-                //'SCA_middle_bin_altitude_obs',
-                'SCA_QC_flag',
-                'SCA_extinction_variance',
-                'SCA_backscatter_variance',
-                'SCA_LOD_variance',
-                //'SCA_middle_bin_extinction_variance',
-                //'SCA_middle_bin_backscatter_variance',
-                //'SCA_middle_bin_LOD_variance',
-                //'SCA_middle_bin_BER_variance',
-                'SCA_extinction',
-                'SCA_backscatter',
-                'SCA_LOD',
-                'SCA_SR',
-                //'SCA_middle_bin_extinction',
-                //'SCA_middle_bin_backscatter',
-                //'SCA_middle_bin_LOD',
-                //'SCA_middle_bin_BER'
-              ],
-              'ica_fields': [
-                'ICA_time_obs',
-                'ICA_QC_flag',
-                'ICA_filling_case',
-                'ICA_extinction',
-                'ICA_backscatter',
-                'ICA_LOD'
-              ]
-            },
 
-            'ALD_U_N_2B': {
-                'mie_profile_fields': [
-                  'mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection',
-                  'mie_profile_datetime_start', 'mie_profile_datetime_stop',
-                  'mie_wind_profile_observation_type'
-                ],
-                'mie_wind_fields': [
-                  'mie_wind_result_wind_velocity', 'mie_wind_result_start_time',
-                  'mie_wind_result_stop_time', 'mie_wind_result_bottom_altitude',
-                  'mie_wind_result_top_altitude',
-                  'mie_wind_result_SNR', 'mie_wind_result_HLOS_error', 'mie_wind_result_COG_altitude',
-                  'mie_wind_result_COG_range', 'mie_wind_result_QC_flags_1',
-                  'mie_wind_result_QC_flags_2', 'mie_wind_result_QC_flags_3',
-                  'mie_wind_result_id'
-                ],
-                'rayleigh_profile_fields': [
-                  'rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection',
-                  'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop',
-                  'rayleigh_wind_profile_observation_type'
-                ],
-                'rayleigh_wind_fields': [
-                  'rayleigh_wind_result_wind_velocity', 'rayleigh_wind_result_start_time',
-                  'rayleigh_wind_result_stop_time', 'rayleigh_wind_result_bottom_altitude',
-                  'rayleigh_wind_result_top_altitude',
-                  'rayleigh_wind_result_HLOS_error', 'rayleigh_wind_result_COG_altitude',
-                  'rayleigh_wind_result_COG_range', 'rayleigh_wind_result_QC_flags_1',
-                  'rayleigh_wind_result_QC_flags_2', 'rayleigh_wind_result_QC_flags_3',
-                  'rayleigh_wind_result_id'
-                ],
-                'mie_grouping_fields': [
-                  'mie_grouping_start_obs',
-                  'mie_grouping_end_obs',
-                  'mie_grouping_start_meas_per_obs',
-                  'mie_grouping_end_meas_per_obs'
-                ],
-                'rayleigh_grouping_fields': [
-                  'rayleigh_grouping_start_obs',
-                  'rayleigh_grouping_end_obs',
-                  'rayleigh_grouping_start_meas_per_obs',
-                  'rayleigh_grouping_end_meas_per_obs'
-                ]
-            },
-            'ALD_U_N_2C': {
-                'mie_profile_fields': [
-                  'mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection',
-                  'mie_profile_datetime_start', 'mie_profile_datetime_stop'
-                ],
-                'mie_wind_fields': [
-                  'mie_wind_result_wind_velocity', 'mie_wind_result_start_time',
-                  'mie_wind_result_stop_time', 'mie_wind_result_bottom_altitude',
-                  'mie_wind_result_top_altitude',
-                  'mie_wind_result_SNR', 'mie_wind_result_HLOS_error', 'mie_wind_result_COG_altitude',
-                  'mie_wind_result_COG_range', 'mie_wind_result_QC_flags_1',
-                  'mie_wind_result_QC_flags_2', 'mie_wind_result_QC_flags_3',
-                ],
-                'rayleigh_profile_fields': [
-                  'rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection',
-                  'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop'
-                ],
-                'rayleigh_wind_fields': [
-                  'rayleigh_wind_result_wind_velocity', 'rayleigh_wind_result_start_time',
-                  'rayleigh_wind_result_stop_time', 'rayleigh_wind_result_bottom_altitude',
-                  'rayleigh_wind_result_top_altitude',
-                  'rayleigh_wind_result_HLOS_error', 'rayleigh_wind_result_COG_altitude',
-                  'rayleigh_wind_result_COG_range', 'rayleigh_wind_result_QC_flags_1',
-                  'rayleigh_wind_result_QC_flags_2', 'rayleigh_wind_result_QC_flags_3',
-                ],
-                'mie_grouping_fields': [
-                  'mie_grouping_start_obs',
-                  'mie_grouping_end_obs',
-                  'mie_grouping_start_meas_per_obs',
-                  'mie_grouping_end_meas_per_obs'
-                ],
-                'rayleigh_grouping_fields': [
-                  'rayleigh_grouping_start_obs',
-                  'rayleigh_grouping_end_obs',
-                  'rayleigh_grouping_start_meas_per_obs',
-                  'rayleigh_grouping_end_meas_per_obs'
-                ]
-             },
-            'AUX_MRC_1B': [
-              'lat_of_DEM_intersection',
-              'lon_of_DEM_intersection',
-              'time_freq_step',
-              // 'altitude', //2D data
-              // 'satellite_range', //2D data
-              'frequency_offset',
-              'frequency_valid',
-              'measurement_response',
-              'measurement_response_valid',
-              'measurement_error_mie_response',
-              'reference_pulse_response',
-              'reference_pulse_response_valid',
-              'reference_pulse_error_mie_response',
-              // 'normalised_useful_signal', //2D data
-              // 'mie_scattering_ratio', //2D data
-              'num_measurements_usable',
-              'num_valid_measurements',
-              'num_reference_pulses_usable',
-              'num_mie_core_algo_fails_measurements',
-              'num_ground_echoes_not_detected_measurements',
-              'measurement_mean_sensitivity',
-              'measurement_zero_frequency',
-              'measurement_error_mie_response_std_dev',
-              'measurement_offset_frequency',
-              'reference_pulse_mean_sensitivity',
-              'reference_pulse_zero_frequency',
-              'reference_pulse_error_mie_response_std_dev',
-              'reference_pulse_offset_frequency',
-              'satisfied_min_valid_freq_steps_per_cal',
-              'freq_offset_data_monotonic',
-              'num_of_valid_frequency_steps',
-              'measurement_mean_sensitivity_valid',
-              'measurement_error_response_std_dev_valid',
-              'measurement_zero_frequency_response_valid',
-              'measurement_data_monotonic',
-              'reference_pulse_mean_sensitivity_valid',
-              'reference_pulse_error_response_std_dev_valid',
-              'reference_pulse_zero_frequency_response_valid',
-              'reference_pulse_data_monotonic',
-              'mie_core_measurement_FWHM',
-              'mie_core_measurement_amplitude',
-              'mie_core_measurement_offset',
-            ],
-            'AUX_RRC_1B': [
-              'lat_of_DEM_intersection',
-              'lon_of_DEM_intersection',
-              'time_freq_step',
-              // 'altitude', //2D data
-              // 'satellite_range', //2D data
-              //'geoid_separation_obs',
-              //'geoid_separation_freq_step',
-              'frequency_offset',
-              'frequency_valid',
-              'ground_frequency_valid',
-              'measurement_response',
-              'measurement_response_valid',
-              'measurement_error_rayleigh_response',
-              'reference_pulse_response',
-              'reference_pulse_response_valid',
-              'reference_pulse_error_rayleigh_response',
-              'ground_measurement_response',
-              'ground_measurement_response_valid',
-              'ground_measurement_error_rayleigh_response',
-              // 'normalised_useful_signal', //2D data
-              'num_measurements_usable',
-              'num_valid_measurements',
-              'num_reference_pulses_usable',
-              'num_measurements_valid_ground',
-              'measurement_mean_sensitivity',
-              'measurement_zero_frequency',
-              'measurement_error_rayleigh_response_std_dev',
-              'measurement_offset_frequency',
-              'measurement_error_fit_coefficient',
-              'reference_pulse_mean_sensitivity',
-              'reference_pulse_zero_frequency',
-              'reference_pulse_error_rayleigh_response_std_dev',
-              'reference_pulse_offset_frequency',
-              'reference_pulse_error_fit_coefficient',
-              'ground_measurement_mean_sensitivity',
-              'ground_measurement_zero_frequency',
-              'ground_measurement_error_rayleigh_response_std_dev',
-              'ground_measurement_offset_frequency',
-              'ground_measurement_error_fit_coefficient', 
-              'satisfied_min_valid_freq_steps_per_cal',
-              'satisfied_min_valid_ground_freq_steps_per_cal',
-              'freq_offset_data_monotonic',
-              'num_of_valid_frequency_steps',
-              'num_of_valid_ground_frequency_steps',
-              'measurement_mean_sensitivity_valid',
-              'measurement_error_response_std_dev_valid',
-              'measurement_zero_frequency_response_valid',
-              'measurement_data_monotonic',
-              'reference_pulse_mean_sensitivity_valid',
-              'reference_pulse_error_response_std_dev_valid',
-              'reference_pulse_zero_frequency_response_valid',
-              'reference_pulse_data_monotonic',
-              'ground_measurement_mean_sensitivity_valid',
-              'ground_measurement_error_response_std_dev_valid',
-              'ground_measurement_zero_frequency_response_valid',
-              'ground_measurement_data_monotonic',
-              'rayleigh_spectrometer_temperature_9',
-              'rayleigh_spectrometer_temperature_10',
-              'rayleigh_spectrometer_temperature_11',
-              'rayleigh_thermal_hood_temperature_1',
-              'rayleigh_thermal_hood_temperature_2',
-              'rayleigh_thermal_hood_temperature_3',
-              'rayleigh_thermal_hood_temperature_4',
-              'rayleigh_optical_baseplate_avg_temperature'
-            ],
-            'AUX_ISR_1B': [
-              'time',
-              'freq_mie_USR_closest_to_rayleigh_filter_centre',
-              'frequency_rayleigh_filter_centre',
-              'num_of_valid_mie_results',
-              'num_of_valid_rayleigh_results',
-              'laser_frequency_offset',
-              'mie_valid',
-              'rayleigh_valid',
-              'fizeau_transmission',
-              'mie_response',
-              'rayleigh_channel_A_response',
-              'rayleigh_channel_B_response',
-              'num_of_raw_reference_pulses',
-              'num_of_mie_reference_pulses',
-              'num_of_rayleigh_reference_pulses',
-              'accumulated_laser_energy_mie',
-              'mean_laser_energy_mie',
-              'accumulated_laser_energy_rayleigh',
-              'mean_laser_energy_rayleigh',
-              'laser_energy_drift',
-              'downhill_simplex_used',
-              'num_of_iterations_mie_core_1',
-              'last_peak_difference_mie_core_1',
-              'FWHM_mie_core_2',
-              'num_of_iterations_mie_core_2',
-              'downhill_simplex_quality_flag',
-              'rayleigh_spectrometer_temperature_9',
-              'rayleigh_spectrometer_temperature_10',
-              'rayleigh_spectrometer_temperature_11',
-              'rayleigh_thermal_hood_temperature_1',
-              'rayleigh_thermal_hood_temperature_2',
-              'rayleigh_thermal_hood_temperature_3',
-              'rayleigh_thermal_hood_temperature_4',
-              'rayleigh_optical_baseplate_avg_temperature'
-            ],
-            'AUX_ZWC_1B': [
-              'time',
-              'lat_of_DEM_intersection',
-              'lon_of_DEM_intersection',
-              'roll_angle',
-              'pitch_angle',
-              'yaw_angle',
-              //'mie_range',
-              //'rayleigh_range',
-              'ZWC_result_type',
-              'mie_ground_correction_velocity',
-              'rayleigh_ground_correction_velocity',
-              'num_of_mie_ground_bins',
-              'mie_avg_ground_echo_bin_thickness',
-              'rayleigh_avg_ground_echo_bin_thickness',
-              'mie_avg_ground_echo_bin_thickness_above_DEM',
-              'rayleigh_avg_ground_echo_bin_thickness_above_DEM',
-              'mie_top_ground_bin_obs',
-              'rayleigh_top_ground_bin_obs',
-              'mie_bottom_ground_bin_obs',
-              'rayleigh_bottom_ground_bin_obs',
-              // Commented out pseudo 2D data for now
-              //'mie_measurements_used',
-              //'mie_top_ground_bin_meas',
-              //'mie_bottom_ground_bin_meas',
-              //'mie_DEM_ground_bin',
-              //'mie_height_difference_top_to_DEM_ground_bin',
-              //'mie_ground_bin_SNR_meas',
-              //'rayleigh_measurements_used',
-              //'rayleigh_top_ground_bin_meas',
-              //'rayleigh_bottom_ground_bin_meas',
-              //'rayleigh_DEM_ground_bin',
-              //'rayleigh_height_difference_top_to_DEM_ground_bin',
-              //'rayleigh_channel_A_ground_SNR_meas',
-              //'rayleigh_channel_B_ground_SNR_meas',
-              //'DEM_height'
-            ],
+            var fieldsList = {
             'AUX_MET_12': [
               'time_off_nadir', 'time_nadir',
               'surface_wind_component_u_off_nadir',
@@ -1452,7 +1070,49 @@
 
           };
 
-          var variables = [];
+          var currProd = globals.products.find(function(p){
+            return p.get('visible')
+          });
+          var currProdID = currProd.get('download').id;
+          var currGran = currProd.get('granularity');
+          var currDownGroups;
+          if(currGran){
+            currDownGroups = globals.downloadMatrix[currProdID][currGran];
+          }
+
+          var availableParameters = [];
+          var downloadParameters = currProd.get('download_parameters');
+          var downloadGroups = currProd.get('download_groups');
+
+
+          for(var id in downloadParameters){
+            if(currProd.attributes.hasOwnProperty('download_groups')  && 
+               currProd.attributes.download_groups){
+              var gran = false;
+              for (var dg = currDownGroups.length - 1; dg >= 0; dg--) {
+                if(downloadGroups[currDownGroups[dg]].indexOf(id) !== -1){
+                  gran = currDownGroups[dg];
+                }
+              }
+              if(currDownGroups.indexOf(gran)!==-1){
+                 availableParameters.push({
+                  'id': id, 
+                  'uom': downloadParameters[id].uom,
+                  'description': downloadParameters[id].name,
+                  'granularity': gran
+                });
+              }
+            } else {
+              availableParameters.push({
+                  'id': id, 
+                  'uom': downloadParameters[id].uom,
+                  'description': downloadParameters[id].name,
+                  'granularity': false
+                });
+            }
+          }
+
+          var granularity;
           var downGran = null;
           _.each(this.model.get("products"), function(prod){
             if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
@@ -1460,37 +1120,28 @@
 
               // TODO: This only takes into account having one product selected
               options.processId = prod.get('process');
-              downGran = prod.get('granularity');
-              if(collectionId === 'ALD_U_N_1B'){
-                // Check what granularity is selected and only show relevant parameters
-                var granularity = prod.get('granularity')+'_fields';
-                options[granularity] = fieldsList[collectionId][granularity];
-
-              } else if(collectionId === 'ALD_U_N_2A'){
-                var granularity = prod.get('granularity')+'_fields';
-                options[granularity] = fieldsList[collectionId][granularity];
-                if(granularity!=='group_fields'){
-                  options['ica_fields'] = fieldsList[collectionId]['ica_fields'];
-                  options['sca_fields'] = fieldsList[collectionId]['sca_fields'];
-                }
-
-              } else if(collectionId === 'ALD_U_N_2B' || collectionId === 'ALD_U_N_2C'){
-                var granularity = prod.get('granularity');
-                if(granularity === 'wind-accumulation-result'){
-                  options['mie_wind_fields'] = fieldsList[collectionId]['mie_wind_fields'];
-                  options['mie_profile_fields'] = fieldsList[collectionId]['mie_profile_fields'];
-                  options['rayleigh_wind_fields'] = fieldsList[collectionId]['rayleigh_wind_fields'];
-                  options['rayleigh_profile_fields'] = fieldsList[collectionId]['rayleigh_profile_fields'];
-                } else if (granularity === 'group'){
-                  options['mie_grouping_fields'] = fieldsList[collectionId]['mie_grouping_fields'];
-                  options['rayleigh_grouping_fields'] = fieldsList[collectionId]['rayleigh_grouping_fields'];
-                }
-              } else {
-                options["fields"] = fieldsList[collectionId];
+              if(prod.get('granularity')){
+                downGran = prod.get('granularity');
+                granularity = downGran+'_fields';
               }
-            }   
+            }
+
+            var variables = availableParameters;
+            if(granularity){
+              for (var i = variables.length - 1; i >= 0; i--) {
+                var gran = variables[i].granularity + '_fields';
+                if(options.hasOwnProperty(gran)){
+                  options[gran] += (','+variables[i].id);
+                } else {
+                  options[gran] = (''+variables[i].id);
+                }
+              }
+            } else {
+              options['fields'] = variables.map(function(m){return m.id;}).join(',');
+            }
+
           },this);
-        } 
+        }
        
 
         options.async = true;
