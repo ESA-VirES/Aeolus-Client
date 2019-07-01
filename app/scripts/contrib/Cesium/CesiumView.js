@@ -101,7 +101,7 @@ define([
                     'time'
                 ],
                 yAxis: [
-                    'altitude'
+                    ['altitude']
                 ],
                 //y2Axis: [],
                 combinedParameters: {
@@ -113,7 +113,7 @@ define([
                     ],
                     time: ['time_start', 'time_end']
                 },
-                colorAxis: ['mie_HLOS_wind_speed']
+                colorAxis: [['mie_HLOS_wind_speed']]
 
             };
 
@@ -699,24 +699,24 @@ define([
             };
 
             if(band === 'mie_HLOS_wind_speed'){
-                this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
-                this.graph.renderSettings.yAxis = ['mie_altitude'];
+                this.graph.renderSettings.colorAxis = [['mie_HLOS_wind_speed']];
+                this.graph.renderSettings.yAxis = [['mie_altitude']];
                 this.graph.renderSettings.xAxis =['time'];
             }else if(band === 'rayleigh_HLOS_wind_speed'){
-                this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
-                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
+                this.graph.renderSettings.colorAxis = [['rayleigh_HLOS_wind_speed']];
+                this.graph.renderSettings.yAxis = [['rayleigh_altitude']];
                 this.graph.renderSettings.xAxis =['time'];
             }else if(band === 'mie_signal_intensity'){
-                this.graph.renderSettings.colorAxis = ['mie_signal_intensity'];
-                this.graph.renderSettings.yAxis = ['mie_altitude'];
+                this.graph.renderSettings.colorAxis = [['mie_signal_intensity']];
+                this.graph.renderSettings.yAxis = [['mie_altitude']];
                 this.graph.renderSettings.xAxis =['time'];
             }else if(band === 'rayleigh_signal_channel_A_intensity'){
-                this.graph.renderSettings.colorAxis = ['rayleigh_signal_channel_A_intensity'];
-                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
+                this.graph.renderSettings.colorAxis = [['rayleigh_signal_channel_A_intensity']];
+                this.graph.renderSettings.yAxis = [['rayleigh_altitude']];
                 this.graph.renderSettings.xAxis =['time'];
             }else if(band === 'rayleigh_signal_channel_B_intensity'){
-                this.graph.renderSettings.colorAxis = ['rayleigh_signal_channel_B_intensity'];
-                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
+                this.graph.renderSettings.colorAxis = [['rayleigh_signal_channel_B_intensity']];
+                this.graph.renderSettings.yAxis = [['rayleigh_altitude']];
                 this.graph.renderSettings.xAxis =['time'];
             }
 

@@ -19,11 +19,8 @@ define(['backbone.marionette',
             this.currentKeys = [];
 
             $(window).resize(function() {
-                if(this.graph1){
-                    this.graph1.resize();
-                }
-                if(this.graph2 && $('#graph_2').is(":visible")){
-                    this.graph2.resize();
+                if(this.graph){
+                    this.graph.resize();
                 }
             }.bind(this));
             this.connectDataEvents();
@@ -123,8 +120,7 @@ define(['backbone.marionette',
             this.reloadUOM();
 
 
-            if (typeof this.graph1 === 'undefined' && 
-                typeof this.graph2 === 'undefined') {
+            if (typeof this.graph === 'undefined') {
                 this.$el.append('<div class="d3canvas"></div>');
                 this.$('.d3canvas').append('<div id="graph_container"></div>');
 
@@ -141,13 +137,9 @@ define(['backbone.marionette',
                     $('#analyticsFilters').css('opacity', 0);
                     $('#graph_container').css('height', '99%');
                 }
-                this.$('#graph_container').append('<div id="graph_1"></div>');
-                this.$('#graph_container').append('<div id="graph_2"></div>');
+                this.$('#graph_container').append('<div id="graph"></div>');
 
-                this.$('#graph_1').append('<div id="analyticsSavebuttonTop"><i class="fa fa-floppy-o analyticsSavebutton" aria-hidden="true"></i></div>');
-                this.$('#graph_2').append('<div id="analyticsSavebuttonBottom"><i class="fa fa-floppy-o analyticsSavebutton" aria-hidden="true"></i></div>');
-
-
+                this.$('#graph').append('<div id="analyticsSavebuttonTop"><i class="fa fa-floppy-o analyticsSavebutton" aria-hidden="true"></i></div>');
 
                 $('#analyticsSavebuttonTop').click(function(){
                     var bodyContainer = $('<div/>');
@@ -161,8 +153,8 @@ define(['backbone.marionette',
                         $('<label for="filetypeSelection" style="margin-right:10px;">Output type</label>')
                     );
                     typeContainer.append(filetypeSelection);
-                    var w = $('#graph_1').width();
-                    var h = $('#graph_1').height();
+                    var w = $('#graph').width();
+                    var h = $('#graph').height();
 
                     var resolutionContainer = $('<div id="resolutionSelectionContainer"></div>')
                     var resolutionSelection = $('<select id="resolutionSelection"></select>');
@@ -183,7 +175,7 @@ define(['backbone.marionette',
                     buttons.append(okbutton);
                     buttons.append(cancelbutton);
 
-                    if (that.graph1){
+                    if (that.graph){
                         var saveimagedialog = w2popup.open({
                             body: bodyContainer,
                             buttons: buttons,
@@ -197,7 +189,7 @@ define(['backbone.marionette',
                                 .find(":selected").text();
                             var selectedRes = $('#resolutionSelection')
                                 .find(":selected").val();
-                            that.graph1.saveImage(selectedType, selectedRes);
+                            that.graph.saveImage(selectedType, selectedRes);
                             bodyContainer.remove();
                             saveimagedialog.close();
                         });
@@ -207,78 +199,14 @@ define(['backbone.marionette',
                         });
                     }
                 });
-
-                $('#analyticsSavebuttonBottom').click(function(){
-                    var bodyContainer = $('<div/>');
-
-                    var typeContainer = $('<div id="typeSelectionContainer"></div>')
-                    var filetypeSelection = $('<select id="filetypeSelection"></select>');
-                    filetypeSelection.append($('<option/>').html('png'));
-                    filetypeSelection.append($('<option/>').html('jpeg'));
-                    filetypeSelection.append($('<option/>').html('svg'));
-                    typeContainer.append(
-                        $('<label for="filetypeSelection" style="margin-right:10px;">Output type</label>')
-                    );
-                    typeContainer.append(filetypeSelection);
-                    var w = $('#graph_1').width();
-                    var h = $('#graph_1').height();
-
-                    var resolutionContainer = $('<div id="resolutionSelectionContainer"></div>')
-                    var resolutionSelection = $('<select id="resolutionSelection"></select>');
-                    resolutionSelection.append($('<option/>').html('normal ('+w+'x'+h+')').val(1));
-                    resolutionSelection.append($('<option/>').html('large ('+w*2+'x'+h*2+')').val(2));
-                    resolutionSelection.append($('<option/>').html('very large ('+w*3+'x'+h*3+')').val(3));
-                    resolutionContainer.append(
-                        $('<label for="resolutionSelection" style="margin-right:10px;">Resolution</label>')
-                    );
-                    resolutionContainer.append(resolutionSelection);
-
-                    bodyContainer.append(typeContainer);
-                    bodyContainer.append(resolutionContainer);
-
-                    var okbutton = $('<button style="margin-right:5px;">Ok</button>');
-                    var cancelbutton = $('<button style="margin-left:5px;">Cancel</button>');
-                    var buttons = $('<div/>');
-                    buttons.append(okbutton);
-                    buttons.append(cancelbutton);
-                    
-                    if (that.graph2){
-                        var saveimagedialog = w2popup.open({
-                            body: bodyContainer,
-                            buttons: buttons,
-                            title       : w2utils.lang('Image configuration'),
-                            width       : 400,
-                            height      : 200
-                        });
-
-                        okbutton.click(function(){
-                            var selectedType = $('#filetypeSelection')
-                                .find(":selected").text();
-                            var selectedRes = $('#resolutionSelection')
-                                .find(":selected").val();
-                            that.graph2.saveImage(selectedType, selectedRes);
-                            bodyContainer.remove();
-                            saveimagedialog.close();
-                        });
-                        cancelbutton.click(function(){
-                            bodyContainer.remove();
-                            saveimagedialog.close();
-                        });
-                    }
-                });
-
-                
 
                 this.$('.d3canvas').append('<div id="filterDivContainer"></div>');
                 this.$el.append('<div id="nodataavailable"></div>');
                 $('#nodataavailable').text('No data available for current selection');
                 this.$('#filterDivContainer').append('<div id="analyticsFilters"></div>');
             }else{
-                if(this.graph1){
-                    this.graph1.resize();
-                }
-                if(this.graph2){
-                    this.graph2.resize();
+                if(this.graph){
+                    this.graph.resize();
                 }
             }
 
@@ -355,10 +283,100 @@ define(['backbone.marionette',
             }
 
             this.renderSettings = {
+                'ALD_U_N_1B':{
+                    xAxis: 'time',
+                    yAxis: [['mie_altitude'], ['rayleigh_altitude']],
+                    y2Axis: [[], []],
+                    groups: ['mie', 'rayleigh'],
+                    combinedParameters: {
+                        rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
+                        time: ['time_start', 'time_end'],
+                        mie_altitude: ['mie_altitude_start', 'mie_altitude_end']
+                    },
+                    colorAxis: [['mie_HLOS_wind_speed'], ['rayleigh_HLOS_wind_speed']],
+                    colorAxis2: [[], []],
+                    renderGroups: {
+                        mie: {
+                            parameters: [
+                                'time',
+                                'longitude_of_DEM_intersection',
+                                'latitude_of_DEM_intersection',
+                                'altitude_of_DEM_intersection',
+                                'mie_longitude',
+                                'mie_latitude',
+                                'mie_altitude',
+                                'mie_range',
+                                'geoid_separation',
+                                'velocity_at_DEM_intersection',
+                                'AOCS_pitch_angle',
+                                'AOCS_roll_angle',
+                                'AOCS_yaw_angle',
+                                'mie_HLOS_wind_speed',
+                                'mie_signal_intensity',
+                                'mie_ground_velocity',
+                                'mie_HBE_ground_velocity',
+                                'mie_total_ZWC',
+                                'mie_scattering_ratio',
+                                'mie_SNR',
+                                'mie_error_quantifier',
+                                'average_laser_energy',
+                                'laser_frequency',
+                                'mie_bin_quality_flag',
+                                'mie_reference_pulse_quality_flag',
+                                'albedo_off_nadir'
+                            ],
+                        },
+                        rayleigh: {
+                            parameters: [
+                                'time',
+                                'longitude_of_DEM_intersection',
+                                'latitude_of_DEM_intersection',
+                                'altitude_of_DEM_intersection',
+                                'rayleigh_longitude',
+                                'rayleigh_latitude',
+                                'rayleigh_altitude',
+                                'rayleigh_range',
+                                'geoid_separation',
+                                'velocity_at_DEM_intersection',
+                                'AOCS_pitch_angle',
+                                'AOCS_roll_angle',
+                                'AOCS_yaw_angle',
+                                'rayleigh_HLOS_wind_speed',
+                                'rayleigh_signal_channel_A_intensity',
+                                'rayleigh_signal_channel_B_intensity',
+                                'rayleigh_signal_intensity',
+                                'rayleigh_ground_velocity',
+                                'rayleigh_HBE_ground_velocity',
+                                'rayleigh_total_ZWC',
+                                'rayleigh_channel_A_SNR',
+                                'rayleigh_channel_B_SNR',
+                                'rayleigh_SNR',
+                                'rayleigh_error_quantifier',
+                                'average_laser_energy',
+                                'laser_frequency',
+                                'rayleigh_bin_quality_flag',
+                                'rayleigh_reference_pulse_quality_flag',
+                                'albedo_off_nadir'
+                            ]
+                        }
+                    },
+                    sharedParameters: {
+                        'time': [
+                            'time'
+                        ],
+                        'altitude': [
+                            'rayleigh_altitude', 'mie_altitude'
+                        ],
+                        'geoid_separation': [
+                            'geoid_separation'
+                        ]
+                    }
+                },
+
                 'ALD_U_N_1B_rayleigh': {
                     xAxis: ['time'],
                     yAxis: [
-                        'rayleigh_altitude'
+                        ['rayleigh_altitude']
                     ],
                     additionalXTicks: [],
                     additionalYTicks: [],
@@ -375,7 +393,7 @@ define(['backbone.marionette',
                         ],
                         time: ['time_start', 'time_end'],
                     },
-                    colorAxis: ['rayleigh_HLOS_wind_speed'],
+                    colorAxis: [['rayleigh_HLOS_wind_speed']],
                     positionAlias: {
                         'latitude': 'latitude_of_DEM_intersection',
                         'longitude': 'longitude_of_DEM_intersection',
@@ -386,7 +404,7 @@ define(['backbone.marionette',
                 'ALD_U_N_1B_mie': {
                     xAxis: ['time'],
                     yAxis: [
-                        'mie_altitude'
+                        ['mie_altitude']
                     ],
                     //y2Axis: [],
                     additionalXTicks: [],
@@ -404,7 +422,7 @@ define(['backbone.marionette',
                         ],
                         time: ['time_start', 'time_end'],
                     },
-                    colorAxis: ['mie_HLOS_wind_speed'],
+                    colorAxis: [['mie_HLOS_wind_speed']],
                     positionAlias: {
                         'latitude': 'latitude_of_DEM_intersection',
                         'longitude': 'longitude_of_DEM_intersection',
@@ -786,47 +804,48 @@ define(['backbone.marionette',
 
             var that = this;
 
-            if (this.graph1 === undefined){
+            if (this.graph === undefined){
 
                 this.filterManager = globals.swarm.get('filterManager');
                 this.filterManager.visibleFilters = this.selectedFilterList;
 
                 var sel = that.groupSelected['ALD_U_N_1B'][0];
-                var currRenderSetts = this.extendSettings(
-                    this.renderSettings['ALD_U_N_1B_'+sel], 'G1'
-                );
+                /*var currRenderSetts = this.extendSettings(
+                    this.renderSettings['ALD_U_N_1B'], 'G1'
+                );*/
 
-                this.graph1 = new graphly.graphly({
-                    el: '#graph_1',
-                    margin: {top: 10, left: 100, bottom: 50, right: 70},
+                this.graph = new graphly.graphly({
+                    el: '#graph',
+                    margin: {top: 30, left: 100, bottom: 50, right: 70},
                     dataSettings: this.dataSettings,
-                    renderSettings: currRenderSetts,
+                    renderSettings: this.renderSettings['ALD_U_N_1B'],
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
-                    ignoreParameters: [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/],
+                    multiYAxis: true,
+                    //ignoreParameters: [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/],
                     enableSubXAxis: true,
                     enableSubYAxis: true,
-                    colorAxisTickFormat: 'customExp',
+                    //colorAxisTickFormat: 'customExp',
                     //defaultAxisTickFormat: 'customExp'
                 });
                 globals.swarm.get('filterManager').setRenderNode('#analyticsFilters');
-                this.graph1.on('pointSelect', function(values){
+                this.graph.on('pointSelect', function(values){
                     Communicator.mediator.trigger('cesium:highlight:point', values);
                 });
-                this.graph1.on('styleChange', function () {
+                this.graph.on('styleChange', function () {
                     // Save parameter style changes
-                    localStorage.setItem(
+                    /*localStorage.setItem(
                         'dataSettings',
                         JSON.stringify(globals.dataSettings)
                     );
-                    that.savePlotConfig(that.graph1, 'G1');
+                    that.savePlotConfig(that.graph, 'G1');*/
                 });
 
-                this.graph1.on('axisChange', function () {
-                    that.savePlotConfig(that.graph1, 'G1');
+                this.graph.on('axisChange', function () {
+                    //that.savePlotConfig(that.graph1, 'G1');
                 });
 
-                this.graph1.on('axisExtentChanged', function () {
+                this.graph.on('axisExtentChanged', function () {
                     // Save parameter style changes
                     localStorage.setItem(
                         'dataSettings',
@@ -835,52 +854,6 @@ define(['backbone.marionette',
                 });
             }
 
-            if (this.graph2 === undefined){
-
-                var sel = that.groupSelected['ALD_U_N_1B'][1];
-                var currRenderSetts = this.extendSettings(
-                    this.renderSettings['ALD_U_N_1B_'+sel], 'G2'
-                );
-
-                this.graph2 = new graphly.graphly({
-                    el: '#graph_2',
-                    margin: {top: 10, left: 100, bottom: 50, right: 70},
-                    dataSettings: this.dataSettings,
-                    renderSettings: currRenderSetts,
-                    filterManager: globals.swarm.get('filterManager'),
-                    displayParameterLabel: false,
-                    connectedGraph: this.graph1,
-                    ignoreParameters: [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/],
-                    enableSubXAxis: true,
-                    enableSubYAxis: true,
-                    colorAxisTickFormat: 'customExp',
-                    //defaultAxisTickFormat: 'customExp'
-                });
-                this.graph1.connectGraph(this.graph2);
-                this.graph2.on('pointSelect', function(values){
-                    Communicator.mediator.trigger('cesium:highlight:point', values);
-                });
-                this.graph2.on('styleChange', function () {
-                    // Save parameter style changes
-                    localStorage.setItem(
-                        'dataSettings',
-                        JSON.stringify(globals.dataSettings)
-                    );
-                    that.savePlotConfig(that.graph2, 'G2');
-                });
-
-                this.graph2.on('axisChange', function () {
-                    that.savePlotConfig(that.graph2, 'G2');
-                });
-
-                this.graph2.on('axisExtentChanged', function () {
-                    // Save parameter style changes
-                    localStorage.setItem(
-                        'dataSettings',
-                        JSON.stringify(globals.dataSettings)
-                    );
-                });
-            }
 
             var data = globals.swarm.get('data');
 
@@ -903,13 +876,9 @@ define(['backbone.marionette',
                     }
                 }
                 
-
                 this.filterManager.brushes = brushes;
-                if(this.graph1){
-                    this.graph1.filters = globals.swarm.get('filters');
-                }
-                if(this.graph2){
-                    this.graph2.filters = globals.swarm.get('filters');
+                if(this.graph){
+                    this.graph.filters = globals.swarm.get('filters');
                 }
                 this.filterManager.filters = globals.swarm.get('filters');
             }
@@ -1053,11 +1022,8 @@ define(['backbone.marionette',
                     $('#minimizeFilters i').attr('class', 
                         'fa fa-chevron-circle-'+direction
                     );
-                    if(that.graph1){
-                        that.graph1.resize();
-                    }
-                    if(that.graph2){
-                        that.graph2.resize();
+                    if(that.graph){
+                        that.graph.resize();
                     }
                 }
             },1000);
@@ -1214,18 +1180,13 @@ define(['backbone.marionette',
                 this.dataSettings[band].extent = range;
                 //this.graph.dataSettings = this.dataSettings;
                 // Reset colorcache
-                for(var k in this.graph1.colorCache){
-                    delete this.graph1.colorCache[k];
+                for(var k in this.graph.colorCache){
+                    delete this.graph.colorCache[k];
                 }
-                for(var k in this.graph2.colorCache){
-                    delete this.graph2.colorCache[k];
-                }
-                this.graph1.dataSettings = this.dataSettings;
-                this.graph1.renderData();
-                this.graph1.createColorScales();
-                this.graph2.dataSettings = this.dataSettings;
-                this.graph2.renderData();
-                this.graph2.createColorScales();
+
+                this.graph.dataSettings = this.dataSettings;
+                this.graph.renderData();
+                this.graph.createColorScales();
 
                 localStorage.setItem(
                     'dataSettings',
@@ -1234,60 +1195,6 @@ define(['backbone.marionette',
             }
         },
 
-        createGroupVisualizationSelection: function(cP, data, timeString){
-
-            var visG = this.visualizationGroups[cP];
-
-            var s1 = $('<select id="graph1Select" />');
-            for(var key in visG) {
-                var ops = {value: key, text: key};
-                if(this.groupSelected[cP][0] === key){
-                    ops.selected = true;
-                }
-                $('<option />', ops).appendTo(s1);
-            }
-            s1.appendTo('#graph_1');
-
-            var that = this;
-            s1.change(function(){
-                var sel = $(this).val();
-                that.groupSelected[cP][0] = sel;
-                // Clone settings so they are not modified between plots
-                that.graph1.fileSaveString = cP+'_'+sel+'_'+timeString;
-                var sets1 = $.extend(true,{},that.renderSettings[cP+'_'+sel]);
-                that.graph1.renderSettings = sets1;
-                that.graph1.ignoreParameters = visG[sel];
-                that.graph1.loadData(data[cP]);
-                localStorage.setItem(
-                    'groupSelected',
-                    JSON.stringify(that.groupSelected)
-                );
-            });
-
-            var s2 = $('<select id="graph2Select" />');
-            for(var key in visG) {
-                var ops = {value: key, text: key};
-                if(this.groupSelected[cP][1] === key){
-                    ops.selected = true;
-                }
-                $('<option />', ops).appendTo(s2);
-            }
-            s2.appendTo('#graph_2');
-            s2.change(function(){
-                var sel = $(this).val();
-                that.groupSelected[cP][1] = sel;
-                
-                that.graph2.fileSaveString = cP+'_'+sel+'_'+timeString;
-                var sets2 = $.extend(true,{},that.renderSettings[cP+'_'+sel]);
-                that.graph2.renderSettings =  sets2;
-                that.graph2.ignoreParameters = visG[sel];
-                that.graph2.loadData(data[cP]);
-                localStorage.setItem(
-                    'groupSelected',
-                    JSON.stringify(that.groupSelected)
-                );
-            });
-        },
 
         reloadData: function(model, data) {
             // If element already has plot rendering
@@ -1310,13 +1217,10 @@ define(['backbone.marionette',
                 $('#mieButtonContainer').remove();
                 $('#rayleighButtonContainer').remove();
 
-                this.graph1.removeGroupArrows();
-                this.graph2.removeGroupArrows();
-                this.graph1.margin.bottom = 50;
-                this.graph2.margin.bottom = 50;
+                //this.graph.removeGroupArrows();
+                this.graph.margin.bottom = 50;
 
-                $('#graph1Select').remove();
-                $('#graph2Select').remove();
+                $('#graphSelect').remove();
 
                 // If data parameters have changed
                 if (!firstLoad && !_.isEqual(this.prevParams, idKeys)){
@@ -1340,11 +1244,8 @@ define(['backbone.marionette',
 
 
                 if(data.length>0 && _.isEqual(this.previousKeys, this.currentKeys) ){
-                    this.graph1.loadData(data[idKeys[0]]);
-                    this.graph2.loadData(data[idKeys[0]]);
+                    this.graph.loadData(data[idKeys[0]]);
                     this.filterManager.loadData(data[idKeys[0]]);
-                    this.createGroupVisualizationSelection(
-                        idKeys[0], data, timeString);
                     return;
                 }
 
@@ -1377,7 +1278,6 @@ define(['backbone.marionette',
 
 
                     $('#nodataavailable').hide();
-                    $('#graph_2').css('margin-top', '0px');
 
                     var cP = idKeys[0];
                     var sel = this.groupSelected[cP];
@@ -1391,69 +1291,38 @@ define(['backbone.marionette',
                         rSKey2 = cP+'_'+sel[1];
                     }
 
-                    var sets1 = this.extendSettings(
+                    /*var sets1 = this.extendSettings(
                         this.renderSettings[rSKey1], 'G1'
                     );
                     var sets2 = this.extendSettings(
                         this.renderSettings[rSKey2], 'G2'
-                    );
+                    );*/
+
+                    $('#graph').css('height', '100%');
 
                     if(cP === 'ALD_U_N_1B'){
-
-                        this.createGroupVisualizationSelection(cP, data, timeString);
-
-                        this.graph1.renderSettings = sets1;
-                        this.graph2.renderSettings = sets2;
-                        this.graph1.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
-                        this.graph2.fileSaveString = cP+'_'+sel[1]+'_'+timeString;
-                        $('#graph_1').css('height', '49%');
-                        $('#graph_2').css('height', '49%');
-                        $('#graph_2').show();
-                        this.graph1.debounceActive = true;
-                        this.graph2.debounceActive = true;
-                        this.graph1.ignoreParameters = visG[sel[0]];
-                        this.graph2.ignoreParameters = visG[sel[1]];
-                        this.graph1.dataSettings = mergedDataSettings;
-                        this.graph2.dataSettings = mergedDataSettings;
-                        this.graph1.loadData(data['ALD_U_N_1B']);
-                        this.graph2.loadData(data['ALD_U_N_1B']);
-                        this.graph1.connectGraph(this.graph2);
-                        this.graph2.connectGraph(this.graph1);
+                        this.graph.renderSettings = this.renderSettings['ALD_U_N_1B'];
+                        this.graph.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
+                        this.graph.debounceActive = true;
+                        this.graph.dataSettings = mergedDataSettings;
+                        this.graph.loadData(data['ALD_U_N_1B']);
                         this.filterManager.loadData(data['ALD_U_N_1B']);
 
                      }else if(idKeys[0] === 'ALD_U_N_2A'){
 
                         if(currProd.get('granularity') === 'group'){
-                            this.graph1.renderSettings =  this.renderSettings.ALD_U_N_2A_group;
-                            this.graph1.connectGraph(false);
-                            this.graph2.connectGraph(false);
-                            $('#graph_2').hide();
-                            $('#graph_1').css('height', '99%');
-                            this.graph1.dataSettings = mergedDataSettings;
-                            this.graph2.dataSettings = mergedDataSettings;
-                            this.graph1.loadData(data[idKeys[0]]);
+                            this.graph.renderSettings =  this.renderSettings.ALD_U_N_2A_group;
+                            this.graph.dataSettings = mergedDataSettings;
+                            this.graph.loadData(data[idKeys[0]]);
                             this.filterManager.loadData(data[idKeys[0]]);
-                            this.graph1.fileSaveString = 'ALD_U_N_2A_mie_group_plot'+'_'+timeString;
-                            this.graph2.fileSaveString = 'ALD_U_N_2A_rayleigh_group_plot'+'_'+timeString;
+                            this.graph.fileSaveString = 'ALD_U_N_2A_mie_group_plot'+'_'+timeString;
                         } else {
-                            this.createGroupVisualizationSelection(cP, data, timeString);
-                            this.graph1.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
-                            this.graph2.fileSaveString = cP+'_'+sel[1]+'_'+timeString;
-                            this.graph1.renderSettings = sets1;
-                            this.graph2.renderSettings = sets2;
-                            $('#graph_1').css('height', '49%');
-                            $('#graph_2').css('height', '49%');
-                            $('#graph_2').show();
-                            this.graph1.debounceActive = true;
-                            this.graph2.debounceActive = true;
-                            this.graph1.ignoreParameters = visG[this.groupSelected[cP][0]];
-                            this.graph2.ignoreParameters = visG[this.groupSelected[cP][1]];
-                            this.graph1.dataSettings = mergedDataSettings;
-                            this.graph2.dataSettings = mergedDataSettings;
-                            this.graph1.loadData(data['ALD_U_N_2A']);
-                            this.graph2.loadData(data['ALD_U_N_2A']);
-                            this.graph1.connectGraph(this.graph2);
-                            this.graph2.connectGraph(this.graph1);
+                            this.graph.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
+                            this.graph.renderSettings = sets1;
+                            this.graph.debounceActive = true;
+                            //this.graph.ignoreParameters = visG[this.groupSelected[cP][0]];
+                            this.graph.dataSettings = mergedDataSettings;
+                            this.graph.loadData(data['ALD_U_N_2A']);
                             this.filterManager.loadData(data['ALD_U_N_2A']);
                         }
 
@@ -1463,31 +1332,15 @@ define(['backbone.marionette',
                         var currKey = idKeys[0];
 
                         if(currProd.get('granularity') === 'group'){
-                            $('#graph_1').css('height', '47%');
-                            $('#graph_2').css('margin-top', '20px');
-                            this.graph1.renderSettings = this.renderSettings[currKey+'_mie_group'];
-                            this.graph2.renderSettings = this.renderSettings[currKey+'_rayleigh_group'];
-                            this.graph1.fileSaveString = currKey+'_mie_group_plot'+'_'+timeString;
-                            this.graph2.fileSaveString = currKey+'_rayleigh_group_plot'+'_'+timeString;
+                            this.graph.renderSettings = this.renderSettings[currKey+'_mie_group'];
+                            this.graph.fileSaveString = currKey+'_mie_group_plot'+'_'+timeString;
                         } else {
-                            this.createGroupVisualizationSelection(cP, data, timeString);
-                            $('#graph_1').css('height', '49%');
-                            this.graph1.renderSettings = sets1;
-                            this.graph2.renderSettings = sets2;
-                            this.graph1.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
-                            this.graph2.fileSaveString = cP+'_'+sel[1]+'_'+timeString;
+                            this.graph.renderSettings = sets1;
+                            this.graph.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
                         }
-                        
-                        $('#graph_2').css('height', '49%');
-                        $('#graph_2').show();
-                        this.graph1.debounceActive = true;
-                        this.graph2.debounceActive = true;
-                        this.graph1.ignoreParameters = visG[this.groupSelected[cP][0]];
-                        this.graph2.ignoreParameters = visG[this.groupSelected[cP][1]];
-                        this.graph1.dataSettings = mergedDataSettings;
-                        this.graph2.dataSettings = mergedDataSettings;
-                        this.graph1.connectGraph(this.graph2);
-                        this.graph2.connectGraph(this.graph1);
+                        this.graph.debounceActive = true;
+                        //this.graph.ignoreParameters = visG[this.groupSelected[cP][0]];
+                        this.graph.dataSettings = mergedDataSettings;
                         this.filterManager.loadData(data[currKey]);
 
                         if(currProd.get('granularity') === 'group'){
@@ -1520,15 +1373,12 @@ define(['backbone.marionette',
                             }
 
 
-                            this.graph1.addGroupArrows(
+                            /*this.graph.addGroupArrows(
                                 ds.mie_groupArrows.slice(miePos, ((miePos+pageSize)))
-                            );
-                            this.graph2.addGroupArrows(
-                                ds.rayleigh_groupArrows.slice(rayleighPos, ((rayleighPos+pageSize)))
-                            );
+                            );*/
+                            
 
-                            this.graph1.margin.bottom = 80;
-                            this.graph2.margin.bottom = 80;
+                            this.graph.margin.bottom = 80;
 
                             // Add interaction buttons to go through observation
                             // groups
@@ -1566,10 +1416,10 @@ define(['backbone.marionette',
                                     (miePos)+'-'+(miePos+2)+' / '+mieLength
                                 );
                                 
-                                that.graph1.addGroupArrows(
+                                /*that.graph.addGroupArrows(
                                     ds.mie_groupArrows.slice(miePos, ((miePos+pageSize)))
-                                );
-                                that.graph1.loadData(slicedData);
+                                );*/
+                                that.graph.loadData(slicedData);
                             });
 
                             $('#mieObservationLeft').attr('disabled', 'disabled');
@@ -1592,10 +1442,10 @@ define(['backbone.marionette',
                                 $('#mieObservationLabel').text(
                                     miePos+'-'+(miePos+2)+' / '+mieLength
                                 );
-                                that.graph1.addGroupArrows(
+                                /*that.graph.addGroupArrows(
                                     ds.mie_groupArrows.slice(miePos, ((miePos+pageSize)))
-                                );
-                                that.graph1.loadData(slicedData);
+                                );*/
+                                that.graph.loadData(slicedData);
                             });
 
                             // Add interaction buttons to go through observation
@@ -1632,10 +1482,6 @@ define(['backbone.marionette',
                                 $('#rayleighObservationLabel').text(
                                     (rayleighPos)+'-'+(rayleighPos+2)+' / '+rayleighLength
                                 );
-                                that.graph2.addGroupArrows(
-                                    ds.rayleigh_groupArrows.slice(rayleighPos, ((rayleighPos+pageSize)))
-                                );
-                                that.graph2.loadData(slicedData);
                             });
 
                             $('#rayleighObservationLeft').attr('disabled', 'disabled');
@@ -1658,18 +1504,13 @@ define(['backbone.marionette',
                                 $('#rayleighObservationLabel').text(
                                     rayleighPos+'-'+(rayleighPos+2)+' / '+rayleighLength
                                 );
-                                that.graph2.addGroupArrows(
-                                    ds.rayleigh_groupArrows.slice(rayleighPos, ((rayleighPos+pageSize)))
-                                );
-                                that.graph2.loadData(slicedData);
+                                
                             });
 
-                            this.graph1.loadData(mieSlicedData);
-                            this.graph2.loadData(rayleighSlicedData);
+                            this.graph.loadData(mieSlicedData);
 
                         } else {
-                            this.graph1.loadData(data[currKey]);
-                            this.graph2.loadData(data[currKey]);
+                            this.graph.loadData(data[currKey]);
                         }
 
                      } else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
@@ -1681,47 +1522,26 @@ define(['backbone.marionette',
                         var sets2 = this.extendSettings(
                             this.renderSettings[(idKeys[0]+'_error')], 'G2'
                         );
-                        this.graph1.renderSettings = sets1;
-                        this.graph2.renderSettings = sets2;
+                        this.graph.renderSettings = sets1;
 
                         // Remove diff if no longer available
-                        if(this.graph1.renderSettings.yAxis[0].indexOf('_diff') !== -1){
-                            this.graph1.renderSettings.yAxis[0] = 
-                                this.graph1.renderSettings.yAxis[0].substring(
+                        if(this.graph.renderSettings.yAxis[0].indexOf('_diff') !== -1){
+                            this.graph.renderSettings.yAxis[0] = 
+                                this.graph.renderSettings.yAxis[0].substring(
                                     0, 
-                                    this.graph1.renderSettings.yAxis[0].length-5
+                                    this.graph.renderSettings.yAxis[0].length-5
                                 );
                         }
-                        if(this.graph2.renderSettings.yAxis[0].indexOf('_diff') !== -1){
-                            this.graph2.renderSettings.yAxis[0] = 
-                                this.graph2.renderSettings.yAxis[0].substring(
-                                    0, 
-                                    this.graph2.renderSettings.yAxis[0].length-5
-                                );
-                        }
+                        
                         // Add diff if user uploaded data is avaialble
-                        if(this.currentKeys.indexOf(this.graph1.renderSettings.yAxis[0]+'_diff') !== -1){
-                            this.graph1.renderSettings.yAxis[0] = this.graph1.renderSettings.yAxis[0]+'_diff';
-                        }
-                        if(this.currentKeys.indexOf(this.graph2.renderSettings.yAxis[0]+'_diff') !== -1){
-                            this.graph2.renderSettings.yAxis[0] = this.graph2.renderSettings.yAxis[0]+'_diff';
+                        if(this.currentKeys.indexOf(this.graph.renderSettings.yAxis[0]+'_diff') !== -1){
+                            this.graph.renderSettings.yAxis[0] = this.graph.renderSettings.yAxis[0]+'_diff';
                         }
 
-                        $('#graph_2').show();
-                        $('#graph_1').css('height', '49%');
-                        $('#graph_2').css('height', '49%');
-                        this.graph1.debounceActive = false;
-                        this.graph2.debounceActive = false;
-                        this.graph1.ignoreParameters = [];
-                        this.graph2.ignoreParameters = [];
-                        this.graph1.dataSettings = mergedDataSettings;
-                        this.graph2.dataSettings = mergedDataSettings;
-                        this.graph1.loadData(data[idKeys[0]]);
-                        this.graph2.loadData(data[idKeys[0]]);
-                        this.graph1.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
-                        this.graph2.fileSaveString = idKeys[0]+'_bottom'+'_'+timeString;
-                        this.graph1.connectGraph(this.graph2);
-                        this.graph2.connectGraph(this.graph1);
+                        this.graph.debounceActive = false;
+                        this.graph.dataSettings = mergedDataSettings;
+                        this.graph.loadData(data[idKeys[0]]);
+                        this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
                         this.filterManager.loadData(data[idKeys[0]]);
 
                     } else if(idKeys[0] === 'AUX_MET_12'){
@@ -1769,8 +1589,8 @@ define(['backbone.marionette',
                         }
 
                         if(contains2DNadir){
-                            this.graph1.ignoreParameters = [/_off_nadir.*/, /jumps.*/, /SignCross.*/, 'time_nadir', 'latitude_nadir', 'longitude_nadir'];
-                            this.graph1.renderSettings = {
+                            //this.graph1.ignoreParameters = [/_off_nadir.*/, /jumps.*/, /SignCross.*/, 'time_nadir', 'latitude_nadir', 'longitude_nadir'];
+                            this.graph.renderSettings = {
                                 xAxis: 'time_nadir_combined',
                                 yAxis: ['layer_altitude_nadir'],
                                 additionalXTicks: [],
@@ -1782,12 +1602,12 @@ define(['backbone.marionette',
                                 },
                             };
                         } else {
-                            this.graph1.renderSettings = this.renderSettings[(idKeys[0]+'_nadir')];
+                            this.graph.renderSettings = this.renderSettings[(idKeys[0]+'_nadir')];
                         }
 
                         if(contains2DOffNadir){
-                            this.graph1.ignoreParameters = [/^((?!_off_nadir).)*$/, /jumps.*/, /SignCross.*/, 'time_off_nadir', 'latitude_off_nadir', 'longitude_off_nadir'];
-                            this.graph1.renderSettings = {
+                            this.graph.ignoreParameters = [/^((?!_off_nadir).)*$/, /jumps.*/, /SignCross.*/, 'time_off_nadir', 'latitude_off_nadir', 'longitude_off_nadir'];
+                            this.graph.renderSettings = {
                                 xAxis: 'time_off_nadir_combined',
                                 yAxis: ['layer_altitude_off_nadir'],
                                 additionalXTicks: [],
@@ -1799,79 +1619,56 @@ define(['backbone.marionette',
                                 },
                             };
                         } else {
-                            this.graph2.renderSettings = this.renderSettings[(idKeys[0]+'_off_nadir')];
+                            //this.graph2.renderSettings = this.renderSettings[(idKeys[0]+'_off_nadir')];
                         }
 
                         if(contains2DNadir || contains2DOffNadir) {
-                            this.graph1.connectGraph(false);
-                            this.graph2.connectGraph(false);
-                            $('#graph_2').hide();
-                            $('#graph_1').css('height', '99%');
-                            this.graph1.dataSettings = mergedDataSettings;
-                            this.graph2.dataSettings = mergedDataSettings;
-                            this.graph1.loadData(data[idKeys[0]]);
-                            this.graph1.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
+                            this.graph.dataSettings = mergedDataSettings;
+                            this.graph.loadData(data[idKeys[0]]);
+                            this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
                             this.filterManager.loadData(data[idKeys[0]]);
                         } else {
-                            $('#graph_2').show();
-                            $('#graph_1').css('height', '49%');
-                            $('#graph_2').css('height', '49%');
-                            this.graph1.ignoreParameters = [/_off_nadir.*/, /jumps.*/, /_start.*/, /_end.*/, /SignCross.*/];
-                            this.graph2.ignoreParameters = [/^((?!_off_nadir).)*$/, /jumps.*/, /_start.*/, /_end.*/, /SignCross.*/];
-                            this.graph1.dataSettings = mergedDataSettings;
-                            this.graph2.dataSettings = mergedDataSettings;
-                            this.graph1.loadData(data[idKeys[0]]);
-                            this.graph2.loadData(data[idKeys[0]]);
-                            this.graph1.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
-                            this.graph2.fileSaveString = idKeys[0]+'_bottom'+'_'+timeString;
-                            this.graph1.connectGraph(this.graph2);
-                            this.graph2.connectGraph(this.graph1);
+                            //this.graph.ignoreParameters = [/_off_nadir.*/, /jumps.*/, /_start.*/, /_end.*/, /SignCross.*/];
+                            this.graph.dataSettings = mergedDataSettings;
+                            this.graph.loadData(data[idKeys[0]]);
+                            this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
                             this.filterManager.loadData(data[idKeys[0]]);
                         }
-                        this.graph1.debounceActive = true;
-                        this.graph2.debounceActive = true;
+                        this.graph.debounceActive = true;
 
 
                     }else /*if(idKeys[0] === 'AUX_ISR_1B')*/{
 
                         // Remove diff if no longer available
-                        if(this.graph1.renderSettings.yAxis[0].indexOf('_diff') !== -1){
-                            this.graph1.renderSettings.yAxis[0] = 
-                                this.graph1.renderSettings.yAxis[0].substring(
+                        if(this.graph.renderSettings.yAxis[0].indexOf('_diff') !== -1){
+                            this.graph.renderSettings.yAxis[0] = 
+                                this.graph.renderSettings.yAxis[0].substring(
                                     0, 
-                                    this.graph1.renderSettings.yAxis[0].length-5
+                                    this.graph.renderSettings.yAxis[0].length-5
                                 );
                         }
-                        if(this.graph1.renderSettings.yAxis.length>1 &&
-                            this.graph1.renderSettings.yAxis[1].indexOf('_diff') !== -1){
-                            this.graph1.renderSettings.yAxis[1] = 
-                                this.graph1.renderSettings.yAxis[1].substring(
+                        if(this.graph.renderSettings.yAxis.length>1 &&
+                            this.graph.renderSettings.yAxis[1].indexOf('_diff') !== -1){
+                            this.graph.renderSettings.yAxis[1] = 
+                                this.graph.renderSettings.yAxis[1].substring(
                                     0, 
-                                    this.graph1.renderSettings.yAxis[1].length-5
+                                    this.graph.renderSettings.yAxis[1].length-5
                                 );
                         }
                         // Add diff if user uploaded data is avaialble
-                        if(this.currentKeys.indexOf(this.graph1.renderSettings.yAxis[0]+'_diff') !== -1){
-                            this.graph1.renderSettings.yAxis[0] = this.graph1.renderSettings.yAxis[0]+'_diff';
+                        if(this.currentKeys.indexOf(this.graph.renderSettings.yAxis[0]+'_diff') !== -1){
+                            this.graph.renderSettings.yAxis[0] = this.graph.renderSettings.yAxis[0]+'_diff';
                         }
-                        if(this.graph1.renderSettings.yAxis.length>1 &&
-                            this.currentKeys.indexOf(this.graph1.renderSettings.yAxis[1]+'_diff') !== -1){
-                            this.graph1.renderSettings.yAxis[1] = this.graph1.renderSettings.yAxis[1]+'_diff';
+                        if(this.graph.renderSettings.yAxis.length>1 &&
+                            this.currentKeys.indexOf(this.graph.renderSettings.yAxis[1]+'_diff') !== -1){
+                            this.graph.renderSettings.yAxis[1] = this.graph.renderSettings.yAxis[1]+'_diff';
                         }
 
-                        this.graph2.data = {};
-                        $('#graph_1').css('height', '99%');
-                        $('#graph_2').hide();
-                        this.graph1.ignoreParameters = [];
-                        this.graph2.ignoreParameters = [];
-                        this.graph1.debounceActive = false;
-                        this.graph2.debounceActive = false;
-                        this.graph1.connectGraph(false);
-                        this.graph2.connectGraph(false);
-                        this.graph1.dataSettings = mergedDataSettings;
-                        this.graph1.renderSettings = sets1;
-                        this.graph1.loadData(data[idKeys[0]]);
-                        this.graph1.fileSaveString = idKeys[0]+'_'+timeString;
+                        this.graph.debounceActive = false;
+                        this.graph.dataSettings = mergedDataSettings;
+                        this.graph.renderSettings = sets1;
+                        this.graph.loadData(data[idKeys[0]]);
+                        this.graph.fileSaveString = idKeys[0]+'_'+timeString;
                         this.filterManager.loadData(data[idKeys[0]]);
                     }
 
@@ -1974,15 +1771,12 @@ define(['backbone.marionette',
         },
 
         close: function() {
-            if(this.graph1){
-                this.graph1.destroy();
+            if(this.graph){
+                this.graph.destroy();
             }
-            if(this.graph2){
-                this.graph2.destroy();
-            }
+            
 
-            delete this.graph1;
-            delete this.graph2;
+            delete this.graph;
             this.isClosed = true;
             this.$el.empty();
             this.triggerMethod('view:disconnect');
