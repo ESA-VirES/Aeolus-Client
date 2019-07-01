@@ -290,7 +290,8 @@ define(['backbone.marionette',
                     groups: ['mie', 'rayleigh'],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
-                        time: ['time_start', 'time_end'],
+                        mie_time: ['mie_time_start', 'mie_time_end'],
+                        rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end'],
                         mie_altitude: ['mie_altitude_start', 'mie_altitude_end']
                     },
                     colorAxis: [['mie_HLOS_wind_speed'], ['rayleigh_HLOS_wind_speed']],
@@ -298,7 +299,7 @@ define(['backbone.marionette',
                     renderGroups: {
                         mie: {
                             parameters: [
-                                'time',
+                                'mie_time',
                                 'longitude_of_DEM_intersection',
                                 'latitude_of_DEM_intersection',
                                 'altitude_of_DEM_intersection',
@@ -328,7 +329,7 @@ define(['backbone.marionette',
                         },
                         rayleigh: {
                             parameters: [
-                                'time',
+                                'rayleigh_time',
                                 'longitude_of_DEM_intersection',
                                 'latitude_of_DEM_intersection',
                                 'altitude_of_DEM_intersection',
@@ -362,7 +363,7 @@ define(['backbone.marionette',
                     },
                     sharedParameters: {
                         'time': [
-                            'time'
+                            'mie_time', 'rayleigh_time'
                         ],
                         'altitude': [
                             'rayleigh_altitude', 'mie_altitude'

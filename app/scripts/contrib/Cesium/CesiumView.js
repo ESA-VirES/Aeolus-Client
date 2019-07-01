@@ -695,29 +695,30 @@ define([
                     'latitude_of_DEM_intersection_start',
                     'latitude_of_DEM_intersection_end'
                 ],
-                time: ['time_start', 'time_end']
+                mie_time: ['mie_time_start', 'mie_time_end'],
+                rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end']
             };
 
             if(band === 'mie_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = [['mie_HLOS_wind_speed']];
                 this.graph.renderSettings.yAxis = [['mie_altitude']];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.xAxis =['mie_time'];
             }else if(band === 'rayleigh_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = [['rayleigh_HLOS_wind_speed']];
                 this.graph.renderSettings.yAxis = [['rayleigh_altitude']];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
             }else if(band === 'mie_signal_intensity'){
                 this.graph.renderSettings.colorAxis = [['mie_signal_intensity']];
                 this.graph.renderSettings.yAxis = [['mie_altitude']];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.xAxis =['mie_time'];
             }else if(band === 'rayleigh_signal_channel_A_intensity'){
                 this.graph.renderSettings.colorAxis = [['rayleigh_signal_channel_A_intensity']];
                 this.graph.renderSettings.yAxis = [['rayleigh_altitude']];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
             }else if(band === 'rayleigh_signal_channel_B_intensity'){
                 this.graph.renderSettings.colorAxis = [['rayleigh_signal_channel_B_intensity']];
                 this.graph.renderSettings.yAxis = [['rayleigh_altitude']];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
             }
 
 

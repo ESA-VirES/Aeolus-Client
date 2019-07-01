@@ -35,6 +35,30 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 scaleFormat: 'time',
                 timeFormat: 'MJD2000_S'
             },
+            mie_time: {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            mie_time_start: {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            mie_time_end: {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            rayleigh_time: {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            rayleigh_time_start: {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            rayleigh_time_end: {
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
             'rayleigh_HLOS_wind_speed': {
                 uom: 'm/s',
                 colorscale: 'viridis',
