@@ -482,58 +482,6 @@ define(['backbone.marionette',
                     additionalYTicks: [],
                     availableParameters: false
                 },
-                'ALD_U_N_2A_MCA': {
-                    xAxis: 'MCA_time',
-                    yAxis: [ 'mie_altitude'],
-                    additionalXTicks: [],
-                    additionalYTicks: [],
-                    combinedParameters: {
-                        mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
-                        MCA_time: ['MCA_time_obs_start', 'MCA_time_obs_stop']
-                    },
-                    colorAxis: ['MCA_extinction'],
-                    positionAlias: {
-                        'latitude': 'latitude_of_DEM_intersection_obs',
-                        'longitude': 'longitude_of_DEM_intersection_obs',
-                        'altitude': 'mie_altitude'
-                    }
-
-                },
-                'ALD_U_N_2A_SCA': {
-                    xAxis: 'SCA_time',
-                    yAxis: [ 'rayleigh_altitude'],
-                    additionalXTicks: [],
-                    additionalYTicks: [],
-                    combinedParameters: {
-                        rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
-                        SCA_time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
-                    },
-                    colorAxis: ['SCA_extinction'],
-                    positionAlias: {
-                        'latitude': 'latitude_of_DEM_intersection_obs',
-                        'longitude': 'longitude_of_DEM_intersection_obs',
-                        'altitude': 'rayleigh_altitude'
-                    }
-
-                },
-                'ALD_U_N_2A_ICA': {
-                    xAxis: 'ICA_time',
-                    yAxis: [ 'bins'],
-                    additionalXTicks: [],
-                    additionalYTicks: [],
-                    combinedParameters: {
-                        bins: ['ICA_bins_start', 'ICA_bins_end'],
-                        ICA_time: ['ICA_time_obs_start', 'ICA_time_obs_stop'],
-                    },
-                    colorAxis: ['ICA_backscatter'],
-                    positionAlias: {
-                        'latitude': 'latitude_of_DEM_intersection_obs',
-                        'longitude': 'longitude_of_DEM_intersection_obs',
-                        'altitude': 'rayleigh_altitude'
-                    },
-                    reversedYAxis: true
-
-                },
                 'ALD_U_N_2A_group':{
                     xAxis: 'measurements',
                     yAxis: [
@@ -548,37 +496,22 @@ define(['backbone.marionette',
                     ],
 
                 },
-                'ALD_U_N_2B_mie': {
+                'ALD_U_N_2B': {
                     xAxis: 'time',
-                    yAxis: [ 'mie_altitude'],
-                    additionalXTicks: [],
-                    additionalYTicks: [],
+                    yAxis: [['mie_altitude'], ['rayleigh_altitude']],
+                    y2Axis: [[], []],
+                    groups: ['mie', 'rayleigh'],
                     combinedParameters: {
                         mie_altitude: ['mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'],
-                        time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
+                        mie_time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
                         mie_wind_result_range: ['mie_wind_result_top_range', 'mie_wind_result_bottom_range'],
                         mie_wind_result_range_bin_number: [
                             'mie_wind_result_range_bin_number_start',
                             'mie_wind_result_range_bin_number_end'
                         ],
-                        mie_wind_result_COG_range: ['mie_wind_result_COG_range_start', 'mie_wind_result_COG_range_end']
-                    },
-                    colorAxis: ['mie_wind_result_wind_velocity'],
-                    positionAlias: {
-                        'latitude': 'mie_wind_result_start_latitude',
-                        'longitude': 'mie_wind_result_start_longitude',
-                        'altitude': 'mie_altitude'
-                    }
-
-                },
-                'ALD_U_N_2B_rayleigh': {
-                    xAxis: 'time',
-                    yAxis: [ 'rayleigh_altitude'],
-                    additionalXTicks: [],
-                    additionalYTicks: [],
-                    combinedParameters: {
+                        mie_wind_result_COG_range: ['mie_wind_result_COG_range_start', 'mie_wind_result_COG_range_end'],
                         rayleigh_altitude: ['rayleigh_wind_result_bottom_altitude', 'rayleigh_wind_result_top_altitude'],
-                        time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
+                        rayleigh_time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
                         rayleigh_wind_result_range: ['rayleigh_wind_result_top_range', 'rayleigh_wind_result_bottom_range'],
                         rayleigh_wind_result_range_bin_number: [
                             'rayleigh_wind_result_range_bin_number_start',
@@ -586,12 +519,141 @@ define(['backbone.marionette',
                         ],
                         rayleigh_wind_result_COG_range: ['rayleigh_wind_result_COG_range_start', 'rayleigh_wind_result_COG_range_end']
                     },
-                    colorAxis: ['rayleigh_wind_result_wind_velocity'],
-                    positionAlias: {
-                        'latitude': 'rayleigh_wind_result_start_latitude',
-                        'longitude': 'rayleigh_wind_result_start_longitude',
-                        'altitude': 'rayleigh_altitude'
-                    }
+                    colorAxis: [['mie_wind_result_wind_velocity'], ['rayleigh_wind_result_wind_velocity']],
+                    colorAxis2: [[], []],
+                    renderGroups: {
+                        mie: {
+                            parameters: [
+                                'mie_altitude',
+                                'mie_time',
+                                'mie_wind_result_range',
+                                'mie_wind_result_range_bin_number',
+                                'mie_wind_result_COG_range',
+                                'mie_wind_result_bottom_altitude',
+                                'mie_wind_result_top_altitude',
+                                'mie_wind_result_start_time',
+                                'mie_wind_result_stop_time',
+                                'mie_wind_result_top_range',
+                                'mie_wind_result_bottom_range',
+                                'mie_wind_result_range_bin_number_start',
+                                'mie_wind_result_range_bin_number_end',
+                                'mie_wind_result_COG_range_start',
+                                'mie_wind_result_COG_range_end',
+                                'mie_wind_result_id',
+                                'mie_wind_result_range_bin_number',
+                                'mie_wind_result_start_time',
+                                'mie_wind_result_COG_time',
+                                'mie_wind_result_stop_time',
+                                'mie_wind_result_bottom_altitude',
+                                'mie_wind_result_COG_altitude',
+                                'mie_wind_result_top_altitude',
+                                'mie_wind_result_bottom_range',
+                                'mie_wind_result_COG_range',
+                                'mie_wind_result_top_range',
+                                'mie_wind_result_start_latitude',
+                                'mie_wind_result_COG_latitude',
+                                'mie_wind_result_stop_latitude',
+                                'mie_wind_result_start_longitude',
+                                'mie_wind_result_COG_longitude',
+                                'mie_wind_result_stop_longitude',
+                                'mie_wind_result_lat_of_DEM_intersection',
+                                'mie_wind_result_lon_of_DEM_intersection',
+                                'mie_wind_result_geoid_separation',
+                                'mie_wind_result_alt_of_DEM_intersection',
+                                'mie_wind_result_HLOS_error',
+                                'mie_wind_result_QC_flags_1',
+                                'mie_wind_result_QC_flags_2',
+                                'mie_wind_result_QC_flags_3',
+                                'mie_wind_result_SNR',
+                                'mie_wind_result_scattering_ratio',
+                                'mie_wind_result_observation_type',
+                                'mie_wind_result_validity_flag',
+                                'mie_wind_result_wind_velocity',
+                                'mie_wind_result_integration_length',
+                                'mie_wind_result_num_of_measurements',
+                                'mie_wind_result_albedo_off_nadir',
+                                /*'mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection',
+                                'mie_profile_datetime_start', 'mie_profile_datetime_stop'*/
+                            ],
+                            defaults: {
+                                yAxis: 'mie_altitude',
+                                colorAxis: 'mie_wind_result_wind_velocity'
+                            }
+                        },
+                        rayleigh: {
+                            parameters: [
+                                'rayleigh_altitude',
+                                'rayleigh_time',
+                                'rayleigh_wind_result_range',
+                                'rayleigh_wind_result_range_bin_number',
+                                'rayleigh_wind_result_COG_range',
+                                'rayleigh_wind_result_bottom_altitude',
+                                'rayleigh_wind_result_top_altitude',
+                                'rayleigh_wind_result_start_time',
+                                'rayleigh_wind_result_stop_time',
+                                'rayleigh_wind_result_top_range',
+                                'rayleigh_wind_result_bottom_range',
+                                'rayleigh_wind_result_range_bin_number_start',
+                                'rayleigh_wind_result_range_bin_number_end',
+                                'rayleigh_wind_result_COG_range_start',
+                                'rayleigh_wind_result_COG_range_end',
+                                'rayleigh_wind_result_id',
+                                'rayleigh_wind_result_range_bin_number',
+                                'rayleigh_wind_result_start_time',
+                                'rayleigh_wind_result_COG_time',
+                                'rayleigh_wind_result_stop_time',
+                                'rayleigh_wind_result_bottom_altitude',
+                                'rayleigh_wind_result_COG_altitude',
+                                'rayleigh_wind_result_top_altitude',
+                                'rayleigh_wind_result_bottom_range',
+                                'rayleigh_wind_result_COG_range',
+                                'rayleigh_wind_result_top_range',
+                                'rayleigh_wind_result_start_latitude',
+                                'rayleigh_wind_result_COG_latitude',
+                                'rayleigh_wind_result_stop_latitude',
+                                'rayleigh_wind_result_start_longitude',
+                                'rayleigh_wind_result_COG_longitude',
+                                'rayleigh_wind_result_stop_longitude',
+                                'rayleigh_wind_result_lat_of_DEM_intersection',
+                                'rayleigh_wind_result_lon_of_DEM_intersection',
+                                'rayleigh_wind_result_geoid_separation',
+                                'rayleigh_wind_result_alt_of_DEM_intersection',
+                                'rayleigh_wind_result_HLOS_error',
+                                'rayleigh_wind_result_QC_flags_1',
+                                'rayleigh_wind_result_QC_flags_2',
+                                'rayleigh_wind_result_QC_flags_3',
+                                'rayleigh_wind_result_scattering_ratio',
+                                'rayleigh_wind_result_observation_type',
+                                'rayleigh_wind_result_validity_flag',
+                                'rayleigh_wind_result_wind_velocity',
+                                'rayleigh_wind_result_integration_length',
+                                'rayleigh_wind_result_num_of_measurements',
+                                'rayleigh_wind_result_reference_pressure',
+                                'rayleigh_wind_result_reference_temperature',
+                                'rayleigh_wind_result_reference_backscatter_ratio',
+                                'rayleigh_wind_result_albedo_off_nadir',
+                                /*'rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection',
+                                'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop'*/
+                            ],
+                            defaults: {
+                                yAxis: 'rayleigh_altitude',
+                                colorAxis: 'rayleigh_wind_result_wind_velocity'
+                            }
+                        }
+                    },
+                    sharedParameters: {
+                        'time': [
+                            'mie_time', 'rayleigh_time'
+                        ]
+                    },
+                    additionalXTicks: [],
+                    additionalYTicks: [],
+                    availableParameters: false,
+                   /* positionAlias: {
+                        'latitude': 'mie_wind_result_start_latitude',
+                        'longitude': 'mie_wind_result_start_longitude',
+                        'altitude': 'mie_altitude'
+                    }*/
 
                 },
                 'ALD_U_N_2B_mie_group': {
@@ -622,41 +684,202 @@ define(['backbone.marionette',
                     ],
                     reversedYAxis: true
                 },
-                'ALD_U_N_2C_mie': {
+                'ALD_U_N_2C': {
                     xAxis: 'time',
-                    yAxis: [ 'mie_altitude'],
-                    additionalXTicks: [],
-                    additionalYTicks: [],
+                    yAxis: [['mie_altitude'], ['rayleigh_altitude']],
+                    y2Axis: [[], []],
+                    groups: ['mie', 'rayleigh'],
                     combinedParameters: {
                         mie_altitude: ['mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'],
-                        time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
+                        mie_time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
                         mie_wind_result_range: ['mie_wind_result_top_range', 'mie_wind_result_bottom_range'],
                         mie_wind_result_range_bin_number: [
                             'mie_wind_result_range_bin_number_start',
                             'mie_wind_result_range_bin_number_end'
-                        ]
-                    },
-                    colorAxis: ['mie_wind_result_wind_velocity']
-
-                },
-                'ALD_U_N_2C_rayleigh': {
-                    xAxis: 'time',
-                    yAxis: [ 'rayleigh_altitude'],
-                    additionalXTicks: [],
-                    additionalYTicks: [],
-                    combinedParameters: {
+                        ],
+                        mie_wind_result_COG_range: ['mie_wind_result_COG_range_start', 'mie_wind_result_COG_range_end'],
                         rayleigh_altitude: ['rayleigh_wind_result_bottom_altitude', 'rayleigh_wind_result_top_altitude'],
-                        time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
+                        rayleigh_time: ['rayleigh_wind_result_start_time', 'rayleigh_wind_result_stop_time'],
                         rayleigh_wind_result_range: ['rayleigh_wind_result_top_range', 'rayleigh_wind_result_bottom_range'],
                         rayleigh_wind_result_range_bin_number: [
                             'rayleigh_wind_result_range_bin_number_start',
                             'rayleigh_wind_result_range_bin_number_end'
+                        ],
+                        rayleigh_wind_result_COG_range: ['rayleigh_wind_result_COG_range_start', 'rayleigh_wind_result_COG_range_end']
+                    },
+                    colorAxis: [['mie_wind_result_wind_velocity'], ['rayleigh_wind_result_wind_velocity']],
+                    colorAxis2: [[], []],
+                    renderGroups: {
+                        mie: {
+                            parameters: [
+                                'mie_altitude',
+                                'mie_time',
+                                'mie_wind_result_range',
+                                'mie_wind_result_range_bin_number',
+                                'mie_wind_result_COG_range',
+                                'mie_wind_result_bottom_altitude',
+                                'mie_wind_result_top_altitude',
+                                'mie_wind_result_start_time',
+                                'mie_wind_result_stop_time',
+                                'mie_wind_result_top_range',
+                                'mie_wind_result_bottom_range',
+                                'mie_wind_result_range_bin_number_start',
+                                'mie_wind_result_range_bin_number_end',
+                                'mie_wind_result_COG_range_start',
+                                'mie_wind_result_COG_range_end',
+                                'mie_wind_result_id',
+                                'mie_wind_result_range_bin_number',
+                                'mie_wind_result_start_time',
+                                'mie_wind_result_COG_time',
+                                'mie_wind_result_stop_time',
+                                'mie_wind_result_bottom_altitude',
+                                'mie_wind_result_COG_altitude',
+                                'mie_wind_result_top_altitude',
+                                'mie_wind_result_bottom_range',
+                                'mie_wind_result_COG_range',
+                                'mie_wind_result_top_range',
+                                'mie_wind_result_start_latitude',
+                                'mie_wind_result_COG_latitude',
+                                'mie_wind_result_stop_latitude',
+                                'mie_wind_result_start_longitude',
+                                'mie_wind_result_COG_longitude',
+                                'mie_wind_result_stop_longitude',
+                                'mie_wind_result_lat_of_DEM_intersection',
+                                'mie_wind_result_lon_of_DEM_intersection',
+                                'mie_wind_result_geoid_separation',
+                                'mie_wind_result_alt_of_DEM_intersection',
+                                'mie_wind_result_HLOS_error',
+                                'mie_wind_result_QC_flags_1',
+                                'mie_wind_result_QC_flags_2',
+                                'mie_wind_result_QC_flags_3',
+                                'mie_wind_result_SNR',
+                                'mie_wind_result_scattering_ratio',
+                                'mie_assimilation_L2B_QC',
+                                'mie_assimilation_persistence_error',
+                                'mie_assimilation_representativity_error',
+                                'mie_assimilation_final_error',
+                                'mie_assimilation_est_L2B_bias',
+                                'mie_assimilation_background_HLOS_error',
+                                'mie_assimilation_L2B_HLOS_reliability',
+                                'mie_assimilation_u_wind_background_error',
+                                'mie_assimilation_v_wind_background_error',
+                                'mie_wind_result_observation_type',
+                                'mie_wind_result_validity_flag',
+                                'mie_wind_result_wind_velocity',
+                                'mie_wind_result_integration_length',
+                                'mie_wind_result_num_of_measurements',
+                                'mie_assimilation_validity_flag',
+                                'mie_assimilation_background_HLOS',
+                                'mie_assimilation_background_u_wind_velocity',
+                                'mie_assimilation_background_v_wind_velocity',
+                                'mie_assimilation_background_horizontal_wind_velocity',
+                                'mie_assimilation_background_wind_direction',
+                                'mie_assimilation_analysis_HLOS',
+                                'mie_assimilation_analysis_u_wind_velocity',
+                                'mie_assimilation_analysis_v_wind_velocity',
+                                'mie_assimilation_analysis_horizontal_wind_velocity',
+                                'mie_assimilation_analysis_wind_direction',
+                                'mie_wind_result_albedo_off_nadir'
+                            ],
+                            defaults: {
+                                yAxis: 'mie_altitude',
+                                colorAxis: 'mie_wind_result_wind_velocity'
+                            }
+                        },
+                        rayleigh: {
+                            parameters: [
+                                'rayleigh_altitude',
+                                'rayleigh_time',
+                                'rayleigh_wind_result_range',
+                                'rayleigh_wind_result_range_bin_number',
+                                'rayleigh_wind_result_COG_range',
+                                'rayleigh_wind_result_bottom_altitude',
+                                'rayleigh_wind_result_top_altitude',
+                                'rayleigh_wind_result_start_time',
+                                'rayleigh_wind_result_stop_time',
+                                'rayleigh_wind_result_top_range',
+                                'rayleigh_wind_result_bottom_range',
+                                'rayleigh_wind_result_range_bin_number_start',
+                                'rayleigh_wind_result_range_bin_number_end',
+                                'rayleigh_wind_result_COG_range_start',
+                                'rayleigh_wind_result_COG_range_end',
+                                'rayleigh_wind_result_id',
+                                'rayleigh_wind_result_range_bin_number',
+                                'rayleigh_wind_result_start_time',
+                                'rayleigh_wind_result_COG_time',
+                                'rayleigh_wind_result_stop_time',
+                                'rayleigh_wind_result_bottom_altitude',
+                                'rayleigh_wind_result_COG_altitude',
+                                'rayleigh_wind_result_top_altitude',
+                                'rayleigh_wind_result_bottom_range',
+                                'rayleigh_wind_result_COG_range',
+                                'rayleigh_wind_result_top_range',
+                                'rayleigh_wind_result_start_latitude',
+                                'rayleigh_wind_result_COG_latitude',
+                                'rayleigh_wind_result_stop_latitude',
+                                'rayleigh_wind_result_start_longitude',
+                                'rayleigh_wind_result_COG_longitude',
+                                'rayleigh_wind_result_stop_longitude',
+                                'rayleigh_wind_result_lat_of_DEM_intersection',
+                                'rayleigh_wind_result_lon_of_DEM_intersection',
+                                'rayleigh_wind_result_geoid_separation',
+                                'rayleigh_wind_result_alt_of_DEM_intersection',
+                                'rayleigh_wind_result_HLOS_error',
+                                'rayleigh_wind_result_QC_flags_1',
+                                'rayleigh_wind_result_QC_flags_2',
+                                'rayleigh_wind_result_QC_flags_3',
+                                'rayleigh_wind_result_scattering_ratio',
+                                'rayleigh_assimilation_L2B_QC',
+                                'rayleigh_assimilation_persistence_error',
+                                'rayleigh_assimilation_representativity_error',
+                                'rayleigh_assimilation_final_error',
+                                'rayleigh_assimilation_est_L2B_bias',
+                                'rayleigh_assimilation_background_HLOS_error',
+                                'rayleigh_assimilation_L2B_HLOS_reliability',
+                                'rayleigh_assimilation_u_wind_background_error',
+                                'rayleigh_assimilation_v_wind_background_error',
+                                'rayleigh_wind_result_observation_type',
+                                'rayleigh_wind_result_validity_flag',
+                                'rayleigh_wind_result_wind_velocity',
+                                'rayleigh_wind_result_integration_length',
+                                'rayleigh_wind_result_num_of_measurements',
+                                'rayleigh_wind_result_reference_pressure',
+                                'rayleigh_wind_result_reference_temperature',
+                                'rayleigh_wind_result_reference_backscatter_ratio',
+                                'rayleigh_assimilation_validity_flag',
+                                'rayleigh_assimilation_background_HLOS',
+                                'rayleigh_assimilation_background_u_wind_velocity',
+                                'rayleigh_assimilation_background_v_wind_velocity',
+                                'rayleigh_assimilation_background_horizontal_wind_velocity',
+                                'rayleigh_assimilation_background_wind_direction',
+                                'rayleigh_assimilation_analysis_HLOS',
+                                'rayleigh_assimilation_analysis_u_wind_velocity',
+                                'rayleigh_assimilation_analysis_v_wind_velocity',
+                                'rayleigh_assimilation_analysis_horizontal_wind_velocity',
+                                'rayleigh_assimilation_analysis_wind_direction',
+                                'rayleigh_wind_result_albedo_off_nadir'
+                            ],
+                            defaults: {
+                                yAxis: 'rayleigh_altitude',
+                                colorAxis: 'rayleigh_wind_result_wind_velocity'
+                            }
+                        }
+                    },
+                    sharedParameters: {
+                        'time': [
+                            'mie_time', 'rayleigh_time'
                         ]
                     },
-                    colorAxis: ['rayleigh_wind_result_wind_velocity']
-
-                }
-                ,'ALD_U_N_2C_mie_group': {
+                    additionalXTicks: [],
+                    additionalYTicks: [],
+                    availableParameters: false,
+                   /* positionAlias: {
+                        'latitude': 'mie_wind_result_start_latitude',
+                        'longitude': 'mie_wind_result_start_longitude',
+                        'altitude': 'mie_altitude'
+                    }*/
+                },
+                'ALD_U_N_2C_mie_group': {
                     xAxis: 'measurements',
                     yAxis: [
                         'bins',
@@ -686,75 +909,94 @@ define(['backbone.marionette',
                 },
                 AUX_MRC_1B: {
                     xAxis: ['frequency_offset'],
-                    yAxis: ['measurement_response'],
+                    yAxis: [['measurement_response'], ['measurement_error_mie_response']],
                     additionalXTicks: [],
                     additionalYTicks: [],
-                    colorAxis: [ null ],
+                    colorAxis: [ [null], [null] ],
+                    y2Axis: [[], []],
+                    colorAxis2: [[], []],
                     combinedParameters: {},
+                    groups: false,
+                    renderGroups: false,
+                    sharedParameters: false,
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
                         'longitude': 'lon_of_DEM_intersection',
                         'altitude': 'altitude'
-                    }
-                },
-                AUX_MRC_1B_error: {
-                    xAxis: ['frequency_offset'],
-                    yAxis: ['measurement_error_mie_response'],
-                    additionalXTicks: [],
-                    additionalYTicks: [],
-                    colorAxis: [ null ],
-                    combinedParameters: {},
-                    positionAlias: {
-                        'latitude': 'lat_of_DEM_intersection',
-                        'longitude': 'lon_of_DEM_intersection',
-                        'altitude': 'altitude'
-                    }
+                    },
+
+                    availableParameters: false,
                 },
                 AUX_RRC_1B: {
                     xAxis: ['frequency_offset'],
-                    yAxis: ['measurement_response'],
+                    yAxis: [['measurement_response'], ['measurement_error_rayleigh_response']],
                     additionalXTicks: [],
                     additionalYTicks: [],
-                    colorAxis: [ null ],
+                    colorAxis: [ [null], [null] ],
+                    y2Axis: [[], []],
+                    colorAxis2: [[], []],
                     combinedParameters: {},
+                    groups: false,
+                    renderGroups: false,
+                    sharedParameters: false,
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
                         'longitude': 'lon_of_DEM_intersection',
                         'altitude': 'altitude'
-                    }
-                },
-                AUX_RRC_1B_error: {
-                    xAxis: ['frequency_offset'],
-                    yAxis: ['measurement_error_rayleigh_response'],
-                    additionalXTicks: [],
-                    additionalYTicks: [],
-                    colorAxis: [ null ],
-                    combinedParameters: {},
-                    positionAlias: {
-                        'latitude': 'lat_of_DEM_intersection',
-                        'longitude': 'lon_of_DEM_intersection',
-                        'altitude': 'altitude'
-                    }
+                    },
+
+                    availableParameters: false,
                 },
                 AUX_ISR_1B: {
-                    xAxis: 'laser_frequency_offset',
-                    yAxis: ['rayleigh_channel_A_response', 'rayleigh_channel_B_response'],
+                    xAxis: ['laser_frequency_offset'],
+                    yAxis: [['rayleigh_channel_A_response', 'rayleigh_channel_B_response']],
                     additionalXTicks: [],
                     additionalYTicks: [],
-                    colorAxis: [ null, null ],
+                    groups: false,
+                    renderGroups: false,
+                    sharedParameters: false,
+                    colorAxis: [ [null, null] ],
+                    y2Axis: [[]],
+                    colorAxis2: [[]],
                     combinedParameters: {},
+                    availableParameters: false,
                 },
                 AUX_ZWC_1B: {
-                    xAxis: 'observation_index',
-                    yAxis: ['mie_ground_correction_velocity', 'rayleigh_ground_correction_velocity'],
+                    xAxis: ['observation_index'],
+                    yAxis: [['mie_ground_correction_velocity', 'rayleigh_ground_correction_velocity']],
                     additionalXTicks: [],
                     additionalYTicks: [],
-                    colorAxis: [ null, null ],
+                    colorAxis: [ [null, null] ],
+                    y2Axis: [[]],
+                    colorAxis2: [[]],
                     combinedParameters: {},
+                    groups: false,
+                    renderGroups: false,
+                    sharedParameters: false,
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
                         'longitude': 'lon_of_DEM_intersection'
-                    }
+                    },
+                    availableParameters: false,
+                },
+                'AUX_MET_12': {
+                    xAxis: ['time_nadir'],
+                    yAxis: [['surface_wind_component_u_nadir'], ['surface_wind_component_u_off_nadir']],
+                    additionalXTicks: [],
+                    additionalYTicks: [],
+                    colorAxis: [ [null], [null] ],
+                    y2Axis: [[],[]],
+                    colorAxis2: [[],[]],
+                    groups: false,
+                    renderGroups: false,
+                    sharedParameters: false,
+                    combinedParameters: {
+                        time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
+                        layer_altitude_nadir: ['layer_altitude_nadir_end', 'layer_altitude_nadir_start'],
+                        time_off_nadir_combined: ['time_off_nadir_start', 'time_off_nadir_end'],
+                        layer_altitude_off_nadir: ['layer_altitude_off_nadir_end', 'layer_altitude_off_nadir_start']
+                    },
+                    availableParameters: false,
                 },
                 'AUX_MET_12_nadir': {
                     xAxis: 'time_nadir',
@@ -766,6 +1008,7 @@ define(['backbone.marionette',
                         time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
                         layer_altitude_nadir: ['layer_altitude_nadir_end', 'layer_altitude_nadir_start']
                     },
+                    availableParameters: false,
                 },
                 'AUX_MET_12_off_nadir': {
                     xAxis: 'time_off_nadir',
@@ -1387,7 +1630,7 @@ define(['backbone.marionette',
                             this.graph.renderSettings = this.renderSettings[currKey+'_mie_group'];
                             this.graph.fileSaveString = currKey+'_mie_group_plot'+'_'+timeString;
                         } else {
-                            this.graph.renderSettings = sets1;
+                            this.graph.renderSettings = this.renderSettings[idKeys[0]];
                             this.graph.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
                         }
                         this.graph.debounceActive = true;
@@ -1568,13 +1811,7 @@ define(['backbone.marionette',
                      } else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
 
 
-                        var sets1 = this.extendSettings(
-                            this.renderSettings[idKeys[0]], 'G1'
-                        );
-                        var sets2 = this.extendSettings(
-                            this.renderSettings[(idKeys[0]+'_error')], 'G2'
-                        );
-                        this.graph.renderSettings = sets1;
+                        this.graph.renderSettings = this.renderSettings[idKeys[0]];
 
                         // Remove diff if no longer available
                         if(this.graph.renderSettings.yAxis[0].indexOf('_diff') !== -1){
@@ -1654,7 +1891,7 @@ define(['backbone.marionette',
                                 },
                             };
                         } else {
-                            this.graph.renderSettings = this.renderSettings[(idKeys[0]+'_nadir')];
+                            this.graph.renderSettings = this.renderSettings[(idKeys[0])];
                         }
 
                         if(contains2DOffNadir){
@@ -1671,7 +1908,7 @@ define(['backbone.marionette',
                                 },
                             };
                         } else {
-                            //this.graph2.renderSettings = this.renderSettings[(idKeys[0]+'_off_nadir')];
+                            this.graph.renderSettings = this.renderSettings[(idKeys[0])];
                         }
 
                         if(contains2DNadir || contains2DOffNadir) {
@@ -1718,7 +1955,7 @@ define(['backbone.marionette',
 
                         this.graph.debounceActive = false;
                         this.graph.dataSettings = mergedDataSettings;
-                        this.graph.renderSettings = sets1;
+                        this.graph.renderSettings = this.renderSettings[idKeys[0]];
                         this.graph.loadData(data[idKeys[0]]);
                         this.graph.fileSaveString = idKeys[0]+'_'+timeString;
                         this.filterManager.loadData(data[idKeys[0]]);
