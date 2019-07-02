@@ -57,13 +57,15 @@
 
             filterRelation: [
                 [
-                  'mie_time',
+                  'mie_time_start',
+                  'mie_time_end',
                   'longitude_of_DEM_intersection',
                   'latitude_of_DEM_intersection',
                   'altitude_of_DEM_intersection',
                   'mie_longitude',
                   'mie_latitude',
-                  'mie_altitude',
+                  'mie_altitude_start',
+                  'mie_altitude_end',
                   'mie_range',
                   'geoid_separation',
                   'velocity_at_DEM_intersection',
@@ -85,13 +87,15 @@
                   'albedo_off_nadir'
                 ],
                 [
-                  'rayleigh_time',
+                  'rayleigh_time_start',
+                  'rayleigh_time_end',
                   'longitude_of_DEM_intersection',
                   'latitude_of_DEM_intersection',
                   'altitude_of_DEM_intersection',
                   'rayleigh_longitude',
                   'rayleigh_latitude',
-                  'rayleigh_altitude',
+                  'rayleigh_altitude_start',
+                  'rayleigh_altitude_end',
                   'rayleigh_range',
                   'geoid_separation',
                   'velocity_at_DEM_intersection',

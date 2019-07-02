@@ -1088,8 +1088,8 @@ define([
             }
 
             this.graph.renderSettings.combinedParameters = currPar.combinedParameters;
-            this.graph.renderSettings.colorAxis = currPar.colorAxis;
-            this.graph.renderSettings.yAxis = currPar.yAxis;
+            this.graph.renderSettings.colorAxis = [currPar.colorAxis];
+            this.graph.renderSettings.yAxis = [currPar.yAxis];
             this.graph.renderSettings.xAxis =currPar.xAxis;
             dataJumps = data[currPar.jumps];
             lats = data[currPar.lats];

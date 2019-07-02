@@ -371,65 +371,116 @@ define(['backbone.marionette',
                         'geoid_separation': [
                             'geoid_separation'
                         ]
-                    }
-                },
-
-                'ALD_U_N_1B_rayleigh': {
-                    xAxis: ['time'],
-                    yAxis: [
-                        ['rayleigh_altitude']
-                    ],
+                    },
                     additionalXTicks: [],
                     additionalYTicks: [],
-                    combinedParameters: {
-                        rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
-                        rayleigh_range: ['rayleigh_range_start', 'rayleigh_range_end'],
-                        latitude_of_DEM_intersection: [
-                            'latitude_of_DEM_intersection_start',
-                            'latitude_of_DEM_intersection_end'
-                        ],
-                        longitude_of_DEM_intersection: [
-                            'longitude_of_DEM_intersection_start',
-                            'longitude_of_DEM_intersection_end'
-                        ],
-                        time: ['time_start', 'time_end'],
-                    },
-                    colorAxis: [['rayleigh_HLOS_wind_speed']],
-                    positionAlias: {
-                        'latitude': 'latitude_of_DEM_intersection',
-                        'longitude': 'longitude_of_DEM_intersection',
-                        'altitude': 'rayleigh_altitude'
-                    }
-
+                    availableParameters: false
                 },
-                'ALD_U_N_1B_mie': {
-                    xAxis: ['time'],
-                    yAxis: [
-                        ['mie_altitude']
-                    ],
-                    //y2Axis: [],
+                'ALD_U_N_2A': {
+                    xAxis: 'time',
+                    yAxis: [['mie_altitude'], ['rayleigh_altitude']],
+                    y2Axis: [[], []],
+                    groups: ['MCA', 'SCA'],
+                    combinedParameters: {
+                        mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
+                        MCA_time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
+                        rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
+                        SCA_time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
+                        bins: ['ICA_bins_start', 'ICA_bins_end'],
+                        ICA_time: ['ICA_time_obs_start', 'ICA_time_obs_stop']
+                    },
+                    colorAxis: [['MCA_extinction'], ['SCA_extinction']],
+                    colorAxis2: [[], []],
+                    renderGroups: {
+                        MCA: {
+                            parameters: [
+                                'mie_altitude', 
+                                'mie_altitude_obs_top', 
+                                'mie_altitude_obs_bottom',
+                                'MCA_time_obs_start',
+                                'MCA_time_obs_stop',
+                                'L1B_start_time_obs',
+                                'L1B_centroid_time_obs',
+                                'MCA_time',
+                                'longitude_of_DEM_intersection_obs',
+                                'latitude_of_DEM_intersection_obs',
+                                'altitude_of_DEM_intersection_obs',
+                                'geoid_separation_obs',
+                                'L1B_num_of_meas_per_obs',
+                                'MCA_clim_BER',
+                                'MCA_extinction',
+                                'MCA_LOD',
+                                'albedo_off_nadir'
+                            ],
+                            defaults: {
+                                yAxis: 'mie_altitude',
+                                colorAxis: 'MCA_extinction'
+                            }
+                        },
+                        SCA: {
+                            parameters: [
+                                'rayleigh_altitude',
+                                'rayleigh_altitude_obs_top',
+                                'rayleigh_altitude_obs_bottom',
+                                'SCA_time_obs_start',
+                                'SCA_time_obs_stop',
+                                'SCA_time',
+                                'SCA_QC_flag',
+                                'SCA_extinction_variance',
+                                'SCA_backscatter_variance',
+                                'SCA_LOD_variance',
+                                'SCA_extinction',
+                                'SCA_backscatter',
+                                'SCA_LOD',
+                                'SCA_SR',
+                            ],
+                            defaults: {
+                                yAxis: 'rayleigh_altitude',
+                                colorAxis: 'SCA_extinction'
+                            }
+                        },
+                        /*SCA_middle_bin: {
+                            parameters: [
+                                'SCA_middle_bin_altitude_obs',
+                                'SCA_middle_bin_extinction_variance',
+                                'SCA_middle_bin_backscatter_variance',
+                                'SCA_middle_bin_LOD_variance',
+                                'SCA_middle_bin_BER_variance',
+                                'SCA_middle_bin_extinction',
+                                'SCA_middle_bin_backscatter',
+                                'SCA_middle_bin_LOD',
+                                'SCA_middle_bin_BER'
+
+                            ]
+                        },*/
+                        ICA: {
+                            parameters: [
+                                'bins',
+                                'ICA_bins_start',
+                                'ICA_bins_end',
+                                'ICA_time_obs_start',
+                                'ICA_time_obs_stop',
+                                'ICA_time',
+                                'ICA_QC_flag',
+                                'ICA_filling_case',
+                                'ICA_extinction',
+                                'ICA_backscatter',
+                                'ICA_LOD'
+                            ],
+                            defaults: {
+                                yAxis: 'bins',
+                                colorAxis: 'ICA_backscatter'
+                            }
+                        }
+                    },
+                    sharedParameters: {
+                        'time': [
+                            'MCA_time', 'SCA_time', 'ICA_time'
+                        ]
+                    },
                     additionalXTicks: [],
                     additionalYTicks: [],
-                    combinedParameters: {
-                        mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
-                        mie_range: ['mie_range_start', 'mie_range_end'],
-                        latitude_of_DEM_intersection: [
-                            'latitude_of_DEM_intersection_start',
-                            'latitude_of_DEM_intersection_end'
-                        ],
-                        longitude_of_DEM_intersection: [
-                            'longitude_of_DEM_intersection_start',
-                            'longitude_of_DEM_intersection_end'
-                        ],
-                        time: ['time_start', 'time_end'],
-                    },
-                    colorAxis: [['mie_HLOS_wind_speed']],
-                    positionAlias: {
-                        'latitude': 'latitude_of_DEM_intersection',
-                        'longitude': 'longitude_of_DEM_intersection',
-                        'altitude': 'mie_altitude'
-                    }
-
+                    availableParameters: false
                 },
                 'ALD_U_N_2A_MCA': {
                     xAxis: 'MCA_time',
@@ -823,9 +874,9 @@ define(['backbone.marionette',
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
                     multiYAxis: true,
-                    //ignoreParameters: [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/],
-                    enableSubXAxis: true,
-                    enableSubYAxis: true,
+                    ignoreParameters: [ /jumps.*/, /SignCross.*/, 'positions', 'stepPositions'],
+                    /*enableSubXAxis: true,
+                    enableSubYAxis: true,*/
                     //colorAxisTickFormat: 'customExp',
                     //defaultAxisTickFormat: 'customExp'
                 });
@@ -1319,7 +1370,7 @@ define(['backbone.marionette',
                             this.graph.fileSaveString = 'ALD_U_N_2A_mie_group_plot'+'_'+timeString;
                         } else {
                             this.graph.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
-                            this.graph.renderSettings = sets1;
+                            this.graph.renderSettings = this.renderSettings['ALD_U_N_2A'];
                             this.graph.debounceActive = true;
                             //this.graph.ignoreParameters = visG[this.groupSelected[cP][0]];
                             this.graph.dataSettings = mergedDataSettings;
@@ -1607,7 +1658,7 @@ define(['backbone.marionette',
                         }
 
                         if(contains2DOffNadir){
-                            this.graph.ignoreParameters = [/^((?!_off_nadir).)*$/, /jumps.*/, /SignCross.*/, 'time_off_nadir', 'latitude_off_nadir', 'longitude_off_nadir'];
+                            //this.graph.ignoreParameters = [/^((?!_off_nadir).)*$/, /jumps.*/, /SignCross.*/, 'time_off_nadir', 'latitude_off_nadir', 'longitude_off_nadir'];
                             this.graph.renderSettings = {
                                 xAxis: 'time_off_nadir_combined',
                                 yAxis: ['layer_altitude_off_nadir'],
