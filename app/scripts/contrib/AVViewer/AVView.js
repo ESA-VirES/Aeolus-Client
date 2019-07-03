@@ -326,6 +326,11 @@ define(['backbone.marionette',
                                 'mie_reference_pulse_quality_flag',
                                 'albedo_off_nadir'
                             ],
+                            positionAlias: {
+                                'latitude': 'mie_latitude',
+                                'longitude': 'mie_longitude',
+                                'altitude': 'mie_altitude_start'
+                            }
                         },
                         rayleigh: {
                             parameters: [
@@ -358,7 +363,12 @@ define(['backbone.marionette',
                                 'rayleigh_bin_quality_flag',
                                 'rayleigh_reference_pulse_quality_flag',
                                 'albedo_off_nadir'
-                            ]
+                            ],
+                            positionAlias: {
+                                'latitude': 'rayleigh_latitude',
+                                'longitude': 'rayleigh_longitude',
+                                'altitude': 'rayleigh_altitude'
+                            }
                         }
                     },
                     sharedParameters: {
@@ -415,6 +425,11 @@ define(['backbone.marionette',
                             defaults: {
                                 yAxis: 'mie_altitude',
                                 colorAxis: 'MCA_extinction'
+                            },
+                            positionAlias: {
+                                'latitude': 'latitude_of_DEM_intersection_obs',
+                                'longitude': 'longitude_of_DEM_intersection_obs',
+                                'altitude': 'mie_altitude'
                             }
                         },
                         SCA: {
@@ -437,6 +452,11 @@ define(['backbone.marionette',
                             defaults: {
                                 yAxis: 'rayleigh_altitude',
                                 colorAxis: 'SCA_extinction'
+                            },
+                            positionAlias: {
+                                'latitude': 'latitude_of_DEM_intersection_obs',
+                                'longitude': 'longitude_of_DEM_intersection_obs',
+                                'altitude': 'rayleigh_altitude'
                             }
                         },
                         /*SCA_middle_bin: {
@@ -578,6 +598,11 @@ define(['backbone.marionette',
                             defaults: {
                                 yAxis: 'mie_altitude',
                                 colorAxis: 'mie_wind_result_wind_velocity'
+                            },
+                            positionAlias: {
+                                'latitude': 'mie_wind_result_start_latitude',
+                                'longitude': 'mie_wind_result_start_longitude',
+                                'altitude': 'mie_altitude'
                             }
                         },
                         rayleigh: {
@@ -638,6 +663,11 @@ define(['backbone.marionette',
                             defaults: {
                                 yAxis: 'rayleigh_altitude',
                                 colorAxis: 'rayleigh_wind_result_wind_velocity'
+                            },
+                            positionAlias: {
+                                'latitude': 'rayleigh_wind_result_start_latitude',
+                                'longitude': 'rayleigh_wind_result_start_longitude',
+                                'altitude': 'rayleigh_altitude'
                             }
                         }
                     },
@@ -648,13 +678,7 @@ define(['backbone.marionette',
                     },
                     additionalXTicks: [],
                     additionalYTicks: [],
-                    availableParameters: false,
-                   /* positionAlias: {
-                        'latitude': 'mie_wind_result_start_latitude',
-                        'longitude': 'mie_wind_result_start_longitude',
-                        'altitude': 'mie_altitude'
-                    }*/
-
+                    availableParameters: false
                 },
                 'ALD_U_N_2B_mie_group': {
                     xAxis: 'measurements',
@@ -784,6 +808,11 @@ define(['backbone.marionette',
                             defaults: {
                                 yAxis: 'mie_altitude',
                                 colorAxis: 'mie_wind_result_wind_velocity'
+                            },
+                            positionAlias: {
+                                'latitude': 'mie_wind_result_start_latitude',
+                                'longitude': 'mie_wind_result_start_longitude',
+                                'altitude': 'mie_altitude'
                             }
                         },
                         rayleigh: {
@@ -862,6 +891,11 @@ define(['backbone.marionette',
                             defaults: {
                                 yAxis: 'rayleigh_altitude',
                                 colorAxis: 'rayleigh_wind_result_wind_velocity'
+                            },
+                            positionAlias: {
+                                'latitude': 'rayleigh_wind_result_start_latitude',
+                                'longitude': 'rayleigh_wind_result_start_longitude',
+                                'altitude': 'rayleigh_altitude'
                             }
                         }
                     },
@@ -872,12 +906,7 @@ define(['backbone.marionette',
                     },
                     additionalXTicks: [],
                     additionalYTicks: [],
-                    availableParameters: false,
-                   /* positionAlias: {
-                        'latitude': 'mie_wind_result_start_latitude',
-                        'longitude': 'mie_wind_result_start_longitude',
-                        'altitude': 'mie_altitude'
-                    }*/
+                    availableParameters: false
                 },
                 'ALD_U_N_2C_mie_group': {
                     xAxis: 'measurements',
@@ -980,23 +1009,66 @@ define(['backbone.marionette',
                     availableParameters: false,
                 },
                 'AUX_MET_12': {
-                    xAxis: ['time_nadir'],
+                    xAxis: ['time'],
                     yAxis: [['surface_wind_component_u_nadir'], ['surface_wind_component_u_off_nadir']],
                     additionalXTicks: [],
                     additionalYTicks: [],
                     colorAxis: [ [null], [null] ],
                     y2Axis: [[],[]],
                     colorAxis2: [[],[]],
-                    groups: false,
-                    renderGroups: false,
-                    sharedParameters: false,
+                    groups: ['nadir', 'off_nadir'],
+                    renderGroups: {
+                        nadir: {
+                            parameters: [
+                                'time_nadir',
+                                'surface_wind_component_u_nadir',
+                                'surface_wind_component_v_nadir',
+                                'surface_pressure_nadir',
+                                'surface_altitude_nadir',
+                                'latitude_nadir',
+                                'longitude_nadir'
+                            ],
+                            defaults: {
+                                yAxis: 'surface_wind_component_u_nadir',
+                                colorAxis: null
+                            },
+                            positionAlias: {
+                                'latitude': 'latitude_nadir',
+                                'longitude': 'longitude_nadir'
+                            }
+                        },
+                        off_nadir: {
+                            parameters: [
+                                'time_off_nadir',
+                                'surface_wind_component_u_off_nadir',
+                                'surface_wind_component_v_off_nadir',
+                                'surface_pressure_off_nadir',
+                                'surface_altitude_off_nadir',
+                                'latitude_off_nadir',
+                                'longitude_off_nadir'
+                            ],
+                            defaults: {
+                                yAxis: 'surface_wind_component_u_off_nadir',
+                                colorAxis: null
+                            },
+                            positionAlias: {
+                                'latitude': 'latitude_off_nadir',
+                                'longitude': 'longitude_off_nadir'
+                            }
+                        }
+                    },
+                    sharedParameters: {
+                        'time': [
+                            'time_nadir', 'time_off_nadir'
+                        ]
+                    },
                     combinedParameters: {
                         time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
                         layer_altitude_nadir: ['layer_altitude_nadir_end', 'layer_altitude_nadir_start'],
                         time_off_nadir_combined: ['time_off_nadir_start', 'time_off_nadir_end'],
                         layer_altitude_off_nadir: ['layer_altitude_off_nadir_end', 'layer_altitude_off_nadir_start']
                     },
-                    availableParameters: false,
+                    availableParameters: false
                 },
                 'AUX_MET_12_nadir': {
                     xAxis: 'time_nadir',
