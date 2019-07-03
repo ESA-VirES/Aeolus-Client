@@ -399,7 +399,9 @@ define(['backbone.marionette',
                         rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
                         SCA_time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
                         bins: ['ICA_bins_start', 'ICA_bins_end'],
-                        ICA_time: ['ICA_time_obs_start', 'ICA_time_obs_stop']
+                        ICA_time: ['ICA_time_obs_start', 'ICA_time_obs_stop'],
+                        SCA_middle_bin_altitude: ['SCA_middle_bin_altitude_obs_top', 'SCA_middle_bin_altitude_obs_bottom'],
+                        SCA_middle_bin_time: ['SCA_middle_bin_time_obs_start', 'SCA_middle_bin_time_obs_stop']
                     },
                     colorAxis: [['MCA_extinction'], ['SCA_extinction']],
                     colorAxis2: [[], []],
@@ -461,9 +463,16 @@ define(['backbone.marionette',
                                 'altitude': 'rayleigh_altitude'
                             }
                         },
-                        /*SCA_middle_bin: {
+                        SCA_middle_bin: {
                             parameters: [
+                                'SCA_middle_bin_time',
+                                'SCA_middle_bin_altitude',
+                                'SCA_middle_bin_time_obs',
+                                'SCA_middle_bin_time_obs_start',
+                                'SCA_middle_bin_time_obs_stop',
                                 'SCA_middle_bin_altitude_obs',
+                                'SCA_middle_bin_altitude_obs_top',
+                                'SCA_middle_bin_altitude_obs_bottom',
                                 'SCA_middle_bin_extinction_variance',
                                 'SCA_middle_bin_backscatter_variance',
                                 'SCA_middle_bin_LOD_variance',
@@ -472,9 +481,17 @@ define(['backbone.marionette',
                                 'SCA_middle_bin_backscatter',
                                 'SCA_middle_bin_LOD',
                                 'SCA_middle_bin_BER'
-
-                            ]
-                        },*/
+                            ],
+                            defaults: {
+                                yAxis: 'SCA_middle_bin_altitude',
+                                colorAxis: 'SCA_middle_bin_extinction'
+                            },
+                            positionAlias: {
+                                'latitude': 'latitude_of_DEM_intersection_obs',
+                                'longitude': 'longitude_of_DEM_intersection_obs',
+                                'altitude': 'SCA_middle_bin_altitude'
+                            }
+                        },
                         ICA: {
                             parameters: [
                                 'bins',
@@ -497,7 +514,7 @@ define(['backbone.marionette',
                     },
                     sharedParameters: {
                         'time': [
-                            'MCA_time', 'SCA_time', 'ICA_time'
+                            'MCA_time', 'SCA_time', 'ICA_time', 'SCA_middle_bin_time'
                         ]
                     },
                     additionalXTicks: [],

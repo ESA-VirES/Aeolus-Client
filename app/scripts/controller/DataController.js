@@ -991,10 +991,14 @@
               if( Array.isArray(curArr[0]) ){
                 if(subK[l].includes('altitude')){
                   // Create bottom and top arrays
+                  var profileSize = 24;
+                  if(subK[l].includes('middle_bin')){
+                    profileSize = 23;
+                  }
                   var tmpArrBottom = [];
                   var tmpArrTop = [];
                   for (var i = 0; i < curArr.length; i++) {
-                    for (var j = 0; j < 24; j++) {
+                    for (var j = 0; j < profileSize; j++) {
                       tmpArrBottom.push(curArr[i][j]);
                       tmpArrTop.push(curArr[i][j+1]);
                     }
@@ -1014,6 +1018,16 @@
                   }
                   resData[subK[l]+'_orig'] = curArr;
                   resData[subK[l]] = tmpArr;
+
+                  if(subK[l] === 'SCA_time_obs'){
+                    tmpArr = [];
+                    for (var i = 0; i < curArr.length; i++) {
+                      for (var j = 0; j < 23; j++) {
+                        tmpArr.push(curArr[i]);
+                      }
+                    }
+                    resData['SCA_middle_bin_time_obs'] = tmpArr;
+                  }
                 } else {
                   resData[subK[l]] = curArr;
                 }
@@ -1025,12 +1039,15 @@
           // Check if data is actually available
           if((resData.hasOwnProperty('SCA_time_obs') && resData['SCA_time_obs'].length > 0) && 
              (resData.hasOwnProperty('MCA_time_obs') && resData['MCA_time_obs'].length > 0) && 
-             (resData.hasOwnProperty('ICA_time_obs') && resData['ICA_time_obs'].length > 0)) {
+             (resData.hasOwnProperty('ICA_time_obs') && resData['ICA_time_obs'].length > 0) && 
+             (resData.hasOwnProperty('SCA_middle_bin_time_obs') && resData['SCA_middle_bin_time_obs'].length > 0)) {
 
 
             // Create new start and stop time to allow rendering
             resData['SCA_time_obs_start'] = resData['SCA_time_obs'].slice();
             resData['SCA_time_obs_stop'] = resData['SCA_time_obs'].slice(24, resData['SCA_time_obs'].length);
+            resData['SCA_middle_bin_time_obs_start'] = resData['SCA_middle_bin_time_obs'].slice();
+            resData['SCA_middle_bin_time_obs_stop'] = resData['SCA_middle_bin_time_obs'].slice(23, resData['SCA_middle_bin_time_obs'].length);
             resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
             resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].slice(24, resData['MCA_time_obs'].length);
             resData['ICA_time_obs_start'] = resData['ICA_time_obs'].slice();
@@ -1042,6 +1059,7 @@
             resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].slice(1, resData['MCA_time_obs_orig'].length);
             resData['ICA_time_obs_orig_start'] = resData['ICA_time_obs_orig'].slice();
             resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].slice(1, resData['ICA_time_obs_orig'].length);
+
             // Add element with additional 12ms as it should be the default
             // time interval between observations
             // TODO: make sure this is acceptable! As there seems to be some 
@@ -1053,6 +1071,9 @@
               resData['SCA_time_obs_stop'].push(lastValSCA);
               resData['MCA_time_obs_stop'].push(lastValMCA);
               resData['ICA_time_obs_stop'].push(lastValICA);
+            }
+            for (var i = 0; i < 23; i++) {
+              resData['SCA_middle_bin_time_obs_stop'].push(lastValSCA);
             }
             resData['SCA_time_obs_orig_stop'].push(lastValSCA);
             resData['MCA_time_obs_orig_stop'].push(lastValMCA);
@@ -1610,23 +1631,23 @@
             ].join(),
             'sca_fields': [
               'SCA_time_obs',
-              //'SCA_middle_bin_altitude_obs',
               'SCA_QC_flag',
               'SCA_extinction_variance',
               'SCA_backscatter_variance',
               'SCA_LOD_variance',
-              //'SCA_middle_bin_extinction_variance',
-              //'SCA_middle_bin_backscatter_variance',
-              //'SCA_middle_bin_LOD_variance',
-              //'SCA_middle_bin_BER_variance',
               'SCA_extinction',
               'SCA_backscatter',
               'SCA_LOD',
               'SCA_SR',
-              //'SCA_middle_bin_extinction',
-              //'SCA_middle_bin_backscatter',
-              //'SCA_middle_bin_LOD',
-              //'SCA_middle_bin_BER'
+              'SCA_middle_bin_altitude_obs',
+              'SCA_middle_bin_extinction_variance',
+              'SCA_middle_bin_backscatter_variance',
+              'SCA_middle_bin_LOD_variance',
+              'SCA_middle_bin_BER_variance',
+              'SCA_middle_bin_extinction',
+              'SCA_middle_bin_backscatter',
+              'SCA_middle_bin_LOD',
+              'SCA_middle_bin_BER'
             ].join(),
             'measurement_fields': [
               'L1B_time_meas',

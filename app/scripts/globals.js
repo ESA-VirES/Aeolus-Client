@@ -126,6 +126,32 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 scaleFormat: 'time',
                 timeFormat: 'MJD2000_S'
             },
+            'SCA_middle_bin_time_obs':{
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'SCA_middle_bin_time_obs_start':{
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'SCA_middle_bin_time_obs_stop':{
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'SCA_middle_bin_altitude_obs_top':{
+                uom: 'm'
+            },
+            'SCA_middle_bin_altitude_obs_bottom':{
+                uom: 'm'
+            },
+            'SCA_middle_bin_extinction_variance': {uom: "m^-2"},
+            'SCA_middle_bin_backscatter_variance': {uom: "m^-2*sr^-2"},
+            'SCA_middle_bin_LOD_variance': {uom: null},
+            'SCA_middle_bin_BER_variance': {uom: "sr^-2"},
+            'SCA_middle_bin_extinction': {uom: "10-6 * m^-1"},
+            'SCA_middle_bin_backscatter': {uom: "10-6 * m^-1* sr^-1"},
+            'SCA_middle_bin_LOD': {uom: null},
+
             'mie_altitude_obs':{
 
                 uom: 'm'
