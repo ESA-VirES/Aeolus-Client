@@ -290,6 +290,8 @@ define(['backbone.marionette',
                     groups: ['mie', 'rayleigh'],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
+                        latitude: ['latitude_of_DEM_intersection_start', 'latitude_of_DEM_intersection_end'],
+                        longitude: ['longitude_of_DEM_intersection_start', 'longitude_of_DEM_intersection_end'],
                         mie_time: ['mie_time_start', 'mie_time_end'],
                         rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end'],
                         mie_altitude: ['mie_altitude_start', 'mie_altitude_end']
@@ -327,9 +329,9 @@ define(['backbone.marionette',
                                 'albedo_off_nadir'
                             ],
                             positionAlias: {
-                                'latitude': 'mie_latitude',
-                                'longitude': 'mie_longitude',
-                                'altitude': 'mie_altitude_start'
+                                'latitude': 'latitude',
+                                'longitude': 'longitude',
+                                'altitude': 'mie_altitude'
                             }
                         },
                         rayleigh: {
@@ -365,8 +367,8 @@ define(['backbone.marionette',
                                 'albedo_off_nadir'
                             ],
                             positionAlias: {
-                                'latitude': 'rayleigh_latitude',
-                                'longitude': 'rayleigh_longitude',
+                                'latitude': 'latitude',
+                                'longitude': 'longitude',
                                 'altitude': 'rayleigh_altitude'
                             }
                         }
