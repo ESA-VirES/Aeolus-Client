@@ -241,9 +241,9 @@ define([
                     navigationInstructionsInitiallyVisible: false,
                     animation: false,
                     imageryProvider: initialLayer,
-                    terrainProvider : new Cesium.CesiumTerrainProvider({
+                    /*terrainProvider : new Cesium.CesiumTerrainProvider({
                         url : '//tiles.maps.eox.at/dem'
-                    }),
+                    }),*/
                     terrainExaggeration: 20.0,
                     creditContainer: 'cesium_attribution',
                     contextOptions: {webgl: {preserveDrawingBuffer: true}},
@@ -2742,7 +2742,7 @@ define([
 
         onHighlightPoint: function(coords){
             this.billboards.removeAll();
-            if(coords !== null){
+            if(coords !== null && coords.Latitude && coords.Longitude){
                 var canvas = document.createElement('canvas');
                 canvas.width = 32;
                 canvas.height = 32;
