@@ -522,18 +522,25 @@ define(['backbone.marionette',
                     availableParameters: false
                 },
                 'ALD_U_N_2A_group':{
-                    xAxis: 'measurements',
+                    xAxis: ['measurements'],
                     yAxis: [
-                        'altitude',
+                        ['altitude'],
                     ],
                     combinedParameters: {
                         altitude: ['alt_start', 'alt_end'],
                         measurements: ['meas_start', 'meas_end']
                     },
                     colorAxis: [
-                        'group_backscatter_variance'
+                        ['group_backscatter_variance']
                     ],
-
+                    additionalXTicks: [],
+                    additionalYTicks: [],
+                    y2Axis: [[]],
+                    colorAxis2: [[]],
+                    groups: false,
+                    renderGroups: false,
+                    sharedParameters: false,
+                    availableParameters: false
                 },
                 'ALD_U_N_2B': {
                     xAxis: 'time',
@@ -699,33 +706,64 @@ define(['backbone.marionette',
                     additionalYTicks: [],
                     availableParameters: false
                 },
-                'ALD_U_N_2B_mie_group': {
-                    xAxis: 'measurements',
+                'ALD_U_N_2B_group': {
+                    xAxis: ['measurements'],
                     yAxis: [
-                        'bins',
+                        ['rayleigh_bins']
                     ],
                     combinedParameters: {
-                        bins: ['mie_bins_end', 'mie_bins_start'],
-                        measurements: ['mie_meas_start', 'mie_meas_end']
+                        mie_bins: ['mie_bins_end', 'mie_bins_start'],
+                        mie_measurements: ['mie_meas_start', 'mie_meas_end'],
+                        rayleigh_bins: ['rayleigh_bins_end', 'rayleigh_bins_start'],
+                        rayleigh_measurements: ['rayleigh_meas_start', 'rayleigh_meas_end']
                     },
                     colorAxis: [
-                        'mie_meas_map',
+                        ['rayleigh_meas_map']
                     ],
-                    reversedYAxis: true
-                },
-                'ALD_U_N_2B_rayleigh_group': {
-                    xAxis: 'measurements',
-                    yAxis: [
-                        'bins',
-                    ],
-                    combinedParameters: {
-                        bins: ['rayleigh_bins_end', 'rayleigh_bins_start'],
-                        measurements: ['rayleigh_meas_start', 'rayleigh_meas_end']
+                    groups: ['rayleigh'],
+                    reversedYAxis: true,
+                    additionalXTicks: [],
+                    additionalYTicks: [],
+                    y2Axis: [[]],
+                    colorAxis2: [[]],
+                    renderGroups: {
+                        mie: {
+                            parameters: [
+                                'mie_bins',
+                                'mie_measurements',
+                                'mie_bins_end',
+                                'mie_bins_start',
+                                'mie_meas_start',
+                                'mie_meas_end',
+                                'mie_meas_map'
+                            ],
+                            defaults: {
+                                yAxis: 'mie_bins',
+                                colorAxis: 'mie_meas_map'
+                            }
+                        },
+                        rayleigh: {
+                            parameters: [
+                                'rayleigh_bins',
+                                'rayleigh_measurements',
+                                'rayleigh_bins_end',
+                                'rayleigh_bins_start',
+                                'rayleigh_meas_start',
+                                'rayleigh_meas_end',
+                                'rayleigh_meas_map'
+                            ],
+                            defaults: {
+                                yAxis: 'rayleigh_bins',
+                                colorAxis: 'rayleigh_meas_map'
+                            }
+                        }
                     },
-                    colorAxis: [
-                        'rayleigh_meas_map',
-                    ],
-                    reversedYAxis: true
+                    sharedParameters: {
+                        'measurements': [
+                            'mie_measurements', 'rayleigh_measurements'
+                        ],
+                    },
+                    availableParameters: false
                 },
                 'ALD_U_N_2C': {
                     xAxis: 'time',
@@ -1706,7 +1744,6 @@ define(['backbone.marionette',
                             this.graph.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
                             this.graph.renderSettings = this.renderSettings['ALD_U_N_2A'];
                             this.graph.debounceActive = true;
-                            //this.graph.ignoreParameters = visG[this.groupSelected[cP][0]];
                             this.graph.dataSettings = mergedDataSettings;
                             this.graph.loadData(data['ALD_U_N_2A']);
                             this.filterManager.loadData(data['ALD_U_N_2A']);
@@ -1718,8 +1755,8 @@ define(['backbone.marionette',
                         var currKey = idKeys[0];
 
                         if(currProd.get('granularity') === 'group'){
-                            this.graph.renderSettings = this.renderSettings[currKey+'_mie_group'];
-                            this.graph.fileSaveString = currKey+'_mie_group_plot'+'_'+timeString;
+                            this.graph.renderSettings = this.renderSettings[currKey+'_group'];
+                            this.graph.fileSaveString = currKey+'_group_plot'+'_'+timeString;
                         } else {
                             this.graph.renderSettings = this.renderSettings[idKeys[0]];
                             this.graph.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
@@ -1740,7 +1777,7 @@ define(['backbone.marionette',
                             var miePos = 0;
                             var rayleighPos = 0;
                             var pageSize = 3;
-                            var mieSlicedData = {};
+                            var slicedData = {};
                             var rayleighSlicedData = {};
                             var ds = data[currKey];
                             var mieLength = ds.mie_obs_start.length;
@@ -1748,11 +1785,11 @@ define(['backbone.marionette',
 
                             for (var key in ds){
                                 if(key.indexOf('rayleigh')!==-1){
-                                    rayleighSlicedData[key] = ds[key].slice(
+                                    slicedData[key] = ds[key].slice(
                                         rayleighPos, ((rayleighPos+pageSize))
                                     ).flat();
                                 } else {
-                                    mieSlicedData[key] = ds[key].slice(
+                                    slicedData[key] = ds[key].slice(
                                         miePos, ((miePos+pageSize))
                                     ).flat();
                                 }
@@ -1765,10 +1802,11 @@ define(['backbone.marionette',
                             
 
                             this.graph.margin.bottom = 80;
+                            var that = this;
 
                             // Add interaction buttons to go through observation
                             // groups
-                            $('#graph_container').append(
+                            /*$('#graph_container').append(
                                 '<div id="mieButtonContainer"></div>'
                             );
                             $('#mieButtonContainer').append(
@@ -1780,7 +1818,7 @@ define(['backbone.marionette',
                             $('#mieButtonContainer').append(
                                 '<button id="mieObservationRight" type="button" class="btn btn-success darkbutton dropdown-toggle">></button>'
                             );
-                            var that = this;
+                            
 
                             $('#mieObservationRight').click(function(){
                                 miePos+=3;
@@ -1792,19 +1830,17 @@ define(['backbone.marionette',
                                 var slicedData = {};
                                 var ds = data[currKey];
                                 for (var key in ds){
-                                    if(key.indexOf('mie')!==-1){
-                                        slicedData[key] = ds[key].slice(
-                                            miePos, ((miePos+pageSize))
-                                        ).flat();
-                                    }
+                                    slicedData[key] = ds[key].slice(
+                                        miePos, ((miePos+pageSize))
+                                    ).flat();
                                 }
                                 $('#mieObservationLabel').text(
                                     (miePos)+'-'+(miePos+2)+' / '+mieLength
                                 );
                                 
-                                /*that.graph.addGroupArrows(
-                                    ds.mie_groupArrows.slice(miePos, ((miePos+pageSize)))
-                                );*/
+                                //that.graph.addGroupArrows(
+                                //    ds.mie_groupArrows.slice(miePos, ((miePos+pageSize)))
+                                //);
                                 that.graph.loadData(slicedData);
                             });
 
@@ -1819,20 +1855,20 @@ define(['backbone.marionette',
                                 var slicedData = {};
                                 var ds = data[currKey];
                                 for (var key in ds){
-                                    if(key.indexOf('mie')!==-1){
+                                    //if(key.indexOf('mie')!==-1){
                                         slicedData[key] = ds[key].slice(
                                             miePos, ((miePos+pageSize))
                                         ).flat();
-                                    }
+                                    //}
                                 }
                                 $('#mieObservationLabel').text(
                                     miePos+'-'+(miePos+2)+' / '+mieLength
                                 );
-                                /*that.graph.addGroupArrows(
-                                    ds.mie_groupArrows.slice(miePos, ((miePos+pageSize)))
-                                );*/
+                                //that.graph.addGroupArrows(
+                                //    ds.mie_groupArrows.slice(miePos, ((miePos+pageSize)))
+                                //);
                                 that.graph.loadData(slicedData);
-                            });
+                            });*/
 
                             // Add interaction buttons to go through observation
                             // groups
@@ -1859,15 +1895,16 @@ define(['backbone.marionette',
                                 var slicedData = {};
                                 var ds = data[currKey];
                                 for (var key in ds){
-                                    if(key.indexOf('rayleigh')!==-1){
+                                    //if(key.indexOf('rayleigh')!==-1){
                                         slicedData[key] = ds[key].slice(
                                             rayleighPos, ((rayleighPos+pageSize))
                                         ).flat();
-                                    }
+                                    //}
                                 }
                                 $('#rayleighObservationLabel').text(
                                     (rayleighPos)+'-'+(rayleighPos+2)+' / '+rayleighLength
                                 );
+                                that.graph.loadData(slicedData);
                             });
 
                             $('#rayleighObservationLeft').attr('disabled', 'disabled');
@@ -1881,19 +1918,19 @@ define(['backbone.marionette',
                                 var slicedData = {};
                                 var ds = data[currKey];
                                 for (var key in ds){
-                                    if(key.indexOf('rayleigh')!==-1){
+                                    //if(key.indexOf('rayleigh')!==-1){
                                         slicedData[key] = ds[key].slice(
                                             rayleighPos, ((rayleighPos+pageSize))
                                         ).flat();
-                                    }
+                                   //}
                                 }
                                 $('#rayleighObservationLabel').text(
                                     rayleighPos+'-'+(rayleighPos+2)+' / '+rayleighLength
                                 );
-                                
+                                that.graph.loadData(slicedData);
                             });
 
-                            this.graph.loadData(mieSlicedData);
+                            this.graph.loadData(slicedData);
 
                         } else {
                             this.graph.loadData(data[currKey]);
