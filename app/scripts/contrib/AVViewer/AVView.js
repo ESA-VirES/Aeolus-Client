@@ -138,7 +138,7 @@ define(['backbone.marionette',
                 if(filtersMinimized){
                     $('#graph_container').css('height', '99%');
                 }
-                
+
                 this.$('#graph_container').append('<div id="graph"></div>');
 
                 this.$('#graph').append('<div id="analyticsSavebuttonTop"><i class="fa fa-floppy-o analyticsSavebutton" aria-hidden="true"></i></div>');
@@ -967,33 +967,64 @@ define(['backbone.marionette',
                     additionalYTicks: [],
                     availableParameters: false
                 },
-                'ALD_U_N_2C_mie_group': {
-                    xAxis: 'measurements',
+                'ALD_U_N_2C_group': {
+                    xAxis: ['measurements'],
                     yAxis: [
-                        'bins',
+                        ['rayleigh_bins']
                     ],
                     combinedParameters: {
-                        bins: ['mie_bins_end', 'mie_bins_start'],
-                        measurements: ['mie_meas_start', 'mie_meas_end']
+                        mie_bins: ['mie_bins_end', 'mie_bins_start'],
+                        mie_measurements: ['mie_meas_start', 'mie_meas_end'],
+                        rayleigh_bins: ['rayleigh_bins_end', 'rayleigh_bins_start'],
+                        rayleigh_measurements: ['rayleigh_meas_start', 'rayleigh_meas_end']
                     },
                     colorAxis: [
-                        'mie_meas_map',
+                        ['rayleigh_meas_map']
                     ],
-                    reversedYAxis: true
-                },
-                'ALD_U_N_2C_rayleigh_group': {
-                    xAxis: 'measurements',
-                    yAxis: [
-                        'bins',
-                    ],
-                    combinedParameters: {
-                        bins: ['rayleigh_bins_end', 'rayleigh_bins_start'],
-                        measurements: ['rayleigh_meas_start', 'rayleigh_meas_end']
+                    groups: ['rayleigh'],
+                    reversedYAxis: true,
+                    additionalXTicks: [],
+                    additionalYTicks: [],
+                    y2Axis: [[]],
+                    colorAxis2: [[]],
+                    renderGroups: {
+                        mie: {
+                            parameters: [
+                                'mie_bins',
+                                'mie_measurements',
+                                'mie_bins_end',
+                                'mie_bins_start',
+                                'mie_meas_start',
+                                'mie_meas_end',
+                                'mie_meas_map'
+                            ],
+                            defaults: {
+                                yAxis: 'mie_bins',
+                                colorAxis: 'mie_meas_map'
+                            }
+                        },
+                        rayleigh: {
+                            parameters: [
+                                'rayleigh_bins',
+                                'rayleigh_measurements',
+                                'rayleigh_bins_end',
+                                'rayleigh_bins_start',
+                                'rayleigh_meas_start',
+                                'rayleigh_meas_end',
+                                'rayleigh_meas_map'
+                            ],
+                            defaults: {
+                                yAxis: 'rayleigh_bins',
+                                colorAxis: 'rayleigh_meas_map'
+                            }
+                        }
                     },
-                    colorAxis: [
-                        'rayleigh_meas_map',
-                    ],
-                    reversedYAxis: true
+                    sharedParameters: {
+                        'measurements': [
+                            'mie_measurements', 'rayleigh_measurements'
+                        ],
+                    },
+                    availableParameters: false
                 },
                 AUX_MRC_1B: {
                     xAxis: ['frequency_offset'],
@@ -2001,32 +2032,40 @@ define(['backbone.marionette',
                         if(contains2DNadir){
                             //this.graph1.ignoreParameters = [/_off_nadir.*/, /jumps.*/, /SignCross.*/, 'time_nadir', 'latitude_nadir', 'longitude_nadir'];
                             this.graph.renderSettings = {
-                                xAxis: 'time_nadir_combined',
-                                yAxis: ['layer_altitude_nadir'],
+                                xAxis: ['time_nadir_combined'],
+                                yAxis: [['layer_altitude_nadir']],
+                                y2Axis: [[]],
+                                colorAxis2: [[]],
                                 additionalXTicks: [],
                                 additionalYTicks: [],
-                                colorAxis: [ param2D ],
+                                colorAxis: [ [param2D] ],
                                 combinedParameters: {
                                     time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
                                     layer_altitude_nadir: ['layer_altitude_nadir_end', 'layer_altitude_nadir_start']
                                 },
+                                availableParameters: false,
+                                groups: false,
+                                renderGroups: false,
+                                sharedParameters: false
                             };
-                        } else {
-                            this.graph.renderSettings = this.renderSettings[(idKeys[0])];
-                        }
-
-                        if(contains2DOffNadir){
+                        } else if(contains2DOffNadir){
                             //this.graph.ignoreParameters = [/^((?!_off_nadir).)*$/, /jumps.*/, /SignCross.*/, 'time_off_nadir', 'latitude_off_nadir', 'longitude_off_nadir'];
                             this.graph.renderSettings = {
-                                xAxis: 'time_off_nadir_combined',
-                                yAxis: ['layer_altitude_off_nadir'],
+                                xAxis: ['time_off_nadir_combined'],
+                                yAxis: [['layer_altitude_off_nadir']],
+                                y2Axis: [[]],
+                                colorAxis2: [[]],
                                 additionalXTicks: [],
                                 additionalYTicks: [],
-                                colorAxis: [ param2D ],
+                                colorAxis: [ [param2D] ],
                                 combinedParameters: {
                                     time_off_nadir_combined: ['time_off_nadir_start', 'time_off_nadir_end'],
                                     layer_altitude_off_nadir: ['layer_altitude_off_nadir_end', 'layer_altitude_off_nadir_start']
                                 },
+                                availableParameters: false,
+                                groups: false,
+                                renderGroups: false,
+                                sharedParameters: false
                             };
                         } else {
                             this.graph.renderSettings = this.renderSettings[(idKeys[0])];
