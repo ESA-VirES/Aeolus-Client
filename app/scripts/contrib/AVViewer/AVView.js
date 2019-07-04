@@ -136,10 +136,9 @@ define(['backbone.marionette',
                 }
 
                 if(filtersMinimized){
-                    $('#filterSelectDrop').css('opacity', 0);
-                    $('#analyticsFilters').css('opacity', 0);
                     $('#graph_container').css('height', '99%');
                 }
+                
                 this.$('#graph_container').append('<div id="graph"></div>');
 
                 this.$('#graph').append('<div id="analyticsSavebuttonTop"><i class="fa fa-floppy-o analyticsSavebutton" aria-hidden="true"></i></div>');
@@ -1514,6 +1513,8 @@ define(['backbone.marionette',
 
             if(filtersMinimized){
                 $('#minimizeFilters').addClass('minimized');
+                $('#filterSelectDrop').css('opacity', 0);
+                $('#analyticsFilters').css('opacity', 0);
             } else {
                 $('#minimizeFilters').addClass('visible');
             }
@@ -1768,6 +1769,8 @@ define(['backbone.marionette',
         reloadData: function(model, data) {
 
             this.graph.clearXDomain();
+            $('#groupButtonContainer').remove();
+            $('#newPlotLink').show();
 
             // If element already has plot rendering
             if( $(this.el).html()){
@@ -1921,8 +1924,7 @@ define(['backbone.marionette',
                             var ds = data[currKey];
                             
                             this.createGroupInteractionButtons(ds, 'rayleigh', pageSize);
-
-
+                            $('#newPlotLink').hide();
                         } else {
                             this.graph.loadData(data[currKey]);
                         }
