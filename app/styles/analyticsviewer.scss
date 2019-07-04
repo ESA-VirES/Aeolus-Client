@@ -360,39 +360,20 @@
 }
 
 
-#observationRight{
-    
-}
-
-#mieButtonContainer{
+#groupButtonContainer{
+    margin-top: -11px;
     width: 100%;
     text-align: center;
-    top: 42%;
-    z-index: 500;
-    position: absolute;
-}
-
-#rayleighButtonContainer{
-    width: 100%;
-    text-align: center;
-    /*top: 48%;*/
     z-index: 500;
 }
 
-#mieObservationLabel, #rayleighObservationLabel{
+
+#groupObservationLabel{
     display: inline;
     margin-left: 10px;
     margin-right: 10px;
 }
 
-
-#graph1Select, #graph2Select{
-    position: absolute;
-    left: 50%;
-    width: 100px;
-    margin-left: -50px;
-    top: -10px;
-}
 
 
 .groupSelect{

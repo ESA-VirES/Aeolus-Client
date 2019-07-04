@@ -116,6 +116,9 @@ define(['backbone.marionette',
             this.activeWPSproducts = [];
             this.plotType = 'scatter';
             this.prevParams = [];
+            this.currentGroup = null;
+            this.miePos = 0;
+            this.rayleighPos = 0;
 
             this.reloadUOM();
 
@@ -1266,7 +1269,22 @@ define(['backbone.marionette',
                 });
 
                 this.graph.on('axisChange', function () {
+                    var data = globals.swarm.get('data');
+                    var datkey = Object.keys(data)[0];
+                    // Check to see if L2B or L2C groups are currently visualized
+                    if (datkey === 'ALD_U_N_2B' || 
+                        datkey === 'ALD_U_N_2C'){
+                        
+                        if(that.currentGroup !== this.renderSettings.groups[0]){
+                            // There was an axis change, change the group controls
+                            that.currentGroup = this.renderSettings.groups[0];
+                            
+                            that.createGroupInteractionButtons(data[datkey], that.currentGroup, 3);
+                        }
+                    }
+
                     //that.savePlotConfig(that.graph1, 'G1');
+
                 });
 
                 this.graph.on('axisExtentChanged', function () {
@@ -1620,7 +1638,137 @@ define(['backbone.marionette',
         },
 
 
+        createGroupInteractionButtons: function(ds, group, pageSize){
+            // Add interaction buttons to go through observation groups
+
+            var groupLength = ds.mie_obs_start.length;
+            var pos = this.miePos;
+            if(group === 'rayleigh'){
+                pos = this.rayleighPos;
+                groupLength = ds.rayleigh_obs_start.length;
+            }
+
+            var meas_start = 'var_meas_start'.replace('var', group);
+            var meas_end = 'var_meas_end'.replace('var', group);
+            var groupArrows = 'var_groupArrows'.replace('var', group);
+
+            var slicedData = {};
+            var rayleighSlicedData = {};
+
+            for (var key in ds){
+                slicedData[key] = ds[key].slice(
+                    pos, ((pos+pageSize))
+                ).flat();
+            }
+
+
+            this.graph.addGroupArrows(
+                ds[groupArrows].slice(pos, ((pos+pageSize)))
+            );
+            this.graph.setXDomain([
+                d3.extent(slicedData[meas_start])[0],
+                d3.extent(slicedData[meas_end])[1]
+            ]);
+
+            this.graph.margin.bottom = 80;
+
+            this.currentGroup = group;
+            this.graph.loadData(slicedData);
+
+
+            $('#groupButtonContainer').remove();
+
+            $('#graph_container').append(
+                '<div id="groupButtonContainer"></div>'
+            );
+            $('#groupButtonContainer').append(
+                '<button id="groupObservationLeft" type="button" class="btn btn-success darkbutton dropdown-toggle"><</button>'
+            );
+            $('#groupButtonContainer').append(
+                '<div id="groupObservationLabel">'+(pos)+'-'+(pos+2)+' / '+groupLength+'</div>'
+            );
+            $('#groupButtonContainer').append(
+                '<button id="groupObservationRight" type="button" class="btn btn-success darkbutton dropdown-toggle">></button>'
+            );
+            
+            var that = this;
+
+            $('#groupObservationRight').click(function(){
+                pos+=3;
+                if(pos>=groupLength-4){
+                    $('#groupObservationRight').attr('disabled', 'disabled');
+                }
+                $('#groupObservationLeft').removeAttr('disabled');
+
+                var slicedData = {};
+                
+                for (var key in ds){
+                    slicedData[key] = ds[key].slice(
+                        pos, ((pos+pageSize))
+                    ).flat();
+                }
+                $('#groupObservationLabel').text(
+                    (pos)+'-'+(pos+2)+' / '+groupLength
+                );
+                
+                
+                that.graph.addGroupArrows(
+                    ds[groupArrows].slice(pos, ((pos+pageSize)))
+                );
+
+                that.graph.setXDomain([
+                    d3.extent(slicedData[meas_start])[0],
+                    d3.extent(slicedData[meas_end])[1]
+                ]);
+
+                if(group === 'rayleigh'){
+                    that.rayleighPos = pos;
+                } else if(group === 'mie'){
+                    that.miePos = pos;
+                }
+
+                that.graph.loadData(slicedData);
+            });
+
+            $('#groupObservationLeft').attr('disabled', 'disabled');
+            $('#groupObservationLeft').click(function(){
+                pos-=3;
+                if(pos<=0){
+                    $('#groupObservationLeft').attr('disabled', 'disabled');
+                }
+                $('#groupObservationRight').removeAttr('disabled');
+
+                var slicedData = {};
+                for (var key in ds){
+                    slicedData[key] = ds[key].slice(
+                        pos, ((pos+pageSize))
+                    ).flat();
+                }
+                $('#groupObservationLabel').text(
+                    pos+'-'+(pos+2)+' / '+groupLength
+                );
+                that.graph.addGroupArrows(
+                    ds[groupArrows].slice(pos, ((pos+pageSize)))
+                );
+                 that.graph.setXDomain([
+                    d3.extent(slicedData[meas_start])[0],
+                    d3.extent(slicedData[meas_end])[1]
+                ]);
+                if(group === 'rayleigh'){
+                    that.rayleighPos = pos;
+                } else if(group === 'mie'){
+                    that.miePos = pos;
+                }
+                that.graph.loadData(slicedData);
+            });
+
+        },
+
+
         reloadData: function(model, data) {
+
+            this.graph.clearXDomain();
+
             // If element already has plot rendering
             if( $(this.el).html()){
 
@@ -1641,7 +1789,7 @@ define(['backbone.marionette',
                 $('#mieButtonContainer').remove();
                 $('#rayleighButtonContainer').remove();
 
-                //this.graph.removeGroupArrows();
+                this.graph.removeGroupArrows();
                 this.graph.margin.bottom = 50;
 
                 $('#graphSelect').remove();
@@ -1715,13 +1863,6 @@ define(['backbone.marionette',
                         rSKey2 = cP+'_'+sel[1];
                     }
 
-                    /*var sets1 = this.extendSettings(
-                        this.renderSettings[rSKey1], 'G1'
-                    );
-                    var sets2 = this.extendSettings(
-                        this.renderSettings[rSKey2], 'G2'
-                    );*/
-
                     $('#graph').css('height', '100%');
 
                     if(cP === 'ALD_U_N_1B'){
@@ -1772,165 +1913,15 @@ define(['backbone.marionette',
                             if(!$('#minimizeFilters').hasClass('minimized')){
                                 this.changeFilterDisplayStatus();
                             }
-                            
-                            // If groups only load subset of data
-                            var miePos = 0;
-                            var rayleighPos = 0;
+
+                            this.miePos = 0;
+                            this.rayleighPos = 0;
                             var pageSize = 3;
-                            var slicedData = {};
-                            var rayleighSlicedData = {};
+
                             var ds = data[currKey];
-                            var mieLength = ds.mie_obs_start.length;
-                            var rayleighLength = ds.rayleigh_obs_start.length;
-
-                            for (var key in ds){
-                                if(key.indexOf('rayleigh')!==-1){
-                                    slicedData[key] = ds[key].slice(
-                                        rayleighPos, ((rayleighPos+pageSize))
-                                    ).flat();
-                                } else {
-                                    slicedData[key] = ds[key].slice(
-                                        miePos, ((miePos+pageSize))
-                                    ).flat();
-                                }
-                            }
-
-
-                            /*this.graph.addGroupArrows(
-                                ds.mie_groupArrows.slice(miePos, ((miePos+pageSize)))
-                            );*/
                             
+                            this.createGroupInteractionButtons(ds, 'rayleigh', pageSize);
 
-                            this.graph.margin.bottom = 80;
-                            var that = this;
-
-                            // Add interaction buttons to go through observation
-                            // groups
-                            /*$('#graph_container').append(
-                                '<div id="mieButtonContainer"></div>'
-                            );
-                            $('#mieButtonContainer').append(
-                                '<button id="mieObservationLeft" type="button" class="btn btn-success darkbutton dropdown-toggle"><</button>'
-                            );
-                            $('#mieButtonContainer').append(
-                                '<div id="mieObservationLabel">'+(miePos)+'-'+(miePos+2)+' / '+mieLength+'</div>'
-                            );
-                            $('#mieButtonContainer').append(
-                                '<button id="mieObservationRight" type="button" class="btn btn-success darkbutton dropdown-toggle">></button>'
-                            );
-                            
-
-                            $('#mieObservationRight').click(function(){
-                                miePos+=3;
-                                if(miePos>=mieLength-4){
-                                    $('#mieObservationRight').attr('disabled', 'disabled');
-                                }
-                                $('#mieObservationLeft').removeAttr('disabled');
-
-                                var slicedData = {};
-                                var ds = data[currKey];
-                                for (var key in ds){
-                                    slicedData[key] = ds[key].slice(
-                                        miePos, ((miePos+pageSize))
-                                    ).flat();
-                                }
-                                $('#mieObservationLabel').text(
-                                    (miePos)+'-'+(miePos+2)+' / '+mieLength
-                                );
-                                
-                                //that.graph.addGroupArrows(
-                                //    ds.mie_groupArrows.slice(miePos, ((miePos+pageSize)))
-                                //);
-                                that.graph.loadData(slicedData);
-                            });
-
-                            $('#mieObservationLeft').attr('disabled', 'disabled');
-                            $('#mieObservationLeft').click(function(){
-                                miePos-=3;
-                                if(miePos<=0){
-                                    $('#mieObservationLeft').attr('disabled', 'disabled');
-                                }
-                                $('#mieObservationRight').removeAttr('disabled');
-
-                                var slicedData = {};
-                                var ds = data[currKey];
-                                for (var key in ds){
-                                    //if(key.indexOf('mie')!==-1){
-                                        slicedData[key] = ds[key].slice(
-                                            miePos, ((miePos+pageSize))
-                                        ).flat();
-                                    //}
-                                }
-                                $('#mieObservationLabel').text(
-                                    miePos+'-'+(miePos+2)+' / '+mieLength
-                                );
-                                //that.graph.addGroupArrows(
-                                //    ds.mie_groupArrows.slice(miePos, ((miePos+pageSize)))
-                                //);
-                                that.graph.loadData(slicedData);
-                            });*/
-
-                            // Add interaction buttons to go through observation
-                            // groups
-                            $('#graph_container').append(
-                                '<div id="rayleighButtonContainer"></div>'
-                            );
-                            $('#rayleighButtonContainer').append(
-                                '<button id="rayleighObservationLeft" type="button" class="btn btn-success darkbutton dropdown-toggle"><</button>'
-                            );
-                            $('#rayleighButtonContainer').append(
-                                '<div id="rayleighObservationLabel">'+(rayleighPos)+'-'+(rayleighPos+2)+' / '+rayleighLength+'</div>'
-                            );
-                            $('#rayleighButtonContainer').append(
-                                '<button id="rayleighObservationRight" type="button" class="btn btn-success darkbutton dropdown-toggle">></button>'
-                            );
-
-                            $('#rayleighObservationRight').click(function(){
-                                rayleighPos+=3;
-                                if(rayleighPos>=rayleighLength-4){
-                                    $('#rayleighObservationRight').attr('disabled', 'disabled');
-                                }
-                                $('#rayleighObservationLeft').removeAttr('disabled');
-
-                                var slicedData = {};
-                                var ds = data[currKey];
-                                for (var key in ds){
-                                    //if(key.indexOf('rayleigh')!==-1){
-                                        slicedData[key] = ds[key].slice(
-                                            rayleighPos, ((rayleighPos+pageSize))
-                                        ).flat();
-                                    //}
-                                }
-                                $('#rayleighObservationLabel').text(
-                                    (rayleighPos)+'-'+(rayleighPos+2)+' / '+rayleighLength
-                                );
-                                that.graph.loadData(slicedData);
-                            });
-
-                            $('#rayleighObservationLeft').attr('disabled', 'disabled');
-                            $('#rayleighObservationLeft').click(function(){
-                                rayleighPos-=3;
-                                if(rayleighPos<=0){
-                                    $('#rayleighObservationLeft').attr('disabled', 'disabled');
-                                }
-                                $('#rayleighObservationRight').removeAttr('disabled');
-
-                                var slicedData = {};
-                                var ds = data[currKey];
-                                for (var key in ds){
-                                    //if(key.indexOf('rayleigh')!==-1){
-                                        slicedData[key] = ds[key].slice(
-                                            rayleighPos, ((rayleighPos+pageSize))
-                                        ).flat();
-                                   //}
-                                }
-                                $('#rayleighObservationLabel').text(
-                                    rayleighPos+'-'+(rayleighPos+2)+' / '+rayleighLength
-                                );
-                                that.graph.loadData(slicedData);
-                            });
-
-                            this.graph.loadData(slicedData);
 
                         } else {
                             this.graph.loadData(data[currKey]);

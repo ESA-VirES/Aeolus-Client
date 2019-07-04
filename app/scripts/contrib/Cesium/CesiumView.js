@@ -113,8 +113,10 @@ define([
                     ],
                     time: ['time_start', 'time_end']
                 },
-                colorAxis: [['mie_HLOS_wind_speed']]
-
+                colorAxis: [['mie_HLOS_wind_speed']],
+                additionalXTicks: [],
+                additionalYTicks: [],
+                availableParameters: false
             };
 
             this.dataSettings = globals.dataSettings;
