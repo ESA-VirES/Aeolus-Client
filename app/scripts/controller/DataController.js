@@ -84,7 +84,9 @@
                   'laser_frequency',
                   'mie_bin_quality_flag',
                   'mie_reference_pulse_quality_flag',
-                  'albedo_off_nadir'
+                  'albedo_off_nadir',
+                  'mie_signal_intensity_ranged_corrected',
+                  'mie_signal_intensity_ranged_normalised'
                 ],
                 [
                   'rayleigh_time_start',
@@ -117,7 +119,9 @@
                   'laser_frequency',
                   'rayleigh_bin_quality_flag',
                   'rayleigh_reference_pulse_quality_flag',
-                  'albedo_off_nadir'
+                  'albedo_off_nadir',
+                  'rayleigh_signal_intensity_range_corrected',
+                  'rayleigh_signal_intensity_normalised'
                 ],
                 [
                   'time_off_nadir',
@@ -1560,7 +1564,11 @@
               'mie_bin_quality_flag',
               'rayleigh_reference_pulse_quality_flag',
               'mie_reference_pulse_quality_flag',
-              'albedo_off_nadir'
+              'albedo_off_nadir',
+              'rayleigh_signal_intensity_range_corrected',
+              'mie_signal_intensity_ranged_corrected',
+              'rayleigh_signal_intensity_normalised',
+              'mie_signal_intensity_ranged_normalised'
             ].join(),
             'measurement_fields': [
               'time',
@@ -1600,7 +1608,11 @@
               'mie_bin_quality_flag',
               'rayleigh_reference_pulse_quality_flag',
               'mie_reference_pulse_quality_flag',
-              'albedo_off_nadir'
+              'albedo_off_nadir',
+              'rayleigh_signal_intensity_range_corrected',
+              'mie_signal_intensity_ranged_corrected',
+              'rayleigh_signal_intensity_normalised',
+              'mie_signal_intensity_ranged_normalised'
             ].join()
           },
           'ALD_U_N_2A': {
@@ -2495,7 +2507,10 @@
                     'mie_scattering_ratio', 'mie_SNR', 'mie_error_quantifier', 
                     'average_laser_energy', 'laser_frequency', 
                     'mie_reference_pulse_quality_flag',
-                    'mie_mean_emitted_frequency', 'mie_emitted_frequency_std_dev'
+                    'mie_mean_emitted_frequency', 'mie_emitted_frequency_std_dev',
+                    'mie_signal_intensity_ranged_corrected',
+                    'mie_signal_intensity_ranged_normalised'
+
                   ];
 
                   if(mieDiffVars){
@@ -2515,7 +2530,9 @@
                     'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', 'rayleigh_SNR',
                     'rayleigh_bin_quality_flag', 'rayleigh_error_quantifier',
                     'rayleigh_reference_pulse_quality_flag',
-                    'rayleigh_mean_emitted_frequency', 'rayleigh_emitted_frequency_std_dev'
+                    'rayleigh_mean_emitted_frequency', 'rayleigh_emitted_frequency_std_dev',
+                    'rayleigh_signal_intensity_range_corrected',
+                    'rayleigh_signal_intensity_normalised'
                   ];
 
                   if(rayleighDiffVars){
@@ -2538,7 +2555,7 @@
                   var nSize = 24;
                   var startKey, endKey;
 
-                  that.totalLength = mieVars.length + rayleighVars.length-2;
+                  that.totalLength = mieVars.length + rayleighVars.length;
                   that.processedParameters = 0;
                   that.collectionId = collectionId;
 

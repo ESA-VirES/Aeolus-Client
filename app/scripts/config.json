@@ -228,7 +228,11 @@
                 "rayleigh_mean_emitted_frequency": {"uom": "GHz", "name": "Rayleigh mean emitted frequency"},
                 "mie_emitted_frequency_std_dev": {"uom": "GHz", "name": "Mie emitted frequency standard deviation"},
                 "rayleigh_emitted_frequency_std_dev": {"uom": "GHz", "name": "Rayleigh emitted frequency standrad deviation"},
-                "albedo_off_nadir": {"uom": null, "name": "Albedo off-nadir value"}
+                "albedo_off_nadir": {"uom": null, "name": "Albedo off-nadir value"},
+                "rayleigh_signal_intensity_range_corrected": {"uom": null, "name": "Range corrected vertical profiles of signal intensity of Rayleigh channel"},
+                "mie_signal_intensity_ranged_corrected": {"uom": null, "name": "Range corrected vertical profiles of signal intensity for the Mie channel"},
+                "rayleigh_signal_intensity_normalised": {"uom": null, "name": "Normalized vertical profiles of signal intensity of Rayleigh channel"},
+                "mie_signal_intensity_ranged_normalised": {"uom": null, "name": "Normalized vertical profiles of signal intensity for the Mie channel"}
             },
             "download_groups": {
                 "observation": [
@@ -274,7 +278,11 @@
                     "mie_bin_quality_flag",
                     "rayleigh_reference_pulse_quality_flag':",
                     "mie_reference_pulse_quality_flag",
-                    "albedo_off_nadir"
+                    "albedo_off_nadir",
+                    "rayleigh_signal_intensity_range_corrected",
+                    "mie_signal_intensity_ranged_corrected",
+                    "rayleigh_signal_intensity_normalised",
+                    "mie_signal_intensity_ranged_normalised"
                 ],
                 "measurement": [
                     "time",
@@ -314,7 +322,11 @@
                     "mie_bin_quality_flag",
                     "rayleigh_reference_pulse_quality_flag",
                     "mie_reference_pulse_quality_flag",
-                    "albedo_off_nadir"
+                    "albedo_off_nadir",
+                    "rayleigh_signal_intensity_range_corrected",
+                    "mie_signal_intensity_ranged_corrected",
+                    "rayleigh_signal_intensity_normalised",
+                    "mie_signal_intensity_ranged_normalised"
                 ]
             },
             "outlines": true,
