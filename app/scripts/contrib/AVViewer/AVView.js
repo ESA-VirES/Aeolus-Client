@@ -26,55 +26,69 @@ define(['backbone.marionette',
             this.connectDataEvents();
         },
 
-        savePlotConfig: function(graph, prefix){
+        savePlotConfig: function(graph){
             
             localStorage.setItem(
-                (prefix+'xAxisSelection'),
+                'xAxisSelection',
                 JSON.stringify(graph.renderSettings.xAxis)
             );
             localStorage.setItem(
-                (prefix+'yAxisSelection'),
+                'yAxisSelection',
                 JSON.stringify(graph.renderSettings.yAxis)
             );
             localStorage.setItem(
-                (prefix+'y2AxisSelection'),
+                'y2AxisSelection',
                 JSON.stringify(graph.renderSettings.y2Axis)
             );
 
             localStorage.setItem(
-                (prefix+'colorAxisSelection'),
+                'colorAxisSelection',
                 JSON.stringify(graph.renderSettings.colorAxis)
             );
 
             localStorage.setItem(
-                (prefix+'colorAxis2Selection'),
+                'colorAxis2Selection',
                 JSON.stringify(graph.renderSettings.colorAxis2)
             );
 
+            localStorage.setItem(
+                'groupSelected',
+                JSON.stringify(graph.renderSettings.groups)
+            )
+
         },
 
-        extendSettings: function(settings, prefix){
+        extendSettings: function(settings){
 
             var currSets = $.extend(true,{},settings);
 
             var allInside = true;
-            var xax = JSON.parse(localStorage.getItem(prefix+'xAxisSelection'));
-            var yax = JSON.parse(localStorage.getItem(prefix+'yAxisSelection'));
-            var y2ax = JSON.parse(localStorage.getItem(prefix+'y2AxisSelection'));
-            var colax = JSON.parse(localStorage.getItem(prefix+'colorAxisSelection'));
+            var xax = JSON.parse(localStorage.getItem('xAxisSelection'));
+            var yax = JSON.parse(localStorage.getItem('yAxisSelection'));
+            var y2ax = JSON.parse(localStorage.getItem('y2AxisSelection'));
+            var colax = JSON.parse(localStorage.getItem('colorAxisSelection'));
+            var colax2 = JSON.parse(localStorage.getItem('colorAxis2Selection'));
+            var groups = JSON.parse(localStorage.getItem('groupSelected'));
 
             var comb = [].concat(xax, yax, y2ax, colax);
+            comb = comb.flat();
             for (var i = comb.length - 1; i >= 0; i--) {
-                if(comb[i] === null){
+                var parameter = comb[i];
+                if(parameter === null){
+                    // Typical for colorscale
                     continue;
                 }
-                if(this.currentKeys.indexOf(comb[i]) === -1){
-                    if(settings.combinedParameters.hasOwnProperty(comb[i])){
-                        var combined = settings.combinedParameters[comb[i]];
+                if(this.currentKeys.indexOf(parameter) === -1){
+                    if(settings.combinedParameters.hasOwnProperty(parameter)){
+                        var combined = settings.combinedParameters[parameter];
                         for (var j = combined.length - 1; j >= 0; j--) {
                             if(this.currentKeys.indexOf(combined[j]) === -1){
                                 allInside = false;
                             }
+                        }
+                    } else if (settings.hasOwnProperty('sharedParameters') &&  settings.sharedParameters!== false){
+                        if(!settings.sharedParameters.hasOwnProperty(parameter)){
+                            allInside = false;
                         }
                     } else {
                         allInside = false;
@@ -86,17 +100,23 @@ define(['backbone.marionette',
                 return settings;
             }
 
-            if (localStorage.getItem(prefix+'xAxisSelection') !== null) {
+            if (xax !== null) {
                 currSets.xAxis = xax;
             }
-            if (localStorage.getItem(prefix+'yAxisSelection') !== null) {
+            if (yax !== null) {
                 currSets.yAxis = yax;
             }
-            if (localStorage.getItem(prefix+'y2AxisSelection') !== null) {
+            if (y2ax !== null) {
                 currSets.y2Axis = y2ax;
             }
-            if (localStorage.getItem(prefix+'colorAxisSelection') !== null) {
+            if (colax !== null) {
                 currSets.colorAxis = colax;
+            }
+            if (colax2 !== null) {
+                currSets.colorAxis2 = colax2;
+            }
+            if (groups !== null) {
+                currSets.groups = groups;
             }
 
             return currSets;
@@ -381,10 +401,10 @@ define(['backbone.marionette',
                         ],
                         'altitude': [
                             'rayleigh_altitude', 'mie_altitude'
-                        ],
+                        ]/*,
                         'geoid_separation': [
                             'geoid_separation'
-                        ]
+                        ]*/
                     },
                     additionalXTicks: [],
                     additionalYTicks: [],
@@ -1191,10 +1211,6 @@ define(['backbone.marionette',
                 'ALD_U_N_2B': ['mie', 'rayleigh'],
                 'ALD_U_N_2C': ['mie', 'rayleigh'],
                 'AUX_MET_12': ['nadir', 'off_nadir']
-                /*'AUX_MRC_1B': [],
-                'AUX_RRC_1B': [],
-                'AUX_ISR_1B': [],
-                'AUX_ZWC_1B': [],*/
             };
 
             if (localStorage.getItem('groupSelected') !== null) {
@@ -1203,33 +1219,6 @@ define(['backbone.marionette',
                     this.groupSelected[k] = prevSel[k];
                 }
             }
-
-            this.visualizationGroups = {
-                'ALD_U_N_1B': {
-                    'mie': [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, 'signCross'],
-                    'rayleigh':[/mie.*/, 'positions', 'stepPositions', /.*_jumps/, 'signCross']
-                },
-                'ALD_U_N_2A': {
-                    'MCA': [/rayleigh_.*/, /SCA.*/, /ICA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'],
-                    'SCA': [/mie_.*/, /MCA.*/, /ICA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross'],
-                    'ICA': [/rayleigh_.*/, /mie_.*/, /MCA.*/, /SCA.*/, 'positions', 'stepPositions', /.*_orig/, /.*jumps/, 'signCross']
-                },
-                'ALD_U_N_2B': {
-                    'mie': [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/, /.*groupArrows/],
-                    'rayleigh': [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/, /.*groupArrows/]
-                },
-                'ALD_U_N_2C': {
-                    'mie': [/rayleigh_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/, /.*groupArrows/],
-                    'rayleigh': [/mie_.*/, 'positions', 'stepPositions', /.*_jumps/, /.*SignCross/, /.*groupArrows/]
-                }
-                /*,
-                'AUX_MRC_1B': {},
-                'AUX_RRC_1B': {},
-                'AUX_ISR_1B': {},
-                'AUX_ZWC_1B': {},
-                'AUX_MET_12': {}*/
-            };
-
 
             this.dataSettings = globals.dataSettings;
 
@@ -1266,16 +1255,15 @@ define(['backbone.marionette',
                 this.filterManager = globals.swarm.get('filterManager');
                 this.filterManager.visibleFilters = this.selectedFilterList;
 
-                var sel = that.groupSelected['ALD_U_N_1B'][0];
-                /*var currRenderSetts = this.extendSettings(
-                    this.renderSettings['ALD_U_N_1B'], 'G1'
-                );*/
+                var settings = this.renderSettings['ALD_U_N_1B'];
+                settings.groups = this.groupSelected['ALD_U_N_1B'];
+
 
                 this.graph = new graphly.graphly({
                     el: '#graph',
                     margin: {top: 30, left: 100, bottom: 50, right: 70},
                     dataSettings: this.dataSettings,
-                    renderSettings: this.renderSettings['ALD_U_N_1B'],
+                    renderSettings: settings,
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
                     multiYAxis: true,
@@ -1289,14 +1277,6 @@ define(['backbone.marionette',
                 this.graph.on('pointSelect', function(values){
                     Communicator.mediator.trigger('cesium:highlight:point', values);
                 });
-                this.graph.on('styleChange', function () {
-                    // Save parameter style changes
-                    /*localStorage.setItem(
-                        'dataSettings',
-                        JSON.stringify(globals.dataSettings)
-                    );
-                    that.savePlotConfig(that.graph, 'G1');*/
-                });
 
                 this.graph.on('axisChange', function () {
                     var data = globals.swarm.get('data');
@@ -1308,13 +1288,16 @@ define(['backbone.marionette',
                         if(that.currentGroup !== this.renderSettings.groups[0]){
                             // There was an axis change, change the group controls
                             that.currentGroup = this.renderSettings.groups[0];
-                            
                             that.createGroupInteractionButtons(data[datkey], that.currentGroup, 3);
                         }
                     }
 
-                    //that.savePlotConfig(that.graph1, 'G1');
+                    localStorage.setItem(
+                        'dataSettings',
+                        JSON.stringify(globals.dataSettings)
+                    );
 
+                    that.savePlotConfig(that.graph);
                 });
 
                 this.graph.on('axisExtentChanged', function () {
@@ -1424,16 +1407,6 @@ define(['backbone.marionette',
             globals.swarm.on('change:data', this.reloadData.bind(this));
         },
 
-        separateVector: function(key, previousKey, vectorChars, separator){
-            if (this.sp.uom_set.hasOwnProperty(previousKey)){
-                _.each(vectorChars, function(k){
-                    this.sp.uom_set[key+separator+k] = 
-                        $.extend({}, this.sp.uom_set[previousKey]);
-                    this.sp.uom_set[key+separator+k].name = 
-                        'Component of '+this.sp.uom_set[previousKey].name;
-                }, this);
-            }
-        },
 
         checkPrevious: function(key, previousIndex, newIndex, replace){
             replace = defaultFor(replace, false);
@@ -1819,10 +1792,6 @@ define(['backbone.marionette',
                     firstLoad = true;
                 }
 
-                // Cleanup
-                $('#mieButtonContainer').remove();
-                $('#rayleighButtonContainer').remove();
-
                 this.graph.removeGroupArrows();
                 this.graph.margin.bottom = 50;
 
@@ -1886,62 +1855,30 @@ define(['backbone.marionette',
                     $('#nodataavailable').hide();
 
                     var cP = idKeys[0];
-                    var sel = this.groupSelected[cP];
-                    var visG = this.visualizationGroups[cP];
-
-                    var rSKey1 = cP;
-                    var rSKey2 = cP;
-
-                    if(sel){
-                        rSKey1 = cP+'_'+sel[0];
-                        rSKey2 = cP+'_'+sel[1];
-                    }
+                    var gran = currProd.get('granularity');
 
                     $('#graph').css('height', '100%');
 
-                    if(cP === 'ALD_U_N_1B'){
-                        this.graph.renderSettings = this.renderSettings['ALD_U_N_1B'];
-                        this.graph.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
+                    var renderSettings;
+                    if(gran === 'group'){
+                        renderSettings =  this.renderSettings[cP+'_group'];
+                    } else {
+                        renderSettings = this.renderSettings[cP];
+                    }
+                    renderSettings = this.extendSettings(renderSettings);
+                    this.graph.renderSettings = renderSettings;
+
+                    if( cP === 'ALD_U_N_1B' || cP === 'ALD_U_N_2A'){
+
                         this.graph.debounceActive = true;
                         this.graph.dataSettings = mergedDataSettings;
-                        this.graph.loadData(data['ALD_U_N_1B']);
-                        this.filterManager.loadData(data['ALD_U_N_1B']);
+                        this.graph.fileSaveString = cP+'_'+gran+'_'+timeString;
+                        this.filterManager.loadData(data[cP]);
+                        this.graph.loadData(data[cP]);
 
-                     }else if(idKeys[0] === 'ALD_U_N_2A'){
+                     } else if(cP === 'ALD_U_N_2B' || cP === 'ALD_U_N_2C'){
 
-                        if(currProd.get('granularity') === 'group'){
-                            this.graph.renderSettings =  this.renderSettings.ALD_U_N_2A_group;
-                            this.graph.dataSettings = mergedDataSettings;
-                            this.graph.loadData(data[idKeys[0]]);
-                            this.filterManager.loadData(data[idKeys[0]]);
-                            this.graph.fileSaveString = 'ALD_U_N_2A_mie_group_plot'+'_'+timeString;
-                        } else {
-                            this.graph.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
-                            this.graph.renderSettings = this.renderSettings['ALD_U_N_2A'];
-                            this.graph.debounceActive = true;
-                            this.graph.dataSettings = mergedDataSettings;
-                            this.graph.loadData(data['ALD_U_N_2A']);
-                            this.filterManager.loadData(data['ALD_U_N_2A']);
-                        }
-
-
-                     }else if(idKeys[0] === 'ALD_U_N_2B' || idKeys[0] === 'ALD_U_N_2C'){
-
-                        var currKey = idKeys[0];
-
-                        if(currProd.get('granularity') === 'group'){
-                            this.graph.renderSettings = this.renderSettings[currKey+'_group'];
-                            this.graph.fileSaveString = currKey+'_group_plot'+'_'+timeString;
-                        } else {
-                            this.graph.renderSettings = this.renderSettings[idKeys[0]];
-                            this.graph.fileSaveString = cP+'_'+sel[0]+'_'+timeString;
-                        }
-                        this.graph.debounceActive = true;
-                        //this.graph.ignoreParameters = visG[this.groupSelected[cP][0]];
-                        this.graph.dataSettings = mergedDataSettings;
-                        this.filterManager.loadData(data[currKey]);
-
-                        if(currProd.get('granularity') === 'group'){
+                        if(gran === 'group'){
 
                             // Change to "full view" if filters are shown
                             if(!$('#minimizeFilters').hasClass('minimized')){
@@ -1952,16 +1889,16 @@ define(['backbone.marionette',
                             this.rayleighPos = 0;
                             var pageSize = 3;
 
-                            var ds = data[currKey];
+                            var ds = data[cP];
+                            var currGroup = this.groupSelected [cP][0];
                             
-                            this.createGroupInteractionButtons(ds, 'rayleigh', pageSize);
+                            this.createGroupInteractionButtons(ds, currGroup, pageSize);
                             $('#newPlotLink').hide();
                         } else {
-                            this.graph.loadData(data[currKey]);
+                            this.graph.loadData(data[cP]);
                         }
 
                      } else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
-
 
                         this.graph.renderSettings = this.renderSettings[idKeys[0]];
 
@@ -2030,7 +1967,6 @@ define(['backbone.marionette',
                         }
 
                         if(contains2DNadir){
-                            //this.graph1.ignoreParameters = [/_off_nadir.*/, /jumps.*/, /SignCross.*/, 'time_nadir', 'latitude_nadir', 'longitude_nadir'];
                             this.graph.renderSettings = {
                                 xAxis: ['time_nadir_combined'],
                                 yAxis: [['layer_altitude_nadir']],
@@ -2049,7 +1985,6 @@ define(['backbone.marionette',
                                 sharedParameters: false
                             };
                         } else if(contains2DOffNadir){
-                            //this.graph.ignoreParameters = [/^((?!_off_nadir).)*$/, /jumps.*/, /SignCross.*/, 'time_off_nadir', 'latitude_off_nadir', 'longitude_off_nadir'];
                             this.graph.renderSettings = {
                                 xAxis: ['time_off_nadir_combined'],
                                 yAxis: [['layer_altitude_off_nadir']],
@@ -2077,7 +2012,6 @@ define(['backbone.marionette',
                             this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
                             this.filterManager.loadData(data[idKeys[0]]);
                         } else {
-                            //this.graph.ignoreParameters = [/_off_nadir.*/, /jumps.*/, /_start.*/, /_end.*/, /SignCross.*/];
                             this.graph.dataSettings = mergedDataSettings;
                             this.graph.loadData(data[idKeys[0]]);
                             this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
@@ -2086,7 +2020,7 @@ define(['backbone.marionette',
                         this.graph.debounceActive = true;
 
 
-                    }else /*if(idKeys[0] === 'AUX_ISR_1B')*/{
+                    } else {
 
                         // Remove diff if no longer available
                         if(this.graph.renderSettings.yAxis[0].indexOf('_diff') !== -1){
