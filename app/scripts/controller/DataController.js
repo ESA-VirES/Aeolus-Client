@@ -2253,8 +2253,8 @@
             if(product.get('altitude')!==null){
               var alti = product.get('altitude');
               options['filters'] = JSON.stringify({
-                'surface_altitude_off_nadir':[0, alti*1000],
-                'surface_altitude_nadir': [0, alti*1000]
+                'layer_altitude_nadir': {min:0, max:alti*100000},
+                'layer_altitude_off_nadir': {min:0, max:alti*100000}
               });
             }
 
