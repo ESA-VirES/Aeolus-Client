@@ -1766,7 +1766,8 @@
                     "range": [0, 0.0003]
                 }
             },
-            "outlines": false
+            "outlines": false,
+            "altitude": 25
         },{
             "name": "ADAM_albedo",
             "visible": false,

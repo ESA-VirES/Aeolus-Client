@@ -61,6 +61,7 @@
                 var option = '';
                 var contours = this.current_model.get("contours");
                 var granularity = this.current_model.get("granularity");
+                var altitude = this.current_model.get("altitude");
                 //var 
 
                 var that = this;
@@ -240,6 +241,21 @@
                         this.createScale();
 
                     this.createHeightTextbox(this.current_model.get("height"));
+
+                    if(altitude!==null){
+                        this.$("#height").append(
+                            '<form style="vertical-align: middle;">'+
+                            '<label for="heightvalue" style="width: 120px;">Altitude filter</label>'+
+                            '<input id="heightvalue" type="text" style="width:30px; margin-left:8px"/>'+
+                            '</form>'
+                        );
+                        this.$("#heightvalue").val(altitude);
+                        this.$("#height").append(
+                            '<p style="font-size:0.85em; margin-left: 120px;">Maximum altitude (Km)</p>'
+                        );
+                        // Register necessary key events
+                        this.registerKeyEvents(this.$("#heightvalue"));
+                    }
                 }
 
 
