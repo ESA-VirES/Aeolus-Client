@@ -675,6 +675,8 @@
           this.filterManager._initData();
           this.filterManager._renderFilters();
         }
+        this.wpsProdChange = true;
+        this.checkSelections();
 
 
       },

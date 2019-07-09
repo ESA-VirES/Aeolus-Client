@@ -269,7 +269,9 @@ var VECTOR_BREAKDOWN = {};
                         // Make sure aux met parameters are up to date
                         if(product_config[i].download.id === 'AUX_MET_12'){
 
-                            product_config[i].altitude = defaultFor(m_p[i].altitude, 25);
+                            if(!product_config[i].hasOwnProperty('altitude')){
+                                product_config[i].altitude = defaultFor(m_p[i].altitude, 25);
+                            }
 
                             if (!product_config[i].parameters.hasOwnProperty('layer_temperature_off_nadir')){
                                 product_config[i].parameters = m_p[i].parameters;
