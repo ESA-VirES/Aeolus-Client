@@ -101,7 +101,7 @@ define([
                     'time'
                 ],
                 yAxis: [
-                    'altitude'
+                    ['altitude']
                 ],
                 //y2Axis: [],
                 combinedParameters: {
@@ -113,8 +113,10 @@ define([
                     ],
                     time: ['time_start', 'time_end']
                 },
-                colorAxis: ['mie_HLOS_wind_speed']
-
+                colorAxis: [['mie_HLOS_wind_speed']],
+                additionalXTicks: [],
+                additionalYTicks: [],
+                availableParameters: false
             };
 
             this.dataSettings = globals.dataSettings;
@@ -241,9 +243,9 @@ define([
                     navigationInstructionsInitiallyVisible: false,
                     animation: false,
                     imageryProvider: initialLayer,
-                    terrainProvider : new Cesium.CesiumTerrainProvider({
+                    /*terrainProvider : new Cesium.CesiumTerrainProvider({
                         url : '//tiles.maps.eox.at/dem'
-                    }),
+                    }),*/
                     terrainExaggeration: 20.0,
                     creditContainer: 'cesium_attribution',
                     contextOptions: {webgl: {preserveDrawingBuffer: true}},
@@ -695,29 +697,30 @@ define([
                     'latitude_of_DEM_intersection_start',
                     'latitude_of_DEM_intersection_end'
                 ],
-                time: ['time_start', 'time_end']
+                mie_time: ['mie_time_start', 'mie_time_end'],
+                rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end']
             };
 
             if(band === 'mie_HLOS_wind_speed'){
-                this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
-                this.graph.renderSettings.yAxis = ['mie_altitude'];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.colorAxis = [['mie_HLOS_wind_speed']];
+                this.graph.renderSettings.yAxis = [['mie_altitude']];
+                this.graph.renderSettings.xAxis =['mie_time'];
             }else if(band === 'rayleigh_HLOS_wind_speed'){
-                this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
-                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.colorAxis = [['rayleigh_HLOS_wind_speed']];
+                this.graph.renderSettings.yAxis = [['rayleigh_altitude']];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
             }else if(band === 'mie_signal_intensity'){
-                this.graph.renderSettings.colorAxis = ['mie_signal_intensity'];
-                this.graph.renderSettings.yAxis = ['mie_altitude'];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.colorAxis = [['mie_signal_intensity']];
+                this.graph.renderSettings.yAxis = [['mie_altitude']];
+                this.graph.renderSettings.xAxis =['mie_time'];
             }else if(band === 'rayleigh_signal_channel_A_intensity'){
-                this.graph.renderSettings.colorAxis = ['rayleigh_signal_channel_A_intensity'];
-                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.colorAxis = [['rayleigh_signal_channel_A_intensity']];
+                this.graph.renderSettings.yAxis = [['rayleigh_altitude']];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
             }else if(band === 'rayleigh_signal_channel_B_intensity'){
-                this.graph.renderSettings.colorAxis = ['rayleigh_signal_channel_B_intensity'];
-                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.colorAxis = [['rayleigh_signal_channel_B_intensity']];
+                this.graph.renderSettings.yAxis = [['rayleigh_altitude']];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
             }
 
 
@@ -1087,8 +1090,8 @@ define([
             }
 
             this.graph.renderSettings.combinedParameters = currPar.combinedParameters;
-            this.graph.renderSettings.colorAxis = currPar.colorAxis;
-            this.graph.renderSettings.yAxis = currPar.yAxis;
+            this.graph.renderSettings.colorAxis = [currPar.colorAxis];
+            this.graph.renderSettings.yAxis = [currPar.yAxis];
             this.graph.renderSettings.xAxis =currPar.xAxis;
             dataJumps = data[currPar.jumps];
             lats = data[currPar.lats];
@@ -2741,7 +2744,7 @@ define([
 
         onHighlightPoint: function(coords){
             this.billboards.removeAll();
-            if(coords !== null){
+            if(coords !== null && coords.Latitude && coords.Longitude){
                 var canvas = document.createElement('canvas');
                 canvas.width = 32;
                 canvas.height = 32;

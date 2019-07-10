@@ -190,8 +190,8 @@
                 "mie_latitude": {"uom": "10-6DegN", "name": "Latitude of each Mie height bin along the line-of-sight"},
                 "rayleigh_longitude": {"uom": "10-6DegE", "name": "Longitude of each Rayleigh height bin along the line-of-sight"},
                 "rayleigh_latitude": {"uom": "10-6DegN", "name": "Latitude of each Rayleigh height bin along the line-of-sight"},
-                "mie_altitude": {"uom": "m (w.r.t the WGS84 ellipsoid)", "name": "Altitude of Mie height bins with respect to the WGS84 ellipsoid along the line-of-sight"},
-                "rayleigh_altitude": {"uom": "m (w.r.t the WGS84 ellipsoid)", "name": "Altitude of Rayleigh height bins with respect to the WGS84 ellipsoid along the line-of-sight"},
+                "mie_altitude": {"uom": "m (WGS84 ellip.)", "name": "Altitude of Mie height bins with respect to the WGS84 ellipsoid along the line-of-sight"},
+                "rayleigh_altitude": {"uom": "m (WGS84 ellip.)", "name": "Altitude of Rayleigh height bins with respect to the WGS84 ellipsoid along the line-of-sight"},
                 "mie_range": {"uom": "m", "name": "Distance along the LOS between the instrument and the lower edge of the Mie height bin"},
                 "rayleigh_range": {"uom": "m", "name": "Distance along the LOS between the instrument and the lower edge of the Rayleigh height bin"},
                 "geoid_separation": {"uom": "m", "name": "Height of geoid above WGS84 ellipsoid"},
@@ -228,7 +228,11 @@
                 "rayleigh_mean_emitted_frequency": {"uom": "GHz", "name": "Rayleigh mean emitted frequency"},
                 "mie_emitted_frequency_std_dev": {"uom": "GHz", "name": "Mie emitted frequency standard deviation"},
                 "rayleigh_emitted_frequency_std_dev": {"uom": "GHz", "name": "Rayleigh emitted frequency standrad deviation"},
-                "albedo_off_nadir": {"uom": null, "name": "Albedo off-nadir value"}
+                "albedo_off_nadir": {"uom": null, "name": "Albedo off-nadir value"},
+                "rayleigh_signal_intensity_range_corrected": {"uom": null, "name": "Range corrected vertical profiles of signal intensity of Rayleigh channel"},
+                "mie_signal_intensity_ranged_corrected": {"uom": null, "name": "Range corrected vertical profiles of signal intensity for the Mie channel"},
+                "rayleigh_signal_intensity_normalised": {"uom": null, "name": "Normalized vertical profiles of signal intensity of Rayleigh channel"},
+                "mie_signal_intensity_ranged_normalised": {"uom": null, "name": "Normalized vertical profiles of signal intensity for the Mie channel"}
             },
             "download_groups": {
                 "observation": [
@@ -274,7 +278,11 @@
                     "mie_bin_quality_flag",
                     "rayleigh_reference_pulse_quality_flag':",
                     "mie_reference_pulse_quality_flag",
-                    "albedo_off_nadir"
+                    "albedo_off_nadir",
+                    "rayleigh_signal_intensity_range_corrected",
+                    "mie_signal_intensity_ranged_corrected",
+                    "rayleigh_signal_intensity_normalised",
+                    "mie_signal_intensity_ranged_normalised"
                 ],
                 "measurement": [
                     "time",

@@ -5,7 +5,7 @@
 
     root.require.config({
         // Update for each release
-        urlArgs: 'bust=v1.303',
+        urlArgs: 'bust=v1.31',
 
         waitSeconds: 120,
         /* starting point for application */
