@@ -14,13 +14,11 @@
     "backbone.babysitter": "~0.0.6",
     "require-handlebars-plugin": "~0.11.0",
     "backbone.marionette.handlebars": "~0.2.0",
-    "libcoverage": "https://github.com/EOX-A/libcoverage.js/releases/download/v0.1.5/libcoverage.js.v0.1.5.zip",
     "d3": "~3.5.3",
     "d3.TimeSlider": "https://github.com/EOX-A/d3.TimeSlider/releases/download/v1.1.3/d3.TimeSlider.zip",
     "lm.js": "madhums/lm.js#~0.1.0",
     "bootstrap": "~3.0.1",
     "font-awesome": "~4.5.0",
-    "d3.Graphs": "ESA-VirES/AnalyticsViewer#~0.4.17",
     "cesium": "https://github.com/AnalyticalGraphicsInc/cesium/releases/download/1.20/Cesium-1.20.zip",
     "papaparse": "~4.1.0",
     "plotty": "santilland/plotty#^0.1.1",
@@ -29,11 +27,10 @@
     "canvas-toBlob.js": "eligrey/canvas-toBlob.js",
     "Blob.js": "eligrey/Blob.js",
     "graphly": "EOX-A/graphly#40686b9a08fe85d52e928f2e61448cd2f503a8bb",
-    "filepond": "pqina/filepond#^2.0.1"
+    "filepond": "pqina/filepond#^2.0.1",
+    "w2ui": "vitmalina/w2ui#b2216cbef7e940c8efaf0b07a94ce2f01d194c39"
   },
-  "devDependencies": {
-    "Keypress": "~2.0.0"
-  },
+  "devDependencies": {},
   "resolutions": {
     "d3": "~3.5.3",
     "papaparse": "^4.3.2",
