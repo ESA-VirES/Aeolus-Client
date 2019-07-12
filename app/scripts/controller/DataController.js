@@ -2515,7 +2515,8 @@
                     'mie_reference_pulse_quality_flag',
                     'mie_mean_emitted_frequency', 'mie_emitted_frequency_std_dev',
                     'mie_signal_intensity_ranged_corrected',
-                    'mie_signal_intensity_ranged_normalised'
+                    'mie_signal_intensity_ranged_normalised',
+                    'geoid_separation'
 
                   ];
 
@@ -2538,7 +2539,8 @@
                     'rayleigh_reference_pulse_quality_flag',
                     'rayleigh_mean_emitted_frequency', 'rayleigh_emitted_frequency_std_dev',
                     'rayleigh_signal_intensity_range_corrected',
-                    'rayleigh_signal_intensity_normalised'
+                    'rayleigh_signal_intensity_normalised',
+                    'geoid_separation'
                   ];
 
                   if(rayleighDiffVars){

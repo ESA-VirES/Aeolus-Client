@@ -380,3 +380,8 @@
     /*Solving issue of select being different because of bootstrap*/
     margin-top: -10px;
 }
+
+#parameterSettings, .parameterInfo{
+    /*overwrite bootstrap box sizing which makes boy smaller then it should be*/
+    box-sizing: content-box!important;
+}
