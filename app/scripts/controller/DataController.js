@@ -675,6 +675,8 @@
           this.filterManager._initData();
           this.filterManager._renderFilters();
         }
+        this.wpsProdChange = true;
+        this.checkSelections();
 
 
       },
@@ -2249,6 +2251,14 @@
           scaleFactor = Number(scaleFactor.toPrecision(3));
 
           if(parameter2Dselected){
+            // Check for altitude filter
+            if(product.get('altitude')!==null){
+              var alti = product.get('altitude');
+              options['filters'] = JSON.stringify({
+                'layer_altitude_nadir': {min:0, max:alti*100000},
+                'layer_altitude_off_nadir': {min:0, max:alti*100000}
+              });
+            }
 
             if(scaleFactor >= 0.98){
               scaleFactor = 1.0;
@@ -2505,7 +2515,8 @@
                     'mie_reference_pulse_quality_flag',
                     'mie_mean_emitted_frequency', 'mie_emitted_frequency_std_dev',
                     'mie_signal_intensity_ranged_corrected',
-                    'mie_signal_intensity_ranged_normalised'
+                    'mie_signal_intensity_ranged_normalised',
+                    'geoid_separation'
 
                   ];
 
@@ -2528,7 +2539,8 @@
                     'rayleigh_reference_pulse_quality_flag',
                     'rayleigh_mean_emitted_frequency', 'rayleigh_emitted_frequency_std_dev',
                     'rayleigh_signal_intensity_range_corrected',
-                    'rayleigh_signal_intensity_normalised'
+                    'rayleigh_signal_intensity_normalised',
+                    'geoid_separation'
                   ];
 
                   if(rayleighDiffVars){
@@ -2850,8 +2862,14 @@
                         resData[key+'_end'] = [];
                         for (var x = 0; x < ds[key].length-1; x++) {
                           for (var y = 0; y < ds[key][x].length-1; y++) {
-                            resData[key+'_start'].push(ds[key][x][y]);
-                            resData[key+'_end'].push(ds[key][x][y+1]);
+                            var start = ds[key][x][y];
+                            var end = ds[key][x][y+1];
+                            if(start === null || end === null){
+                              start = NaN;
+                              end = NaN;
+                            }
+                            resData[key+'_start'].push(start);
+                            resData[key+'_end'].push(end);
                           }
                         }
                       } else {

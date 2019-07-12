@@ -312,8 +312,8 @@ define(['backbone.marionette',
                     groups: ['mie', 'rayleigh'],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
-                        latitude: ['latitude_of_DEM_intersection_start', 'latitude_of_DEM_intersection_end'],
-                        longitude: ['longitude_of_DEM_intersection_start', 'longitude_of_DEM_intersection_end'],
+                        latitude_of_DEM_intersection: ['latitude_of_DEM_intersection_start', 'latitude_of_DEM_intersection_end'],
+                        longitude_of_DEM_intersection: ['longitude_of_DEM_intersection_end', 'longitude_of_DEM_intersection_start'],
                         mie_time: ['mie_time_start', 'mie_time_end'],
                         rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end'],
                         mie_altitude: ['mie_altitude_start', 'mie_altitude_end']
@@ -405,13 +405,21 @@ define(['backbone.marionette',
                         ],
                         'altitude': [
                             'rayleigh_altitude', 'mie_altitude'
-                        ]/*,
-                        'geoid_separation': [
-                            'geoid_separation'
-                        ]*/
+                        ],
+                        'geoid_separation': ['geoid_separation'],
+                        'longitude_of_DEM_intersection': ['longitude_of_DEM_intersection'],
+                        'latitude_of_DEM_intersection': ['latitude_of_DEM_intersection'],
+                        'altitude_of_DEM_intersection': ['altitude_of_DEM_intersection'],
+                        'velocity_at_DEM_intersection': ['velocity_at_DEM_intersection'],
+                        'AOCS_pitch_angle': ['AOCS_pitch_angle'],
+                        'AOCS_roll_angle': ['AOCS_roll_angle'],
+                        'AOCS_yaw_angle': ['AOCS_yaw_angle'],
+                        'average_laser_energy': ['average_laser_energy'],
+                        'laser_frequency': ['laser_frequency'],
+                        'albedo_off_nadir': ['albedo_off_nadir'],
                     },
                     additionalXTicks: [],
-                    additionalYTicks: [],
+                    additionalYTicks: [[],[]],
                     availableParameters: false
                 },
                 'ALD_U_N_2A': {
@@ -544,7 +552,7 @@ define(['backbone.marionette',
                         ]
                     },
                     additionalXTicks: [],
-                    additionalYTicks: [],
+                    additionalYTicks: [[],[]],
                     availableParameters: false
                 },
                 'ALD_U_N_2A_group':{
@@ -560,7 +568,7 @@ define(['backbone.marionette',
                         ['group_backscatter_variance']
                     ],
                     additionalXTicks: [],
-                    additionalYTicks: [],
+                    additionalYTicks: [[]],
                     y2Axis: [[]],
                     colorAxis2: [[]],
                     groups: false,
@@ -729,7 +737,7 @@ define(['backbone.marionette',
                         ]
                     },
                     additionalXTicks: [],
-                    additionalYTicks: [],
+                    additionalYTicks: [[],[]],
                     availableParameters: false
                 },
                 'ALD_U_N_2B_group': {
@@ -749,7 +757,7 @@ define(['backbone.marionette',
                     groups: ['rayleigh'],
                     reversedYAxis: true,
                     additionalXTicks: [],
-                    additionalYTicks: [],
+                    additionalYTicks: [[]],
                     y2Axis: [[]],
                     colorAxis2: [[]],
                     renderGroups: {
@@ -988,7 +996,7 @@ define(['backbone.marionette',
                         ]
                     },
                     additionalXTicks: [],
-                    additionalYTicks: [],
+                    additionalYTicks: [[],[]],
                     availableParameters: false
                 },
                 'ALD_U_N_2C_group': {
@@ -1008,7 +1016,7 @@ define(['backbone.marionette',
                     groups: ['rayleigh'],
                     reversedYAxis: true,
                     additionalXTicks: [],
-                    additionalYTicks: [],
+                    additionalYTicks: [[]],
                     y2Axis: [[]],
                     colorAxis2: [[]],
                     renderGroups: {
@@ -1054,7 +1062,7 @@ define(['backbone.marionette',
                     xAxis: ['frequency_offset'],
                     yAxis: [['measurement_response'], ['measurement_error_mie_response']],
                     additionalXTicks: [],
-                    additionalYTicks: [],
+                    additionalYTicks: [[],[]],
                     colorAxis: [ [null], [null] ],
                     y2Axis: [[], []],
                     colorAxis2: [[], []],
@@ -1074,7 +1082,7 @@ define(['backbone.marionette',
                     xAxis: ['frequency_offset'],
                     yAxis: [['measurement_response'], ['measurement_error_rayleigh_response']],
                     additionalXTicks: [],
-                    additionalYTicks: [],
+                    additionalYTicks: [[],[]],
                     colorAxis: [ [null], [null] ],
                     y2Axis: [[], []],
                     colorAxis2: [[], []],
@@ -1094,7 +1102,7 @@ define(['backbone.marionette',
                     xAxis: ['laser_frequency_offset'],
                     yAxis: [['rayleigh_channel_A_response', 'rayleigh_channel_B_response']],
                     additionalXTicks: [],
-                    additionalYTicks: [],
+                    additionalYTicks: [[]],
                     groups: false,
                     renderGroups: false,
                     sharedParameters: false,
@@ -1108,7 +1116,7 @@ define(['backbone.marionette',
                     xAxis: ['observation_index'],
                     yAxis: [['mie_ground_correction_velocity', 'rayleigh_ground_correction_velocity']],
                     additionalXTicks: [],
-                    additionalYTicks: [],
+                    additionalYTicks: [[]],
                     colorAxis: [ [null, null] ],
                     y2Axis: [[]],
                     colorAxis2: [[]],
@@ -1126,7 +1134,7 @@ define(['backbone.marionette',
                     xAxis: ['time'],
                     yAxis: [['surface_wind_component_u_nadir'], ['surface_wind_component_u_off_nadir']],
                     additionalXTicks: [],
-                    additionalYTicks: [],
+                    additionalYTicks: [[],[]],
                     colorAxis: [ [null], [null] ],
                     y2Axis: [[],[]],
                     colorAxis2: [[],[]],
@@ -1188,7 +1196,7 @@ define(['backbone.marionette',
                     xAxis: 'time_nadir',
                     yAxis: ['surface_wind_component_u_nadir'],
                     additionalXTicks: [],
-                    additionalYTicks: [],
+                    additionalYTicks: [[]],
                     colorAxis: [ null ],
                     combinedParameters: {
                         time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
@@ -1200,7 +1208,7 @@ define(['backbone.marionette',
                     xAxis: 'time_off_nadir',
                     yAxis: ['surface_wind_component_u_off_nadir'],
                     additionalXTicks: [],
-                    additionalYTicks: [],
+                    additionalYTicks: [[]],
                     colorAxis: [ null ],
                     combinedParameters: {
                         time_off_nadir_combined: ['time_off_nadir_start', 'time_off_nadir_end'],
@@ -1216,13 +1224,6 @@ define(['backbone.marionette',
                 'ALD_U_N_2C': ['mie', 'rayleigh'],
                 'AUX_MET_12': ['nadir', 'off_nadir']
             };
-
-            if (localStorage.getItem('groupSelected') !== null) {
-                var prevSel = JSON.parse(localStorage.getItem('groupSelected'));
-                for(var k in prevSel){
-                    this.groupSelected[k] = prevSel[k];
-                }
-            }
 
             this.dataSettings = globals.dataSettings;
 
@@ -1272,10 +1273,10 @@ define(['backbone.marionette',
                     displayParameterLabel: false,
                     multiYAxis: true,
                     ignoreParameters: [ /jumps.*/, /SignCross.*/, 'positions', 'stepPositions'],
-                    /*enableSubXAxis: true,
-                    enableSubYAxis: true,*/
-                    //colorAxisTickFormat: 'customExp',
-                    //defaultAxisTickFormat: 'customExp'
+                    enableSubXAxis: 'time',
+                    enableSubYAxis: ['mie_altitude','rayleigh_altitude'],
+                    colorAxisTickFormat: 'customExp',
+                    defaultAxisTickFormat: 'customExp'
                 });
                 globals.swarm.get('filterManager').setRenderNode('#analyticsFilters');
                 this.graph.on('pointSelect', function(values){
@@ -1288,8 +1289,13 @@ define(['backbone.marionette',
                     // Check to see if L2B or L2C groups are currently visualized
                     if (datkey === 'ALD_U_N_2B' || 
                         datkey === 'ALD_U_N_2C'){
-                        
-                        if(that.currentGroup !== this.renderSettings.groups[0]){
+
+                        var currProd = globals.products.find(
+                            function(p){return p.get('download').id === datkey;}
+                        );
+                        var gran = currProd.get('granularity');
+
+                        if(gran === 'group' && that.currentGroup !== this.renderSettings.groups[0]){
                             // There was an axis change, change the group controls
                             that.currentGroup = this.renderSettings.groups[0];
                             that.createGroupInteractionButtons(data[datkey], that.currentGroup, 3);
@@ -1894,7 +1900,7 @@ define(['backbone.marionette',
                             var pageSize = 3;
 
                             var ds = data[cP];
-                            var currGroup = this.groupSelected [cP][0];
+                            var currGroup = this.graph.renderSettings.groups[0];
                             
                             this.createGroupInteractionButtons(ds, currGroup, pageSize);
                             $('#newPlotLink').hide();
@@ -1977,7 +1983,7 @@ define(['backbone.marionette',
                                 y2Axis: [[]],
                                 colorAxis2: [[]],
                                 additionalXTicks: [],
-                                additionalYTicks: [],
+                                additionalYTicks: [[]],
                                 colorAxis: [ [param2D] ],
                                 combinedParameters: {
                                     time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
@@ -1995,7 +2001,7 @@ define(['backbone.marionette',
                                 y2Axis: [[]],
                                 colorAxis2: [[]],
                                 additionalXTicks: [],
-                                additionalYTicks: [],
+                                additionalYTicks: [[]],
                                 colorAxis: [ [param2D] ],
                                 combinedParameters: {
                                     time_off_nadir_combined: ['time_off_nadir_start', 'time_off_nadir_end'],

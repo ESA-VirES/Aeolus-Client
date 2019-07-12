@@ -267,9 +267,15 @@ var VECTOR_BREAKDOWN = {};
                         product_config[i].process = m_p[i].process;
 
                         // Make sure aux met parameters are up to date
-                        if(product_config[i].download.id === 'AUX_MET_12' && 
-                          !product_config[i].parameters.hasOwnProperty('layer_temperature_off_nadir')){
-                            product_config[i].parameters = m_p[i].parameters;
+                        if(product_config[i].download.id === 'AUX_MET_12'){
+
+                            if(!product_config[i].hasOwnProperty('altitude')){
+                                product_config[i].altitude = defaultFor(m_p[i].altitude, 25);
+                            }
+
+                            if (!product_config[i].parameters.hasOwnProperty('layer_temperature_off_nadir')){
+                                product_config[i].parameters = m_p[i].parameters;
+                            }
                         }
                     }
 
@@ -280,6 +286,9 @@ var VECTOR_BREAKDOWN = {};
 
                 _.each(config.mapConfig.products, function(product) {
                     var p_color = product.color ? product.color : autoColor.getColor();
+                    if(product.download.id === 'AUX_MET_12'){
+
+                    }
                     var lm = new m.LayerModel({
                         name: product.name,
                         visible: product.visible,
@@ -309,7 +318,8 @@ var VECTOR_BREAKDOWN = {};
                         satellite: product.satellite,
                         tileSize: (product.tileSize) ? product.tileSize : 256,
                         validity: product.validity,
-                        showColorscale: defaultFor(product.showColorscale, true)
+                        showColorscale: defaultFor(product.showColorscale, true),
+                        altitude: defaultFor(product.altitude, null)
                     });
 
                     if(product.hasOwnProperty('granularity_options')){
