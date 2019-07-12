@@ -348,8 +348,8 @@ define(['backbone.marionette',
                                 'mie_bin_quality_flag',
                                 'mie_reference_pulse_quality_flag',
                                 'albedo_off_nadir',
-                                'mie_signal_intensity_ranged_corrected',
-                                'mie_signal_intensity_ranged_normalised'
+                                'mie_signal_intensity_range_corrected',
+                                'mie_signal_intensity_normalised'
                             ],
                             positionAlias: {
                                 'latitude': 'latitude',
