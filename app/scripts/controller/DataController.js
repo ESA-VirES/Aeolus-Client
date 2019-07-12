@@ -2862,8 +2862,14 @@
                         resData[key+'_end'] = [];
                         for (var x = 0; x < ds[key].length-1; x++) {
                           for (var y = 0; y < ds[key][x].length-1; y++) {
-                            resData[key+'_start'].push(ds[key][x][y]);
-                            resData[key+'_end'].push(ds[key][x][y+1]);
+                            var start = ds[key][x][y];
+                            var end = ds[key][x][y+1];
+                            if(start === null || end === null){
+                              start = NaN;
+                              end = NaN;
+                            }
+                            resData[key+'_start'].push(start);
+                            resData[key+'_end'].push(end);
                           }
                         }
                       } else {
