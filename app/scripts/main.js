@@ -34,7 +34,6 @@ function defaultFor(arg, val) { return typeof arg !== 'undefined' ? arg : val; }
         'jqueryuitouch',
         "text!config.json",
         "util",
-        "libcoverage",
         'core/SplitView/SplitViewModule'
     ],
     function ( Backbone, App, Communicator, globals ) {
