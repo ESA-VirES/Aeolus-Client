@@ -559,7 +559,11 @@
                     var oneDay=1000*60*60*24;
                     // In order to avoid overlap of product we remove a delta 
                     // from the time selection, 1 minute seems to be a good compromise
+                    // Only do it for collections that are not AUX ISR 
                     var delta = (1000*60);
+                    if(details.dataset === "AUX_ISR_1B"){
+                        delta = 0;
+                    }
                     if ( Math.ceil( (details.end - details.start)/oneDay)<10 ){
                         this.slider.select(
                             new Date(details.start.getTime()+delta),
