@@ -118,6 +118,16 @@ define(['backbone.marionette',
                 currSets.groups = groups;
             }
 
+            // Apply custom subticks in the size of the amount of plots
+            // subticks are not saved at the moment
+            if (groups !== null) {
+                var yticks = [];
+                for (var i = 0; i < currSets.yAxis.length; i++) {
+                    yticks.push([]);
+                }
+                currSets.additionalYTicks = yticks;
+            }
+
             return currSets;
         },
 
@@ -731,8 +741,14 @@ define(['backbone.marionette',
                         }
                     },
                     sharedParameters: {
-                        'time': [
-                            'mie_time', 'rayleigh_time'
+                        'time': [ 'mie_time', 'rayleigh_time' ],
+                        'latitude_of_DEM_intersection': [
+                            'mie_wind_result_lat_of_DEM_intersection',
+                            'rayleigh_wind_result_lat_of_DEM_intersection'
+                        ],
+                        'longitude_of_DEM_intersection': [
+                            'mie_wind_result_lon_of_DEM_intersection',
+                            'rayleigh_wind_result_lon_of_DEM_intersection'
                         ]
                     },
                     additionalXTicks: [],
@@ -992,6 +1008,14 @@ define(['backbone.marionette',
                     sharedParameters: {
                         'time': [
                             'mie_time', 'rayleigh_time'
+                        ],
+                        'latitude_of_DEM_intersection': [
+                            'mie_wind_result_lat_of_DEM_intersection',
+                            'rayleigh_wind_result_lat_of_DEM_intersection'
+                        ],
+                        'longitude_of_DEM_intersection': [
+                            'mie_wind_result_lon_of_DEM_intersection',
+                            'rayleigh_wind_result_lon_of_DEM_intersection'
                         ]
                     },
                     additionalXTicks: [],
