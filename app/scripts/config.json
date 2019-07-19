@@ -95,9 +95,9 @@
             "name": "S2 Cloudless",
             "visible": false,
             "views": [{
-                "id": "s2cloudless",
+                "id": "s2cloudless-2018",
                 "protocol": "WMTS",
-                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=s2cloudless&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=s2cloudless-2018&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
                 "subdomains": "abcdef",
                 "urls": [
                     "//a.tiles.maps.eox.at/wmts/",
@@ -118,7 +118,7 @@
                 "zoomOffset": 0,
                 "attribution": "Sentinel-2 cloudless - <a href=\"https://s2maps.eu\" target=\"_blank\">https://s2maps.eu</a> by <a href=\"https://eox.at\" target=\"_blank\">EOX IT Services GmbH</a> (Contains modified Copernicus Sentinel data 2016 & 2017)"
             }, {
-                "id": "s2cloudless",
+                "id": "s2cloudless-2018",
                 "protocol": "WMS",
                 "urls": [
                     "//tiles.maps.eox.at/wms"
