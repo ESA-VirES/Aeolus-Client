@@ -64,6 +64,17 @@
     box-sizing: content-box; 
 }
 
+.editButton.remove:before {
+    margin-left: -3px;
+    margin-top: 0px;
+    font-size: 12px;
+    position: absolute;
+}
+
+.filterContainer input{
+    margin-top: 3px!important;
+}
+
 
 
 

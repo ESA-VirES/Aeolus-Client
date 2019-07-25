@@ -1299,7 +1299,8 @@ define(['backbone.marionette',
                     enableSubXAxis: 'time',
                     enableSubYAxis: ['mie_altitude','rayleigh_altitude'],
                     colorAxisTickFormat: 'customExp',
-                    defaultAxisTickFormat: 'customExp'
+                    defaultAxisTickFormat: 'customExp',
+                    //debug: true
                 });
                 globals.swarm.get('filterManager').setRenderNode('#analyticsFilters');
                 this.graph.on('pointSelect', function(values){
@@ -1812,7 +1813,6 @@ define(['backbone.marionette',
             // If element already has plot rendering
             if( $(this.el).html()){
 
-                //this.filterManager.initManager();
                 var idKeys = Object.keys(data);
                 if(idKeys.length>0){
                     this.currentKeys = Object.keys(data[idKeys[0]]);
@@ -1852,8 +1852,11 @@ define(['backbone.marionette',
 
 
                 if(data.length>0 && _.isEqual(this.previousKeys, this.currentKeys) ){
-                    this.graph.loadData(data[idKeys[0]]);
+                    this.filterManager.initManager();
                     this.filterManager.loadData(data[idKeys[0]]);
+                    this.filterManager._renderFilters();
+                    this.filterManager._renderFilters();
+                    this.graph.loadData(data[idKeys[0]]);
                     return;
                 }
 
@@ -1906,7 +1909,11 @@ define(['backbone.marionette',
                         this.graph.debounceActive = true;
                         this.graph.dataSettings = mergedDataSettings;
                         this.graph.fileSaveString = cP+'_'+gran+'_'+timeString;
+
+                        this.filterManager.initManager();
                         this.filterManager.loadData(data[cP]);
+                        this.filterManager._renderFilters();
+                        this.filterManager._renderFilters();
                         this.graph.loadData(data[cP]);
 
                      } else if(cP === 'ALD_U_N_2B' || cP === 'ALD_U_N_2C'){
