@@ -317,6 +317,8 @@
                 'mie_wind_result_QC_flags_1',
                 'rayleigh_wind_result_HLOS_error', 'rayleigh_wind_result_COG_range',
                 'rayleigh_wind_result_QC_flags_1',
+                'mie_wind_result_validity_flag',
+                'rayleigh_wind_result_validity_flag',
                 // AUX MRC RRC 
                 'measurement_response', 
                 'measurement_error_mie_response',
@@ -346,7 +348,18 @@
                 // 'measurement_response_valid','reference_pulse_response_valid',
 
             ],
-            boolParameter: ['SCA_QC_flag'/*'measurement_response_valid','reference_pulse_response_valid'*/],
+            boolParameter: {
+                parameters: [
+                    'SCA_QC_flag',
+                    'mie_wind_result_validity_flag',
+                    'rayleigh_wind_result_validity_flag',
+                ],
+                enabled: [
+                    false,
+                    true,
+                    true
+                ]
+            },
             maskParameter: {
               'mie_bin_quality_flag': {
                   values: [
@@ -803,10 +816,10 @@
           var resData = {};
           resData[this.collectionId] = this.tmpdata;
 
-          // TODO: Merge data for filtermanager?
-          this.filterManager.loadData(resData);
-          this.filterManager._initData();
-
+          this.filterManager.initManager();
+          this.filterManager.loadData(resData[this.collectionId]);
+          this.filterManager._renderFilters();
+          this.filterManager._renderFilters();
           globals.swarm.set({data: resData});
         }
       },
@@ -3100,9 +3113,11 @@
                   if($.isEmptyObject(resData) || empty){
                     globals.swarm.set({data: {}});
                   } else {
-                    globals.swarm.set({data: tmpdata});
-                    // TODO: Merge data for filtermanager?
+                    that.filterManager.initManager();
                     that.filterManager.loadData(resData);
+                    that.filterManager._renderFilters();
+                    that.filterManager._renderFilters();
+                    globals.swarm.set({data: tmpdata});
                   }
                   
 

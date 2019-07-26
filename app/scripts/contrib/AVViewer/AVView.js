@@ -1852,13 +1852,13 @@ define(['backbone.marionette',
 
 
                 if(data.length>0 && _.isEqual(this.previousKeys, this.currentKeys) ){
-                    this.filterManager.initManager();
-                    this.filterManager.loadData(data[idKeys[0]]);
-                    this.filterManager._renderFilters();
-                    this.filterManager._renderFilters();
                     this.graph.loadData(data[idKeys[0]]);
                     return;
                 }
+
+                // If change in data reset filters
+                globals.swarm.set({filters: {}});
+                Communicator.mediator.trigger('analytics:set:filter', {});
 
                 if(idKeys.length > 0){
                     // Cleanup info button
@@ -1909,11 +1909,6 @@ define(['backbone.marionette',
                         this.graph.debounceActive = true;
                         this.graph.dataSettings = mergedDataSettings;
                         this.graph.fileSaveString = cP+'_'+gran+'_'+timeString;
-
-                        this.filterManager.initManager();
-                        this.filterManager.loadData(data[cP]);
-                        this.filterManager._renderFilters();
-                        this.filterManager._renderFilters();
                         this.graph.loadData(data[cP]);
 
                      } else if(cP === 'ALD_U_N_2B' || cP === 'ALD_U_N_2C'){
@@ -1960,7 +1955,6 @@ define(['backbone.marionette',
                         this.graph.dataSettings = mergedDataSettings;
                         this.graph.loadData(data[idKeys[0]]);
                         this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
-                        this.filterManager.loadData(data[idKeys[0]]);
 
                     } else if(idKeys[0] === 'AUX_MET_12'){
 
@@ -2050,12 +2044,10 @@ define(['backbone.marionette',
                             this.graph.dataSettings = mergedDataSettings;
                             this.graph.loadData(data[idKeys[0]]);
                             this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
-                            this.filterManager.loadData(data[idKeys[0]]);
                         } else {
                             this.graph.dataSettings = mergedDataSettings;
                             this.graph.loadData(data[idKeys[0]]);
                             this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
-                            this.filterManager.loadData(data[idKeys[0]]);
                         }
                         this.graph.debounceActive = true;
 
@@ -2092,7 +2084,6 @@ define(['backbone.marionette',
                         this.graph.renderSettings = this.renderSettings[idKeys[0]];
                         this.graph.loadData(data[idKeys[0]]);
                         this.graph.fileSaveString = idKeys[0]+'_'+timeString;
-                        this.filterManager.loadData(data[idKeys[0]]);
                     }
 
                     if(data[idKeys[0]].hasOwnProperty('singleValues')){
