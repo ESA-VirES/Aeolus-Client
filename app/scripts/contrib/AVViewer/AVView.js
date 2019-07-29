@@ -316,9 +316,9 @@ define(['backbone.marionette',
             this.renderSettings = {
                 'ALD_U_N_1B':{
                     xAxis: 'time',
-                    yAxis: [['mie_altitude'], ['rayleigh_altitude']],
+                    yAxis: [['rayleigh_altitude'], ['mie_altitude']],
                     y2Axis: [[], []],
-                    groups: ['mie', 'rayleigh'],
+                    groups: ['rayleigh', 'mie'],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
                         latitude_of_DEM_intersection: ['latitude_of_DEM_intersection_start', 'latitude_of_DEM_intersection_end'],
@@ -327,7 +327,7 @@ define(['backbone.marionette',
                         rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end'],
                         mie_altitude: ['mie_altitude_start', 'mie_altitude_end']
                     },
-                    colorAxis: [['mie_HLOS_wind_speed'], ['rayleigh_HLOS_wind_speed']],
+                    colorAxis: [['rayleigh_HLOS_wind_speed'], ['mie_HLOS_wind_speed']],
                     colorAxis2: [[], []],
                     renderGroups: {
                         mie: {
@@ -433,9 +433,9 @@ define(['backbone.marionette',
                 },
                 'ALD_U_N_2A': {
                     xAxis: 'time',
-                    yAxis: [['mie_altitude'], ['rayleigh_altitude']],
+                    yAxis: [['rayleigh_altitude'], ['mie_altitude']],
                     y2Axis: [[], []],
-                    groups: ['MCA', 'SCA'],
+                    groups: ['SCA', 'MCA'],
                     combinedParameters: {
                         mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
                         MCA_time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
@@ -446,7 +446,7 @@ define(['backbone.marionette',
                         SCA_middle_bin_altitude: ['SCA_middle_bin_altitude_obs_top', 'SCA_middle_bin_altitude_obs_bottom'],
                         SCA_middle_bin_time: ['SCA_middle_bin_time_obs_start', 'SCA_middle_bin_time_obs_stop']
                     },
-                    colorAxis: [['MCA_extinction'], ['SCA_extinction']],
+                    colorAxis: [['SCA_extinction'], ['MCA_extinction']],
                     colorAxis2: [[], []],
                     renderGroups: {
                         MCA: {
@@ -587,9 +587,9 @@ define(['backbone.marionette',
                 },
                 'ALD_U_N_2B': {
                     xAxis: 'time',
-                    yAxis: [['mie_altitude'], ['rayleigh_altitude']],
+                    yAxis: [['rayleigh_altitude'], ['mie_altitude']],
                     y2Axis: [[], []],
-                    groups: ['mie', 'rayleigh'],
+                    groups: ['rayleigh', 'mie'],
                     combinedParameters: {
                         mie_altitude: ['mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'],
                         mie_time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
@@ -608,7 +608,7 @@ define(['backbone.marionette',
                         ],
                         rayleigh_wind_result_COG_range: ['rayleigh_wind_result_COG_range_start', 'rayleigh_wind_result_COG_range_end']
                     },
-                    colorAxis: [['mie_wind_result_wind_velocity'], ['rayleigh_wind_result_wind_velocity']],
+                    colorAxis: [['rayleigh_wind_result_wind_velocity'], ['mie_wind_result_wind_velocity']],
                     colorAxis2: [[], []],
                     renderGroups: {
                         mie: {
@@ -816,9 +816,9 @@ define(['backbone.marionette',
                 },
                 'ALD_U_N_2C': {
                     xAxis: 'time',
-                    yAxis: [['mie_altitude'], ['rayleigh_altitude']],
+                    yAxis: [['rayleigh_altitude'], ['mie_altitude']],
                     y2Axis: [[], []],
-                    groups: ['mie', 'rayleigh'],
+                    groups: ['rayleigh', 'mie'],
                     combinedParameters: {
                         mie_altitude: ['mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'],
                         mie_time: ['mie_wind_result_start_time', 'mie_wind_result_stop_time'],
@@ -837,7 +837,7 @@ define(['backbone.marionette',
                         ],
                         rayleigh_wind_result_COG_range: ['rayleigh_wind_result_COG_range_start', 'rayleigh_wind_result_COG_range_end']
                     },
-                    colorAxis: [['mie_wind_result_wind_velocity'], ['rayleigh_wind_result_wind_velocity']],
+                    colorAxis: [['rayleigh_wind_result_wind_velocity'], ['mie_wind_result_wind_velocity']],
                     colorAxis2: [[], []],
                     renderGroups: {
                         mie: {
@@ -1240,14 +1240,6 @@ define(['backbone.marionette',
                 }
             };
 
-            this.groupSelected = {
-                'ALD_U_N_1B': ['mie', 'rayleigh'],
-                'ALD_U_N_2A': ['MCA', 'SCA'],
-                'ALD_U_N_2B': ['mie', 'rayleigh'],
-                'ALD_U_N_2C': ['mie', 'rayleigh'],
-                'AUX_MET_12': ['nadir', 'off_nadir']
-            };
-
             this.dataSettings = globals.dataSettings;
 
             // Check if styling settings have been saved
@@ -1284,8 +1276,6 @@ define(['backbone.marionette',
                 this.filterManager.visibleFilters = this.selectedFilterList;
 
                 var settings = this.renderSettings['ALD_U_N_1B'];
-                settings.groups = this.groupSelected['ALD_U_N_1B'];
-
 
                 this.graph = new graphly.graphly({
                     el: '#graph',
@@ -1302,6 +1292,16 @@ define(['backbone.marionette',
                     defaultAxisTickFormat: 'customExp',
                     //debug: true
                 });
+
+
+                for(var cskey in additionalColorscales){
+                    this.graph.addColorScale(
+                        cskey, 
+                        additionalColorscales[cskey][0],
+                        additionalColorscales[cskey][1]
+                    );
+                }
+
                 globals.swarm.get('filterManager').setRenderNode('#analyticsFilters');
                 this.graph.on('pointSelect', function(values){
                     Communicator.mediator.trigger('cesium:highlight:point', values);

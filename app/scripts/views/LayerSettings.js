@@ -33,11 +33,12 @@
                     domain: [0,1]
                 });
                 this.selected_satellite = "Alpha";
-                this.colorscaletypes = _.sortBy(this.colorscaletypes, function (c) {return c;});
+
             },
 
             renderView: function(){
-                                // Unbind first to make sure we are not binding to many times
+
+                // Unbind first to make sure we are not binding to many times
                 this.stopListening(Communicator.mediator, "layer:settings:changed", this.onParameterChange);
 
                 // Event handler to check if tutorial banner made changes to a model in order to redraw settings
@@ -294,6 +295,13 @@
             },
 
             onShow: function(view){
+                
+                // Overwrite with plotty colorscales
+                if (plotty.hasOwnProperty('colorscales')) {
+                    this.colorscaletypes = Object.keys(plotty.colorscales);
+                }
+                this.colorscaletypes = _.sortBy(this.colorscaletypes, function (c) {return c;});
+
                 var that = this;
                 var granularity = this.model.get("granularity");
                 if(granularity){
