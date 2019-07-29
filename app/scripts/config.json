@@ -132,7 +132,7 @@
             "name": "L1B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "visible": true,
+            "visible": false,
             "views": [{
                 "id": "ALD_U_N_1B",
                 "protocol": "WPS",
@@ -152,14 +152,14 @@
                 "mie_HLOS_wind_speed": {
                     "range": [-20, 20],
                     "uom":"m/s",
-                    "selected": true,
-                    "colorscale": "viridis",
+                    "colorscale": "rdylbu",
                     "name": "Mie HLOS wind speed"
                 },
                 "rayleigh_HLOS_wind_speed": {
+                    "selected": true,
                     "range": [-40, 40],
                     "uom":"m/s",
-                    "colorscale": "plasma",
+                    "colorscale": "rdylbu",
                     "name": "Rayleigh HLOS wind speed"
                 },
                 "mie_signal_intensity": {
@@ -359,7 +359,6 @@
                 "MCA_extinction": {
                     "range": [-20, 20],
                     "uom":"10-6 * m^-1",
-                    "selected": true,
                     "colorscale": "viridis",
                     "name": "MCA extinction"
                 }
@@ -545,7 +544,7 @@
             "name": "L2B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "visible": false,
+            "visible": true,
             "views": [{
                 "id": "ALD_U_N_2B",
                 "protocol": "WPS",
@@ -565,14 +564,14 @@
                 "mie_wind_result_wind_velocity": {
                     "range": [-20, 20],
                     "uom":"m/s",
-                    "selected": true,
-                    "colorscale": "viridis",
+                    "colorscale": "rdylbu",
                     "name": "Mie wind result wind velocity"
                 },
                 "rayleigh_wind_result_wind_velocity": {
+                    "selected": true,
                     "range": [-40, 40],
                     "uom":"m/s",
-                    "colorscale": "plasma",
+                    "colorscale": "rdylbu",
                     "name": "Rayleigh wind result wind velocity"
                 }
             },
@@ -837,14 +836,14 @@
                 "mie_wind_result_wind_velocity": {
                     "range": [-20, 20],
                     "uom":"m/s",
-                    "selected": true,
-                    "colorscale": "viridis",
+                    "colorscale": "rdylbu",
                     "name": "Mie wind result wind velocity"
                 },
                 "rayleigh_wind_result_wind_velocity": {
                     "range": [-40, 40],
+                    "selected": true,
                     "uom":"m/s",
-                    "colorscale": "plasma",
+                    "colorscale": "rdylbu",
                     "name": "Rayleigh wind result wind velocity"
                 }
             },
