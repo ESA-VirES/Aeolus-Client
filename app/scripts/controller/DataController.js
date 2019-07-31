@@ -732,16 +732,8 @@
         var style = parameters[band].colorscale;
         var range = parameters[band].range;
 
-        // If layer is not WMS apply normal filter changes
-        if(currProd.get('views')[0].protocol !== 'WMS'){
-          this.filterManager.dataSettings[band].extent = range;
-          this.filterManager._initData();
-          this.filterManager._renderFilters();
-        }
         this.wpsProdChange = true;
         this.checkSelections();
-
-
       },
 
       onLayerGranularityChanged: function(layer){

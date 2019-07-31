@@ -1856,10 +1856,6 @@ define(['backbone.marionette',
                     return;
                 }
 
-                // If change in data reset filters
-                globals.swarm.set({filters: {}});
-                Communicator.mediator.trigger('analytics:set:filter', {});
-
                 if(idKeys.length > 0){
                     // Cleanup info button
                     $('#additionalProductInfo').off();
