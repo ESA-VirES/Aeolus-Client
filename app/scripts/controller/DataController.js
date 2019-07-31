@@ -816,7 +816,6 @@
           var resData = {};
           resData[this.collectionId] = this.tmpdata;
 
-          this.filterManager.initManager();
           this.filterManager.loadData(resData[this.collectionId]);
           this.filterManager._renderFilters();
           this.filterManager._renderFilters();
@@ -3113,7 +3112,6 @@
                   if($.isEmptyObject(resData) || empty){
                     globals.swarm.set({data: {}});
                   } else {
-                    that.filterManager.initManager();
                     that.filterManager.loadData(resData);
                     that.filterManager._renderFilters();
                     that.filterManager._renderFilters();
