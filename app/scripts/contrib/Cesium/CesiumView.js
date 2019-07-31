@@ -383,6 +383,41 @@ define([
                 this.createMap();
             }
 
+            $('#kmluploadcontainer').remove();
+            $(this.el).append('<div id="kmluploadcontainer"></div>');
+
+            $('#kmluploadcontainer').append(
+                '<input type="file" name="file" id="kmlinput" class="kmlinputfile" accept=".kml"></input>'
+            );
+             $('#kmluploadcontainer').append(
+                '<label for="kmlinput" class="btn btn-success darkbutton">Import kml</label>'
+            );
+
+             var that = this;
+
+             $('#kmlinput').change(function(event) {
+                var input = event.target;
+
+                 var reader = new FileReader();
+                reader.onload = function(){
+                    var text = reader.result;
+                    var kmlDocument = new DOMParser().parseFromString(text, "application/xml");
+
+                     // clean datasources
+                    that.map.dataSources.removeAll();
+
+                     that.map.flyTo(
+                        that.map.dataSources.add(
+                            Cesium.KmlDataSource.load(kmlDocument, {
+                                camera: that.map.camera,
+                                canvas: that.map.canvas
+                            })
+                        )
+                    );
+                };
+                reader.readAsText(input.files[0]);
+            });
+
             // Check for possible already available selection
             if(localStorage.getItem('areaSelection') !== null){
                 var bbox = JSON.parse(localStorage.getItem('areaSelection'));

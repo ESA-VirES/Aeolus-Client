@@ -14,6 +14,25 @@
   font-family: sans-serif;
 }
 
+#kmluploadcontainer{
+    position: absolute;
+    top: 7px;
+    right: 315px;
+}
+
+.kmlinputfile {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.kmlinputfile label{
+  height: 32px;
+}
+
 
 #cesium_attribution {
   visibility: hidden;
