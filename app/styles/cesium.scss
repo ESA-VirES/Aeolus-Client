@@ -20,6 +20,14 @@
     right: 315px;
 }
 
+#kmlresetbutton{
+    position: absolute;
+    top: 7px;
+    right: 315px;
+    height: 32px;
+    width: 110px;
+}
+
 .kmlinputfile {
   width: 0.1px;
   height: 0.1px;
@@ -29,8 +37,13 @@
   z-index: -1;
 }
 
-.kmlinputfile label{
+#kmluploadcontainer label{
   height: 32px;
+  width: 110px;
+}
+
+#bb_selection{
+  width: 98px;
 }
 
 

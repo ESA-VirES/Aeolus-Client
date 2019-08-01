@@ -383,6 +383,7 @@ define([
                 this.createMap();
             }
 
+
             $('#kmluploadcontainer').remove();
             $(this.el).append('<div id="kmluploadcontainer"></div>');
 
@@ -393,20 +394,42 @@ define([
                 '<label for="kmlinput" class="btn btn-success darkbutton">Import kml</label>'
             );
 
+             $('#kmlresetbutton').remove();
+            $(this.el).append('<div id="kmlresetbutton" class="btn btn-success darkbutton">Remove kml</div>');
+
+            if(localStorage.hasOwnProperty('kmlfile')){
+                var text = localStorage.getItem('kmlfile');
+                var kmlDocument = new DOMParser().parseFromString(text, "application/xml");
+                localStorage.setItem('kmlfile', text);
+
+                 // clean datasources
+                this.map.dataSources.removeAll();
+
+                this.map.dataSources.add(
+                    Cesium.KmlDataSource.load(kmlDocument, {
+                        camera: this.map.camera,
+                        canvas: this.map.canvas
+                    })
+                );
+            } else {
+                $('#kmlresetbutton').css('display', 'none');
+            }
+
              var that = this;
 
              $('#kmlinput').change(function(event) {
                 var input = event.target;
 
-                 var reader = new FileReader();
+                var reader = new FileReader();
                 reader.onload = function(){
                     var text = reader.result;
                     var kmlDocument = new DOMParser().parseFromString(text, "application/xml");
+                    localStorage.setItem('kmlfile', text);
 
                      // clean datasources
                     that.map.dataSources.removeAll();
 
-                     that.map.flyTo(
+                    that.map.flyTo(
                         that.map.dataSources.add(
                             Cesium.KmlDataSource.load(kmlDocument, {
                                 camera: that.map.camera,
@@ -414,8 +437,17 @@ define([
                             })
                         )
                     );
+                    $('#kmluploadcontainer').css('display', 'none');
+                    $('#kmlresetbutton').css('display', 'block');
                 };
                 reader.readAsText(input.files[0]);
+            });
+
+            $('#kmlresetbutton').click(function(event) {
+                that.map.dataSources.removeAll();
+                localStorage.removeItem('kmlfile');
+                $('#kmlresetbutton').css('display', 'none');
+                $('#kmluploadcontainer').css('display', 'block');
             });
 
             // Check for possible already available selection
@@ -2877,7 +2909,7 @@ define([
             //       this approach is not ideal, when the movement mantains inertia difference 
             //       values are very low and there are comparison errors.
             var c = this.map.scene.camera;
-            var th = [10000, 10000, 10000];
+            var th = [1, 1, 1];
             // If current mode is either Columbus or Scene2D lower threshold
             if(this.map.scene.mode === 1 || this.map.scene.mode === 2){
                 th = [0, 0, 0];
