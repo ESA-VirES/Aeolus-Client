@@ -1039,6 +1039,27 @@
 
         } else {
 
+          // Convert rayleigh altitude into sca and ica altitudes based on the
+          // sca and ica masks provided by the product
+          if(ds.observation_data.hasOwnProperty('rayleigh_altitude_obs') &&
+             ds.observation_data.hasOwnProperty('sca_mask')/* &&
+             ds.observation_data.hasOwnProperty('ica_mask') */){
+            /*ds.ica_data.ica_altitude_obs = ds.observation_data.rayleigh_altitude_obs.filter(function(e,i){
+              return ds.observation_data.ica_mask[i]===1;
+            });*/
+            ds.sca_data.rayleigh_altitude_obs = ds.observation_data.rayleigh_altitude_obs.filter(function(e,i){
+              return ds.observation_data.sca_mask[i]===1;
+            });
+            delete ds.observation_data.rayleigh_altitude_obs;
+
+          } else {
+            // This should not happen log issue
+            console.log(
+              'DataController: '+
+              'missing parameter in L2A data, sca_mask, ica_mask, rayleigh_altitude_obs'
+            );
+          }
+
           if(ds.ica_data.hasOwnProperty('ICA_time_obs') && ds.ica_data['ICA_time_obs'].length > 0) {
             var bins_start = [];
             var bins_end = [];
@@ -1138,11 +1159,6 @@
             //resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].slice(1, resData['MCA_time_obs_orig'].length);
             resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].map(function(e){return e+offs;});
 
-            resData['ICA_time_obs_orig_start'] = resData['ICA_time_obs_orig'].slice();
-            //resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].slice(1, resData['ICA_time_obs_orig'].length);
-            resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].map(function(e){return e+offs;});
-
-
             // Add element with additional 12ms as it should be the default
             // time interval between observations
             // TODO: make sure this is acceptable! As there seems to be some 
@@ -1165,6 +1181,39 @@
             var lonStep = 15;
             var latStep = 15;
 
+            // Separeate jump calculation for mie and rayleig
+            if(resData.hasOwnProperty('sca_mask_orig')){
+              var rLats =  resData.latitude_of_DEM_intersection_obs_orig.filter(function(e,i){
+                return resData.sca_mask_orig[i]===1;
+              });
+              var rLons =  resData.longitude_of_DEM_intersection_obs_orig.filter(function(e,i){
+                return resData.sca_mask_orig[i]===1;
+              });
+
+              var sca_jumpPos = [];
+              var sca_signCross = [];
+              for (var i = 1; i < rLats.length; i++) {
+                var latdiff = Math.abs(
+                  rLats[i-1] - rLats[i]
+                );
+                var londiff = Math.abs(
+                  rLons[i-1] - rLons[i]
+                ); 
+                // TODO: slicing not working correctly for L2a
+                if (latdiff >= latStep) {
+                  sca_signCross.push(latdiff>160);
+                  sca_jumpPos.push(i);
+                }else if (londiff >= lonStep) {
+                  sca_signCross.push(londiff>340);
+                  sca_jumpPos.push(i);
+                }
+              }
+            }
+            resData.sca_jumps = sca_jumpPos;
+            resData.sca_signCross = sca_signCross;
+            resData.sca_latitude_of_DEM_intersection_obs_orig = rLats;
+            resData.sca_longitude_of_DEM_intersection_obs_orig = rLons;
+
 
             var jumpPos = [];
             var signCross = [];
@@ -1186,8 +1235,10 @@
                 jumpPos.push(i);
               }
             }
+            resData.jumps = jumpPos;
+            resData.signCross = signCross;
 
-            var jumpPos2 = [];
+            /*var jumpPos2 = [];
             var signCross2 = [];
             for (var i = 1; i < resData.latitude_of_DEM_intersection_obs.length; i++) {
               var latdiff = Math.abs(
@@ -1215,29 +1266,20 @@
                   resData[key].splice(jumpPos2[j]-24,24);
                 }
               }
-            }
-            resData.jumps = jumpPos;
-            resData.signCross = signCross;
+            }*/
           }
 
           // ICA should be handled separately as it can easily be empty
           if((resData.hasOwnProperty('ICA_time_obs') && resData['ICA_time_obs'].length > 0)){
+            var offs = 12.01;
              // Create new start and stop time to allow rendering
             resData['ICA_time_obs_start'] = resData['ICA_time_obs'].slice();
-            resData['ICA_time_obs_stop'] = resData['ICA_time_obs'].slice(24, resData['ICA_time_obs'].length);
+            //resData['ICA_time_obs_stop'] = resData['ICA_time_obs'].slice(24, resData['ICA_time_obs'].length);
+            resData['ICA_time_obs_stop'] = resData['ICA_time_obs'].map(function(e){return e+offs;});
 
             resData['ICA_time_obs_orig_start'] = resData['ICA_time_obs_orig'].slice();
-            resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].slice(1, resData['ICA_time_obs_orig'].length);
-
-            // Add element with additional 12ms as it should be the default
-            // time interval between observations
-            // TODO: make sure this is acceptable! As there seems to be some 
-            // minor deviations at start and end of observations
-            var lastValICA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
-            for (var i = 0; i < 24; i++) {
-              resData['ICA_time_obs_stop'].push(lastValICA);
-            }
-            resData['ICA_time_obs_orig_stop'].push(lastValICA);
+            //resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].slice(1, resData['ICA_time_obs_orig'].length);
+            resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].map(function(e){return e+offs;});
           }
 
         }
@@ -1713,10 +1755,13 @@
               'altitude_of_DEM_intersection_obs',
               'geoid_separation_obs',
               'mie_altitude_obs',
+              'rayleigh_altitude_obs',
               'L1B_num_of_meas_per_obs',
               'MCA_clim_BER',
               'MCA_extinction',
               'MCA_LOD',
+              'sca_mask',
+              'ica_mask',
               'albedo_off_nadir'
             ].join(),
             'ica_fields': [
@@ -1745,8 +1790,7 @@
               'SCA_middle_bin_extinction',
               'SCA_middle_bin_backscatter',
               'SCA_middle_bin_LOD',
-              'SCA_middle_bin_BER',
-              'rayleigh_altitude_obs'
+              'SCA_middle_bin_BER'
             ].join(),
             'measurement_fields': [
               'L1B_time_meas',

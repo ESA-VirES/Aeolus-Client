@@ -975,8 +975,8 @@ define([
             var params = {
                 'ALD_U_N_2A': {
                     'SCA_extinction': {
-                        lats: 'latitude_of_DEM_intersection_obs_orig',
-                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        lats: 'sca_latitude_of_DEM_intersection_obs_orig',
+                        lons: 'sca_longitude_of_DEM_intersection_obs_orig',
                         timeStart: 'SCA_time_obs_orig_start',
                         timeStop: 'SCA_time_obs_orig_stop',
                         colorAxis: ['SCA_extinction'],
@@ -986,8 +986,8 @@ define([
                             rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
                             time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
                         },
-                        jumps: 'jumps',
-                        signCross: 'signCross'
+                        jumps: 'sca_jumps',
+                        signCross: 'sca_signCross'
                     },
                     'MCA_extinction': {
                         lats: 'latitude_of_DEM_intersection_obs_orig',

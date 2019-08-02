@@ -441,7 +441,7 @@ define(['backbone.marionette',
                         MCA_time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
                         rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
                         SCA_time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
-                        bins: ['ICA_bins_start', 'ICA_bins_end'],
+                        bins: ['ICA_bins_end', 'ICA_bins_start'],
                         ICA_time: ['ICA_time_obs_start', 'ICA_time_obs_stop'],
                         SCA_middle_bin_altitude: ['SCA_middle_bin_altitude_obs_top', 'SCA_middle_bin_altitude_obs_bottom'],
                         SCA_middle_bin_time: ['SCA_middle_bin_time_obs_start', 'SCA_middle_bin_time_obs_stop']
