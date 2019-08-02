@@ -1058,7 +1058,7 @@ define([
                         lats: 'rayleigh_wind_result_lat_of_DEM_intersection',
                         lons: 'rayleigh_wind_result_lon_of_DEM_intersection',
                         timeStart: 'rayleigh_wind_result_start_time',
-                        timeStop: 'rayleigh_profile_datetime_stop',
+                        timeStop: 'rayleigh_wind_result_stop_time',
                         colorAxis: ['rayleigh_wind_result_wind_velocity'],
                         xAxis:'time',
                         yAxis: ['rayleigh_altitude'],

@@ -1946,18 +1946,19 @@ define(['backbone.marionette',
                         this.graph.renderSettings = this.renderSettings[idKeys[0]];
 
                         // Remove diff if no longer available
-                        if(this.graph.renderSettings.yAxis[0].indexOf('_diff') !== -1){
-                            this.graph.renderSettings.yAxis[0] = 
-                                this.graph.renderSettings.yAxis[0].substring(
-                                    0, 
-                                    this.graph.renderSettings.yAxis[0].length-5
-                                );
+                        if(this.graph.renderSettings.yAxis.length>0 && this.graph.renderSettings.yAxis[0].length>0){
+                            var curraxis = this.graph.renderSettings.yAxis[0][0];
+                            if(curraxis.indexOf('_diff') !== -1){
+                                this.graph.renderSettings.yAxis[0][0] = curraxis.replace('_diff', '');
+                            }
+                            
+                            // Add diff if user uploaded data is avaialble
+                            if(this.currentKeys.indexOf(curraxis+'_diff') !== -1){
+                                this.graph.renderSettings.yAxis[0][0] = curraxis+'_diff';
+                            }
+
                         }
-                        
-                        // Add diff if user uploaded data is avaialble
-                        if(this.currentKeys.indexOf(this.graph.renderSettings.yAxis[0]+'_diff') !== -1){
-                            this.graph.renderSettings.yAxis[0] = this.graph.renderSettings.yAxis[0]+'_diff';
-                        }
+
 
                         this.graph.debounceActive = false;
                         this.graph.dataSettings = mergedDataSettings;

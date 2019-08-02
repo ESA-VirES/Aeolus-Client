@@ -1260,7 +1260,7 @@
             var userdataKeys = Object.keys(data[userCollId]);
 
             // Check if only user uploaded data is avaialbe
-            if($.isEmptyObject(ds)){
+            if($.isEmptyObject(ds['mie_wind_data'])){
               ds = data[userCollId];
               keys = Object.keys(ds);
 
@@ -1295,13 +1295,9 @@
                   ds[dataGranularity][diffV[kk]+'_diff'] = [];
                   var block;
                   for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
-                    block = [];
-                    for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
-                      block.push(
-                        ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
-                      );
-                    }
-                    ds[dataGranularity][diffV[kk]+'_diff'].push(block);
+                    ds[dataGranularity][diffV[kk]+'_diff'].push(
+                      ds[dataGranularity][diffV[kk]][p]-data[userCollId][dataGranularity][diffV[kk]][p]
+                    );
                   }
                 }
                 dataGranularity = 'rayleigh_wind_data';
@@ -1310,13 +1306,9 @@
                   ds[dataGranularity][diffV[kk]+'_diff'] = [];
                   var block;
                   for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
-                    block = [];
-                    for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
-                      block.push(
-                        ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
-                      );
-                    }
-                    ds[dataGranularity][diffV[kk]+'_diff'].push(block);
+                    ds[dataGranularity][diffV[kk]+'_diff'].push(
+                      ds[dataGranularity][diffV[kk]][p]-data[userCollId][dataGranularity][diffV[kk]][p]
+                    );
                   }
                 }
               }
@@ -3097,13 +3089,16 @@
                             for (var kk = 0; kk < dsK.length; kk++) {
                               if(data[userCollId].hasOwnProperty(dsK[kk])){
                                 ds[dsK[kk]+'_user'] = data[userCollId][dsK[kk]];
-                                ds[dsK[kk]+'_diff'] = [[]];
                                 keys.push(dsK[kk]+'_user');
-                                keys.push(dsK[kk]+'_diff');
-                                for (var p = 0; p < ds[dsK[kk]][0].length; p++) {
-                                  ds[dsK[kk]+'_diff'][0].push(
-                                    ds[dsK[kk]][0][p]-data[userCollId][dsK[kk]][0][p]
-                                  );
+
+                                if(Array.isArray(ds[dsK[kk]][0])){
+                                  keys.push(dsK[kk]+'_diff');
+                                  ds[dsK[kk]+'_diff'] = [[]];
+                                  for (var p = 0; p < ds[dsK[kk]][0].length; p++) {
+                                    ds[dsK[kk]+'_diff'][0].push(
+                                      ds[dsK[kk]][0][p]-data[userCollId][dsK[kk]][0][p]
+                                    );
+                                  }
                                 }
                               }
                             }
