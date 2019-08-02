@@ -932,7 +932,7 @@
             var userdataKeys = Object.keys(data[userCollId]);
 
             // Check if only user uploaded data is avaialbe
-            if($.isEmptyObject(ds)){
+            if($.isEmptyObject(ds[dataGranularity])){
               ds = data[userCollId];
               keys = Object.keys(ds);
 
@@ -960,22 +960,30 @@
                 'MCA_LOD',
               ];
 
-              for (var kk = 0; kk < diffV.length; kk++) {
-                if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
-                  ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
-                  ds[dataGranularity][diffV[kk]+'_diff'] = [];
-                  var block;
-                  for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
-                    block = [];
-                    for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
-                      block.push(
-                        ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
-                      );
+              var granularities = ['ica_data', 'observation_data', 'sca_data'];
+
+              for (var i = 0; i < granularities.length; i++) {
+                var dataGranularity = granularities[i];
+
+                for (var kk = 0; kk < diffV.length; kk++) {
+                  if(data[userCollId][dataGranularity].hasOwnProperty(diffV[kk])){
+                    ds[dataGranularity][diffV[kk]+'_user'] = data[userCollId][dataGranularity][diffV[kk]];
+                    ds[dataGranularity][diffV[kk]+'_diff'] = [];
+                    var block;
+                    for (var p = 0; p < ds[dataGranularity][diffV[kk]].length; p++) {
+                      block = [];
+                      for (var y = 0; y < ds[dataGranularity][diffV[kk]][p].length; y++) {
+                        block.push(
+                          ds[dataGranularity][diffV[kk]][p][y]-data[userCollId][dataGranularity][diffV[kk]][p][y]
+                        );
+                      }
+                      ds[dataGranularity][diffV[kk]+'_diff'].push(block);
                     }
-                    ds[dataGranularity][diffV[kk]+'_diff'].push(block);
                   }
                 }
               }
+
+
             }
           }
         }
@@ -1069,7 +1077,7 @@
                   resData[subK[l]] = [].concat.apply([], ds[keys[k]][subK[l]]);
                 }
               }else{
-                if(subK[l].indexOf('ICA_bins')===-1){
+                if (subK[l].indexOf('ICA_bins')===-1){
                   var tmpArr = [];
                   for (var i = 0; i < curArr.length; i++) {
                     for (var j = 0; j < 24; j++) {
@@ -1088,6 +1096,7 @@
                     }
                     resData['SCA_middle_bin_time_obs'] = tmpArr;
                   }
+                  
                 } else {
                   resData[subK[l]] = curArr;
                 }
@@ -1096,35 +1105,49 @@
             }
           }
 
+
+
           // Check if data is actually available
           if((resData.hasOwnProperty('SCA_time_obs') && resData['SCA_time_obs'].length > 0) && 
              (resData.hasOwnProperty('MCA_time_obs') && resData['MCA_time_obs'].length > 0) && 
-             (resData.hasOwnProperty('ICA_time_obs') && resData['ICA_time_obs'].length > 0) && 
              (resData.hasOwnProperty('SCA_middle_bin_time_obs') && resData['SCA_middle_bin_time_obs'].length > 0)) {
 
-
+            var offs = 12.01;
             // Create new start and stop time to allow rendering
             resData['SCA_time_obs_start'] = resData['SCA_time_obs'].slice();
-            resData['SCA_time_obs_stop'] = resData['SCA_time_obs'].slice(24, resData['SCA_time_obs'].length);
+            //resData['SCA_time_obs_stop'] = resData['SCA_time_obs'].slice(24, resData['SCA_time_obs'].length);
+            resData['SCA_time_obs_stop'] = resData['SCA_time_obs'].map(function(e){return e+offs;});
+
             resData['SCA_middle_bin_time_obs_start'] = resData['SCA_middle_bin_time_obs'].slice();
-            resData['SCA_middle_bin_time_obs_stop'] = resData['SCA_middle_bin_time_obs'].slice(23, resData['SCA_middle_bin_time_obs'].length);
+            //resData['SCA_middle_bin_time_obs_stop'] = resData['SCA_middle_bin_time_obs'].slice(23, resData['SCA_middle_bin_time_obs'].length);
+            resData['SCA_middle_bin_time_obs_stop'] = resData['SCA_middle_bin_time_obs'].map(function(e){return e+offs;});
+
             resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
-            resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].slice(24, resData['MCA_time_obs'].length);
+            //resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].slice(24, resData['MCA_time_obs'].length);
+            resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].map(function(e){return e+offs;});
+
             resData['ICA_time_obs_start'] = resData['ICA_time_obs'].slice();
-            resData['ICA_time_obs_stop'] = resData['ICA_time_obs'].slice(24, resData['ICA_time_obs'].length);
+            //resData['ICA_time_obs_stop'] = resData['ICA_time_obs'].slice(24, resData['ICA_time_obs'].length);
+            resData['ICA_time_obs_stop'] = resData['ICA_time_obs'].map(function(e){return e+offs;});
 
             resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
-            resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].slice(1, resData['SCA_time_obs_orig'].length);
+            //resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].slice(1, resData['SCA_time_obs_orig'].length);
+            resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].map(function(e){return e+offs;});
+
             resData['MCA_time_obs_orig_start'] = resData['MCA_time_obs_orig'].slice();
-            resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].slice(1, resData['MCA_time_obs_orig'].length);
+            //resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].slice(1, resData['MCA_time_obs_orig'].length);
+            resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].map(function(e){return e+offs;});
+
             resData['ICA_time_obs_orig_start'] = resData['ICA_time_obs_orig'].slice();
-            resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].slice(1, resData['ICA_time_obs_orig'].length);
+            //resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].slice(1, resData['ICA_time_obs_orig'].length);
+            resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].map(function(e){return e+offs;});
+
 
             // Add element with additional 12ms as it should be the default
             // time interval between observations
             // TODO: make sure this is acceptable! As there seems to be some 
             // minor deviations at start and end of observations
-            var lastValSCA =  resData['SCA_time_obs_orig'].slice(-1)[0]+12;
+            /*var lastValSCA =  resData['SCA_time_obs_orig'].slice(-1)[0]+12;
             var lastValMCA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
             var lastValICA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
             for (var i = 0; i < 24; i++) {
@@ -1137,7 +1160,7 @@
             }
             resData['SCA_time_obs_orig_stop'].push(lastValSCA);
             resData['MCA_time_obs_orig_stop'].push(lastValMCA);
-            resData['ICA_time_obs_orig_stop'].push(lastValICA);
+            resData['ICA_time_obs_orig_stop'].push(lastValICA);*/
 
             var lonStep = 15;
             var latStep = 15;
@@ -1195,6 +1218,26 @@
             }
             resData.jumps = jumpPos;
             resData.signCross = signCross;
+          }
+
+          // ICA should be handled separately as it can easily be empty
+          if((resData.hasOwnProperty('ICA_time_obs') && resData['ICA_time_obs'].length > 0)){
+             // Create new start and stop time to allow rendering
+            resData['ICA_time_obs_start'] = resData['ICA_time_obs'].slice();
+            resData['ICA_time_obs_stop'] = resData['ICA_time_obs'].slice(24, resData['ICA_time_obs'].length);
+
+            resData['ICA_time_obs_orig_start'] = resData['ICA_time_obs_orig'].slice();
+            resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].slice(1, resData['ICA_time_obs_orig'].length);
+
+            // Add element with additional 12ms as it should be the default
+            // time interval between observations
+            // TODO: make sure this is acceptable! As there seems to be some 
+            // minor deviations at start and end of observations
+            var lastValICA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
+            for (var i = 0; i < 24; i++) {
+              resData['ICA_time_obs_stop'].push(lastValICA);
+            }
+            resData['ICA_time_obs_orig_stop'].push(lastValICA);
           }
 
         }
@@ -1678,7 +1721,6 @@
               'altitude_of_DEM_intersection_obs',
               'geoid_separation_obs',
               'mie_altitude_obs',
-              'rayleigh_altitude_obs',
               'L1B_num_of_meas_per_obs',
               'MCA_clim_BER',
               'MCA_extinction',
@@ -1711,7 +1753,8 @@
               'SCA_middle_bin_extinction',
               'SCA_middle_bin_backscatter',
               'SCA_middle_bin_LOD',
-              'SCA_middle_bin_BER'
+              'SCA_middle_bin_BER',
+              'rayleigh_altitude_obs'
             ].join(),
             'measurement_fields': [
               'L1B_time_meas',
@@ -2426,7 +2469,7 @@
                         rayleighDiffVars = [
                           'rayleigh_HLOS_wind_speed', 'rayleigh_signal_channel_A_intensity',
                           'rayleigh_signal_channel_B_intensity', 'rayleigh_signal_intensity',
-                          'rayleigh_total_ZWC',
+                          /*'rayleigh_total_ZWC',*/
                           'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', 
                           'rayleigh_error_quantifier',
                           'rayleigh_mean_emitted_frequency', 'rayleigh_emitted_frequency_std_dev'
@@ -2609,7 +2652,6 @@
                     'rayleigh_altitude', 'rayleigh_range', 'mie_altitude', 'mie_range'
                   ];
 
-
                   // Three data structures possible:
                   // 1: 1D flat array (each "profile")
                   // 2: Array of n-sized arrays (2D) containing "bin" values
@@ -2671,6 +2713,13 @@
                           ),
                           0
                         );
+                      } else {
+                        // This should not happen
+                        console.log(
+                          'AV: There seems to be an issue loading following parameter: '+
+                          rayleighVars[i]
+                        );
+                        that.processedParameters++;
                       }
                     } else { // case 1
 
@@ -2705,7 +2754,6 @@
                   that.tmpdata.positions = positions;
 
                   for (var i = 0; i < rayleighVars.length; i++) {
-
                     if(!ds.hasOwnProperty(rayleighVars[i])){
                       that.processedParameters++;
                       that.checkFlatteningComplete();
@@ -2748,6 +2796,13 @@
                           ),
                           0
                         );
+                      } else {
+                        // This should not happen
+                        console.log(
+                          'AV: There seems to be an issue loading following parameter: '+
+                          rayleighVars[i]
+                        );
+                        that.processedParameters++;
                       }
                     } else { // case 1
 
@@ -2758,7 +2813,6 @@
                         startKey = pseudoKey;
                         endKey = false;
                       }
-
                       setTimeout(
                         that.proxyFlattenObservationArraySE(
                           startKey, endKey,
@@ -2770,8 +2824,6 @@
                     }
 
                   } // Closing for loop of raylegh vars
-
-                  
 
                   // TODO: Getting the object and setting one parameter does not trigger
                   // change event, need to think about using multiple objects for different

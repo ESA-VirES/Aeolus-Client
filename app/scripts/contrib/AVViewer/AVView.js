@@ -1896,6 +1896,18 @@ define(['backbone.marionette',
                         renderSettings =  this.renderSettings[cP+'_group'];
                     } else {
                         renderSettings = this.renderSettings[cP];
+                        // We add here for groups possible difference and user keys
+                        if(renderSettings.hasOwnProperty('renderGroups') && renderSettings.renderGroups !== false){
+                            var rG = renderSettings.renderGroups;
+                            for(var gK in rG){
+                                var diffusrpars = [];
+                                for (var pI=0; pI<rG[gK].parameters.length; pI++){
+                                    diffusrpars.push(rG[gK].parameters[pI]+'_diff');
+                                    diffusrpars.push(rG[gK].parameters[pI]+'_usr');
+                                }
+                                rG[gK].parameters = rG[gK].parameters.concat(diffusrpars);
+                            }
+                        }
                     }
                     renderSettings = this.extendSettings(renderSettings);
                     this.graph.renderSettings = renderSettings;
