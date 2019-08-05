@@ -350,14 +350,14 @@
             "process" : "aeolus:level2A",
             "parameters": {
                 "SCA_extinction": {
-                    "range": [-20, 20],
+                    "range": [0, 250],
                     "uom":"10-6 * m^-1",
                     "selected": true,
                     "colorscale": "plasma",
                     "name": "SCA extinction"
                 },
                 "MCA_extinction": {
-                    "range": [-20, 20],
+                    "range": [0, 100],
                     "uom":"10-6 * m^-1",
                     "colorscale": "viridis",
                     "name": "MCA extinction"

@@ -431,11 +431,12 @@ define(['backbone.marionette',
                     additionalYTicks: [[],[]],
                     availableParameters: false
                 },
+                //sca extintction, mca extinction and sca backscatter.
                 'ALD_U_N_2A': {
                     xAxis: 'time',
-                    yAxis: [['rayleigh_altitude'], ['mie_altitude']],
-                    y2Axis: [[], []],
-                    groups: ['SCA', 'MCA'],
+                    yAxis: [['rayleigh_altitude'], ['rayleigh_altitude'], ['mie_altitude']],
+                    y2Axis: [[], [], []],
+                    groups: ['SCA', 'SCA', 'MCA'],
                     combinedParameters: {
                         mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
                         MCA_time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
@@ -446,8 +447,8 @@ define(['backbone.marionette',
                         SCA_middle_bin_altitude: ['SCA_middle_bin_altitude_obs_top', 'SCA_middle_bin_altitude_obs_bottom'],
                         SCA_middle_bin_time: ['SCA_middle_bin_time_obs_start', 'SCA_middle_bin_time_obs_stop']
                     },
-                    colorAxis: [['SCA_extinction'], ['MCA_extinction']],
-                    colorAxis2: [[], []],
+                    colorAxis: [['SCA_extinction'], ['SCA_backscatter'], ['MCA_extinction']],
+                    colorAxis2: [[], [], []],
                     renderGroups: {
                         MCA: {
                             parameters: [
@@ -561,7 +562,7 @@ define(['backbone.marionette',
                         ]
                     },
                     additionalXTicks: [],
-                    additionalYTicks: [[],[]],
+                    additionalYTicks: [[],[], []],
                     availableParameters: false
                 },
                 'ALD_U_N_2A_group':{
@@ -1242,11 +1243,6 @@ define(['backbone.marionette',
 
             this.dataSettings = globals.dataSettings;
 
-            // Check if styling settings have been saved
-            if (localStorage.getItem('dataSettings') !== null) {
-                this.dataSettings = JSON.parse(localStorage.getItem('dataSettings'));
-                globals.dataSettings = this.dataSettings;
-            }
 
             // Check for already defined data settings
             globals.products.each(function(product) {
@@ -1423,6 +1419,19 @@ define(['backbone.marionette',
                     );
                 }
                 that.renderFilterList();
+            });
+
+            this.filterManager.on('parameterChange', function(filters){
+                var filterSetts = this.dataSettings;
+                for(var key in filterSetts){
+                    if(filterSetts[key].hasOwnProperty('filterExtent')){
+                        globals.dataSettings[key]['filterExtent'] = filterSetts[key].filterExtent;
+                    }
+                }
+                localStorage.setItem(
+                    'dataSettings',
+                    JSON.stringify(globals.dataSettings)
+                );
             });
 
             if(Object.keys(data).length > 0){

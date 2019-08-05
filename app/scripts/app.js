@@ -263,6 +263,24 @@ var VECTOR_BREAKDOWN = {};
                         if(m_p[i].hasOwnProperty('granularity_options')){
                             product_config[i].granularity_options = m_p[i].granularity_options;
                         }
+
+                        // Check if there are changes saved for parameter settings
+                        if(localStorage.getItem('dataSettings') !== null){
+                            var setts = JSON.parse(localStorage.getItem('dataSettings'));
+                            for (var key in product_config[i].parameters){
+                                if(setts.hasOwnProperty(key)){
+                                    for (var parkey in product_config[i].parameters[key]){
+                                        var convertedparkey = parkey;
+                                        if(convertedparkey === 'range'){
+                                            convertedparkey = 'extent';
+                                        }
+                                        if(setts[key].hasOwnProperty(convertedparkey) && convertedparkey === 'extent'){
+                                            product_config[i].parameters[key][parkey] = setts[key][convertedparkey];
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         // Make sure process id is also always downloaded from config
                         product_config[i].process = m_p[i].process;
 

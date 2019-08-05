@@ -35,6 +35,12 @@
 
         this.dataSettings = globals.dataSettings;
 
+        // Check if styling settings have been saved
+        if (localStorage.getItem('dataSettings') !== null) {
+          this.dataSettings = JSON.parse(localStorage.getItem('dataSettings'));
+          globals.dataSettings = this.dataSettings;
+        }
+
         var filterSettings = {
             parameterMatrix: {
                /* 'height': [
