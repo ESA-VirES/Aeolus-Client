@@ -10,14 +10,14 @@
     'backbone',
     'communicator',
     'globals',
+    'msgpack',
     'hbs!tmpl/wps_dataRequest',
     'app',
     'papaparse',
-    'msgpack',
     'graphly'
   ],
 
-  function( Backbone, Communicator, globals, wps_dataRequestTmpl, App, Papa) {
+  function( Backbone, Communicator, globals, msgpack, wps_dataRequestTmpl, App, Papa) {
 
     var DataController = Backbone.Marionette.Controller.extend({
 
@@ -2454,6 +2454,7 @@
             if(request.status == 200) {
 
                 that.tmpdata = {};
+                ;delete globals.swarm.altitudeExtents
 
                 Communicator.mediator.trigger("progress:change", false);
                 var tmp = new Uint8Array(this.response);
@@ -2476,6 +2477,21 @@
                   //ds = ds['observation_data'];
                   var dataGranularity = product.get('granularity')+'_data';
                   ds = ds[dataGranularity];
+
+                  // Calculate minimum and maximum altitude for rayleigh and mie
+                  var mie_alt_min = d3.min(ds.mie_altitude.map(function(a){return d3.min(a);}));
+                  var mie_alt_max = d3.max(ds.mie_altitude.map(function(a){return d3.max(a);}));
+                  var ray_alt_min = d3.min(ds.rayleigh_altitude.map(function(a){return d3.min(a);}));
+                  var ray_alt_max = d3.max(ds.rayleigh_altitude.map(function(a){return d3.max(a);}));
+
+                  globals.swarm.altitudeExtents = {
+                    mie_min: mie_alt_min,
+                    mie_max: mie_alt_max,
+                    ray_min: ray_alt_min,
+                    ray_max: ray_alt_max
+                  }
+
+                  console.log(globals.swarm.altitudeExtents);
 
                   // Check if user data is also available, if yes save sizes for 
                   // each to be able to create referene objects and concatenate
@@ -2639,24 +2655,57 @@
 
                   var mie_jumps = that.findObservationJumps(ds.mie_altitude, stepPositions, signCross);
 
+                  /*'mie_ground_velocity', 'mie_reference_pulse_quality_flag',
+                    'rayleigh_ground_velocity', 'mie_bin_quality_flag', 
+                    'AOCS_roll_angle', 'mie_signal_intensity_range_corrected',
+                    'velocity_at_DEM_intersection', 'rayleigh_HLOS_wind_speed',
+                    'mie_latitude', 'longitude_of_DEM_intersection', 
+                    'rayleigh_error_quantifier', 'latitude_of_DEM_intersection', 
+                    'rayleigh_range', 'mie_total_ZWC', 'rayleigh_signal_channel_A_intensity',
+                    'rayleigh_bin_quality_flag', 'mie_signal_intensity_normalised',
+                    'mie_scattering_ratio', 'mie_altitude', 'rayleigh_latitude',
+                    'AOCS_pitch_angle', 'mie_error_quantifier', 'geoid_separation',
+                    'rayleigh_signal_channel_B_intensity', 'mie_HBE_ground_velocity',
+                    'rayleigh_signal_intensity', 'time', 'rayleigh_altitude',
+                    'laser_frequency', 'altitude_of_DEM_intersection', 'rayleigh_SNR',
+                    'rayleigh_total_ZWC', 'average_laser_energy',
+                    'rayleigh_signal_intensity_range_corrected',
+                    'mie_HLOS_wind_speed', 'albedo_off_nadir',
+                    'rayleigh_reference_pulse_quality_flag', 'mie_longitude',
+                    'rayleigh_channel_B_SNR', 'mie_signal_intensity',
+                    'rayleigh_longitude', 'AOCS_yaw_angle', 'mie_SNR',
+                    'rayleigh_HBE_ground_velocity', 'mie_range',
+                    'rayleigh_channel_A_SNR', 'rayleigh_signal_intensity_normalised',*/
+
                   var mieVars = [
                     'time',
-                    'latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-                    'altitude_of_DEM_intersection', 'albedo_off_nadir',
-                    'mie_altitude', 'mie_range', 'velocity_at_DEM_intersection',
-                    'AOCS_pitch_angle', 'AOCS_roll_angle', 'AOCS_yaw_angle',
-                    'mie_HLOS_wind_speed', 'mie_signal_intensity',
                     'mie_ground_velocity',
-                    'mie_bin_quality_flag', 'mie_HBE_ground_velocity', 
-                    'mie_total_ZWC', 
-                    'mie_scattering_ratio', 'mie_SNR', 'mie_error_quantifier', 
-                    'average_laser_energy', 'laser_frequency', 
                     'mie_reference_pulse_quality_flag',
-                    'mie_mean_emitted_frequency', 'mie_emitted_frequency_std_dev',
+                    'mie_bin_quality_flag', 
                     'mie_signal_intensity_range_corrected',
+                    'mie_latitude',
+                    'mie_total_ZWC',
                     'mie_signal_intensity_normalised',
-                    'geoid_separation'
-
+                    'mie_scattering_ratio',
+                    'mie_altitude', 
+                    'mie_error_quantifier',
+                    'mie_HBE_ground_velocity',
+                    'mie_HLOS_wind_speed',
+                    'mie_longitude',
+                    'mie_signal_intensity',
+                    'mie_SNR',
+                    'mie_range',
+                    'geoid_separation',
+                    'altitude_of_DEM_intersection',
+                    'longitude_of_DEM_intersection', 
+                    'latitude_of_DEM_intersection', 
+                    'laser_frequency',
+                    'average_laser_energy',
+                    'AOCS_roll_angle',
+                    'AOCS_pitch_angle',
+                    'AOCS_yaw_angle',
+                    'velocity_at_DEM_intersection', 
+                    'albedo_off_nadir',
                   ];
 
                   if(mieDiffVars){
@@ -2668,18 +2717,36 @@
 
                   var rayleighVars = [
                     'time',
-                    'rayleigh_altitude', 'rayleigh_range',
-                    'rayleigh_HLOS_wind_speed', 'rayleigh_signal_channel_A_intensity',
-                    'rayleigh_signal_channel_B_intensity', 'rayleigh_signal_intensity',
-                    'rayleigh_ground_velocity', 'rayleigh_HBE_ground_velocity',
+                    'rayleigh_ground_velocity',
+                    'rayleigh_HLOS_wind_speed',
+                    'rayleigh_error_quantifier',
+                    'rayleigh_range',
+                    'rayleigh_signal_channel_A_intensity',
+                    'rayleigh_bin_quality_flag',
+                    'rayleigh_latitude',
+                    'rayleigh_signal_channel_B_intensity',
+                    'rayleigh_signal_intensity',
+                    'rayleigh_altitude',
+                    'rayleigh_SNR',
                     'rayleigh_total_ZWC',
-                    'rayleigh_channel_A_SNR', 'rayleigh_channel_B_SNR', 'rayleigh_SNR',
-                    'rayleigh_bin_quality_flag', 'rayleigh_error_quantifier',
-                    'rayleigh_reference_pulse_quality_flag',
-                    'rayleigh_mean_emitted_frequency', 'rayleigh_emitted_frequency_std_dev',
                     'rayleigh_signal_intensity_range_corrected',
+                    'rayleigh_reference_pulse_quality_flag',
+                    'rayleigh_channel_B_SNR',
+                    'rayleigh_longitude',
+                    'rayleigh_HBE_ground_velocity',
+                    'rayleigh_channel_A_SNR',
                     'rayleigh_signal_intensity_normalised',
-                    'geoid_separation'
+                    'average_laser_energy',
+                    'velocity_at_DEM_intersection',
+                    'AOCS_yaw_angle',
+                    'AOCS_roll_angle',
+                    'AOCS_pitch_angle',
+                    'geoid_separation',
+                    'altitude_of_DEM_intersection',
+                    'latitude_of_DEM_intersection', 
+                    'longitude_of_DEM_intersection', 
+                    'laser_frequency',
+                    'albedo_off_nadir',
                   ];
 
                   if(rayleighDiffVars){

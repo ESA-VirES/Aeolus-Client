@@ -362,8 +362,8 @@ define(['backbone.marionette',
                                 'mie_signal_intensity_normalised'
                             ],
                             positionAlias: {
-                                'latitude': 'latitude',
-                                'longitude': 'longitude',
+                                'latitude': 'mie_latitude',
+                                'longitude': 'mie_longitude',
                                 'altitude': 'mie_altitude'
                             }
                         },
@@ -402,8 +402,8 @@ define(['backbone.marionette',
                                 'rayleigh_signal_intensity_normalised'
                             ],
                             positionAlias: {
-                                'latitude': 'latitude',
-                                'longitude': 'longitude',
+                                'latitude': 'rayleigh_latitude',
+                                'longitude': 'rayleigh_longitude',
                                 'altitude': 'rayleigh_altitude'
                             }
                         }
