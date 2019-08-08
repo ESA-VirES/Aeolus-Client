@@ -2811,19 +2811,22 @@ define([
                             }
                             var extent;
                             var exts = globals.swarm.altitudeExtents;
+                            var currmin;
                             if(active === 'mie_HLOS_wind_speed'){
                                 extent = exts.mie_max - exts.mie_min;
+                                currmin = exts.mie_min;
                             } else if (active === 'rayleigh_HLOS_wind_speed'){
                                 extent = exts.ray_max - exts.ray_min;
+                                currmin = exts.ray_min;
                             } else {
                                 // Should not happen
                                 extent = 1;
                                 console.log('neither mie nor rayleigh active, issue at cesiumview');
                             }
-                            var ratio = height/extent;
                             // there seems to be an offset to the curtain i can't
                             // quite explain so we need to add some offset here too
-                            height = (curtainHeight*ratio)+80000;
+                            var ratio = (height/(extent+Math.abs(currmin)));
+                            height = (curtainHeight*ratio) + 90000;
                         } else {
                             height = (1000*50)+(height*50);
                         }
