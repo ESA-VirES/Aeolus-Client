@@ -91,6 +91,7 @@ define([
                 dataSettings: this.dataSettings,
                 renderSettings: renderSettings,
                 filterManager: globals.swarm.get('filterManager'),
+                multiYAxis: false,
                 fixedSize: true,
                 fixedWidth: 2048,
                 fixedHeigt: 512,
@@ -2770,6 +2771,7 @@ define([
         onHighlightPoint: function(coords){
             this.billboards.removeAll();
             if(coords !== null && coords.Latitude && coords.Longitude){
+
                 var canvas = document.createElement('canvas');
                 canvas.width = 32;
                 canvas.height = 32;
@@ -2788,12 +2790,53 @@ define([
                 context2D.lineWidth = 3;
                 context2D.stroke();
 
+                var curtainHeight = 1000000;
+
+
+
                 if(!Array.isArray(coords.Latitude) &&
                    !Array.isArray(coords.Longitude)){
                     var height = 0;
                     if(Array.isArray(coords.Radius)){
                         height = coords.Radius[0]+(coords.Radius[1]-coords.Radius[0])/2;
-                        height = (1000*50)+(height*50)
+                        if(globals.swarm.hasOwnProperty('altitudeExtents')){
+                            var currProd = globals.products.find(
+                                function(p){return p.get('visible');}
+                            );
+                            var active;
+                            var params = currProd.get('parameters');
+                            for (var key in params) {
+                                if (params[key].selected) {
+                                    active = key;
+                                }
+                            }
+                            var extent;
+                            var exts = globals.swarm.altitudeExtents;
+                            var currmin;
+                            if(active === 'mie_HLOS_wind_speed' ||
+                                active === 'MCA_extinction' ||
+                                active === 'mie_wind_result_wind_velocity'){
+                                extent = exts.mie_max - exts.mie_min;
+                                currmin = exts.mie_min;
+
+                            } else if (active === 'rayleigh_HLOS_wind_speed' ||
+                                active === 'SCA_extinction' ||
+                                active === 'rayleigh_wind_result_wind_velocity'){
+                                extent = exts.ray_max - exts.ray_min;
+                                currmin = exts.ray_min;
+                            } else {
+                                // Should not happen
+                                extent = 1;
+                                currmin = 0;
+                                console.log('neither mie nor rayleigh active, issue at cesiumview');
+                            }
+                            // there seems to be an offset to the curtain i can't
+                            // quite explain so we need to add some offset here too
+                            var ratio = (height/(extent+Math.abs(currmin)));
+                            height = (curtainHeight*ratio) + 90000;
+                        } else {
+                            height = (1000*50)+(height*50);
+                        }
                     } else if(coords.Radius){
                         height = coords.Radius;
                     }
