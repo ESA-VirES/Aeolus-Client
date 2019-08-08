@@ -2793,6 +2793,7 @@ define([
                 var curtainHeight = 1000000;
 
 
+
                 if(!Array.isArray(coords.Latitude) &&
                    !Array.isArray(coords.Longitude)){
                     var height = 0;
@@ -2813,11 +2814,14 @@ define([
                             var exts = globals.swarm.altitudeExtents;
                             var currmin;
                             if(active === 'mie_HLOS_wind_speed' ||
-                                active === 'MCA_extinction'){
+                                active === 'MCA_extinction' ||
+                                active === 'mie_wind_result_wind_velocity'){
                                 extent = exts.mie_max - exts.mie_min;
                                 currmin = exts.mie_min;
+
                             } else if (active === 'rayleigh_HLOS_wind_speed' ||
-                                active === 'SCA_extinction'){
+                                active === 'SCA_extinction' ||
+                                active === 'rayleigh_wind_result_wind_velocity'){
                                 extent = exts.ray_max - exts.ray_min;
                                 currmin = exts.ray_min;
                             } else {

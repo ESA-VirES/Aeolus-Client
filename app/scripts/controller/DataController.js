@@ -1565,6 +1565,19 @@
             'rayleigh_wind_result_COG_range',
           ];
 
+          // Calculate minimum and maximum altitude for rayleigh and mie
+          var mie_alt_min = d3.min(ds.mie_wind_data.mie_wind_result_bottom_altitude);
+          var mie_alt_max = d3.max(ds.mie_wind_data.mie_wind_result_top_altitude);
+          var ray_alt_min = d3.min(ds.rayleigh_wind_data.rayleigh_wind_result_bottom_altitude);
+          var ray_alt_max = d3.max(ds.rayleigh_wind_data.rayleigh_wind_result_top_altitude);
+
+          globals.swarm.altitudeExtents = {
+            mie_min: mie_alt_min,
+            mie_max: mie_alt_max,
+            ray_min: ray_alt_min,
+            ray_max: ray_alt_max
+          }
+
           for (var k = 0; k < keys.length; k++) {
 
             var subK = Object.keys(ds[keys[k]]);
