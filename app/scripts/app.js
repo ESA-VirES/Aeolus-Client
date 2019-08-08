@@ -304,7 +304,12 @@ var VECTOR_BREAKDOWN = {};
                 // Check if we have user permission info, if yes only load
                 // products available to the user
                 if(typeof USERPERMISSIONS !== 'undefined'){
-                    console.log(USERPERMISSIONS);
+                    var allowedProducts = [];
+                    for (var i = 0; i < USERPERMISSIONS.length; i++) {
+                        if(USERPERMISSIONS[i].indexOf('access_user_collection')==-1){
+                            allowedProducts.push(USERPERMISSIONS[i].replace('aeolus.access_', ''));
+                        }
+                    }
                 }
                 
 
