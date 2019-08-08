@@ -1056,7 +1056,27 @@
             ds.sca_data.rayleigh_altitude_obs = ds.observation_data.rayleigh_altitude_obs.filter(function(e,i){
               return ds.observation_data.sca_mask[i]===1;
             });
+
+            ds.sca_data.sca_latitude_of_DEM_intersection_obs = ds.observation_data.latitude_of_DEM_intersection_obs.filter(function(e,i){
+              return ds.observation_data.sca_mask[i]===1;
+            });
+            ds.sca_data.sca_longitude_of_DEM_intersection_obs = ds.observation_data.longitude_of_DEM_intersection_obs.filter(function(e,i){
+              return ds.observation_data.sca_mask[i]===1;
+            });
             delete ds.observation_data.rayleigh_altitude_obs;
+
+            // Calculate minimum and maximum altitude for rayleigh and mie
+            var mie_alt_min = d3.min(ds.observation_data.mie_altitude_obs.map(function(a){return d3.min(a);}));
+            var mie_alt_max = d3.max(ds.observation_data.mie_altitude_obs.map(function(a){return d3.max(a);}));
+            var ray_alt_min = d3.min(ds.sca_data.rayleigh_altitude_obs.map(function(a){return d3.min(a);}));
+            var ray_alt_max = d3.max(ds.sca_data.rayleigh_altitude_obs.map(function(a){return d3.max(a);}));
+
+            globals.swarm.altitudeExtents = {
+              mie_min: mie_alt_min,
+              mie_max: mie_alt_max,
+              ray_min: ray_alt_min,
+              ray_max: ray_alt_max
+            }
 
           } else {
             // This should not happen log issue

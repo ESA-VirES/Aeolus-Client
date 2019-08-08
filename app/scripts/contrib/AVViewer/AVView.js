@@ -496,14 +496,16 @@ define(['backbone.marionette',
                                 'SCA_backscatter',
                                 'SCA_LOD',
                                 'SCA_SR',
+                                'sca_latitude_of_DEM_intersection_obs',
+                                'sca_longitude_of_DEM_intersection_obs'
                             ],
                             defaults: {
                                 yAxis: 'rayleigh_altitude',
                                 colorAxis: 'SCA_extinction'
                             },
                             positionAlias: {
-                                'latitude': 'latitude_of_DEM_intersection_obs',
-                                'longitude': 'longitude_of_DEM_intersection_obs',
+                                'latitude': 'sca_latitude_of_DEM_intersection_obs',
+                                'longitude': 'sca_longitude_of_DEM_intersection_obs',
                                 'altitude': 'rayleigh_altitude'
                             }
                         },

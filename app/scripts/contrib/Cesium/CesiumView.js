@@ -2812,15 +2812,18 @@ define([
                             var extent;
                             var exts = globals.swarm.altitudeExtents;
                             var currmin;
-                            if(active === 'mie_HLOS_wind_speed'){
+                            if(active === 'mie_HLOS_wind_speed' ||
+                                active === 'MCA_extinction'){
                                 extent = exts.mie_max - exts.mie_min;
                                 currmin = exts.mie_min;
-                            } else if (active === 'rayleigh_HLOS_wind_speed'){
+                            } else if (active === 'rayleigh_HLOS_wind_speed' ||
+                                active === 'SCA_extinction'){
                                 extent = exts.ray_max - exts.ray_min;
                                 currmin = exts.ray_min;
                             } else {
                                 // Should not happen
                                 extent = 1;
+                                currmin = 0;
                                 console.log('neither mie nor rayleigh active, issue at cesiumview');
                             }
                             // there seems to be an offset to the curtain i can't
