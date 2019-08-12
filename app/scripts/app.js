@@ -310,6 +310,14 @@ var VECTOR_BREAKDOWN = {};
                             allowedProducts.push(USERPERMISSIONS[i].replace('aeolus.access_', ''));
                         }
                     }
+
+                    config.mapConfig.products = config.mapConfig.products
+                        .filter(function(prod){
+                            return (
+                                prod.download.id === 'ADAM_albedo' ||
+                                allowedProducts.indexOf(prod.download.id) !== -1
+                            );
+                        });
                 }
                 
 
