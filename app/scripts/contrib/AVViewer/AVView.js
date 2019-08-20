@@ -1724,6 +1724,7 @@ define(['backbone.marionette',
 
             this.currentGroup = group;
             this.graph.loadData(slicedData);
+            $('.y2Axis.axisLabel').hide();
 
 
             $('#groupButtonContainer').remove();
@@ -1778,6 +1779,7 @@ define(['backbone.marionette',
                 }
 
                 that.graph.loadData(slicedData);
+                $('.y2Axis.axisLabel').hide();
             });
 
             $('#groupObservationLeft').attr('disabled', 'disabled');
@@ -1820,6 +1822,7 @@ define(['backbone.marionette',
             this.graph.clearXDomain();
             $('#groupButtonContainer').remove();
             $('#newPlotLink').show();
+            $('.y2Axis.axisLabel').show();
 
             // If element already has plot rendering
             if( $(this.el).html()){
