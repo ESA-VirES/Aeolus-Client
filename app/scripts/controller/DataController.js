@@ -1066,16 +1066,23 @@
             delete ds.observation_data.rayleigh_altitude_obs;
 
             // Calculate minimum and maximum altitude for rayleigh and mie
-            var mie_alt_min = d3.min(ds.observation_data.mie_altitude_obs.map(function(a){return d3.min(a);}));
-            var mie_alt_max = d3.max(ds.observation_data.mie_altitude_obs.map(function(a){return d3.max(a);}));
-            var ray_alt_min = d3.min(ds.sca_data.rayleigh_altitude_obs.map(function(a){return d3.min(a);}));
-            var ray_alt_max = d3.max(ds.sca_data.rayleigh_altitude_obs.map(function(a){return d3.max(a);}));
+            if(
+              ds.hasOwnProperty('observation_data') && 
+              ds.observation_data.hasOwnProperty('mie_altitude_obs') && 
+              ds.observation_data.mie_altitude_obs.length > 0
+            )
+            {
+              var mie_alt_min = d3.min(ds.observation_data.mie_altitude_obs.map(function(a){return d3.min(a);}));
+              var mie_alt_max = d3.max(ds.observation_data.mie_altitude_obs.map(function(a){return d3.max(a);}));
+              var ray_alt_min = d3.min(ds.sca_data.rayleigh_altitude_obs.map(function(a){return d3.min(a);}));
+              var ray_alt_max = d3.max(ds.sca_data.rayleigh_altitude_obs.map(function(a){return d3.max(a);}));
 
-            globals.swarm.altitudeExtents = {
-              mie_min: mie_alt_min,
-              mie_max: mie_alt_max,
-              ray_min: ray_alt_min,
-              ray_max: ray_alt_max
+              globals.swarm.altitudeExtents = {
+                mie_min: mie_alt_min,
+                mie_max: mie_alt_max,
+                ray_min: ray_alt_min,
+                ray_max: ray_alt_max
+              }
             }
 
           } else {
@@ -1566,17 +1573,24 @@
           ];
 
           // Calculate minimum and maximum altitude for rayleigh and mie
-          var mie_alt_min = d3.min(ds.mie_wind_data.mie_wind_result_bottom_altitude);
-          var mie_alt_max = d3.max(ds.mie_wind_data.mie_wind_result_top_altitude);
-          var ray_alt_min = d3.min(ds.rayleigh_wind_data.rayleigh_wind_result_bottom_altitude);
-          var ray_alt_max = d3.max(ds.rayleigh_wind_data.rayleigh_wind_result_top_altitude);
+          if(
+              ds.hasOwnProperty('mie_wind_data') && 
+              ds.mie_wind_data.hasOwnProperty('mie_wind_result_bottom_altitude') && 
+              ds.mie_wind_data.mie_wind_result_bottom_altitude.length > 0
+            )
+            {
+              var mie_alt_min = d3.min(ds.mie_wind_data.mie_wind_result_bottom_altitude);
+              var mie_alt_max = d3.max(ds.mie_wind_data.mie_wind_result_top_altitude);
+              var ray_alt_min = d3.min(ds.rayleigh_wind_data.rayleigh_wind_result_bottom_altitude);
+              var ray_alt_max = d3.max(ds.rayleigh_wind_data.rayleigh_wind_result_top_altitude);
 
-          globals.swarm.altitudeExtents = {
-            mie_min: mie_alt_min,
-            mie_max: mie_alt_max,
-            ray_min: ray_alt_min,
-            ray_max: ray_alt_max
-          }
+              globals.swarm.altitudeExtents = {
+                mie_min: mie_alt_min,
+                mie_max: mie_alt_max,
+                ray_min: ray_alt_min,
+                ray_max: ray_alt_max
+              }
+            }
 
           for (var k = 0; k < keys.length; k++) {
 
@@ -2511,20 +2525,20 @@
                   var dataGranularity = product.get('granularity')+'_data';
                   ds = ds[dataGranularity];
 
-                  // Calculate minimum and maximum altitude for rayleigh and mie
-                  var mie_alt_min = d3.min(ds.mie_altitude.map(function(a){return d3.min(a);}));
-                  var mie_alt_max = d3.max(ds.mie_altitude.map(function(a){return d3.max(a);}));
-                  var ray_alt_min = d3.min(ds.rayleigh_altitude.map(function(a){return d3.min(a);}));
-                  var ray_alt_max = d3.max(ds.rayleigh_altitude.map(function(a){return d3.max(a);}));
+                  if(ds.hasOwnProperty('mie_altitude') && ds.mie_altitude.length > 0){
+                    // Calculate minimum and maximum altitude for rayleigh and mie
+                    var mie_alt_min = d3.min(ds.mie_altitude.map(function(a){return d3.min(a);}));
+                    var mie_alt_max = d3.max(ds.mie_altitude.map(function(a){return d3.max(a);}));
+                    var ray_alt_min = d3.min(ds.rayleigh_altitude.map(function(a){return d3.min(a);}));
+                    var ray_alt_max = d3.max(ds.rayleigh_altitude.map(function(a){return d3.max(a);}));
 
-                  globals.swarm.altitudeExtents = {
-                    mie_min: mie_alt_min,
-                    mie_max: mie_alt_max,
-                    ray_min: ray_alt_min,
-                    ray_max: ray_alt_max
+                    globals.swarm.altitudeExtents = {
+                      mie_min: mie_alt_min,
+                      mie_max: mie_alt_max,
+                      ray_min: ray_alt_min,
+                      ray_max: ray_alt_max
+                    }
                   }
-
-                  console.log(globals.swarm.altitudeExtents);
 
                   // Check if user data is also available, if yes save sizes for 
                   // each to be able to create referene objects and concatenate
