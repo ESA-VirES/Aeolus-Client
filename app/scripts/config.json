@@ -353,7 +353,7 @@
                     "range": [0, 250],
                     "uom":"10-6 * m^-1",
                     "selected": true,
-                    "colorscale": "plasma",
+                    "colorscale": "viridis",
                     "name": "SCA extinction"
                 },
                 "MCA_extinction": {
