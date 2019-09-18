@@ -507,6 +507,8 @@
             filterAxisTickFormat: 'customExp'
         });
 
+        globals.swarm.set('originalFilterSettings', JSON.parse(JSON.stringify(filterSettings)));
+
         globals.swarm.set('filterManager', this.filterManager);
 
         this.listenTo(Communicator.mediator, "map:layer:change",this.changeLayer);

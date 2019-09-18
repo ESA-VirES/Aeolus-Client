@@ -290,3 +290,27 @@ var additionalColorscales = {
     'redwhitered': [['#a90326', '#ffffff', '#a90326'], [0, 0.5, 1]],
     'bluewhiteblue': [['#35439b', '#ffffff', '#35439b'], [0, 0.5, 1]],
 };
+
+
+
+var isObject= function (obj) {
+  var type = typeof obj;
+  return !Array.isArray(obj) && (type === 'function' || type === 'object' && !!obj);
+}
+
+var iterationCopy = function (src) {
+  var target = {};
+  for (var prop in src) {
+    if (src.hasOwnProperty(prop)) {
+      // if the value is a nested object, recursively copy all it's properties
+      if (isObject(src[prop])) {
+        target[prop] = iterationCopy(src[prop]);
+      } else if(Array.isArray(src[prop])){
+        target[prop] = src[prop].slice();
+      } else {
+        target[prop] = src[prop];
+      }
+    }
+  }
+  return target;
+}

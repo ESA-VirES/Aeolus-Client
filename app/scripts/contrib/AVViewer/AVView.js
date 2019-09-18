@@ -1,3 +1,11 @@
+Object.defineProperty(Array.prototype, 'flat', {
+    value: function(depth = 1) {
+      return this.reduce(function (flat, toFlatten) {
+        return flat.concat((Array.isArray(toFlatten) && (depth>1)) ? toFlatten.flat(depth-1) : toFlatten);
+      }, []);
+    }
+});
+
 define(['backbone.marionette',
     'communicator',
     'app',
@@ -59,7 +67,7 @@ define(['backbone.marionette',
 
         extendSettings: function(settings){
 
-            var currSets = $.extend(true,{},settings);
+            var currSets = settings;
 
             var allInside = true;
             var xax = JSON.parse(localStorage.getItem('xAxisSelection'));
@@ -128,7 +136,7 @@ define(['backbone.marionette',
                 currSets.additionalYTicks = yticks;
             }
 
-            return currSets;
+            //return currSets;
         },
 
         onShow: function() {
@@ -144,7 +152,7 @@ define(['backbone.marionette',
             this.overlay = null;
             this.activeWPSproducts = [];
             this.plotType = 'scatter';
-            this.prevParams = [];
+            this.prevParams = null;
             this.currentGroup = null;
             this.miePos = 0;
             this.rayleighPos = 0;
@@ -1273,7 +1281,7 @@ define(['backbone.marionette',
                 this.filterManager = globals.swarm.get('filterManager');
                 this.filterManager.visibleFilters = this.selectedFilterList;
 
-                var settings = this.renderSettings['ALD_U_N_1B'];
+                var settings = iterationCopy(this.renderSettings['ALD_U_N_1B']);
 
                 this.graph = new graphly.graphly({
                     el: '#graph',
@@ -1530,6 +1538,9 @@ define(['backbone.marionette',
             $('#resetFilters').off();
             filCon.append('<button id="resetFilters" type="button" class="btn btn-success darkbutton">Reset filters</button>');
             $('#resetFilters').click(function(){
+                that.filterManager.filterSettings = JSON.parse(JSON.stringify(
+                    globals.swarm.get('originalFilterSettings')
+                ));
                 that.filterManager.resetManager();
             });
 
@@ -1592,8 +1603,8 @@ define(['backbone.marionette',
               }
             }
 
-            $('#filterSelectDrop').prepend(
-              '<div class="w2ui-field"> <button id="analyticsAddFilter" type="button" class="btn btn-success darkbutton dropdown-toggle">Add filter <span class="caret"></span></button> <input type="list" id="inputAnalyticsAddfilter"></div>'
+            $('#filterSelectDrop').append(
+              '<div class="w2ui-field" id="analyticsFilterSelect"> <button id="analyticsAddFilter" type="button" class="btn btn-success darkbutton dropdown-toggle">Add filter <span class="caret"></span></button> <input type="list" id="inputAnalyticsAddfilter"></div>'
             );
 
             $( "#analyticsAddFilter" ).click(function(){
@@ -1907,9 +1918,9 @@ define(['backbone.marionette',
 
                     var renderSettings;
                     if(gran === 'group'){
-                        renderSettings =  this.renderSettings[cP+'_group'];
+                        renderSettings =  iterationCopy(this.renderSettings[cP+'_group']);
                     } else {
-                        renderSettings = this.renderSettings[cP];
+                        renderSettings = iterationCopy(this.renderSettings[cP]);
                         // We add here for groups possible difference and user keys
                         if(renderSettings.hasOwnProperty('renderGroups') && renderSettings.renderGroups !== false){
                             var rG = renderSettings.renderGroups;
@@ -1919,11 +1930,15 @@ define(['backbone.marionette',
                                     diffusrpars.push(rG[gK].parameters[pI]+'_diff');
                                     diffusrpars.push(rG[gK].parameters[pI]+'_usr');
                                 }
-                                rG[gK].parameters = rG[gK].parameters.concat(diffusrpars);
+                                for (var i = 0; i < diffusrpars.length; i++) {
+                                    if(rG[gK].parameters.indexOf(diffusrpars[i])===-1){
+                                        rG[gK].parameters.push(diffusrpars[i]);
+                                    }
+                                }
                             }
                         }
                     }
-                    renderSettings = this.extendSettings(renderSettings);
+                    this.extendSettings(renderSettings);
                     this.graph.renderSettings = renderSettings;
 
                     if( cP === 'ALD_U_N_1B' || cP === 'ALD_U_N_2A'){
@@ -2060,7 +2075,7 @@ define(['backbone.marionette',
                                 sharedParameters: false
                             };
                         } else {
-                            this.graph.renderSettings = this.renderSettings[(idKeys[0])];
+                            this.graph.renderSettings = iterationCopy(this.renderSettings[(idKeys[0])]);
                         }
 
                         if(contains2DNadir || contains2DOffNadir) {
@@ -2104,7 +2119,7 @@ define(['backbone.marionette',
 
                         this.graph.debounceActive = false;
                         this.graph.dataSettings = mergedDataSettings;
-                        this.graph.renderSettings = this.renderSettings[idKeys[0]];
+                        this.graph.renderSettings = iterationCopy(this.renderSettings[idKeys[0]]);
                         this.graph.loadData(data[idKeys[0]]);
                         this.graph.fileSaveString = idKeys[0]+'_'+timeString;
                     }

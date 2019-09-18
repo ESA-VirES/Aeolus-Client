@@ -167,16 +167,24 @@
 
 .w2ui-overlay {
     min-width: 565px!important;
-    margin-left: -100px!important;
+    /*margin-left: -200px!important;*/
 }
 
-.w2ui-overlay>div{
-    min-height: 58px!important;
+#analyticsFilterSelect{
+    float: left;
+    margin-left: 45px!important;
 }
 
-#filterSelectDrop .w2ui-field{
-    margin-left: 5px;
+#analyticsFilterSelect .w2ui-field-helper{
+    pointer-events: none;
+    opacity: 0;
 }
+
+#resetFilters{
+    float: left;
+}
+
+
 
 .parallels .tick text{
     cursor: default!important;
@@ -186,23 +194,14 @@
     height: 33px;
 }
 
-#filterinputgroup .w2ui-field-helper.w2ui-list{
-    border-bottom-left-radius: 0px;
-    border-top-left-radius: 0px;
-}
 
 #filtermanager{
     pointer-events: none;
     opacity: 0;
 }
 
-#w2ui-overlay.downloadsection{
-    margin-left: -18px!important;
-}
 
-#custom_download .w2ui-field-helper.w2ui-list{
-    height: auto !important;
-}
+
 
 #nodatainfo{
     text-align: center;
@@ -282,29 +281,18 @@
     text-align: left;
 }
 
-#filterSelectDrop>.w2ui-field{
-    margin-left: 50px!important;
-}
 
 #analyticsAddFilter{
     margin-left: -40px!important;
 }
 
-.w2ui-field-helper input {
-    padding-left: 10px!important;
-    margin-top: 3px!important;
-}
+
 
 .parameterClose.cross.filterClose{
     position: absolute;
     top: 14px!important;
     right: 3px!important;
     z-index: 20;
-}
-
-
-#resetFilters{
-    float: left;
 }
 
 
@@ -317,14 +305,6 @@
     margin-top: -40px;
 }
 
-
-#filterSelectDrop .w2ui-field-helper{
-    margin-right: 35px;
-}
-
-#filterSelectDrop > .w2ui-field{
-    display: inline;
-}
 
 #inputAnalyticsAddfilter {
     margin-left: -150px;
