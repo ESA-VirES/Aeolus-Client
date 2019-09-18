@@ -1,18 +1,11 @@
-Object.defineProperty(Array.prototype, 'flat', {
-    value: function(depth = 1) {
-      return this.reduce(function (flat, toFlatten) {
-        return flat.concat((Array.isArray(toFlatten) && (depth>1)) ? toFlatten.flat(depth-1) : toFlatten);
-      }, []);
-    }
-});
-
 define(['backbone.marionette',
     'communicator',
     'app',
     'models/AVModel',
     'globals',
     'd3',
-    'graphly'
+    'graphly',
+    'underscore',
 ], function(Marionette, Communicator, App, AVModel, globals) {
     'use strict';
     var AVView = Marionette.View.extend({
@@ -78,7 +71,7 @@ define(['backbone.marionette',
             var groups = JSON.parse(localStorage.getItem('groupSelected'));
 
             var comb = [].concat(xax, yax, y2ax, colax);
-            comb = comb.flat();
+            comb = _.flatten(comb);
             for (var i = comb.length - 1; i >= 0; i--) {
                 var parameter = comb[i];
                 if(parameter === null){
@@ -1717,9 +1710,9 @@ define(['backbone.marionette',
             var rayleighSlicedData = {};
 
             for (var key in ds){
-                slicedData[key] = ds[key].slice(
-                    pos, ((pos+pageSize))
-                ).flat();
+                slicedData[key] = _.flatten(
+                    ds[key].slice(pos, ((pos+pageSize)))
+                );
             }
 
 
@@ -1765,9 +1758,9 @@ define(['backbone.marionette',
                 var slicedData = {};
                 
                 for (var key in ds){
-                    slicedData[key] = ds[key].slice(
-                        pos, ((pos+pageSize))
-                    ).flat();
+                    slicedData[key] = _.flatten(
+                        ds[key].slice(pos, ((pos+pageSize)))
+                    );
                 }
                 $('#groupObservationLabel').text(
                     (pos)+'-'+(pos+2)+' / '+groupLength
@@ -1803,9 +1796,9 @@ define(['backbone.marionette',
 
                 var slicedData = {};
                 for (var key in ds){
-                    slicedData[key] = ds[key].slice(
-                        pos, ((pos+pageSize))
-                    ).flat();
+                    slicedData[key] = _.flatten(
+                        ds[key].slice(pos, ((pos+pageSize)))
+                    );
                 }
                 $('#groupObservationLabel').text(
                     pos+'-'+(pos+2)+' / '+groupLength
