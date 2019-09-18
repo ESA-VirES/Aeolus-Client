@@ -1333,7 +1333,7 @@
           var userCollId = 'user_collection_'+ USERVARIABLE;
           var dataGranularity = product.get('granularity')+'_data';
 
-          if(data.hasOwnProperty(userCollId)) {
+          if(data.hasOwnProperty(userCollId) && (gran !== 'group')) {
             var userdataKeys = Object.keys(data[userCollId]);
 
             // Check if only user uploaded data is avaialbe
