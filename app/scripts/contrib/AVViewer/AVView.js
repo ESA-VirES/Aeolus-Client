@@ -242,76 +242,80 @@ define(['backbone.marionette',
                 }
             }
 
+            this.originalSelectedFilterList = [
+                // L1B
+                'mie_bin_quality_flag', 'mie_HLOS_wind_speed',
+                'geoid_separation','velocity_at_DEM_intersection',
+                'rayleigh_bin_quality_flag', 'rayleigh_HLOS_wind_speed',
+                // L2A
+                'rayleigh_altitude_obs',
+                'SCA_backscatter','SCA_QC_flag',
+                'SCA_extinction_variance', 'SCA_backscatter_variance','SCA_LOD_variance',
+                'mie_altitude_obs','MCA_LOD',
+                // L2A group
+                'group_backscatter_variance', 'group_extinction_variance',
+                'group_extinction', /*'group_backscatter',*/ 'group_LOD_variance',
+                'group_LOD', 'group_SR',
+                // L2B, L2C
+                'mie_wind_result_SNR', 'mie_wind_result_HLOS_error',
+                'mie_wind_result_COG_range',
+                'mie_wind_result_QC_flags_1',
+                'rayleigh_wind_result_HLOS_error', 'rayleigh_wind_result_COG_range',
+                'rayleigh_wind_result_QC_flags_1',
+                // AUX MRC RRC
+                'measurement_response', 
+                'measurement_error_mie_response',
+                'reference_pulse_response', 
+                'mie_core_measurement_FWHM',
+                'measurement_error_rayleigh_response',
+                'reference_pulse_error_rayleigh_response',
+                'ground_measurement_response',
+                'ground_measurement_error_rayleigh_response',
+                'reference_pulse_error_mie_response',
+                'rayleigh_channel_A_response', 'rayleigh_channel_B_response',
+                'fizeau_transmission','mie_response','mean_laser_energy_mie',
+                'mean_laser_energy_rayleigh','FWHM_mie_core_2',
+                // AUX ZWC
+                'mie_ground_correction_velocity','rayleigh_ground_correction_velocity',
+                'mie_avg_ground_echo_bin_thickness_above_DEM', 'rayleigh_avg_ground_echo_bin_thickness_above_DEM',
+                'ZWC_result_type',
+                // AUX MET
+                'surface_wind_component_u_off_nadir',
+                'surface_wind_component_u_nadir',
+                'surface_wind_component_v_off_nadir',
+                'surface_wind_component_v_nadir',
+                'surface_pressure_off_nadir','surface_pressure_nadir',
+                'surface_altitude_off_nadir', 'surface_altitude_nadir',
+                // AUX MET 2D
+                'layer_validity_flag_nadir',
+                'layer_temperature_nadir',
+                'layer_wind_component_u_nadir',
+                'layer_wind_component_v_nadir',
+                'layer_rel_humidity_nadir',
+                'layer_spec_humidity_nadir',
+                'layer_cloud_cover_nadir',
+                'layer_cloud_liquid_water_content_nadir',
+                'layer_cloud_ice_water_content_nadir',
+                'layer_validity_flag_off_nadir',
+                'layer_temperature_off_nadir',
+                'layer_wind_component_u_off_nadir',
+                'layer_wind_component_v_off_nadir',
+                'layer_rel_humidity_off_nadir',
+                'layer_spec_humidity_off_nadir',
+                'layer_cloud_cover_off_nadir',
+                'layer_cloud_liquid_water_content_off_nadir',
+                'layer_cloud_ice_water_content_off_nadir'
+            ];
+
             this.$('#filterDivContainer').append('<div id="filterSelectDrop"></div>');
             var filterList = localStorage.getItem('selectedFilterList');
             if(filterList !== null){
                 filterList = JSON.parse(filterList);
                 this.selectedFilterList = filterList;
             } else {
-                this.selectedFilterList = [
-                    // L1B
-                    'mie_bin_quality_flag', 'mie_HLOS_wind_speed',
-                    'geoid_separation','velocity_at_DEM_intersection',
-                    'rayleigh_bin_quality_flag', 'rayleigh_HLOS_wind_speed',
-                    // L2A
-                    'rayleigh_altitude_obs',
-                    'SCA_backscatter','SCA_QC_flag',
-                    'SCA_extinction_variance', 'SCA_backscatter_variance','SCA_LOD_variance',
-                    'mie_altitude_obs','MCA_LOD',
-                    // L2A group
-                    'group_backscatter_variance', 'group_extinction_variance',
-                    'group_extinction', /*'group_backscatter',*/ 'group_LOD_variance',
-                    'group_LOD', 'group_SR',
-                    // L2B, L2C
-                    'mie_wind_result_SNR', 'mie_wind_result_HLOS_error',
-                    'mie_wind_result_COG_range',
-                    'mie_wind_result_QC_flags_1',
-                    'rayleigh_wind_result_HLOS_error', 'rayleigh_wind_result_COG_range',
-                    'rayleigh_wind_result_QC_flags_1',
-                    // AUX MRC RRC
-                    'measurement_response', 
-                    'measurement_error_mie_response',
-                    'reference_pulse_response', 
-                    'mie_core_measurement_FWHM',
-                    'measurement_error_rayleigh_response',
-                    'reference_pulse_error_rayleigh_response',
-                    'ground_measurement_response',
-                    'ground_measurement_error_rayleigh_response',
-                    'reference_pulse_error_mie_response',
-                    'rayleigh_channel_A_response', 'rayleigh_channel_B_response',
-                    'fizeau_transmission','mie_response','mean_laser_energy_mie',
-                    'mean_laser_energy_rayleigh','FWHM_mie_core_2',
-                    // AUX ZWC
-                    'mie_ground_correction_velocity','rayleigh_ground_correction_velocity',
-                    'mie_avg_ground_echo_bin_thickness_above_DEM', 'rayleigh_avg_ground_echo_bin_thickness_above_DEM',
-                    'ZWC_result_type',
-                    // AUX MET
-                    'surface_wind_component_u_off_nadir',
-                    'surface_wind_component_u_nadir',
-                    'surface_wind_component_v_off_nadir',
-                    'surface_wind_component_v_nadir',
-                    'surface_pressure_off_nadir','surface_pressure_nadir',
-                    'surface_altitude_off_nadir', 'surface_altitude_nadir',
-                    // AUX MET 2D
-                    'layer_validity_flag_nadir',
-                    'layer_temperature_nadir',
-                    'layer_wind_component_u_nadir',
-                    'layer_wind_component_v_nadir',
-                    'layer_rel_humidity_nadir',
-                    'layer_spec_humidity_nadir',
-                    'layer_cloud_cover_nadir',
-                    'layer_cloud_liquid_water_content_nadir',
-                    'layer_cloud_ice_water_content_nadir',
-                    'layer_validity_flag_off_nadir',
-                    'layer_temperature_off_nadir',
-                    'layer_wind_component_u_off_nadir',
-                    'layer_wind_component_v_off_nadir',
-                    'layer_rel_humidity_off_nadir',
-                    'layer_spec_humidity_off_nadir',
-                    'layer_cloud_cover_off_nadir',
-                    'layer_cloud_liquid_water_content_off_nadir',
-                    'layer_cloud_ice_water_content_off_nadir'
-                ];
+                this.selectedFilterList = JSON.parse(
+                    JSON.stringify(this.originalSelectedFilterList)
+                );
             }
 
             this.renderSettings = {
@@ -1274,6 +1278,7 @@ define(['backbone.marionette',
                 this.filterManager = globals.swarm.get('filterManager');
                 this.filterManager.visibleFilters = this.selectedFilterList;
 
+
                 var settings = iterationCopy(this.renderSettings['ALD_U_N_1B']);
 
                 this.graph = new graphly.graphly({
@@ -1529,12 +1534,50 @@ define(['backbone.marionette',
             var filCon = this.$el.find("#filterSelectDrop");
 
             $('#resetFilters').off();
-            filCon.append('<button id="resetFilters" type="button" class="btn btn-success darkbutton">Reset filters</button>');
+            filCon.append('<button id="resetFilters" type="button" class="btn btn-success darkbutton" title="Reset filters to default values (i.e. validity flags)">Reset filters</button>');
             $('#resetFilters').click(function(){
-                that.filterManager.filterSettings = JSON.parse(JSON.stringify(
+                var setts = JSON.parse(JSON.stringify(
                     globals.swarm.get('originalFilterSettings')
                 ));
+                that.filterManager.filterSettings = setts;
+                if(setts.hasOwnProperty('boolParameter')){
+                    that.filterManager.boolParameter = setts.boolParameter;
+                }
                 that.filterManager.resetManager();
+            });
+
+            $('#clearFilters').off();
+            filCon.append('<button id="clearFilters" type="button" class="btn btn-success darkbutton" title="Clear all filters">Clear filters</button>');
+            $('#clearFilters').click(function(){
+
+                var setts = JSON.parse(JSON.stringify(
+                    globals.swarm.get('originalFilterSettings')
+                ));
+                if(setts.hasOwnProperty('maskParameter')){
+                    var maskPar = setts.maskParameter;
+                    for (var key in maskPar){
+                        if(maskPar[key].hasOwnProperty('enabled')){
+                            for (var i = 0; i < maskPar[key].enabled.length; i++) {
+                                maskPar[key].enabled[i] = false;
+                            }
+                        }
+                    }
+                }
+                if(setts.hasOwnProperty('boolParameter')){
+                    var boolPar = setts.boolParameter;
+                    if(boolPar.hasOwnProperty('enabled')){
+                        for (var i = 0; i < boolPar.enabled.length; i++) {
+                            boolPar.enabled[i] = false;
+                        }
+                    }
+                }
+                that.filterManager.initManager();
+                that.filterManager.filterSettings = setts;
+                that.filterManager.maskParameter = setts.maskParameter;
+                that.filterManager.boolParameter = setts.boolParameter;
+                that.filterManager._filtersChanged();
+                that.filterManager._renderFilters();
+                that.filterManager._filtersChanged();
             });
 
 
