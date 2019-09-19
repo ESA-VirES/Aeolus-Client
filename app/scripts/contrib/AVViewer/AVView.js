@@ -1543,6 +1543,9 @@ define(['backbone.marionette',
                 if(setts.hasOwnProperty('boolParameter')){
                     that.filterManager.boolParameter = setts.boolParameter;
                 }
+                if(setts.hasOwnProperty('maskParameter')){
+                    that.filterManager.maskParameter = setts.maskParameter;
+                }
                 that.filterManager.resetManager();
             });
 
