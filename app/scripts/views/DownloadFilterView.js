@@ -46,6 +46,7 @@
     'backbone',
     'communicator',
     'globals',
+    'msgpack',
     'models/DownloadModel',
     'hbs!tmpl/DownloadFilter',
     'hbs!tmpl/FilterTemplate',
@@ -56,7 +57,7 @@
     'w2ui',
     'w2popup'
   ],
-  function( Backbone, Communicator, globals, m, DownloadFilterTmpl,
+  function( Backbone, Communicator, globals, msgpack, m, DownloadFilterTmpl,
             FilterTmpl, DownloadProcessTmpl, CoverageDownloadPostTmpl, wps_fetchFilteredDataAsync ) {
 
     var DownloadProcessView = Backbone.Marionette.ItemView.extend({
