@@ -3,8 +3,7 @@ define([
     'app',
     'communicator',
     './MapViewController',
-    './MapViewRouter',
-    'keypress'
+    './MapViewRouter'
 ], function(Marionette, App, Communicator, MapViewController, MapViewRouterController) {
 
     'use strict';
@@ -69,11 +68,6 @@ define([
         };
 
         var setupKeyboardShortcuts = function(controller) {
-            var keypressListener = new keypress.Listener();
-            keypressListener.simple_combo("a", function() {
-                var pos = controller.getStartPosition();
-                controller.centerAndZoom(pos.x, pos.y, pos.l);
-            });
         };
 
         // FIXXME: the router/history concept has to be redesigned for the multiple view approach!

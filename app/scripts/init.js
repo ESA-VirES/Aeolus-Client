@@ -5,7 +5,7 @@
 
     root.require.config({
         // Update for each release
-        urlArgs: 'bust=v1.303',
+        urlArgs: 'bust=v1.4',
 
         waitSeconds: 120,
         /* starting point for application */
@@ -36,10 +36,6 @@
                 deps: ['jquery'],
                 exports: 'jquery'
             },
-            libcoverage: {
-                deps: ['backbone']/*,
-                exports: 'WCS'*/
-            },
             FileSaver: {
                 deps: ['canvas-toBlob', 'Blob'],
                 exports: 'saveAs'
@@ -50,9 +46,6 @@
             timeslider: {
                 deps: ['d3']
             },
-            keypress: {
-                exports: 'Keypress'
-            },
             xtk: {
                 exports: 'X'
             },
@@ -62,9 +55,6 @@
             drawhelper: {
                 deps: ['cesium/Cesium'],
                 exports: 'DrawHelper'
-            },
-            analytics: {
-                deps: ['d3', 'jquery', 'w2ui', 'sumoselect']
             },
             w2ui: {
                 deps: ['jquery']
@@ -80,7 +70,6 @@
 
         paths: {
             filepond: '../bower_components/filepond/dist/filepond',
-            analytics: '../bower_components/d3.Graphs/lib/scripts/av.min',
             msgpack: '../bower_components/msgpack-lite/dist/msgpack.min',
             graphly: '../bower_components/graphly/dist/graphly.min',
             cesium: "../bower_components/cesium/Build/Cesium",
@@ -95,7 +84,6 @@
             underscore: '../bower_components/underscore-amd/underscore-min',
             d3: '../bower_components/d3/d3.min',
             timeslider: '../bower_components/d3.TimeSlider/d3.timeslider.min',
-            libcoverage: '../bower_components/libcoverage/libcoverage.min',
 
             'canvas-toBlob': '../bower_components/canvas-toBlob.js/canvas-toBlob',
             'Blob': '../bower_components/Blob.js/Blob',
@@ -125,9 +113,6 @@
 
             /* marionette and handlebars plugin */
             'marionette.handlebars': '../bower_components/backbone.marionette.handlebars/backbone.marionette.handlebars.min',
-
-
-            keypress: '../bower_components/Keypress/keypress',
 
             papaparse: '../bower_components/papaparse/papaparse.min',
 

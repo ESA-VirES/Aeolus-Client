@@ -33,11 +33,12 @@
                     domain: [0,1]
                 });
                 this.selected_satellite = "Alpha";
-                this.colorscaletypes = _.sortBy(this.colorscaletypes, function (c) {return c;});
+
             },
 
             renderView: function(){
-                                // Unbind first to make sure we are not binding to many times
+
+                // Unbind first to make sure we are not binding to many times
                 this.stopListening(Communicator.mediator, "layer:settings:changed", this.onParameterChange);
 
                 // Event handler to check if tutorial banner made changes to a model in order to redraw settings
@@ -61,6 +62,7 @@
                 var option = '';
                 var contours = this.current_model.get("contours");
                 var granularity = this.current_model.get("granularity");
+                var altitude = this.current_model.get("altitude");
                 //var 
 
                 var that = this;
@@ -240,6 +242,22 @@
                         this.createScale();
 
                     this.createHeightTextbox(this.current_model.get("height"));
+
+                    if(altitude!==null){
+                        this.$("#height").empty();
+                        this.$("#height").append(
+                            '<form style="vertical-align: middle;">'+
+                            '<label for="heightvalue" style="width: 120px;">Altitude filter</label>'+
+                            '<input id="heightvalue" type="text" style="width:30px; margin-left:8px"/>'+
+                            '</form>'
+                        );
+                        this.$("#heightvalue").val(altitude);
+                        this.$("#height").append(
+                            '<p style="font-size:0.85em; margin-left: 120px;">Maximum altitude (Km)</p>'
+                        );
+                        // Register necessary key events
+                        this.registerKeyEvents(this.$("#heightvalue"));
+                    }
                 }
 
 
@@ -277,6 +295,13 @@
             },
 
             onShow: function(view){
+                
+                // Overwrite with plotty colorscales
+                if (plotty.hasOwnProperty('colorscales')) {
+                    this.colorscaletypes = Object.keys(plotty.colorscales);
+                }
+                this.colorscaletypes = _.sortBy(this.colorscaletypes, function (c) {return c;});
+
                 var that = this;
                 var granularity = this.model.get("granularity");
                 if(granularity){
@@ -405,7 +430,24 @@
                     this.$("#description").text(options[this.selected].description);
                 }
 
-                this.createHeightTextbox(this.current_model.get("height"));
+                var altitude = this.current_model.get("altitude");
+
+                //this.createHeightTextbox(this.current_model.get("height"));
+                if(altitude!==null){
+                    this.$("#height").empty();
+                    this.$("#height").append(
+                        '<form style="vertical-align: middle;">'+
+                        '<label for="heightvalue" style="width: 120px;">Altitude filter</label>'+
+                        '<input id="heightvalue" type="text" style="width:30px; margin-left:8px"/>'+
+                        '</form>'
+                    );
+                    this.$("#heightvalue").val(altitude);
+                    this.$("#height").append(
+                        '<p style="font-size:0.85em; margin-left: 120px;">Maximum altitude (Km)</p>'
+                    );
+                    // Register necessary key events
+                    this.registerKeyEvents(this.$("#heightvalue"));
+                }
 
                 if(this.selected == "Fieldlines"){
                     $("#coefficients_range").hide();
@@ -613,14 +655,11 @@
 
                 // Check for height attribute
                 if ($("#heightvalue").length){
-                    var height = parseFloat($("#heightvalue").val());
-                    error = error || this.checkValue(height,$("#heightvalue"));
+                    var altitude = parseFloat($("#heightvalue").val());
+                    error = error || this.checkValue(altitude,$("#heightvalue"));
 
                     if (!error){
-                        if(this.current_model.get("height")!=height){
-                            model_change = true;
-                        }
-                        this.current_model.set("height", height);
+                        this.current_model.set("altitude", altitude);
                     }
                 }
 
@@ -628,59 +667,10 @@
                     // Remove button
                     $("#applychanges").empty();
 
-                    // If there were changes of the model parameters recalculate the color range
-                    if(model_change){
-                        var that = this;
-
-                        var sel_time = Communicator.reqres.request('get:time');
-
-                        if(this.current_model.get("views")[0].id == "shc"){
-
-                            if(this.current_model.attributes.hasOwnProperty("shc")){
-
-                                var payload = evalModelTmpl_POST({
-                                    "model": "Custom_Model",
-                                    "variable": this.selected,
-                                    "begin_time": getISODateTimeString(sel_time.start),
-                                    "end_time": getISODateTimeString(sel_time.end),
-                                    "elevation": this.current_model.get("height"),
-                                    "coeff_min": this.current_model.get("coefficients_range")[0],
-                                    "coeff_max": this.current_model.get("coefficients_range")[1],
-                                    "shc": this.current_model.get('shc'),
-                                    "height": 24,
-                                    "width": 24,
-                                    "getonlyrange": true
-                                });
-
-                                $.post(this.current_model.get("download").url, payload)
-                                    .success(this.handleRangeRespone.bind(this))
-                                    .fail(this.handleRangeResponseError);
-                            }
-
-                        }else {
-
-                            var req = evalModelTmpl({
-                                url: this.current_model.get("download").url,
-                                model: this.current_model.get("download").id,
-                                variable: this.selected,
-                                begin_time: getISODateTimeString(sel_time.start),
-                                end_time: getISODateTimeString(sel_time.end),
-                                coeff_min: this.current_model.get("coefficients_range")[0],
-                                coeff_max: this.current_model.get("coefficients_range")[1],
-                                elevation: this.current_model.get("height")
-                            });
-
-                            $.get(req)
-                                .success(this.handleRangeRespone.bind(this))
-                                .fail(this.handleRangeResponseError);
-                        }
-                        
-
-                    }else{
-                        //Apply changes
-                        this.current_model.set("parameters", options);
-                        Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
-                    }
+                    //Apply changes
+                    this.current_model.set("parameters", options);
+                    Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
+                    
                 }
             },
 

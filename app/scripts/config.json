@@ -95,9 +95,9 @@
             "name": "S2 Cloudless",
             "visible": false,
             "views": [{
-                "id": "s2cloudless",
+                "id": "s2cloudless-2018",
                 "protocol": "WMTS",
-                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=s2cloudless&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=s2cloudless-2018&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
                 "subdomains": "abcdef",
                 "urls": [
                     "//a.tiles.maps.eox.at/wmts/",
@@ -118,7 +118,7 @@
                 "zoomOffset": 0,
                 "attribution": "Sentinel-2 cloudless - <a href=\"https://s2maps.eu\" target=\"_blank\">https://s2maps.eu</a> by <a href=\"https://eox.at\" target=\"_blank\">EOX IT Services GmbH</a> (Contains modified Copernicus Sentinel data 2016 & 2017)"
             }, {
-                "id": "s2cloudless",
+                "id": "s2cloudless-2018",
                 "protocol": "WMS",
                 "urls": [
                     "//tiles.maps.eox.at/wms"
@@ -132,7 +132,7 @@
             "name": "L1B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "visible": true,
+            "visible": false,
             "views": [{
                 "id": "ALD_U_N_1B",
                 "protocol": "WPS",
@@ -152,14 +152,14 @@
                 "mie_HLOS_wind_speed": {
                     "range": [-20, 20],
                     "uom":"m/s",
-                    "selected": true,
-                    "colorscale": "viridis",
+                    "colorscale": "rdylbu",
                     "name": "Mie HLOS wind speed"
                 },
                 "rayleigh_HLOS_wind_speed": {
+                    "selected": true,
                     "range": [-40, 40],
                     "uom":"m/s",
-                    "colorscale": "plasma",
+                    "colorscale": "rdylbu",
                     "name": "Rayleigh HLOS wind speed"
                 },
                 "mie_signal_intensity": {
@@ -190,8 +190,8 @@
                 "mie_latitude": {"uom": "10-6DegN", "name": "Latitude of each Mie height bin along the line-of-sight"},
                 "rayleigh_longitude": {"uom": "10-6DegE", "name": "Longitude of each Rayleigh height bin along the line-of-sight"},
                 "rayleigh_latitude": {"uom": "10-6DegN", "name": "Latitude of each Rayleigh height bin along the line-of-sight"},
-                "mie_altitude": {"uom": "m (w.r.t the WGS84 ellipsoid)", "name": "Altitude of Mie height bins with respect to the WGS84 ellipsoid along the line-of-sight"},
-                "rayleigh_altitude": {"uom": "m (w.r.t the WGS84 ellipsoid)", "name": "Altitude of Rayleigh height bins with respect to the WGS84 ellipsoid along the line-of-sight"},
+                "mie_altitude": {"uom": "m (WGS84 ellip.)", "name": "Altitude of Mie height bins with respect to the WGS84 ellipsoid along the line-of-sight"},
+                "rayleigh_altitude": {"uom": "m (WGS84 ellip.)", "name": "Altitude of Rayleigh height bins with respect to the WGS84 ellipsoid along the line-of-sight"},
                 "mie_range": {"uom": "m", "name": "Distance along the LOS between the instrument and the lower edge of the Mie height bin"},
                 "rayleigh_range": {"uom": "m", "name": "Distance along the LOS between the instrument and the lower edge of the Rayleigh height bin"},
                 "geoid_separation": {"uom": "m", "name": "Height of geoid above WGS84 ellipsoid"},
@@ -228,7 +228,11 @@
                 "rayleigh_mean_emitted_frequency": {"uom": "GHz", "name": "Rayleigh mean emitted frequency"},
                 "mie_emitted_frequency_std_dev": {"uom": "GHz", "name": "Mie emitted frequency standard deviation"},
                 "rayleigh_emitted_frequency_std_dev": {"uom": "GHz", "name": "Rayleigh emitted frequency standrad deviation"},
-                "albedo_off_nadir": {"uom": null, "name": "Albedo off-nadir value"}
+                "albedo_off_nadir": {"uom": null, "name": "Albedo off-nadir value"},
+                "rayleigh_signal_intensity_range_corrected": {"uom": "ACCD counts*m^2", "name": "Range corrected vertical profiles of signal intensity of Rayleigh channel"},
+                "mie_signal_intensity_range_corrected": {"uom": "ACCD counts*m^2", "name": "Range corrected vertical profiles of signal intensity for the Mie channel"},
+                "rayleigh_signal_intensity_normalised": {"uom": "ACCD counts*m^2", "name": "Normalized vertical profiles of signal intensity of Rayleigh channel"},
+                "mie_signal_intensity_normalised": {"uom": "ACCD counts*m^2", "name": "Normalized vertical profiles of signal intensity for the Mie channel"}
             },
             "download_groups": {
                 "observation": [
@@ -274,7 +278,11 @@
                     "mie_bin_quality_flag",
                     "rayleigh_reference_pulse_quality_flag':",
                     "mie_reference_pulse_quality_flag",
-                    "albedo_off_nadir"
+                    "albedo_off_nadir",
+                    "rayleigh_signal_intensity_range_corrected",
+                    "mie_signal_intensity_range_corrected",
+                    "rayleigh_signal_intensity_normalised",
+                    "mie_signal_intensity_normalised"
                 ],
                 "measurement": [
                     "time",
@@ -342,16 +350,15 @@
             "process" : "aeolus:level2A",
             "parameters": {
                 "SCA_extinction": {
-                    "range": [-20, 20],
+                    "range": [0, 250],
                     "uom":"10-6 * m^-1",
                     "selected": true,
-                    "colorscale": "plasma",
+                    "colorscale": "viridis",
                     "name": "SCA extinction"
                 },
                 "MCA_extinction": {
-                    "range": [-20, 20],
+                    "range": [0, 100],
                     "uom":"10-6 * m^-1",
-                    "selected": true,
                     "colorscale": "viridis",
                     "name": "MCA extinction"
                 }
@@ -537,7 +544,7 @@
             "name": "L2B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "visible": false,
+            "visible": true,
             "views": [{
                 "id": "ALD_U_N_2B",
                 "protocol": "WPS",
@@ -557,14 +564,14 @@
                 "mie_wind_result_wind_velocity": {
                     "range": [-20, 20],
                     "uom":"m/s",
-                    "selected": true,
-                    "colorscale": "viridis",
+                    "colorscale": "rdylbu",
                     "name": "Mie wind result wind velocity"
                 },
                 "rayleigh_wind_result_wind_velocity": {
+                    "selected": true,
                     "range": [-40, 40],
                     "uom":"m/s",
-                    "colorscale": "plasma",
+                    "colorscale": "rdylbu",
                     "name": "Rayleigh wind result wind velocity"
                 }
             },
@@ -829,14 +836,14 @@
                 "mie_wind_result_wind_velocity": {
                     "range": [-20, 20],
                     "uom":"m/s",
-                    "selected": true,
-                    "colorscale": "viridis",
+                    "colorscale": "rdylbu",
                     "name": "Mie wind result wind velocity"
                 },
                 "rayleigh_wind_result_wind_velocity": {
                     "range": [-40, 40],
+                    "selected": true,
                     "uom":"m/s",
-                    "colorscale": "plasma",
+                    "colorscale": "rdylbu",
                     "name": "Rayleigh wind result wind velocity"
                 }
             },
@@ -1758,7 +1765,8 @@
                     "range": [0, 0.0003]
                 }
             },
-            "outlines": false
+            "outlines": false,
+            "altitude": 25
         },{
             "name": "ADAM_albedo",
             "visible": false,

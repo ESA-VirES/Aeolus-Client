@@ -46,62 +46,20 @@ define([
             this.plot = null;
             this.curtainPrimitive = null;
 
-            /*$(window).resize(function() {
-                if (this.map) {
-                    this.onResize();
-                }
-            },this);*/
+            for(var cskey in additionalColorscales){
+                plotty.addColorScale(
+                    cskey, 
+                    additionalColorscales[cskey][0],
+                    additionalColorscales[cskey][1]
+                );
+            }
 
-            plotty.addColorScale('redblue', ['#ff0000', '#0000ff'], [0, 1]);
-            plotty.addColorScale('coolwarm', 
-                ['#ff0000', '#ffffff', '#0000ff'],
-                [0, 0.5, 1]
-            );
-            plotty.addColorScale('diverging_1',
-                ['#400040','#3b004d','#36005b','#320068','#2d0076','#290084',
-                 '#240091','#20009f','#1b00ad','#1600ba','#1200c8','#0d00d6',
-                 '#0900e3','#0400f1','#0000ff','#0217ff','#042eff','#0645ff',
-                 '#095cff','#0b73ff','#0d8bff','#10a2ff','#12b9ff','#14d0ff',
-                 '#17e7ff','#19ffff','#3fffff','#66ffff','#8cffff','#b2ffff',
-                 '#d8ffff','#ffffff','#ffffd4','#ffffaa','#ffff7f','#ffff54',
-                 '#ffff2a','#ffff00','#ffed00','#ffdd00','#ffcc00','#ffba00',
-                 '#ffaa00','#ff9900','#ff8700','#ff7700','#ff6600','#ff5400',
-                 '#ff4400','#ff3300','#ff2100','#ff1100','#ff0000','#ff0017',
-                 '#ff002e','#ff0045','#ff005c','#ff0073','#ff008b','#ff00a2',
-                 '#ff00b9','#ff00d0','#ff00e7','#ff00ff'],
-                 [0.0,0.01587301587,0.03174603174,0.04761904761,0.06349206348,
-                  0.07936507935,0.09523809522,0.11111111109,0.12698412696,
-                  0.14285714283,0.15873015870,0.17460317457,0.19047619044,
-                  0.20634920631,0.22222222218,0.23809523805,0.25396825392,
-                  0.26984126979,0.28571428566,0.30158730153,0.31746031740,
-                  0.33333333327,0.34920634914,0.36507936501,0.38095238088,
-                  0.39682539675,0.41269841262,0.42857142849,0.44444444436,
-                  0.46031746023,0.47619047610,0.49206349197,0.50793650784,
-                  0.52380952371,0.53968253958,0.55555555545,0.57142857132,
-                  0.58730158719,0.60317460306,0.61904761893,0.63492063480,
-                  0.65079365067,0.66666666654,0.68253968241,0.69841269828,
-                  0.71428571415,0.73015873002,0.74603174589,0.76190476176,
-                  0.77777777763,0.79365079350,0.80952380937,0.82539682524,
-                  0.84126984111,0.85714285698,0.87301587285,0.88888888872,
-                  0.90476190459,0.92063492046,0.93650793633,0.95238095220,
-                  0.96825396807,0.98412698394,1]
-            );
-            plotty.addColorScale('diverging_2',
-                ['#000000', '#030aff', '#204aff', '#3c8aff', '#77c4ff',
-                 '#f0ffff', '#f0ffff', '#f2ff7f', '#ffff00', '#ff831e',
-                 '#ff083d', '#ff00ff'],
-                [0, 0.0000000001, 0.1, 0.2, 0.3333, 0.4666, 0.5333, 0.6666,
-                 0.8, 0.9, 0.999999999999, 1]
-            );
-            plotty.addColorScale('blackwhite', ['#000000', '#ffffff'], [0, 1]);
-
-            
-             var renderSettings = {
+            var renderSettings = {
                 xAxis: [
                     'time'
                 ],
                 yAxis: [
-                    'altitude'
+                    ['altitude']
                 ],
                 //y2Axis: [],
                 combinedParameters: {
@@ -113,8 +71,10 @@ define([
                     ],
                     time: ['time_start', 'time_end']
                 },
-                colorAxis: ['mie_HLOS_wind_speed']
-
+                colorAxis: [['mie_HLOS_wind_speed']],
+                additionalXTicks: [],
+                additionalYTicks: [],
+                availableParameters: false
             };
 
             this.dataSettings = globals.dataSettings;
@@ -131,6 +91,7 @@ define([
                 dataSettings: this.dataSettings,
                 renderSettings: renderSettings,
                 filterManager: globals.swarm.get('filterManager'),
+                multiYAxis: false,
                 fixedSize: true,
                 fixedWidth: 2048,
                 fixedHeigt: 512,
@@ -241,9 +202,9 @@ define([
                     navigationInstructionsInitiallyVisible: false,
                     animation: false,
                     imageryProvider: initialLayer,
-                    terrainProvider : new Cesium.CesiumTerrainProvider({
+                    /*terrainProvider : new Cesium.CesiumTerrainProvider({
                         url : '//tiles.maps.eox.at/dem'
-                    }),
+                    }),*/
                     terrainExaggeration: 20.0,
                     creditContainer: 'cesium_attribution',
                     contextOptions: {webgl: {preserveDrawingBuffer: true}},
@@ -422,6 +383,73 @@ define([
             if (!this.map) {
                 this.createMap();
             }
+
+
+            $('#kmluploadcontainer').remove();
+            $(this.el).append('<div id="kmluploadcontainer"></div>');
+
+            $('#kmluploadcontainer').append(
+                '<input type="file" name="file" id="kmlinput" class="kmlinputfile" accept=".kml"></input>'
+            );
+             $('#kmluploadcontainer').append(
+                '<label for="kmlinput" class="btn btn-success darkbutton">Import kml</label>'
+            );
+
+             $('#kmlresetbutton').remove();
+            $(this.el).append('<div id="kmlresetbutton" class="btn btn-success darkbutton">Remove kml</div>');
+
+            if(localStorage.hasOwnProperty('kmlfile')){
+                var text = localStorage.getItem('kmlfile');
+                var kmlDocument = new DOMParser().parseFromString(text, "application/xml");
+                localStorage.setItem('kmlfile', text);
+
+                 // clean datasources
+                this.map.dataSources.removeAll();
+
+                this.map.dataSources.add(
+                    Cesium.KmlDataSource.load(kmlDocument, {
+                        camera: this.map.camera,
+                        canvas: this.map.canvas
+                    })
+                );
+            } else {
+                $('#kmlresetbutton').css('display', 'none');
+            }
+
+             var that = this;
+
+             $('#kmlinput').change(function(event) {
+                var input = event.target;
+
+                var reader = new FileReader();
+                reader.onload = function(){
+                    var text = reader.result;
+                    var kmlDocument = new DOMParser().parseFromString(text, "application/xml");
+                    localStorage.setItem('kmlfile', text);
+
+                     // clean datasources
+                    that.map.dataSources.removeAll();
+
+                    that.map.flyTo(
+                        that.map.dataSources.add(
+                            Cesium.KmlDataSource.load(kmlDocument, {
+                                camera: that.map.camera,
+                                canvas: that.map.canvas
+                            })
+                        )
+                    );
+                    $('#kmluploadcontainer').css('display', 'none');
+                    $('#kmlresetbutton').css('display', 'block');
+                };
+                reader.readAsText(input.files[0]);
+            });
+
+            $('#kmlresetbutton').click(function(event) {
+                that.map.dataSources.removeAll();
+                localStorage.removeItem('kmlfile');
+                $('#kmlresetbutton').css('display', 'none');
+                $('#kmluploadcontainer').css('display', 'block');
+            });
 
             // Check for possible already available selection
             if(localStorage.getItem('areaSelection') !== null){
@@ -695,29 +723,30 @@ define([
                     'latitude_of_DEM_intersection_start',
                     'latitude_of_DEM_intersection_end'
                 ],
-                time: ['time_start', 'time_end']
+                mie_time: ['mie_time_start', 'mie_time_end'],
+                rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end']
             };
 
             if(band === 'mie_HLOS_wind_speed'){
-                this.graph.renderSettings.colorAxis = ['mie_HLOS_wind_speed'];
-                this.graph.renderSettings.yAxis = ['mie_altitude'];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.colorAxis = [['mie_HLOS_wind_speed']];
+                this.graph.renderSettings.yAxis = [['mie_altitude']];
+                this.graph.renderSettings.xAxis =['mie_time'];
             }else if(band === 'rayleigh_HLOS_wind_speed'){
-                this.graph.renderSettings.colorAxis = ['rayleigh_HLOS_wind_speed'];
-                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.colorAxis = [['rayleigh_HLOS_wind_speed']];
+                this.graph.renderSettings.yAxis = [['rayleigh_altitude']];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
             }else if(band === 'mie_signal_intensity'){
-                this.graph.renderSettings.colorAxis = ['mie_signal_intensity'];
-                this.graph.renderSettings.yAxis = ['mie_altitude'];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.colorAxis = [['mie_signal_intensity']];
+                this.graph.renderSettings.yAxis = [['mie_altitude']];
+                this.graph.renderSettings.xAxis =['mie_time'];
             }else if(band === 'rayleigh_signal_channel_A_intensity'){
-                this.graph.renderSettings.colorAxis = ['rayleigh_signal_channel_A_intensity'];
-                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.colorAxis = [['rayleigh_signal_channel_A_intensity']];
+                this.graph.renderSettings.yAxis = [['rayleigh_altitude']];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
             }else if(band === 'rayleigh_signal_channel_B_intensity'){
-                this.graph.renderSettings.colorAxis = ['rayleigh_signal_channel_B_intensity'];
-                this.graph.renderSettings.yAxis = ['rayleigh_altitude'];
-                this.graph.renderSettings.xAxis =['time'];
+                this.graph.renderSettings.colorAxis = [['rayleigh_signal_channel_B_intensity']];
+                this.graph.renderSettings.yAxis = [['rayleigh_altitude']];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
             }
 
 
@@ -947,8 +976,8 @@ define([
             var params = {
                 'ALD_U_N_2A': {
                     'SCA_extinction': {
-                        lats: 'latitude_of_DEM_intersection_obs_orig',
-                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        lats: 'sca_latitude_of_DEM_intersection_obs_orig',
+                        lons: 'sca_longitude_of_DEM_intersection_obs_orig',
                         timeStart: 'SCA_time_obs_orig_start',
                         timeStop: 'SCA_time_obs_orig_stop',
                         colorAxis: ['SCA_extinction'],
@@ -958,8 +987,8 @@ define([
                             rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
                             time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
                         },
-                        jumps: 'jumps',
-                        signCross: 'signCross'
+                        jumps: 'sca_jumps',
+                        signCross: 'sca_signCross'
                     },
                     'MCA_extinction': {
                         lats: 'latitude_of_DEM_intersection_obs_orig',
@@ -1030,7 +1059,7 @@ define([
                         lats: 'rayleigh_wind_result_lat_of_DEM_intersection',
                         lons: 'rayleigh_wind_result_lon_of_DEM_intersection',
                         timeStart: 'rayleigh_wind_result_start_time',
-                        timeStop: 'rayleigh_profile_datetime_stop',
+                        timeStop: 'rayleigh_wind_result_stop_time',
                         colorAxis: ['rayleigh_wind_result_wind_velocity'],
                         xAxis:'time',
                         yAxis: ['rayleigh_altitude'],
@@ -1087,8 +1116,8 @@ define([
             }
 
             this.graph.renderSettings.combinedParameters = currPar.combinedParameters;
-            this.graph.renderSettings.colorAxis = currPar.colorAxis;
-            this.graph.renderSettings.yAxis = currPar.yAxis;
+            this.graph.renderSettings.colorAxis = [currPar.colorAxis];
+            this.graph.renderSettings.yAxis = [currPar.yAxis];
             this.graph.renderSettings.xAxis =currPar.xAxis;
             dataJumps = data[currPar.jumps];
             lats = data[currPar.lats];
@@ -2741,7 +2770,8 @@ define([
 
         onHighlightPoint: function(coords){
             this.billboards.removeAll();
-            if(coords !== null){
+            if(coords !== null && coords.Latitude && coords.Longitude){
+
                 var canvas = document.createElement('canvas');
                 canvas.width = 32;
                 canvas.height = 32;
@@ -2760,12 +2790,53 @@ define([
                 context2D.lineWidth = 3;
                 context2D.stroke();
 
+                var curtainHeight = 1000000;
+
+
+
                 if(!Array.isArray(coords.Latitude) &&
                    !Array.isArray(coords.Longitude)){
                     var height = 0;
                     if(Array.isArray(coords.Radius)){
                         height = coords.Radius[0]+(coords.Radius[1]-coords.Radius[0])/2;
-                        height = (1000*50)+(height*50)
+                        if(globals.swarm.hasOwnProperty('altitudeExtents')){
+                            var currProd = globals.products.find(
+                                function(p){return p.get('visible');}
+                            );
+                            var active;
+                            var params = currProd.get('parameters');
+                            for (var key in params) {
+                                if (params[key].selected) {
+                                    active = key;
+                                }
+                            }
+                            var extent;
+                            var exts = globals.swarm.altitudeExtents;
+                            var currmin;
+                            if(active === 'mie_HLOS_wind_speed' ||
+                                active === 'MCA_extinction' ||
+                                active === 'mie_wind_result_wind_velocity'){
+                                extent = exts.mie_max - exts.mie_min;
+                                currmin = exts.mie_min;
+
+                            } else if (active === 'rayleigh_HLOS_wind_speed' ||
+                                active === 'SCA_extinction' ||
+                                active === 'rayleigh_wind_result_wind_velocity'){
+                                extent = exts.ray_max - exts.ray_min;
+                                currmin = exts.ray_min;
+                            } else {
+                                // Should not happen
+                                extent = 1;
+                                currmin = 0;
+                                console.log('neither mie nor rayleigh active, issue at cesiumview');
+                            }
+                            // there seems to be an offset to the curtain i can't
+                            // quite explain so we need to add some offset here too
+                            var ratio = (height/(extent+Math.abs(currmin)));
+                            height = (curtainHeight*ratio) + 90000;
+                        } else {
+                            height = (1000*50)+(height*50);
+                        }
                     } else if(coords.Radius){
                         height = coords.Radius;
                     }
@@ -2881,7 +2952,7 @@ define([
             //       this approach is not ideal, when the movement mantains inertia difference 
             //       values are very low and there are comparison errors.
             var c = this.map.scene.camera;
-            var th = [10000, 10000, 10000];
+            var th = [1, 1, 1];
             // If current mode is either Columbus or Scene2D lower threshold
             if(this.map.scene.mode === 1 || this.map.scene.mode === 2){
                 th = [0, 0, 0];

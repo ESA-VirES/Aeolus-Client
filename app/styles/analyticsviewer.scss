@@ -64,6 +64,17 @@
     box-sizing: content-box; 
 }
 
+.editButton.remove:before {
+    margin-left: -3px;
+    margin-top: 0px;
+    font-size: 12px;
+    position: absolute;
+}
+
+.filterContainer input{
+    margin-top: 3px!important;
+}
+
 
 
 
@@ -79,17 +90,14 @@
     position:absolute;
 }
 
-#graph_1 {
-    height: 49%;
+#graph {
+    height: 100%;
 }
 
-#graph_2 {
-    height: 49%;
-}
+
 
 #graph_container {
     height: calc(100% - 270px);
-    padding-top: 20px;
 }
 
 #filterDivContainer {
@@ -159,14 +167,25 @@
 
 .w2ui-overlay {
     min-width: 565px!important;
-    margin-left: -100px!important;
+    /*margin-left: -200px!important;*/
 }
 
-.w2ui-overlay>div{
-    min-height: 58px!important;
+#analyticsFilterSelect{
+    float: left;
+    margin-left: 45px!important;
 }
 
-#filterSelectDrop .w2ui-field{
+#analyticsFilterSelect .w2ui-field-helper{
+    pointer-events: none;
+    opacity: 0;
+}
+
+#resetFilters{
+    float: left;
+}
+
+#clearFilters{
+    float: left;
     margin-left: 5px;
 }
 
@@ -178,23 +197,14 @@
     height: 33px;
 }
 
-#filterinputgroup .w2ui-field-helper.w2ui-list{
-    border-bottom-left-radius: 0px;
-    border-top-left-radius: 0px;
-}
 
 #filtermanager{
     pointer-events: none;
     opacity: 0;
 }
 
-#w2ui-overlay.downloadsection{
-    margin-left: -18px!important;
-}
 
-#custom_download .w2ui-field-helper.w2ui-list{
-    height: auto !important;
-}
+
 
 #nodatainfo{
     text-align: center;
@@ -213,7 +223,7 @@
     height: 25px;
     width: 25px;
     z-index: 5;
-    top: 8px;
+    top: 10px;
     left: 5px;
     cursor: pointer;
     font-size: 2.4em !important;
@@ -223,9 +233,9 @@
     position: absolute;
     height: 25px;
     width: 25px;
-    top: -2px;
+    top: 6px;
     z-index: 5;
-    left: 5px;
+    left: 30px;
     cursor: pointer;
     font-size: 1.8em;
 }
@@ -241,11 +251,6 @@
     z-index: 20;
     box-shadow: 5px 5px 2px lightgrey;
     padding: 5px;
-}
-
-.eraserIcon {
-    right: 10px!important;
-    top: 1px;
 }
 
 .parameterLabel {
@@ -279,29 +284,18 @@
     text-align: left;
 }
 
-#filterSelectDrop>.w2ui-field{
-    margin-left: 50px!important;
-}
 
 #analyticsAddFilter{
     margin-left: -40px!important;
 }
 
-.w2ui-field-helper input {
-    padding-left: 10px!important;
-    margin-top: 3px!important;
-}
+
 
 .parameterClose.cross.filterClose{
     position: absolute;
     top: 14px!important;
     right: 3px!important;
     z-index: 20;
-}
-
-
-#resetFilters{
-    float: left;
 }
 
 
@@ -314,14 +308,6 @@
     margin-top: -40px;
 }
 
-
-#filterSelectDrop .w2ui-field-helper{
-    margin-right: 35px;
-}
-
-#filterSelectDrop > .w2ui-field{
-    display: inline;
-}
 
 #inputAnalyticsAddfilter {
     margin-left: -150px;
@@ -363,36 +349,28 @@
 }
 
 
-#observationRight{
-    
-}
-
-#mieButtonContainer{
+#groupButtonContainer{
+    margin-top: -11px;
     width: 100%;
     text-align: center;
-    top: 42%;
-    z-index: 500;
-    position: absolute;
-}
-
-#rayleighButtonContainer{
-    width: 100%;
-    text-align: center;
-    /*top: 48%;*/
     z-index: 500;
 }
 
-#mieObservationLabel, #rayleighObservationLabel{
+
+#groupObservationLabel{
     display: inline;
     margin-left: 10px;
     margin-right: 10px;
 }
 
 
-#graph1Select, #graph2Select{
-    position: absolute;
-    left: 50%;
-    width: 100px;
-    margin-left: -50px;
-    top: -10px;
+
+.groupSelect{
+    /*Solving issue of select being different because of bootstrap*/
+    margin-top: -10px;
+}
+
+#parameterSettings, .parameterInfo{
+    /*overwrite bootstrap box sizing which makes boy smaller then it should be*/
+    box-sizing: content-box!important;
 }
