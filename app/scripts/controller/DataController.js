@@ -2785,7 +2785,7 @@
                     'rayleigh_HBE_ground_velocity',
                     'rayleigh_channel_A_SNR',
                     'rayleigh_signal_intensity_normalised',
-                    'average_laser_energy',
+                    /*'average_laser_energy',
                     'velocity_at_DEM_intersection',
                     'AOCS_yaw_angle',
                     'AOCS_roll_angle',
@@ -2795,7 +2795,7 @@
                     'latitude_of_DEM_intersection', 
                     'longitude_of_DEM_intersection', 
                     'laser_frequency',
-                    'albedo_off_nadir',
+                    'albedo_off_nadir',*/
                   ];
 
                   if(rayleighDiffVars){
@@ -2921,9 +2921,9 @@
                       pseudoKey = rayleighVars[i];
                     } else {
                       if(rayleighVars[i]==='time'){
-                        pseudoKey = 'rayleigh_'+mieVars[i];
+                        pseudoKey = 'rayleigh_'+rayleighVars[i];
                       } else {
-                        pseudoKey = mieVars[i];
+                        pseudoKey = rayleighVars[i];
                       }
                     }
 
@@ -2974,7 +2974,7 @@
                       setTimeout(
                         that.proxyFlattenObservationArraySE(
                           startKey, endKey,
-                          ds[rayleighVars[i]], ds.mie_altitude, stepPositions, signCross
+                          ds[rayleighVars[i]], ds.rayleigh_altitude, stepPositions, signCross
                         ),
                         0
                       );
