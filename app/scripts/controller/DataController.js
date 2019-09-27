@@ -2529,10 +2529,19 @@
 
                   if(ds.hasOwnProperty('mie_altitude') && ds.mie_altitude.length > 0){
                     // Calculate minimum and maximum altitude for rayleigh and mie
-                    var mie_alt_min = d3.min(ds.mie_altitude.map(function(a){return d3.min(a);}));
-                    var mie_alt_max = d3.max(ds.mie_altitude.map(function(a){return d3.max(a);}));
-                    var ray_alt_min = d3.min(ds.rayleigh_altitude.map(function(a){return d3.min(a);}));
-                    var ray_alt_max = d3.max(ds.rayleigh_altitude.map(function(a){return d3.max(a);}));
+                    // Check if we are looking at measurements
+                    var mie_alt_min, mie_alt_max, ray_alt_min, ray_alt_max;
+                    if(Array.isArray(ds.mie_altitude[0][0])){
+                      mie_alt_min = d3.min(ds.mie_altitude.map(function(a){return d3.min(_.flatten(a));}));
+                      mie_alt_max = d3.max(ds.mie_altitude.map(function(a){return d3.max(_.flatten(a));}));
+                      ray_alt_min = d3.min(ds.rayleigh_altitude.map(function(a){return d3.min(_.flatten(a));}));
+                      ray_alt_max = d3.max(ds.rayleigh_altitude.map(function(a){return d3.max(_.flatten(a));}));
+                    } else {
+                      mie_alt_min = d3.min(ds.mie_altitude.map(function(a){return d3.min(a);}));
+                      mie_alt_max = d3.max(ds.mie_altitude.map(function(a){return d3.max(a);}));
+                      ray_alt_min = d3.min(ds.rayleigh_altitude.map(function(a){return d3.min(a);}));
+                      ray_alt_max = d3.max(ds.rayleigh_altitude.map(function(a){return d3.max(a);}));
+                    }
 
                     globals.swarm.altitudeExtents = {
                       mie_min: mie_alt_min,
