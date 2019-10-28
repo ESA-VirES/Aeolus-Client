@@ -689,16 +689,34 @@
             "parameters": {
                 "mie_wind_result_wind_velocity": {
                     "range": [-20, 20],
-                    "uom":"m/s",
                     "colorscale": "rdylbu",
-                    "name": "Mie wind result wind velocity"
+                    "uom":"m/s",
+                    "name": "mie wind result wind velocity"
+                },
+                "mie_wind_result_HLOS_error":{
+                    "uom": "m/s",
+                    "name": "mie wind result HLOS error",
+                    "range": [0, 16],
+                    "colorscale": "viridis"
+                },
+                "mie_wind_result_SNR":{
+                    "uom": null,
+                    "name": "mie wind result SNR",
+                    "range": [-15, 15],
+                    "colorscale": "viridis"
                 },
                 "rayleigh_wind_result_wind_velocity": {
                     "selected": true,
                     "range": [-40, 40],
                     "uom":"m/s",
                     "colorscale": "rdylbu",
-                    "name": "Rayleigh wind result wind velocity"
+                    "name": "rayleigh wind result wind velocity"
+                },
+                "rayleigh_wind_result_HLOS_error": {
+                    "uom": "m/s",
+                    "name": "rayleigh wind result HLOS error",
+                    "range": [0, 16],
+                    "colorscale": "viridis"
                 }
             },
             "download_parameters": {
@@ -961,16 +979,82 @@
             "parameters": {
                 "mie_wind_result_wind_velocity": {
                     "range": [-20, 20],
-                    "uom":"m/s",
                     "colorscale": "rdylbu",
-                    "name": "Mie wind result wind velocity"
+                    "uom":"m/s",
+                    "name": "mie wind result wind velocity"
+                },
+                "mie_wind_result_HLOS_error":{
+                    "uom": "m/s",
+                    "name": "mie wind result HLOS error",
+                    "range": [0, 16],
+                    "colorscale": "viridis"
+                },
+                "mie_wind_result_SNR":{
+                    "uom": null,
+                    "name": "mie wind result SNR",
+                    "range": [120, 170],
+                    "colorscale": "viridis"
+                },
+                "mie_assimilation_background_HLOS": {
+                    "uom": "cm/s",
+                    "name": "mie assimilation background HLOS",
+                    "range": [-4000, 1000],
+                    "colorscale": "viridis"
+                },
+                "mie_assimilation_background_horizontal_wind_velocity": {
+                    "uom": "m/s",
+                    "name": "mie assimilation background horizontal wind velocity",
+                    "range": [0, 1],
+                    "colorscale": "viridis"
+                },
+                "mie_assimilation_analysis_HLOS": {
+                    "uom": "cm/s",
+                    "name": "mie assimilation analysis HLOS",
+                    "range": [-4000, 1000],
+                    "colorscale": "viridis"
+                },
+                "mie_assimilation_analysis_horizontal_wind_velocity": {
+                    "uom": null,
+                    "name": "mie assimilation analysis horizontal wind velocity",
+                    "range": [0, 4000],
+                    "colorscale": "viridis"
                 },
                 "rayleigh_wind_result_wind_velocity": {
-                    "range": [-40, 40],
                     "selected": true,
+                    "range": [-40, 40],
                     "uom":"m/s",
                     "colorscale": "rdylbu",
-                    "name": "Rayleigh wind result wind velocity"
+                    "name": "rayleigh wind result wind velocity"
+                },
+                "rayleigh_wind_result_HLOS_error": {
+                    "uom": "m/s",
+                    "name": "rayleigh wind result HLOS error",
+                    "range": [0, 16],
+                    "colorscale": "viridis"
+                },
+                "rayleigh_assimilation_background_HLOS": {
+                    "uom": "cm/s",
+                    "name": "rayleigh assimilation background HLOS",
+                    "range": [-4000, 1000],
+                    "colorscale": "viridis"
+                },
+                "rayleigh_assimilation_analysis_HLOS": {
+                    "uom": "cm/s",
+                    "name": "rayleigh assimilation analysis HLOS",
+                    "range": [-4000, 1000],
+                    "colorscale": "viridis"
+                },
+                "rayleigh_assimilation_background_horizontal_wind_velocity": {
+                    "uom": "m/s",
+                    "name": "rayleigh assimilation background horizontal wind velocity",
+                    "range": [0, 1],
+                    "colorscale": "viridis"
+                },
+                "rayleigh_assimilation_analysis_horizontal_wind_velocity": {
+                    "uom": "m/s",
+                    "name": "rayleigh assimilation analysis horizontal wind velocity",
+                    "range": [0, 4500],
+                    "colorscale": "viridis"
                 }
             },
             "download_parameters": {

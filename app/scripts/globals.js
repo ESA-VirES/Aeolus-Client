@@ -378,12 +378,36 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 extent: [-20,20]
             },
             'mie_wind_result_bottom_altitude':{
-
                 uom: 'm'
             },
             'mie_wind_result_top_altitude':{
-
                 uom: 'm'
+            },
+
+            "mie_assimilation_background_HLOS": {
+                "uom": "cm/s"
+            },
+            "mie_assimilation_background_horizontal_wind_velocity": {
+                "uom": "m/s"
+            },
+            "mie_assimilation_analysis_HLOS": {
+                "uom": "cm/s"
+            },
+            "mie_assimilation_analysis_horizontal_wind_velocity": {
+                "uom": null
+            },
+          
+            "rayleigh_assimilation_background_HLOS": {
+                "uom": "cm/s"
+            },
+            "rayleigh_assimilation_analysis_HLOS": {
+                "uom": "cm/s"
+            },
+            "rayleigh_assimilation_background_horizontal_wind_velocity": {
+                "uom": "m/s"
+            },
+            "rayleigh_assimilation_analysis_horizontal_wind_velocity": {
+                "uom": "m/s"
             },
 
             // AUX MRC and AUX RRC

@@ -1038,12 +1038,11 @@ define([
 
                 },
                 'ALD_U_N_2B': {
-                    'mie_wind_result_wind_velocity': {
+                    'mie_wind_result': {
                         lats: 'mie_wind_result_lat_of_DEM_intersection',
                         lons: 'mie_wind_result_lon_of_DEM_intersection',
                         timeStart: 'mie_wind_result_start_time',
                         timeStop: 'mie_wind_result_stop_time',
-                        colorAxis: ['mie_wind_result_wind_velocity'],
                         xAxis:'time',
                         yAxis: ['mie_altitude'],
                         combinedParameters: {
@@ -1053,12 +1052,11 @@ define([
                         jumps: 'mie_jumps',
                         signCross: 'mieSignCross'
                     },
-                    'rayleigh_wind_result_wind_velocity': {
+                    'rayleigh_wind_result': {
                         lats: 'rayleigh_wind_result_lat_of_DEM_intersection',
                         lons: 'rayleigh_wind_result_lon_of_DEM_intersection',
                         timeStart: 'rayleigh_wind_result_start_time',
                         timeStop: 'rayleigh_wind_result_stop_time',
-                        colorAxis: ['rayleigh_wind_result_wind_velocity'],
                         xAxis:'time',
                         yAxis: ['rayleigh_altitude'],
                         combinedParameters: {
@@ -1070,12 +1068,11 @@ define([
                     }
                 },
                 'ALD_U_N_2C': {
-                    'mie_wind_result_wind_velocity': {
+                    'mie_wind_result': {
                         lats: 'mie_wind_result_lat_of_DEM_intersection',
                         lons: 'mie_wind_result_lon_of_DEM_intersection',
                         timeStart: 'mie_wind_result_start_time',
                         timeStop: 'mie_wind_result_stop_time',
-                        colorAxis: ['mie_wind_result_wind_velocity'],
                         xAxis:'time',
                         yAxis: ['mie_altitude'],
                         combinedParameters: {
@@ -1085,12 +1082,11 @@ define([
                         jumps: 'mie_jumps',
                         signCross: 'mieSignCross'
                     },
-                    'rayleigh_wind_result_wind_velocity': {
+                    'rayleigh_wind_result': {
                         lats: 'rayleigh_wind_result_lat_of_DEM_intersection',
                         lons: 'rayleigh_wind_result_lon_of_DEM_intersection',
                         timeStart: 'rayleigh_wind_result_start_time',
                         timeStop: 'rayleigh_wind_result_stop_time',
-                        colorAxis: ['rayleigh_wind_result_wind_velocity'],
                         xAxis:'time',
                         yAxis: ['rayleigh_altitude'],
                         combinedParameters: {
@@ -1152,6 +1148,12 @@ define([
                 currPar.colorAxis = [band];
             } else if (band.startsWith('ICA_')){
                 currPar = params[cov_id]['ICA'];
+                currPar.colorAxis = [band];
+            } else if (band.startsWith('mie_wind_result') || band.startsWith('mie_assimilation') ){
+                currPar = params[cov_id]['mie_wind_result'];
+                currPar.colorAxis = [band];
+            }  else if (band.startsWith('rayleigh_wind_result') || band.startsWith('rayleigh_assimilation') ){
+                currPar = params[cov_id]['rayleigh_wind_result'];
                 currPar.colorAxis = [band];
             } else {
                 currPar = params[cov_id][band];
