@@ -759,8 +759,13 @@
         var style = parameters[band].colorscale;
         var range = parameters[band].range;
 
-        this.wpsProdChange = true;
-        this.checkSelections();
+        // For AUX_MET we need to re-request data when changing parameter
+        // for all other collections not necessary
+        if(currProd.get('download').id === 'AUX_MET_12'){
+          this.wpsProdChange = true;
+          this.checkSelections();
+        }
+
       },
 
       onLayerGranularityChanged: function(layer){
@@ -1203,6 +1208,7 @@
             resData['SCA_middle_bin_time_obs_start'] = resData['SCA_middle_bin_time_obs'].slice();
             //resData['SCA_middle_bin_time_obs_stop'] = resData['SCA_middle_bin_time_obs'].slice(23, resData['SCA_middle_bin_time_obs'].length);
             resData['SCA_middle_bin_time_obs_stop'] = resData['SCA_middle_bin_time_obs'].map(function(e){return e+offs;});
+            resData['SCA_middle_bin_jumps'] = [];
 
             resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
             //resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].slice(24, resData['MCA_time_obs'].length);
@@ -1341,6 +1347,8 @@
             resData['ICA_time_obs_orig_start'] = resData['ICA_time_obs_orig'].slice();
             //resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].slice(1, resData['ICA_time_obs_orig'].length);
             resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].map(function(e){return e+offs;});
+
+            resData['ica_jumps'] = [];
           }
 
         }

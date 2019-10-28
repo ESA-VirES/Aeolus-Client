@@ -747,6 +747,10 @@ define([
                 this.graph.renderSettings.colorAxis = [['rayleigh_signal_channel_B_intensity']];
                 this.graph.renderSettings.yAxis = [['rayleigh_altitude']];
                 this.graph.renderSettings.xAxis =['rayleigh_time'];
+            }else if(band === 'rayleigh_signal_intensity'){
+                this.graph.renderSettings.colorAxis = [['rayleigh_signal_intensity']];
+                this.graph.renderSettings.yAxis = [['rayleigh_altitude']];
+                this.graph.renderSettings.xAxis =['rayleigh_time'];
             }
 
 
@@ -975,12 +979,25 @@ define([
 
             var params = {
                 'ALD_U_N_2A': {
-                    'SCA_extinction': {
+                    'SCA_middle_bin': {
+                        lats: 'latitude_of_DEM_intersection_obs_orig',
+                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        timeStart: 'SCA_middle_bin_time_obs_orig_start',
+                        timeStop: 'SCA_middle_bin_time_obs_orig_stop',
+                        xAxis:'SCA_middle_bin_time',
+                        yAxis: ['SCA_middle_bin_altitude'],
+                        combinedParameters: {
+                            SCA_middle_bin_altitude: ['SCA_middle_bin_altitude_obs_top', 'SCA_middle_bin_altitude_obs_bottom'],
+                            SCA_middle_bin_time: ['SCA_middle_bin_time_obs_start', 'SCA_middle_bin_time_obs_stop']
+                        },
+                        jumps: 'SCA_middle_bin_jumps',
+                        signCross: 'signCross'
+                    },
+                    'SCA': {
                         lats: 'sca_latitude_of_DEM_intersection_obs_orig',
                         lons: 'sca_longitude_of_DEM_intersection_obs_orig',
                         timeStart: 'SCA_time_obs_orig_start',
                         timeStop: 'SCA_time_obs_orig_stop',
-                        colorAxis: ['SCA_extinction'],
                         xAxis:'time',
                         yAxis: ['rayleigh_altitude'],
                         combinedParameters: {
@@ -990,12 +1007,11 @@ define([
                         jumps: 'sca_jumps',
                         signCross: 'sca_signCross'
                     },
-                    'MCA_extinction': {
+                    'MCA': {
                         lats: 'latitude_of_DEM_intersection_obs_orig',
                         lons: 'longitude_of_DEM_intersection_obs_orig',
                         timeStart: 'MCA_time_obs_orig_start',
                         timeStop: 'MCA_time_obs_orig_stop',
-                        colorAxis: ['MCA_extinction'],
                         xAxis:'time',
                         yAxis: ['mie_altitude'],
                         combinedParameters: {
@@ -1003,6 +1019,20 @@ define([
                             time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
                         },
                         jumps: 'jumps',
+                        signCross: 'signCross'
+                    },
+                    'ICA': {
+                        lats: 'latitude_of_DEM_intersection_obs_orig',
+                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        timeStart: 'ICA_time_obs_orig_start',
+                        timeStop: 'ICA_time_obs_orig_stop',
+                        xAxis:'time',
+                        yAxis: ['bins'],
+                        combinedParameters: {
+                            bins: ['ICA_bins_end', 'ICA_bins_start'],
+                            time: ['ICA_time_obs_start', 'ICA_time_obs_stop'],
+                        },
+                        jumps: 'ica_jumps',
                         signCross: 'signCross'
                     }
 
@@ -1111,6 +1141,18 @@ define([
                         signCross: 'nadirSignCross'
                     };
                 }
+            } else if (band.startsWith('SCA_middle_bin')){
+                currPar = params[cov_id]['SCA_middle_bin'];
+                currPar.colorAxis = [band];
+            } else if (band.startsWith('SCA_')){
+                currPar = params[cov_id]['SCA'];
+                currPar.colorAxis = [band];
+            } else if (band.startsWith('MCA_')){
+                currPar = params[cov_id]['MCA'];
+                currPar.colorAxis = [band];
+            } else if (band.startsWith('ICA_')){
+                currPar = params[cov_id]['ICA'];
+                currPar.colorAxis = [band];
             } else {
                 currPar = params[cov_id][band];
             }

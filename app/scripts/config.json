@@ -179,6 +179,12 @@
                     "uom":"ACCD counts",
                     "colorscale": "viridis",
                     "name": "Rayleigh ch. B signal intesity"
+                },
+                "rayleigh_signal_intensity": {
+                    "range": [0, 26000],
+                    "uom":"ACCD counts",
+                    "colorscale": "viridis",
+                    "name": "Rayleigh ch. A+B signal intesity"
                 }
             },
             "download_parameters": {
@@ -356,11 +362,131 @@
                     "colorscale": "viridis",
                     "name": "SCA extinction"
                 },
+                "SCA_extinction_variance": {
+                    "range": [0, 7e-8],
+                    "uom": "m^-2",
+                    "colorscale": "viridis",
+                    "name": "SCA extinction variance"
+                },
+                "SCA_backscatter": {
+                    "range": [0, 14], 
+                    "uom": "10-6 * m^-1* sr^-1",
+                    "colorscale": "viridis",
+                    "name": "SCA backscatter"
+                },
+                "SCA_backscatter_variance": {
+                    "range": [0, 2e-13],
+                    "uom": "m^-2*sr^-2",
+                    "colorscale": "viridis",
+                    "name": "SCA backscatter variance"
+                },
+                "SCA_LOD": {
+                    "range": [0, 0.3],
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "SCA LOD"
+                },
+                "SCA_LOD_variance": {
+                    "range": [0, 1e-4],
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "SCA LOD variance"
+                },
+                "SCA_SR": {
+                    "range": [0, 4],
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "SCA Scattering ratio"
+                },
+                "MCA_clim_BER": {
+                    "range": [0, 0.1],
+                    "colorscale": "viridis",
+                    "uom": "sr^-1",
+                    "name": "MCA climatology BER"
+                },
                 "MCA_extinction": {
                     "range": [0, 100],
                     "uom":"10-6 * m^-1",
                     "colorscale": "viridis",
                     "name": "MCA extinction"
+                },
+                "MCA_LOD": {
+                    "uom": null,
+                    "range": [0, 0.1],
+                    "colorscale": "viridis",
+                    "name": "MCA LOD"
+                },
+                "ICA_filling_case": {
+                    "range": [1, 3],
+                    "colorscale": "viridis",
+                    "uom": null,
+                    "name": "ICA filling case"
+                },
+                "ICA_extinction": {
+                    "range": [0, 300],
+                    "colorscale": "viridis",
+                    "uom": "10-6 * m^-1",
+                    "name": "ICA extinction"
+                },
+                "ICA_backscatter": {
+                    "range": [0, 3],
+                    "colorscale": "viridis",
+                    "uom": "10-6 * m^-1* sr^-1",
+                    "name": "ICA backscatter"
+                },
+                "ICA_LOD": {
+                    "range": [0, 0.4],
+                    "colorscale": "viridis",
+                    "uom": null,
+                    "name": "ICA LOD"
+                },
+                "SCA_middle_bin_extinction": {
+                    "range": [0, 400],
+                    "colorscale": "viridis",
+                    "uom": "10-6 * m^-1",
+                    "name": "SCA middle bin extinction"
+                },
+                "SCA_middle_bin_extinction_variance": {
+                    "range": [0, 0.01],
+                    "colorscale": "viridis",
+                    "uom": "m^-2",
+                    "name": "SCA middle bin extinction variance"
+                },
+                "SCA_middle_bin_backscatter": {
+                    "range": [0, 10],
+                    "colorscale": "viridis",
+                    "uom": "10-6 * m^-1* sr^-1",
+                    "name": "SCA middle bin backscatter"
+                },
+                "SCA_middle_bin_backscatter_variance": {
+                    "range": [0, 5e-8],
+                    "colorscale": "viridis",
+                    "uom": "m^-2*sr^-2",
+                    "name": "SCA middle bin backscatter variance"
+                },
+                "SCA_middle_bin_LOD": {
+                    "range": [0, 1],
+                    "colorscale": "viridis",
+                    "uom": null,
+                    "name": "SCA middle bin LOD"
+                },
+                "SCA_middle_bin_LOD_variance": {
+                    "range": [0, 8e-6],
+                    "colorscale": "viridis",
+                    "uom": null,
+                    "name": "SCA middle bin LOD variance"
+                },
+                "SCA_middle_bin_BER": {
+                    "range": [0, 0.1],
+                    "colorscale": "viridis",
+                    "uom": null,
+                    "name": "SCA middle bin BER"
+                },
+                "SCA_middle_bin_BER_variance": {
+                    "range": [0, 1e-6],
+                    "colorscale": "viridis",
+                    "uom": "sr^-2",
+                    "name": "SCA middle bin BER variance"
                 }
             },
             "download_parameters": {
