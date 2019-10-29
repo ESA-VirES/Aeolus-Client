@@ -234,7 +234,7 @@ var VECTOR_BREAKDOWN = {};
                          'The configuration of your last visit has been loaded, '+
                          'if you would like to reset to the default configuration click '+
                          '<b><a href="javascript:void(0);" onclick="'+clickEvent+'">here</a></b> '+
-                         'or on the Reset button above.', 35
+                         'or the Reset button under the Workspace tab above.', 35
                     );
 
 
