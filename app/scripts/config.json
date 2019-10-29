@@ -1004,7 +1004,7 @@
                 "mie_assimilation_background_horizontal_wind_velocity": {
                     "uom": "m/s",
                     "name": "mie assimilation background horizontal wind velocity",
-                    "range": [0, 1],
+                    "range": [0, 4000],
                     "colorscale": "viridis"
                 },
                 "mie_assimilation_analysis_HLOS": {
@@ -1047,7 +1047,7 @@
                 "rayleigh_assimilation_background_horizontal_wind_velocity": {
                     "uom": "m/s",
                     "name": "rayleigh assimilation background horizontal wind velocity",
-                    "range": [0, 1],
+                    "range": [0, 4000],
                     "colorscale": "viridis"
                 },
                 "rayleigh_assimilation_analysis_horizontal_wind_velocity": {
