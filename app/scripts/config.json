@@ -172,19 +172,19 @@
                     "range": [0, 13000],
                     "uom":"ACCD counts",
                     "colorscale": "viridis",
-                    "name": "Rayleigh ch. A signal intesity"
+                    "name": "Rayleigh ch. A signal intensity"
                 },
                 "rayleigh_signal_channel_B_intensity": {
                     "range": [0, 13000],
                     "uom":"ACCD counts",
                     "colorscale": "viridis",
-                    "name": "Rayleigh ch. B signal intesity"
+                    "name": "Rayleigh ch. B signal intensity"
                 },
                 "rayleigh_signal_intensity": {
                     "range": [0, 26000],
                     "uom":"ACCD counts",
                     "colorscale": "viridis",
-                    "name": "Rayleigh ch. A+B signal intesity"
+                    "name": "Rayleigh ch. A+B signal intensity"
                 }
             },
             "download_parameters": {
