@@ -996,7 +996,7 @@
                     "colorscale": "viridis"
                 },
                 "mie_assimilation_background_HLOS": {
-                    "uom": "m/s",
+                    "uom": "cm/s",
                     "name": "mie assimilation background HLOS",
                     "range": [-4000, 1000],
                     "colorscale": "viridis"
@@ -1008,7 +1008,7 @@
                     "colorscale": "viridis"
                 },
                 "mie_assimilation_analysis_HLOS": {
-                    "uom": "m/s",
+                    "uom": "cm/s",
                     "name": "mie assimilation analysis HLOS",
                     "range": [-4000, 1000],
                     "colorscale": "viridis"
@@ -1033,13 +1033,13 @@
                     "colorscale": "viridis"
                 },
                 "rayleigh_assimilation_background_HLOS": {
-                    "uom": "m/s",
+                    "uom": "cm/s",
                     "name": "rayleigh assimilation background HLOS",
                     "range": [-4000, 1000],
                     "colorscale": "viridis"
                 },
                 "rayleigh_assimilation_analysis_HLOS": {
-                    "uom": "m/s",
+                    "uom": "cm/s",
                     "name": "rayleigh assimilation analysis HLOS",
                     "range": [-4000, 1000],
                     "colorscale": "viridis"
