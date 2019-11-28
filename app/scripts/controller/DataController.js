@@ -43,21 +43,38 @@
 
         var filterSettings = {
             parameterMatrix: {
-               /* 'height': [
-                    'mie_altitude_start', 'mie_altitude_end'
-                ],
-                'latitude': [
-                    'mie_latitude', 'rayleigh_latitude'
-                ],
-                'longitude': [
-                   'mie_longitude'
-                ], 
-                'geoid_separation': [
-                    'rayleigh_geoid_separation', 'mie_geoid_separation'
-                ],
-                'velocity_at_DEM_intersection': [
-                    'rayleigh_velocity_at_DEM_intersection', 'mie_velocity_at_DEM_intersection'
-                ]*/
+              'latitude_of_DEM_intersection': [
+                'latitude_of_DEM_intersection_start',
+                'latitude_of_DEM_intersection_end'
+              ],
+              'longitude_of_DEM_intersection': [
+                'longitude_of_DEM_intersection_start',
+                'longitude_of_DEM_intersection_end'
+              ],
+              'rayleigh_altitude': [
+                'rayleigh_altitude_start',
+                'rayleigh_altitude_end'
+              ],
+              'mie_altitude': [
+                'mie_altitude_start',
+                'mie_altitude_end'
+              ],
+              'rayleigh_range': [
+                'rayleigh_range_start',
+                'rayleigh_range_end'
+              ],
+              'mie_range': [
+                'mie_range_start',
+                'mie_range_end'
+              ],
+              'rayleigh_altitude_obs': [
+                'rayleigh_altitude_obs_top',
+                'rayleigh_altitude_obs_bottom'
+              ],
+              'mie_altitude_obs': [
+                'mie_altitude_obs_top',
+                'mie_altitude_obs_bottom'
+              ],
             },
             dataSettings: this.dataSettings,
 
@@ -67,6 +84,7 @@
                   'mie_time_end',
                   'mie_longitude',
                   'mie_latitude',
+                  'mie_altitude',
                   'mie_altitude_start',
                   'mie_altitude_end',
                   'mie_range',
@@ -88,6 +106,7 @@
                   'rayleigh_time_end',
                   'rayleigh_longitude',
                   'rayleigh_latitude',
+                  'rayleigh_altitude',
                   'rayleigh_altitude_start',
                   'rayleigh_altitude_end',
                   'rayleigh_range',
@@ -145,20 +164,20 @@
                   'albedo_off_nadir'
                 ],
                 [
-                   'rayleigh_altitude',
-                    'rayleigh_altitude_obs_top',
-                    'rayleigh_altitude_obs_bottom',
-                    'SCA_time_obs_start',
-                    'SCA_time_obs_stop',
-                    'SCA_time',
-                    'SCA_QC_flag',
-                    'SCA_extinction_variance',
-                    'SCA_backscatter_variance',
-                    'SCA_LOD_variance',
-                    'SCA_extinction',
-                    'SCA_backscatter',
-                    'SCA_LOD',
-                    'SCA_SR',
+                  'rayleigh_altitude',
+                  'rayleigh_altitude_obs_top',
+                  'rayleigh_altitude_obs_bottom',
+                  'SCA_time_obs_start',
+                  'SCA_time_obs_stop',
+                  'SCA_time',
+                  'SCA_QC_flag',
+                  'SCA_extinction_variance',
+                  'SCA_backscatter_variance',
+                  'SCA_LOD_variance',
+                  'SCA_extinction',
+                  'SCA_backscatter',
+                  'SCA_LOD',
+                  'SCA_SR',
                 ],
                 [
                   'SCA_middle_bin_time',
@@ -740,8 +759,13 @@
         var style = parameters[band].colorscale;
         var range = parameters[band].range;
 
-        this.wpsProdChange = true;
-        this.checkSelections();
+        // For AUX_MET we need to re-request data when changing parameter
+        // for all other collections not necessary
+        if(currProd.get('download').id === 'AUX_MET_12'){
+          this.wpsProdChange = true;
+          this.checkSelections();
+        }
+
       },
 
       onLayerGranularityChanged: function(layer){
@@ -816,10 +840,17 @@
           var resData = {};
           resData[this.collectionId] = this.tmpdata;
 
-          this.filterManager.loadData(resData[this.collectionId]);
+          // Create copy
+          /*var datacopy = {};
+          for (var kp in this.tmpdata){
+            datacopy[kp] = this.tmpdata[kp].slice(0);
+          }
+          this.filterManager.loadData(datacopy);*/
+
           this.filterManager._renderFilters();
           this.filterManager._renderFilters();
           globals.swarm.set({data: resData});
+          this.filterManager.loadData(resData[this.collectionId]);
         }
       },
 
@@ -1177,6 +1208,7 @@
             resData['SCA_middle_bin_time_obs_start'] = resData['SCA_middle_bin_time_obs'].slice();
             //resData['SCA_middle_bin_time_obs_stop'] = resData['SCA_middle_bin_time_obs'].slice(23, resData['SCA_middle_bin_time_obs'].length);
             resData['SCA_middle_bin_time_obs_stop'] = resData['SCA_middle_bin_time_obs'].map(function(e){return e+offs;});
+            resData['SCA_middle_bin_jumps'] = [];
 
             resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
             //resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].slice(24, resData['MCA_time_obs'].length);
@@ -1315,6 +1347,8 @@
             resData['ICA_time_obs_orig_start'] = resData['ICA_time_obs_orig'].slice();
             //resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].slice(1, resData['ICA_time_obs_orig'].length);
             resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].map(function(e){return e+offs;});
+
+            resData['ica_jumps'] = [];
           }
 
         }

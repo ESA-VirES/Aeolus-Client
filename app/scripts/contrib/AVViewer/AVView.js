@@ -330,7 +330,9 @@ define(['backbone.marionette',
                         longitude_of_DEM_intersection: ['longitude_of_DEM_intersection_end', 'longitude_of_DEM_intersection_start'],
                         mie_time: ['mie_time_start', 'mie_time_end'],
                         rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end'],
-                        mie_altitude: ['mie_altitude_start', 'mie_altitude_end']
+                        mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
+                        rayleigh_range: ['rayleigh_range_start', 'rayleigh_range_end'],
+                        mie_range: ['mie_range_start', 'mie_range_end'],
                     },
                     colorAxis: [['rayleigh_HLOS_wind_speed'], ['mie_HLOS_wind_speed']],
                     colorAxis2: [[], []],
@@ -338,13 +340,23 @@ define(['backbone.marionette',
                         mie: {
                             parameters: [
                                 'mie_time',
+                                'mie_time_start',
+                                'mie_time_end',
                                 'longitude_of_DEM_intersection',
+                                'longitude_of_DEM_intersection_start',
+                                'longitude_of_DEM_intersection_end',
                                 'latitude_of_DEM_intersection',
+                                'latitude_of_DEM_intersection_start',
+                                'latitude_of_DEM_intersection_end',
                                 'altitude_of_DEM_intersection',
                                 'mie_longitude',
                                 'mie_latitude',
                                 'mie_altitude',
+                                'mie_altitude_start',
+                                'mie_altitude_end',
                                 'mie_range',
+                                'mie_range_start',
+                                'mie_range_end',
                                 'geoid_separation',
                                 'velocity_at_DEM_intersection',
                                 'AOCS_pitch_angle',
@@ -375,13 +387,23 @@ define(['backbone.marionette',
                         rayleigh: {
                             parameters: [
                                 'rayleigh_time',
+                                'rayleigh_time_start',
+                                'rayleigh_time_end',
                                 'longitude_of_DEM_intersection',
+                                'longitude_of_DEM_intersection_start',
+                                'longitude_of_DEM_intersection_end',
                                 'latitude_of_DEM_intersection',
+                                'latitude_of_DEM_intersection_start',
+                                'latitude_of_DEM_intersection_end',
                                 'altitude_of_DEM_intersection',
                                 'rayleigh_longitude',
                                 'rayleigh_latitude',
                                 'rayleigh_altitude',
+                                'rayleigh_altitude_start',
+                                'rayleigh_altitude_end',
                                 'rayleigh_range',
+                                'rayleigh_range_start',
+                                'rayleigh_range_end',
                                 'geoid_separation',
                                 'velocity_at_DEM_intersection',
                                 'AOCS_pitch_angle',
@@ -465,14 +487,14 @@ define(['backbone.marionette',
                                 'L1B_start_time_obs',
                                 'L1B_centroid_time_obs',
                                 'MCA_time',
-                                'longitude_of_DEM_intersection_obs',
-                                'latitude_of_DEM_intersection_obs',
-                                'altitude_of_DEM_intersection_obs',
                                 'geoid_separation_obs',
                                 'L1B_num_of_meas_per_obs',
                                 'MCA_clim_BER',
                                 'MCA_extinction',
                                 'MCA_LOD',
+                                'longitude_of_DEM_intersection_obs',
+                                'latitude_of_DEM_intersection_obs',
+                                'altitude_of_DEM_intersection_obs',
                                 'albedo_off_nadir'
                             ],
                             defaults: {
@@ -502,7 +524,11 @@ define(['backbone.marionette',
                                 'SCA_LOD',
                                 'SCA_SR',
                                 'sca_latitude_of_DEM_intersection_obs',
-                                'sca_longitude_of_DEM_intersection_obs'
+                                'sca_longitude_of_DEM_intersection_obs',
+                                'longitude_of_DEM_intersection_obs',
+                                'latitude_of_DEM_intersection_obs',
+                                'altitude_of_DEM_intersection_obs',
+                                'albedo_off_nadir'
                             ],
                             defaults: {
                                 yAxis: 'rayleigh_altitude',
@@ -531,7 +557,11 @@ define(['backbone.marionette',
                                 'SCA_middle_bin_extinction',
                                 'SCA_middle_bin_backscatter',
                                 'SCA_middle_bin_LOD',
-                                'SCA_middle_bin_BER'
+                                'SCA_middle_bin_BER',
+                                'longitude_of_DEM_intersection_obs',
+                                'latitude_of_DEM_intersection_obs',
+                                'altitude_of_DEM_intersection_obs',
+                                'albedo_off_nadir'
                             ],
                             defaults: {
                                 yAxis: 'SCA_middle_bin_altitude',
@@ -555,7 +585,11 @@ define(['backbone.marionette',
                                 'ICA_filling_case',
                                 'ICA_extinction',
                                 'ICA_backscatter',
-                                'ICA_LOD'
+                                'ICA_LOD',
+                                'longitude_of_DEM_intersection_obs',
+                                'latitude_of_DEM_intersection_obs',
+                                'altitude_of_DEM_intersection_obs',
+                                'albedo_off_nadir'
                             ],
                             defaults: {
                                 yAxis: 'bins',
@@ -1635,12 +1669,32 @@ define(['backbone.marionette',
               }
             }
 
-            // Show only filters for currently available data
+            var groupKeys = [];
+            // Iterate over grouped items and see if their components are available
+            for(var confKey in this.renderSettings){
+                if(this.renderSettings[confKey].hasOwnProperty('combinedParameters')){
+                    for (var combKey in this.renderSettings[confKey].combinedParameters){
+                        var gkeys = this.renderSettings[confKey].combinedParameters[combKey];
+                        if(gkeys.length ===2){
+                            if(this.currentKeys && 
+                                this.currentKeys.indexOf(gkeys[0]) !== -1 &&
+                                this.currentKeys.indexOf(gkeys[0]) !== -1){
+                                groupKeys.push(combKey);
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            // Show only filters for currently available data 
             for (var key in aUOM) {
-              if(this.currentKeys && this.currentKeys.indexOf(key) === -1){
+              if(this.currentKeys && this.currentKeys.indexOf(key) === -1 && 
+                  groupKeys.indexOf(key) === -1){
                 delete aUOM[key];
               }
             }
+
 
             $('#filterSelectDrop').append(
               '<div class="w2ui-field" id="analyticsFilterSelect"> <button id="analyticsAddFilter" type="button" class="btn btn-success darkbutton dropdown-toggle">Add filter <span class="caret"></span></button> <input type="list" id="inputAnalyticsAddfilter"></div>'
@@ -1967,7 +2021,7 @@ define(['backbone.marionette',
                                 var diffusrpars = [];
                                 for (var pI=0; pI<rG[gK].parameters.length; pI++){
                                     diffusrpars.push(rG[gK].parameters[pI]+'_diff');
-                                    diffusrpars.push(rG[gK].parameters[pI]+'_usr');
+                                    diffusrpars.push(rG[gK].parameters[pI]+'_user');
                                 }
                                 for (var i = 0; i < diffusrpars.length; i++) {
                                     if(rG[gK].parameters.indexOf(diffusrpars[i])===-1){

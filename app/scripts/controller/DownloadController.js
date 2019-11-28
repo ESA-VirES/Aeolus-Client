@@ -68,6 +68,34 @@
         },
 
         onDownloadSetFilter: function(filter){
+            // TODO: Not sure this is the best approach, but for "manually" 
+            //       created grouped parameters of L1B we need to "revert"
+            //       the filters to its original state, i am not convinced
+            //       this is the best way to do it.
+            //       Variable startEndVars in DataController.js
+
+            var startEndVars = [
+                // L1B
+                'latitude_of_DEM_intersection','longitude_of_DEM_intersection',
+                'rayleigh_altitude', 'rayleigh_range', 'mie_altitude', 'mie_range',
+                // L2A
+                'mie_altitude_obs', 'rayleigh_altitude_obs'
+            ];
+
+            for (var i = 0; i < startEndVars.length; i++) {
+                if( filter.hasOwnProperty(startEndVars[i]+'_start') && 
+                    filter.hasOwnProperty(startEndVars[i]+'_end') ) {
+                    filter[startEndVars[i]] = filter[startEndVars[i]+'_start'];
+                    delete filter[startEndVars[i]+'_start'];
+                    delete filter[startEndVars[i]+'_end'];
+               }else if( filter.hasOwnProperty(startEndVars[i]+'_top') && 
+                    filter.hasOwnProperty(startEndVars[i]+'_bottom') ) {
+                    filter[startEndVars[i]] = filter[startEndVars[i]+'_top'];
+                    delete filter[startEndVars[i]+'_top'];
+                    delete filter[startEndVars[i]+'_bottom'];
+               }
+            }
+
             this.model.set('filter', filter);
         },
 

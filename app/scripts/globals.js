@@ -78,7 +78,6 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 extent: [-20,20]
             },
             'altitude':{
-
                 uom: 'm'
             },
 
@@ -89,6 +88,9 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 uom: 'ACCD counts'
             },
             'rayleigh_signal_channel_B_intensity': {
+                uom: 'ACCD counts'
+            },
+            'rayleigh_signal_intensity': {
                 uom: 'ACCD counts'
             },
             // L2A
@@ -113,6 +115,15 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             },
             'SCA_LOD_variance': {
                 nullValue: -1
+            },
+            "SCA_LOD": {
+                "uom": null,
+            },
+            "SCA_LOD_variance": {
+                "uom": null,
+            },
+            "SCA_SR": {
+                "uom": null,
             },
             'SCA_time_obs':{
                 scaleFormat: 'time',
@@ -152,6 +163,19 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             'SCA_middle_bin_backscatter': {uom: "10-6 * m^-1* sr^-1"},
             'SCA_middle_bin_LOD': {uom: null},
 
+            "ICA_filling_case": {
+                "uom": null,
+            },
+            "ICA_extinction": {
+                "uom": "10-6 * m^-1",
+            },
+            "ICA_backscatter": {
+                "uom": "10-6 * m^-1* sr^-1",
+            },
+            "ICA_LOD": {
+                "uom": null,
+            },
+
             'mie_altitude_obs':{
 
                 uom: 'm'
@@ -188,6 +212,12 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 scaleFormat: 'time',
                 timeFormat: 'MJD2000_S'
             },
+            "MCA_clim_BER": {
+                "uom": "sr^-1"
+            },
+            "MCA_LOD": {
+                "uom": null
+            },
             'ICA_time_obs_start': {
                 scaleFormat: 'time',
                 timeFormat: 'MJD2000_S'
@@ -201,6 +231,31 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             },
             'ICA_backscatter':{
                 nullValue: -1000000
+            },
+
+            "SCA_middle_bin_extinction": {
+                "uom": "10-6 * m^-1",
+            },
+            "SCA_middle_bin_extinction_variance": {
+                "uom": "m^-2",
+            },
+            "SCA_middle_bin_backscatter": {
+                "uom": "10-6 * m^-1* sr^-1",
+            },
+            "SCA_middle_bin_backscatter_variance": {
+                "uom": "m^-2*sr^-2",
+            },
+            "SCA_middle_bin_LOD": {
+                "uom": null,
+            },
+            "SCA_middle_bin_LOD_variance": {
+                "uom": null,
+            },
+            "SCA_middle_bin_BER": {
+                "uom": null,
+            },
+            "SCA_middle_bin_BER_variance": {
+                "uom": "sr^-2",
             },
 
             // L2A Group
@@ -323,12 +378,36 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 extent: [-20,20]
             },
             'mie_wind_result_bottom_altitude':{
-
                 uom: 'm'
             },
             'mie_wind_result_top_altitude':{
-
                 uom: 'm'
+            },
+
+            "mie_assimilation_background_HLOS": {
+                "uom": "cm/s"
+            },
+            "mie_assimilation_background_horizontal_wind_velocity": {
+                "uom": "m/s"
+            },
+            "mie_assimilation_analysis_HLOS": {
+                "uom": "cm/s"
+            },
+            "mie_assimilation_analysis_horizontal_wind_velocity": {
+                "uom": null
+            },
+          
+            "rayleigh_assimilation_background_HLOS": {
+                "uom": "cm/s"
+            },
+            "rayleigh_assimilation_analysis_HLOS": {
+                "uom": "cm/s"
+            },
+            "rayleigh_assimilation_background_horizontal_wind_velocity": {
+                "uom": "m/s"
+            },
+            "rayleigh_assimilation_analysis_horizontal_wind_velocity": {
+                "uom": "m/s"
             },
 
             // AUX MRC and AUX RRC
