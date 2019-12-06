@@ -24,6 +24,7 @@
                 this.listenTo(Communicator.mediator, "application:save", this.onApplicationSave);
                 this.listenTo(Communicator.mediator, "application:load", this.onApplicationLoad);
                 this.listenTo(Communicator.mediator, "dialog:show:upload", this.onShowUpload);
+                this.listenTo(Communicator.mediator, "dialog:show:dataconfiguration", this.onOpenDataConfiguration);
                 
             },
 
@@ -132,6 +133,13 @@
                     }
                 }
 
+            },
+            onOpenDataConfiguration: function(){
+                if (_.isUndefined(App.viewContent.isClosed) || App.dataConfigurationView.isClosed) {
+                    App.viewContent.show(App.dataConfigurationView);
+                } else {
+                    App.viewContent.close();
+                }
             },
             onApplicationReset: function(){
                 if (typeof(Storage) !== "undefined") {

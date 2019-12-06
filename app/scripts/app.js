@@ -574,6 +574,9 @@ var VECTOR_BREAKDOWN = {};
                     })
                 });
 
+                // Create data configuration view
+                this.dataConfigurationView = new v.DataConfigurationView();
+
 
                 this.layerSettings = new v.LayerSettings();
 

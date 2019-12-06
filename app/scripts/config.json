@@ -2098,7 +2098,12 @@
             "name": "Upload",
             "icon": "fa-upload",
             "eventToRaise": "dialog:show:upload"
-        }, 
+        },
+        {
+            "name": "Data",
+            "icon": "fa-database",
+            "eventToRaise": "dialog:show:dataconfiguration"
+        },
         {
             "name": "Views",
             "icon": "fa-eye",
@@ -2161,7 +2166,8 @@
         "views/ToolItemView",
         "views/DownloadFilterView",
         "views/StoryBannerView",
-        "views/LayerSettings"
+        "views/LayerSettings",
+        "views/DataConfigurationView"
     ],
 
     "models": [
