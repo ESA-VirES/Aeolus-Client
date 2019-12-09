@@ -3,7 +3,33 @@
         <input type="checkbox" aria-label="...">
       </span>
     <span class="form-control">
-        <b>{{key}}</b>{{#if uom}} [{{uom}}]{{/if}}<br/>{{name}}
+        <b>{{key}}</b>{{#if uom}} [{{uom}}]{{/if}}<br/>
+        {{name}}
+        </br>
+        <button class="btn-link collapsed configButton" data-toggle="collapse" data-target="#collapse{{key}}" aria-expanded="false" aria-controls="collapse{{key}}" style="font-size: 0.9em;">
+        Configuration</button>
+        <div id="collapse{{key}}" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+            <div class="input-group" id=extent style="margin:7px;width:100%;">
+                <span class="form-control">
+                    Extent
+                    <textarea rows="1" cols="20"  style="float:right; resize:none; margin-left:6px">{{extent.[1]}}</textarea>
+                    <textarea rows="1" cols="20" style="float:right; resize:none;">{{extent.[0]}}</textarea>
+                </span>
+            </div>
+            <div class="input-group" id=filterExtent style="margin:7px;width:100%;">
+                <span class="form-control">
+                    Filter extent
+                    <textarea rows="1" cols="20"  style="float:right; resize:none; margin-left:6px">{{filterExtent.[1]}}</textarea>
+                    <textarea rows="1" cols="20" style="float:right; resize:none;">{{filterExtent.[0]}}</textarea>
+                </span>
+            </div>
+            <div class="input-group" id=colorscale style="margin:7px;width:100%;">
+                <span class="form-control">
+                    Colorscale: {{colorscale}}
+                </span>
+            </div>
+          </div>
     </span>
 </div>
+
 
