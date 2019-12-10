@@ -1,9 +1,9 @@
-<div class="input-group" id={{key}} style="margin:7px">
+<div class="input-group" style="margin:7px">
     <span class="input-group-addon">
-        <input type="checkbox" aria-label="...">
+        <input id={{key}} class="parameterActivationCB" type="checkbox" aria-label="..."{{#if active}} checked{{/if}}{{#if required}} disabled{{/if}}>
       </span>
     <span class="form-control">
-        <b>{{key}}</b>{{#if uom}} [{{uom}}]{{/if}}<br/>
+        <b>{{key}}</b>{{#if uom}} [{{uom}}]{{/if}}{{#if required}} (default){{/if}}<br/>
         {{name}}
         </br>
         <button class="btn-link collapsed configButton" data-toggle="collapse" data-target="#collapse{{key}}" aria-expanded="false" aria-controls="collapse{{key}}" style="font-size: 0.9em;">

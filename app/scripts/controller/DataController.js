@@ -1791,7 +1791,7 @@
               'mie_signal_intensity_range_corrected',
               'rayleigh_signal_intensity_normalised',
               'mie_signal_intensity_normalised'
-            ].join(),
+            ],
             'measurement_fields': [
               'time',
               'longitude_of_DEM_intersection',
@@ -1831,7 +1831,7 @@
               'rayleigh_reference_pulse_quality_flag',
               'mie_reference_pulse_quality_flag',
               'albedo_off_nadir'
-            ].join()
+            ]
           },
           'ALD_U_N_2A': {
             // ICA have different size, for now disabled
@@ -1852,7 +1852,7 @@
               'sca_mask',
               'ica_mask',
               'albedo_off_nadir'
-            ].join(),
+            ],
             'ica_fields': [
               'ICA_time_obs',
               'ICA_QC_flag',
@@ -1860,7 +1860,7 @@
               'ICA_extinction',
               'ICA_backscatter',
               'ICA_LOD'
-            ].join(),
+            ],
             'sca_fields': [
               'SCA_time_obs',
               'SCA_QC_flag',
@@ -1880,7 +1880,7 @@
               'SCA_middle_bin_backscatter',
               'SCA_middle_bin_LOD',
               'SCA_middle_bin_BER'
-            ].join(),
+            ],
             'measurement_fields': [
               'L1B_time_meas',
               'longitude_of_DEM_intersection_meas',
@@ -1889,7 +1889,7 @@
               'mie_altitude_meas',
               'rayleigh_altitude_meas',
               'albedo_off_nadir'
-            ].join(),
+            ],
             'group_fields': [
               'group_start_obs',
               'group_end_obs',
@@ -1937,13 +1937,13 @@
               //'scene_classification_aladin_cloud_flag',
               'scene_classification_NWP_cloud_flag',
               'scene_classification_group_class_reliability'*/
-            ].join(),
+            ],
           },
           'ALD_U_N_2B': {
               'mie_profile_fields': [
                 'mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection',
                 'mie_profile_datetime_start', 'mie_profile_datetime_stop'
-              ].join(),
+              ],
               'mie_wind_fields': [
                 'mie_wind_result_id',
                 'mie_wind_result_range_bin_number',
@@ -1978,7 +1978,7 @@
                 'mie_wind_result_integration_length',
                 'mie_wind_result_num_of_measurements',
                 'mie_wind_result_albedo_off_nadir'
-              ].join(),
+              ],
               'rayleigh_wind_fields': [
                 'rayleigh_wind_result_id',
                 'rayleigh_wind_result_range_bin_number',
@@ -2015,17 +2015,17 @@
                 'rayleigh_wind_result_reference_temperature',
                 'rayleigh_wind_result_reference_backscatter_ratio',
                 'rayleigh_wind_result_albedo_off_nadir'
-              ].join(),
+              ],
               'rayleigh_profile_fields': [
                 'rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection',
                 'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop'
-              ].join()
+              ]
           },
           'ALD_U_N_2C': {
                'mie_profile_fields': [
                 'mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection',
                 'mie_profile_datetime_start', 'mie_profile_datetime_stop'
-              ].join(),
+              ],
               'mie_wind_fields': [
                 'mie_wind_result_id',
                 'mie_wind_result_range_bin_number',
@@ -2080,11 +2080,11 @@
                 'mie_assimilation_analysis_horizontal_wind_velocity',
                 'mie_assimilation_analysis_wind_direction',
                 'mie_wind_result_albedo_off_nadir'
-              ].join(),
+              ],
               'rayleigh_profile_fields': [
                 'rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection',
                 'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop'
-              ].join(),
+              ],
               'rayleigh_wind_fields': [
                 'rayleigh_wind_result_id',
                 'rayleigh_wind_result_range_bin_number',
@@ -2141,7 +2141,7 @@
                 'rayleigh_assimilation_analysis_horizontal_wind_velocity',
                 'rayleigh_assimilation_analysis_wind_direction',
                 'rayleigh_wind_result_albedo_off_nadir',
-              ].join(),
+              ],
            },
           'AUX_MRC_1B': [
             'lat_of_DEM_intersection',
@@ -2186,7 +2186,7 @@
             'mie_core_measurement_FWHM',
             'mie_core_measurement_amplitude',
             'mie_core_measurement_offset',
-          ].join(),
+          ],
           'AUX_RRC_1B': [
             'lat_of_DEM_intersection',
             'lon_of_DEM_intersection',
@@ -2252,7 +2252,7 @@
             'rayleigh_thermal_hood_temperature_3',
             'rayleigh_thermal_hood_temperature_4',
             'rayleigh_optical_baseplate_avg_temperature'
-          ].join(),
+          ],
           'AUX_ISR_1B': [
             'time',
             'freq_mie_USR_closest_to_rayleigh_filter_centre',
@@ -2288,7 +2288,7 @@
             'rayleigh_thermal_hood_temperature_3',
             'rayleigh_thermal_hood_temperature_4',
             'rayleigh_optical_baseplate_avg_temperature'
-          ].join(),
+          ],
           'AUX_ZWC_1B': [
             'time',
             'lat_of_DEM_intersection',
@@ -2325,7 +2325,7 @@
             //'rayleigh_channel_A_ground_SNR_meas',
             //'rayleigh_channel_B_ground_SNR_meas',
             //'DEM_height'
-          ].join(),
+          ],
           'AUX_MET_12': [
             'time_off_nadir', 'time_nadir',
             'surface_wind_component_u_off_nadir',
@@ -2341,6 +2341,44 @@
           ]
 
         };
+
+        // TODO: Maybe we should not keep an additional list here but get the
+        //       parameters to be loaded directly from the global defintion
+
+        for(var collType in fieldsList){
+
+          if(collType.indexOf('AUX_')===-1){
+            for(var gran in fieldsList[collType]){
+              var pars = fieldsList[collType][gran];
+              for (var i = pars.length - 1; i >= 0; i--) {
+                var field = pars[i];
+                if(globals.dataSettings.hasOwnProperty(field)){
+                  if(!globals.dataSettings[field].hasOwnProperty('active') || 
+                    !globals.dataSettings[field].active){
+                    pars.splice(i, 1);
+                  }
+                } else {
+                  console.log('Global settings is missing parameter: '+field);
+                }
+              }
+              fieldsList[collType][gran] = pars.join();
+            }
+          } else {
+            var pars = fieldsList[collType];
+            for (var i = pars.length - 1; i >= 0; i--) {
+              var field = pars[i];
+              if(globals.dataSettings.hasOwnProperty(field)){
+                if(!globals.dataSettings[field].hasOwnProperty('active') ||
+                  !globals.dataSettings[field].active){
+                  pars.splice(i, 1);
+                }
+              } else {
+                console.log('Global settings is missing parameter: '+field);
+              }
+            }
+            fieldsList[collType] = pars.join();
+          }
+        }
 
         var requestOptions = {
           l2a_group: {

@@ -67,6 +67,7 @@
       },
 
       renderProductParameterList: function(filter){
+
         this.$('#parameterList').empty();
         // Load parameters for selected product type
         var selectedProduct = null;
@@ -93,19 +94,34 @@
             }
             if(show){
               if(parInfo !== undefined){
-                this.$('#parameterList').append(parameterItemTmpl({
+                var parOptions = {
                   key: key,
                   name: parameterList[key].name,
                   uom: parameterList[key].uom,
                   extent: defaultFor(parInfo.extent, null),
                   filterExtent: defaultFor(parInfo.filterExtent, null),
-                  colorscale: defaultFor(parInfo.colorscale, 'viridis')
-                }))
+                  colorscale: defaultFor(parInfo.colorscale, 'viridis'),
+                  active: defaultFor(parInfo.active, false)
+                };
+                if(parameterList[key].hasOwnProperty('required')){
+                  parOptions.required = true;
+                  parOptions.active = true;
+                }
+                this.$('#parameterList').append(parameterItemTmpl(parOptions))
               } else {
                 console.log('Warning: parameter not defined: '+key);
               }
             }
           }
+          var that = this;
+          // Add listener for checkboxes
+          $('.parameterActivationCB').change(function() {
+            var selected = $(this).is(":checked");
+            var key = $(this).attr('id');
+            if(globals.dataSettings.hasOwnProperty(key)){
+              globals.dataSettings[key].active = selected;
+            }
+          });
         }
 
       },
