@@ -127,9 +127,12 @@
                     this.$("#style").append(colorscale_options);
 
                     this.$("#style").change(function(evt){
-                        var selected = $(evt.target).find("option:selected").text();
-                        selected_colorscale = selected;
-                        options[that.selected].colorscale = selected;
+                        var colScale = $(evt.target).find("option:selected").text();
+                        if(globals.dataSettings.hasOwnProperty(that.selected)){
+                            globals.dataSettings[that.selected].colorscale = colScale;
+                        }
+                        selected_colorscale = colScale;
+                        options[that.selected].colorscale = colScale;
                         that.current_model.set("parameters", options);
 
                         if(options[that.selected].hasOwnProperty("logarithmic"))
@@ -259,31 +262,6 @@
                         this.registerKeyEvents(this.$("#heightvalue"));
                     }
                 }
-
-
-                
-                /*if(!(typeof contours === 'undefined')){
-                    var checked = "";
-                    if (contours)
-                        checked = "checked";
-
-                    $("#contours input").unbind();
-                    $("#contours").empty();
-
-                    this.$("#contours").append(
-                        '<form style="vertical-align: middle;">'+
-                        '<label class="valign" for="contours" style="width: 120px;">Contours/Isolines </label>'+
-                        '<input class="valign" style="margin-top: -5px;" type="checkbox" name="contours" value="contours" ' + checked + '></input>'+
-                        '</form>'
-                    );
-
-                    this.$("#contours input").change(function(evt){
-                        var contours = !that.current_model.get("contours");
-                        that.current_model.set("contours", contours);
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
-                    });
-                }*/
-
                 if(this.selected == "Fieldlines"){
                     $("#coefficients_range").hide();
                     $("#opacitysilder").parent().hide();
@@ -475,70 +453,6 @@
                         this.current_model.get("download").id
                     );
                 }
-
-                // request range for selected parameter if layer is of type model
-                /*if(this.current_model.get("model") && this.selected != "Fieldlines"){
-
-                    var that = this;
-
-                    var sel_time = Communicator.reqres.request('get:time');
-                    var req = evalModelTmpl({
-                        url: this.current_model.get("download").url,
-                        model: this.current_model.get("download").id,
-                        variable: this.selected,
-                        begin_time: getISODateTimeString(sel_time.start),
-                        end_time: getISODateTimeString(sel_time.end),
-                        coeff_min: this.current_model.get("coefficients_range")[0],
-                        coeff_max: this.current_model.get("coefficients_range")[1],
-                        elevation: this.current_model.get("height")
-                    });
-
-                    if(this.current_model.get("views")[0].id == "shc"){
-
-                        if(this.current_model.attributes.hasOwnProperty("shc")){
-
-                            var payload = evalModelTmpl_POST({
-                                "model": "Custom_Model",
-                                "variable": this.selected,
-                                "begin_time": getISODateTimeString(sel_time.start),
-                                "end_time": getISODateTimeString(sel_time.end),
-                                "elevation": this.current_model.get("height"),
-                                "coeff_min": this.current_model.get("coefficients_range")[0],
-                                "coeff_max": this.current_model.get("coefficients_range")[1],
-                                "shc": this.current_model.get('shc'),
-                                "height": 24,
-                                "width": 24,
-                                "getonlyrange": true
-                            });
-
-                            $.post(this.current_model.get("download").url, payload)
-                                .success(this.handleRangeRespone.bind(this))
-                                .fail(this.handleRangeResponseError)
-                                .always(this.handleRangeChange.bind(this));
-                        }
-
-                    }else {
-
-                        var req = evalModelTmpl({
-                            url: this.current_model.get("download").url,
-                            model: this.current_model.get("download").id,
-                            variable: this.selected,
-                            begin_time: getISODateTimeString(sel_time.start),
-                            end_time: getISODateTimeString(sel_time.end),
-                            coeff_min: this.current_model.get("coefficients_range")[0],
-                            coeff_max: this.current_model.get("coefficients_range")[1],
-                            elevation: this.current_model.get("height")
-                        });
-
-                        $.get(req)
-                            .success(this.handleRangeRespone.bind(this))
-                            .fail(this.handleRangeResponseError)
-                            .always(this.handleRangeChange.bind(this));
-                    }
-                }else{
-                    Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
-                }*/
-
             },
 
             registerKeyEvents: function(el){
@@ -630,37 +544,14 @@
                 if(!error){
                     options[this.selected].range = [range_min, range_max];
 
+                    if(globals.dataSettings.hasOwnProperty(this.selected)){
+                        globals.dataSettings[this.selected].extent = [range_min, range_max];
+                    }
+
                     if(options[this.selected].hasOwnProperty("logarithmic"))
                         this.createScale(options[this.selected].logarithmic);
                     else
                         this.createScale();
-                }
-
-                // Check coefficient ranges
-                if ($("#coefficients_range_min").length && $("#coefficients_range_max").length){
-                    var coef_range_min = parseFloat($("#coefficients_range_min").val());
-                    error = error || this.checkValue(coef_range_min,$("#coefficients_range_min"));
-
-                    var coef_range_max = parseFloat($("#coefficients_range_max").val());
-                    error = error || this.checkValue(coef_range_max,$("#coefficients_range_max"));
-
-                    if(!error){
-                        if(this.current_model.get("coefficients_range")[0]!=coef_range_min || 
-                           this.current_model.get("coefficients_range")[1]!=coef_range_max){
-                            model_change = true;
-                        }
-                        this.current_model.set("coefficients_range", [coef_range_min, coef_range_max]);
-                    }
-                }
-
-                // Check for height attribute
-                if ($("#heightvalue").length){
-                    var altitude = parseFloat($("#heightvalue").val());
-                    error = error || this.checkValue(altitude,$("#heightvalue"));
-
-                    if (!error){
-                        this.current_model.set("altitude", altitude);
-                    }
                 }
 
                 if(!error){
@@ -696,68 +587,6 @@
             },
 
             onUploadSelectionChanged: function(evt) {
-                /*var that = this;
-                var reader = new FileReader();
-                var filename = evt.target.files[0].name;
-                reader.onloadend = function(evt) {
-                    //console.log(evt.target.result);
-                    that.current_model.set('shc', evt.target.result);
-                    that.current_model.set('shc_name', filename);
-
-                    // Save shc file to localstorage
-                    localStorage.setItem('shcFile', JSON.stringify({
-                        name: filename,
-                        data: evt.target.result
-                    }));
-
-                    that.$("#shc").find("#filename").remove();
-                    that.$("#shc").append('<p id="filename" style="font-size:.9em;">Selected File: '+filename+'</p>');
-
-
-                    var sel_time = Communicator.reqres.request('get:time');
-
-                    var payload = evalModelTmpl_POST({
-                        "model": "Custom_Model",
-                        "variable": that.selected,
-                        "begin_time": getISODateTimeString(sel_time.start),
-                        "end_time": getISODateTimeString(sel_time.end),
-                        "elevation": that.current_model.get("height"),
-                        "coeff_min": that.current_model.get("coefficients_range")[0],
-                        "coeff_max": that.current_model.get("coefficients_range")[1],
-                        "shc": that.current_model.get('shc'),
-                        "height": 24,
-                        "width": 24,
-                        "getonlyrange": true
-                    });
-
-                    $.post(that.current_model.get("download").url, payload)
-                        .success(function(response){
-                            var options = that.current_model.get("parameters");
-                            var resp = response.split(',');
-                            var range = [Number(resp[1]), Number(resp[2])];
-                            // Make range "nicer", rounding depending on extent
-                            range = d3.scale.linear().domain(range).nice().domain();
-                            $("#range_min").val(range[0]);
-                            $("#range_max").val(range[1]);
-                            options[that.selected].range = range;
-                            that.current_model.set("parameters", options);
-                            that.createScale();
-                            //Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
-                            Communicator.mediator.trigger("file:shc:loaded", evt.target.result);
-
-                            var params = { name: that.current_model.get("name"), isBaseLayer: false, visible: false };
-                            Communicator.mediator.trigger('map:layer:change', params);
-                            Communicator.mediator.trigger("layer:activate", that.current_model.get("views")[0].id);
-                        })
-                        .fail(that.handleRangeResponseError);
-                        //.always(that.handleRangeChange.bind(that));
-
-                    
-
-
-                }
-
-                reader.readAsText(evt.target.files[0]);*/
             },
 
             addLogOption: function(options){

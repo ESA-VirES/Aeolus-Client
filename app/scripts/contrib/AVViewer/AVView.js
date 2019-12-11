@@ -1754,8 +1754,11 @@ define(['backbone.marionette',
 
         onLayerParametersChanged: function(layer){
 
+            this.graph.dataSettings = this.dataSettings;
+            this.graph.renderData();
+
             // Parameters only apply for L1B curtains (possibly L2B)
-            if(layer === 'ALD_U_N_1B' || layer === 'ALD_U_N_2A' ||
+            /*if(layer === 'ALD_U_N_1B' || layer === 'ALD_U_N_2A' ||
                 layer === 'ALD_U_N_2B' || layer === 'ALD_U_N_2C'){
                 var currProd = globals.products.find(
                     function(p){return p.get('download').id === layer;}
@@ -1779,16 +1782,18 @@ define(['backbone.marionette',
                 for(var k in this.graph.colorCache){
                     delete this.graph.colorCache[k];
                 }
+                
 
                 this.graph.dataSettings = this.dataSettings;
                 this.graph.renderData();
+
                 this.graph.createColorScales();
 
                 localStorage.setItem(
                     'dataSettings',
                     JSON.stringify(globals.dataSettings)
                 );
-            }
+            }*/
         },
 
 

@@ -685,8 +685,6 @@ define([
             if(currProd.hasOwnProperty('curtains')){
                 currProd.curtains.removeAll();
                 curtainCollection = currProd.curtains;
-                /*this.map.scene.primitives.remove(currProd.curtains);
-                delete currProd.curtains;*/
             }else{
                 curtainCollection = new Cesium.PrimitiveCollection();
                 this.activeCurtainCollections.push(curtainCollection);
@@ -695,23 +693,7 @@ define([
             }
 
             var alpha = currProd.get('opacity');
-
-            var parameters = currProd.get('parameters');
-            var band;
-            var keys = _.keys(parameters);
-            _.each(keys, function(key){
-                if(parameters[key].selected){
-                    band = key;
-                }
-            });
-            var style = parameters[band].colorscale;
-            var range = parameters[band].range;
-
-            
-
-            this.dataSettings[band].colorscale = style;
-            this.dataSettings[band].extent = range;
-            this.graph.dataSettings = this.dataSettings;
+            this.graph.dataSettings = globals.dataSettings;
 
             var dataJumps;
 
@@ -726,6 +708,15 @@ define([
                 mie_time: ['mie_time_start', 'mie_time_end'],
                 rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end']
             };
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
 
             if(band === 'mie_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = [['mie_HLOS_wind_speed']];
@@ -957,7 +948,6 @@ define([
                 this.map.scene.primitives.add(curtainCollection);
                 currProd.curtains = curtainCollection;
             }
-
             var parameters = currProd.get('parameters');
             var band;
             var keys = _.keys(parameters);
@@ -966,14 +956,9 @@ define([
                     band = key;
                 }
             });
-            var style = parameters[band].colorscale;
-            var range = parameters[band].range;
-
             var alpha = currProd.get('opacity');
 
-            this.dataSettings[band].colorscale = style;
-            this.dataSettings[band].extent = range;
-            this.graph.dataSettings = this.dataSettings;
+            this.graph.dataSettings = globals.dataSettings;
 
             var dataJumps, lats, lons, pStartTimes, pStopTimes, signCross;
 
@@ -2349,7 +2334,6 @@ define([
         OnLayerParametersChanged: function(layer){
 
             // TODO: Rewrite all references to change layer to use download id and not name!
-
             var product = globals.products.find(
                 function(p){return p.get('download').id === layer;}
             );
@@ -2357,8 +2341,6 @@ define([
             if(product){
                 
                 if(product.hasOwnProperty('curtains')){
-                    //product.curtain
-                    //this.updateCurtain(product.get('download').id);
                     var covid = product.get('download').id;
                     var data = globals.swarm.get('data')[covid];
 
@@ -2399,19 +2381,9 @@ define([
 
                         cesLayer.imageryProvider.updateProperties('dim_bands', band);
                         cesLayer.imageryProvider.updateProperties('dim_range', (range[0]+','+range[1]));
-                        /*cesLayer.imageryProvider.updateProperties('elevation', height);*/
                         if(style){
                             cesLayer.imageryProvider.updateProperties('styles', style);
                         }
-                        /*if(contours){
-                            cesLayer.imageryProvider.updateProperties('dim_contours', 1);
-                        } else {
-                            cesLayer.imageryProvider.updateProperties('dim_contours', 0);
-                        }*/
-                        
-                        /*if(coeffRange){
-                            cesLayer.imageryProvider.updateProperties('dim_coeff', (coeffRange[0]+','+coeffRange[1]));
-                        }*/
                         if (cesLayer.show){
                             var index = this.map.scene.imageryLayers.indexOf(cesLayer);
                             this.map.scene.imageryLayers.remove(cesLayer, false);

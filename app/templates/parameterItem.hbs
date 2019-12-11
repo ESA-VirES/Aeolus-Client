@@ -2,28 +2,32 @@
     <span class="input-group-addon">
         <input id={{key}} class="parameterActivationCB" type="checkbox" aria-label="..."{{#if active}} checked{{/if}}{{#if required}} disabled{{/if}}>
       </span>
-    <span class="form-control">
+    <span class="form-control" id={{key}}>
         <b>{{key}}</b>{{#if uom}} [{{uom}}]{{/if}}{{#if required}} (default){{/if}}<br/>
         {{name}}
         </br>
         <button class="btn-link collapsed configButton" data-toggle="collapse" data-target="#collapse{{key}}" aria-expanded="false" aria-controls="collapse{{key}}" style="font-size: 0.9em;">
         Configuration</button>
         <div id="collapse{{key}}" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-            <div class="input-group" id=extent style="margin:7px;width:100%;">
+            <div class="input-group" id="extent" style="margin:7px;width:100%;">
                 <span class="form-control">
                     Extent
-                    <textarea rows="1" cols="20"  style="float:right; resize:none; margin-left:6px">{{extent.[1]}}</textarea>
-                    <textarea rows="1" cols="20" style="float:right; resize:none;">{{extent.[0]}}</textarea>
+                    <span style="float:right;">
+                        <textarea class="parameterConfInput min" rows="1" cols="20" style="resize:none;">{{extent.[0]}}</textarea>
+                        <textarea class="parameterConfInput max" rows="1" cols="20" style="resize:none;">{{extent.[1]}}</textarea>
+                    </span>
                 </span>
             </div>
-            <div class="input-group" id=filterExtent style="margin:7px;width:100%;">
+            <div class="input-group" id="filterExtent" style="margin:7px;width:100%;">
                 <span class="form-control">
                     Filter extent
-                    <textarea rows="1" cols="20"  style="float:right; resize:none; margin-left:6px">{{filterExtent.[1]}}</textarea>
-                    <textarea rows="1" cols="20" style="float:right; resize:none;">{{filterExtent.[0]}}</textarea>
+                    <span style="float:right;">
+                        <textarea class="parameterConfInput min" rows="1" cols="20" style="resize:none;">{{filterExtent.[0]}}</textarea>
+                        <textarea class="parameterConfInput max" rows="1" cols="20"  style="resize:none;">{{filterExtent.[1]}}</textarea>
+                    </span>
                 </span>
             </div>
-            <div class="input-group" id=colorscale style="margin:7px;width:100%;">
+            <div class="input-group" id="colorscale" style="margin:7px;width:100%;">
                 <span class="form-control">
                     Colorscale: {{colorscale}}
                 </span>

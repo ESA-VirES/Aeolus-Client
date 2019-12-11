@@ -25,8 +25,9 @@
       initialize: function(options) {
         this.currentSelection = null;
       },
-      onShow: function(view){
 
+      onShow: function(view){
+        this.currentChanges = {};
         this.$('.close').on("click", _.bind(this.onClose, this));
         this.$el.draggable({ 
           containment: "#content",
@@ -119,11 +120,100 @@
             var selected = $(this).is(":checked");
             var key = $(this).attr('id');
             if(globals.dataSettings.hasOwnProperty(key)){
-              globals.dataSettings[key].active = selected;
+              if(that.currentChanges.hasOwnProperty(key)){
+                that.currentChanges[key].active = selected;
+              } else {
+                that.currentChanges[key] = {
+                  active: selected
+                }
+              }
             }
+            that.addApplyChanges();
+          });
+          // Add listener for extent inputs
+          $('.parameterConfInput').keyup(function() {
+            var parItemId = this.parentElement.parentElement.parentElement.id;
+            var paramId = this.parentElement.parentElement.parentElement.parentElement.parentElement.id;
+            var value = Number(this.value);
+
+            if(globals.dataSettings.hasOwnProperty(paramId)){
+              if(that.currentChanges.hasOwnProperty(paramId)){
+                if($(this).hasClass('min')){
+                  that.currentChanges[paramId][parItemId][0] = value;
+                } else if($(this).hasClass('max')){
+                  that.currentChanges[paramId][parItemId][1] = value;
+                }
+              } else {
+                that.currentChanges[paramId]={};
+                if($(this).hasClass('min')){
+                  that.currentChanges[paramId][parItemId] = [value, null];
+                } else if($(this).hasClass('max')){
+                  that.currentChanges[paramId][parItemId] = [null, value];
+                }
+              }
+            }
+            that.addApplyChanges();
           });
         }
 
+      },
+
+      addApplyChanges: function(){
+        var that = this;
+        $('#applyDataChanges').off();
+        $('#applyDataChanges').remove();
+        $(this.el).find('.panel-footer').append(
+          '<button style="pointer-events: auto;" type="button" class="btn btn-primary" '+
+          'target="_blank" id="applyDataChanges" title="Apply changes done and close panel">'+
+          'Apply & Close</button>'
+        );
+
+        $('#applyDataChanges').click(function(){
+
+          var selectedProduct = null;
+          var currentId = that.currentSelection;
+          globals.products.each(function(product){
+            if(product.get('download').id === currentId){
+              selectedProduct = product;
+            }
+          });
+          var parOpts = selectedProduct.get('parameters');
+
+          var changesToRequestedParameters = false;
+          // Iterate current changes and apply them to global settings
+          for(var key in that.currentChanges){
+            if(globals.dataSettings.hasOwnProperty(key)){
+              for(var parItem in that.currentChanges[key]){
+                if(parItem === 'active'){
+                  changesToRequestedParameters = true;
+                }
+                globals.dataSettings[key][parItem] = that.currentChanges[key][parItem];
+              }
+            } else {
+              console.log('Error: Parameter changed does not exist in global datasettings '+ key);
+            }
+
+            if(parOpts.hasOwnProperty(key)){
+              for(var parItem in that.currentChanges[key]){
+                if(parItem === 'extent'){
+                  parOpts[key].range = that.currentChanges[key][parItem];
+                } else {
+                  parOpts[key][parItem] = that.currentChanges[key][parItem];
+                }
+              }
+            }
+          }
+
+          if(changesToRequestedParameters){
+            // Need to re-request current selection
+            Communicator.mediator.trigger('layer:parameterlist:changed');
+          }
+
+          selectedProduct.set('parameters', parOpts);
+          Communicator.mediator.trigger('layer:parameters:changed', that.currentSelection);
+
+          that.onClose();
+        });
       },
 
       onClose: function() {

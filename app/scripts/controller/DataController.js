@@ -539,8 +539,8 @@
         this.listenTo(Communicator.mediator, "analytics:set:filter", this.onAnalyticsFilterChanged);
         this.listenTo(Communicator.mediator, 'layer:parameters:changed', this.onLayerParametersChanged);
         this.listenTo(Communicator.mediator, 'layer:granularity:changed', this.onLayerGranularityChanged);
+        this.listenTo(Communicator.mediator, 'layer:parameterlist:changed', this.onUpdateCurrentData);
         
-       
       },
 
       onManualInit: function(){
@@ -742,13 +742,17 @@
         this.checkSelections();
       },
 
+      onUpdateCurrentData: function(){
+          this.wpsProdChange = true;
+          this.checkSelections();
+      },
 
       onLayerParametersChanged: function(layer){
         var currProd = globals.products.find(
             function(p){return p.get('download').id === layer;}
         );
 
-        var parameters = currProd.get('parameters');
+        /*var parameters = currProd.get('parameters');
         var band;
         var keys = _.keys(parameters);
         _.each(keys, function(key){
@@ -757,7 +761,7 @@
             }
         });
         var style = parameters[band].colorscale;
-        var range = parameters[band].range;
+        var range = parameters[band].range;*/
 
         // For AUX_MET we need to re-request data when changing parameter
         // for all other collections not necessary

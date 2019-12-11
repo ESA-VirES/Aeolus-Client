@@ -301,6 +301,11 @@ var VECTOR_BREAKDOWN = {};
                     config.mapConfig.products = product_config;
                 }
 
+                // If there is already saved datasettings load them
+                if(localStorage.getItem('dataSettings') !== null){
+                    globals.dataSettings = JSON.parse(localStorage.getItem('dataSettings'));
+                }
+
                 // Check if we have user permission info, if yes only load
                 // products available to the user
                 if(typeof USERPERMISSIONS !== 'undefined'){
