@@ -67,6 +67,19 @@
 
                 var that = this;
 
+                // Filter out unavailable data parameters
+                var currdata = globals.swarm.get('data');
+                if(!$.isEmptyObject(currdata)){
+                    for (var i = keys.length - 1; i >= 0; i--) {
+                        var currProd = this.current_model.get('download').id;
+                        if(currdata.hasOwnProperty(currProd)){
+                            if(!currdata[currProd].hasOwnProperty(keys[i])){
+                                keys.splice(i,1);
+                            }
+                        }
+                    }
+                }
+
                 _.each(keys, function(key){
                     if(options[key].selected){
                         that.selected = key;
