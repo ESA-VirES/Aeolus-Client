@@ -65,6 +65,62 @@
         $('#parameterSearchInput').keyup(function(){
           that.renderProductParameterList(this.value);
         });
+
+        $('#disableAll').off();
+        $('#enableAll').off();
+
+        $('#disableAll').on('click', function(){
+          var selectedProduct = null;
+          var currentId = that.currentSelection;
+          globals.products.each(function(product){
+            if(product.get('download').id === currentId){
+              selectedProduct = product;
+            }
+          });
+
+          if(selectedProduct !== null){
+            var parameterList = selectedProduct.get('download_parameters');
+            for (var key in parameterList){
+              if(!parameterList[key].hasOwnProperty('required')){
+                if(that.currentChanges.hasOwnProperty(key)){
+                  that.currentChanges[key].active = false;
+                } else {
+                  that.currentChanges[key] = {
+                    active: false
+                  }
+                }
+              }
+            }
+          }
+          $('.parameterActivationCB:not(:disabled)').prop('checked', false);
+          that.addApplyChanges();
+        });
+
+        $('#enableAll').on('click', function(){
+          var selectedProduct = null;
+          var currentId = that.currentSelection;
+          globals.products.each(function(product){
+            if(product.get('download').id === currentId){
+              selectedProduct = product;
+            }
+          });
+
+          if(selectedProduct !== null){
+            var parameterList = selectedProduct.get('download_parameters');
+            for (var key in parameterList){
+              if(that.currentChanges.hasOwnProperty(key)){
+                that.currentChanges[key].active = true;
+              } else {
+                that.currentChanges[key] = {
+                  active: true
+                }
+              }
+            }
+          }
+          $('.parameterActivationCB:not(:disabled)').prop('checked', true);
+          that.addApplyChanges();
+        });
+
       },
 
       renderProductParameterList: function(filter){
@@ -161,13 +217,8 @@
       addApplyChanges: function(){
         var that = this;
         $('#applyDataChanges').off();
-        $('#applyDataChanges').remove();
-        $(this.el).find('.panel-footer').append(
-          '<button style="pointer-events: auto;" type="button" class="btn btn-primary" '+
-          'target="_blank" id="applyDataChanges" title="Apply changes done and close panel">'+
-          'Apply & Close</button>'
-        );
 
+        $('#applyDataChanges').removeAttr('disabled');
         $('#applyDataChanges').click(function(){
 
           var selectedProduct = null;

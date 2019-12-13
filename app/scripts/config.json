@@ -1855,18 +1855,83 @@
                 }
             },
             "download_parameters": {
+                "time_off_nadir":{
+                    "required": true,
+                    "uom": null,
+                    "name": "AMD datetime off nadir"
+                },
+                "time_nadir":{
+                    "required": true,
+                    "uom": null,
+                    "name": "AMD datetime nadir"
+                },
+                "latitude_nadir":{
+                    "required": true,
+                    "uom": "10-6 degN",
+                    "name": "Latitude for each profile along the nadir track"
+                },
+                "longitude_nadir":{
+                    "required": true,
+                    "uom": "10-6 degN",
+                    "name": "Longitude for each profile along the nadir track"
+                },
+                "latitude_off_nadir":{
+                    "required": true,
+                    "uom": "10-6 degN",
+                    "name": "Latitude for each profile along the off-nadir track"
+                },
+                "longitude_off_nadir":{
+                    "required": true,
+                    "uom": "10-6 degN",
+                    "name": "Longitude for each profile along the off-nadir track"
+                },
+                "surface_wind_component_u_off_nadir": {
+                    "active": true,
+                    "uom": "cm/s",
+                    "name": "East-West wind component at the surface (>0 to East) for each profile along the off-nadir track"
+                },
+                "surface_wind_component_v_off_nadir": {
+                    "active": true,
+                    "uom": "cm/s",
+                    "name": "North-South wind component at the surface (>0 to North) for each profile along the off-nadir track"
+                },
                 "surface_pressure_off_nadir": {
-                    "selected": true,
-                    "range": [55000, 105000],
+                    "active": true,
                     "uom": "Pa",
-                    "colorscale": "viridis",
                     "name": "Surface pressure off nadir"
                 },
+                "surface_altitude_off_nadir": {
+                    "active": true,
+                    "uom": "cm",
+                    "name": "Geometric height relative to EGM96 geoid at pressure AMD_ps. Gives the altitude of the surface according to the weather model for each profile along the off-nadir track"
+                },
+                "surface_wind_component_u_nadir": {
+                    "active": true,
+                    "uom": "cm/s",
+                    "name": "East-West wind component at the surface (>0 to East) for each profile along the nadir track"
+                },
+                "surface_wind_component_v_nadir": {
+                    "active": true,
+                    "uom": "cm/s",
+                    "name": "North-South wind component at the surface (>0 to North) for each profile along the nadir track"
+                },
                 "surface_pressure_nadir": {
+                    "active": true,
                     "uom": "Pa",
-                    "range": [55000, 105000],
-                    "colorscale": "viridis",
                     "name": "Surface pressure nadir"
+                },
+                "surface_altitude_nadir": {
+                    "active": true,
+                    "uom": "cm",
+                    "name": "Geometric height relative to EGM96 geoid at pressure AMD_ps. Gives the altitude of the surface according to the weather model for each profile along the nadir track"
+                },
+                "layer_altitude_off_nadir": {
+                    "uom": "cm",
+                    "name": "Geometric height relative to EGM96 geoid at pressure AMD_pnom - one value for each model layer per profile along the off-nadir track"
+                },
+                "layer_altitude_nadir": {
+                    "uom": "cm",
+                    "name": "Geometric height relative to EGM96 geoid at pressure AMD_pnom - one value for each model layer per profile along the nadir track"
                 },
                 "layer_validity_flag_off_nadir": {
                     "uom": null,

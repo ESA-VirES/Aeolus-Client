@@ -396,9 +396,24 @@ var VECTOR_BREAKDOWN = {};
                 // Go through products and fill global datasettings
                 globals.products.each(function(product){
                     var downloadPars = product.get('download_parameters');
-                    var isAux = product.get('download').id.indexOf('AUX_')!==-1;
+                    var prodId = product.get('download').id;
+                    // Get keys we currently request for visualization
+                    var downloadKeys = [];
+                    if(globals.fieldList.hasOwnProperty(prodId)){
+                        if(Array.isArray(globals.fieldList[prodId])){
+                            downloadKeys = globals.fieldList[prodId];
+                        } else {
+                            for (var key in globals.fieldList[prodId]){
+                                downloadKeys = downloadKeys.concat(
+                                    globals.fieldList[prodId][key]
+                                );
+                            }
+                        }
+                    }
+                    var isAux = prodId.indexOf('AUX_')!==-1;
                     for(var key in downloadPars){
-                        if(!globals.dataSettings.hasOwnProperty(key)){
+                        if(!globals.dataSettings.hasOwnProperty(key) && 
+                            downloadKeys.indexOf(key)!==-1){
                             var parInfo = {};
                             if(downloadPars[key].hasOwnProperty('uom')){
                                 parInfo.uom = downloadPars[key].uom;
@@ -412,11 +427,11 @@ var VECTOR_BREAKDOWN = {};
                             // For now we activate all auxiliary parameters per 
                             // default
                             // TODO: Will need to change once 2D parameters are introduced
-                            if(isAux){
+                            if(isAux && prodId!=='AUX_MET_12'){
                                 parInfo.active = true;
                             }
                             globals.dataSettings[key] = parInfo;
-                        } else {
+                        } else if(downloadKeys.indexOf(key)!==-1){
                             // Add active info if already present
                             if(downloadPars[key].hasOwnProperty('required')){
                                 globals.dataSettings[key].active = true;
@@ -427,7 +442,7 @@ var VECTOR_BREAKDOWN = {};
                             // For now we activate all auxiliary parameters per 
                             // default
                             // TODO: Will need to change once 2D parameters are introduced
-                            if(isAux){
+                            if(isAux && prodId!=='AUX_MET_12'){
                                 globals.dataSettings[key].active = true;
                             }
                         }

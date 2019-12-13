@@ -1940,6 +1940,9 @@ define([
             // If selected parameter is from AUX MET and 2D we need to create
             // a curtain isntead of points
             if(cov_id === 'AUX_MET_12' && AUXMET2D.indexOf(band)!==-1 ){
+                if(currProd.hasOwnProperty('points')){
+                    currProd.points.removeAll();
+                }
                 this.createL2Curtains(data, cov_id);
                 return;
             } 
@@ -1957,7 +1960,7 @@ define([
                 lonPar = 'lon_of_DEM_intersection';
             }
 
-            if(!data.hasOwnProperty(latPar) || !data.hasOwnProperty(lonPar) ){
+            if(typeof data === 'undefined' || !data.hasOwnProperty(latPar) || !data.hasOwnProperty(lonPar)){
                 // If data does not have required position information
                 // do not try to render it
                 return;

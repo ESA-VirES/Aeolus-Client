@@ -448,24 +448,10 @@
                     $("#opacitysilder").parent().show();
                 }
 
-                // Check if the selcted parameter is part of AUX MET paramters
-                if(this.current_model.get('download').id === 'AUX_MET_12'){
-                    Communicator.mediator.trigger('map:layer:change', { 
-                        name: this.current_model.get('name'),
-                        isBaseLayer: false,
-                        visible: false 
-                    });
-                    Communicator.mediator.trigger('map:layer:change', { 
-                        name: this.current_model.get('name'),
-                        isBaseLayer: false,
-                        visible: true 
-                    });
-                } else {
-                    Communicator.mediator.trigger(
-                        "layer:parameters:changed",
-                        this.current_model.get("download").id
-                    );
-                }
+                Communicator.mediator.trigger(
+                    "layer:parameters:changed",
+                    this.current_model.get("download").id
+                );
             },
 
             registerKeyEvents: function(el){

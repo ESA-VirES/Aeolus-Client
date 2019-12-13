@@ -1203,9 +1203,9 @@ define(['backbone.marionette',
                     colorAxis: [ [null], [null] ],
                     y2Axis: [[],[]],
                     colorAxis2: [[],[]],
-                    groups: ['nadir', 'off_nadir'],
+                    groups: ['surface_nadir', 'surface_off_nadir'],
                     renderGroups: {
-                        nadir: {
+                        surface_nadir: {
                             parameters: [
                                 'time_nadir',
                                 'surface_wind_component_u_nadir',
@@ -1224,7 +1224,7 @@ define(['backbone.marionette',
                                 'longitude': 'longitude_nadir'
                             }
                         },
-                        off_nadir: {
+                        surface_off_nadir: {
                             parameters: [
                                 'time_off_nadir',
                                 'surface_wind_component_u_off_nadir',
@@ -1242,11 +1242,51 @@ define(['backbone.marionette',
                                 'latitude': 'latitude_off_nadir',
                                 'longitude': 'longitude_off_nadir'
                             }
+                        },
+                        layer_nadir: {
+                            parameters: [
+                                'time_nadir_combined',
+                                'layer_validity_flag_nadir',
+                                //'layer_pressure_nadir',
+                                'layer_altitude_nadir',
+                                'layer_temperature_nadir',
+                                'layer_wind_component_u_nadir',
+                                'layer_wind_component_v_nadir',
+                                'layer_rel_humidity_nadir',
+                                'layer_spec_humidity_nadir',
+                                'layer_cloud_cover_nadir',
+                                'layer_cloud_liquid_water_content_nadir',
+                                'layer_cloud_ice_water_content_nadir'
+                            ],
+                            defaults: {
+                                yAxis: 'layer_altitude_nadir',
+                                colorAxis: null
+                            }
+                        },
+                        layer_off_nadir: {
+                            parameters: [
+                                'time_off_nadir_combined',
+                                'layer_validity_flag_off_nadir',
+                                //'layer_pressure_off_nadir',
+                                'layer_altitude_off_nadir',
+                                'layer_temperature_off_nadir',
+                                'layer_wind_component_u_off_nadir',
+                                'layer_wind_component_v_off_nadir',
+                                'layer_rel_humidity_off_nadir',
+                                'layer_spec_humidity_off_nadir',
+                                'layer_cloud_cover_off_nadir',
+                                'layer_cloud_liquid_water_content_off_nadir',
+                                'layer_cloud_ice_water_content_off_nadir'
+                            ],
+                            defaults: {
+                                yAxis: 'layer_altitude_off_nadir',
+                                colorAxis: null
+                            }
                         }
                     },
                     sharedParameters: {
                         'time': [
-                            'time_nadir', 'time_off_nadir'
+                            'time_nadir', 'time_off_nadir', 'time_nadir_combined', 'time_off_nadir_combined'
                         ]
                     },
                     combinedParameters: {
@@ -1256,29 +1296,6 @@ define(['backbone.marionette',
                         layer_altitude_off_nadir: ['layer_altitude_off_nadir_end', 'layer_altitude_off_nadir_start']
                     },
                     availableParameters: false
-                },
-                'AUX_MET_12_nadir': {
-                    xAxis: 'time_nadir',
-                    yAxis: ['surface_wind_component_u_nadir'],
-                    additionalXTicks: [],
-                    additionalYTicks: [[]],
-                    colorAxis: [ null ],
-                    combinedParameters: {
-                        time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
-                        layer_altitude_nadir: ['layer_altitude_nadir_end', 'layer_altitude_nadir_start']
-                    },
-                    availableParameters: false,
-                },
-                'AUX_MET_12_off_nadir': {
-                    xAxis: 'time_off_nadir',
-                    yAxis: ['surface_wind_component_u_off_nadir'],
-                    additionalXTicks: [],
-                    additionalYTicks: [[]],
-                    colorAxis: [ null ],
-                    combinedParameters: {
-                        time_off_nadir_combined: ['time_off_nadir_start', 'time_off_nadir_end'],
-                        layer_altitude_off_nadir: ['layer_altitude_off_nadir_end', 'layer_altitude_off_nadir_start']
-                    },
                 }
             };
 
@@ -2123,57 +2140,35 @@ define(['backbone.marionette',
                         ];
                         var contains2DNadir = false;
                         var contains2DOffNadir = false;
-                        var param2D = null;
+                        var param2DNadir, param2DOffNadir = null;
                         
                         for (var i = 0; i < this.currentKeys.length; i++) {
                             if(params2DNadir.indexOf(this.currentKeys[i]) !== -1){
                                 contains2DNadir = true;
-                                param2D = this.currentKeys[i];
+                                param2DNadir = this.currentKeys[i];
                             }
                             if(params2DOffNadir.indexOf(this.currentKeys[i]) !== -1){
                                 contains2DOffNadir = true;
-                                param2D = this.currentKeys[i];
+                                param2DOffNadir = this.currentKeys[i];
                             }
                         }
 
+                        this.graph.renderSettings = iterationCopy(this.renderSettings[(idKeys[0])]);
+
                         if(contains2DNadir){
-                            this.graph.renderSettings = {
-                                xAxis: ['time_nadir_combined'],
-                                yAxis: [['layer_altitude_nadir']],
-                                y2Axis: [[]],
-                                colorAxis2: [[]],
-                                additionalXTicks: [],
-                                additionalYTicks: [[]],
-                                colorAxis: [ [param2D] ],
-                                combinedParameters: {
-                                    time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
-                                    layer_altitude_nadir: ['layer_altitude_nadir_end', 'layer_altitude_nadir_start']
-                                },
-                                availableParameters: false,
-                                groups: false,
-                                renderGroups: false,
-                                sharedParameters: false
-                            };
-                        } else if(contains2DOffNadir){
-                            this.graph.renderSettings = {
-                                xAxis: ['time_off_nadir_combined'],
-                                yAxis: [['layer_altitude_off_nadir']],
-                                y2Axis: [[]],
-                                colorAxis2: [[]],
-                                additionalXTicks: [],
-                                additionalYTicks: [[]],
-                                colorAxis: [ [param2D] ],
-                                combinedParameters: {
-                                    time_off_nadir_combined: ['time_off_nadir_start', 'time_off_nadir_end'],
-                                    layer_altitude_off_nadir: ['layer_altitude_off_nadir_end', 'layer_altitude_off_nadir_start']
-                                },
-                                availableParameters: false,
-                                groups: false,
-                                renderGroups: false,
-                                sharedParameters: false
-                            };
+                            this.graph.renderSettings.groups[0] = 'layer_nadir';
+                            this.graph.renderSettings.yAxis[0] = ['layer_altitude_nadir'];
+                            this.graph.renderSettings.colorAxis[0] = [param2DNadir];
                         } else {
-                            this.graph.renderSettings = iterationCopy(this.renderSettings[(idKeys[0])]);
+                            delete this.graph.renderSettings.renderGroups.layer_nadir;
+                        }
+
+                        if(contains2DOffNadir){
+                            this.graph.renderSettings.groups[1] = 'layer_off_nadir';
+                            this.graph.renderSettings.yAxis[1] = ['layer_altitude_off_nadir'];
+                            this.graph.renderSettings.colorAxis[1] = [param2DOffNadir];
+                        } else {
+                            delete this.graph.renderSettings.renderGroups.layer_off_nadir;
                         }
 
                         if(contains2DNadir || contains2DOffNadir) {
