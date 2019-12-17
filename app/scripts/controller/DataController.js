@@ -1311,36 +1311,6 @@
             }
             resData.jumps = jumpPos;
             resData.signCross = signCross;
-
-            /*var jumpPos2 = [];
-            var signCross2 = [];
-            for (var i = 1; i < resData.latitude_of_DEM_intersection_obs.length; i++) {
-              var latdiff = Math.abs(
-                resData.latitude_of_DEM_intersection_obs[i-1]-
-                resData.latitude_of_DEM_intersection_obs[i]
-              );
-              var londiff = Math.abs(
-                resData.longitude_of_DEM_intersection_obs[i-1]-
-                resData.longitude_of_DEM_intersection_obs[i]
-              ); 
-
-              if (latdiff >= latStep) {
-                signCross2.push(latdiff>160);
-                jumpPos2.push(i);
-              }else if (londiff >= lonStep) {
-                signCross2.push(londiff>340);
-                jumpPos2.push(i);
-              }
-            }
-
-            // Remove elements where there is a jump
-            for (var j = 0; j < jumpPos2.length; j++) {
-              if(!signCross2[j]){
-                for (var key in resData){
-                  resData[key].splice(jumpPos2[j]-24,24);
-                }
-              }
-            }*/
           }
 
           // ICA should be handled separately as it can easily be empty
@@ -1684,6 +1654,8 @@
 
             var miewindLat = ds.mie_wind_data.mie_wind_result_lat_of_DEM_intersection;
             var miewindLon = ds.mie_wind_data.mie_wind_result_lon_of_DEM_intersection;
+            var mieLastLatCross = 0;
+            var mieLastLonCross = 0;
             for (var i = 1; i < miewindLat.length; i++) {
               var latdiff = Math.abs(
                 miewindLat[i-1] - miewindLat[i]
@@ -1693,11 +1665,25 @@
               ); 
 
               if (latdiff >= latStep) {
-                mieSignCross.push(latdiff>160);
-                mieJumpPositions.push(i);
+                // The L2B/C data crosses the antimeridian back and forth for 
+                // multiple measurements, this creates a lot of noise when 
+                // creating the curtains, we just save the first crossing and wait
+                // until we accept another crossing as possible 
+                if((i - mieLastLatCross)>50){
+                  mieSignCross.push(latdiff>160);
+                  mieJumpPositions.push(i);
+                  mieLastLatCross = i;
+                }
               }else if (londiff >= lonStep) {
-                mieSignCross.push(londiff>340)
-                mieJumpPositions.push(i);
+                // The L2B/C data crosses the antimeridian back and forth for 
+                // multiple measurements, this creates a lot of noise when 
+                // creating the curtains, we just save the first crossing and wait
+                // until we accept another crossing as possible 
+                if((i - mieLastLonCross)>50){
+                  mieSignCross.push(londiff>340)
+                  mieJumpPositions.push(i);
+                  mieLastLonCross = i;
+                }
               }
             }
             resData.mie_jumps = mieJumpPositions;
@@ -1707,6 +1693,8 @@
             var rayleighJumpPositions = [];
             var raywindLat = ds.rayleigh_wind_data.rayleigh_wind_result_lat_of_DEM_intersection;
             var raywindLon = ds.rayleigh_wind_data.rayleigh_wind_result_lon_of_DEM_intersection;
+            var rayLastLatCross = 0;
+            var rayLastLonCross = 0;
 
             for (var i = 1; i < raywindLat.length; i++) {
               var latdiff = Math.abs(
@@ -1717,11 +1705,25 @@
               ); 
 
               if (latdiff >= latStep) {
-                rayleighSignCross.push(latdiff>160);
-                rayleighJumpPositions.push(i);
+                // The L2B/C data crosses the antimeridian back and forth for 
+                // multiple measurements, this creates a lot of noise when 
+                // creating the curtains, we just save the first crossing and wait
+                // until we accept another crossing as possible 
+                if((i - rayLastLatCross)>50){
+                  rayleighSignCross.push(latdiff>160);
+                  rayleighJumpPositions.push(i);
+                  rayLastLatCross = i;
+                }
               }else if (londiff >= lonStep) {
-                rayleighSignCross.push(londiff>340)
-                rayleighJumpPositions.push(i);
+                // The L2B/C data crosses the antimeridian back and forth for 
+                // multiple measurements, this creates a lot of noise when 
+                // creating the curtains, we just save the first crossing and wait
+                // until we accept another crossing as possible 
+                if((i - rayLastLonCross)>50){
+                  rayleighSignCross.push(londiff>340)
+                  rayleighJumpPositions.push(i);
+                  rayLastLonCross = i;
+                }
               }
             }
             resData.rayleigh_jumps = rayleighJumpPositions;

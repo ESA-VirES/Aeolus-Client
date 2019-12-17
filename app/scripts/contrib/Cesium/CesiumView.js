@@ -1208,6 +1208,31 @@ define([
                     this.graph.loadData(data);
                     this.graph.clearXDomain();
                 }
+
+                /*var fabric = {
+                   type : 'curtainMaterial',
+                    uniforms : {
+                        image : this.graph.getCanvasImage()
+                    },
+                    components : {
+                        diffuse : 'texture2D(image, materialInput.st).rgb'
+                    },
+                    sampler: Cesium.TextureMinificationFilter.NEAREST
+                };
+                var newmat = new Cesium.Material({
+                  fabric : fabric
+                });*/
+
+                /*var texture = this.map.scene.context.createTexture2D({
+                    source : this.graph.getCanvasImage()
+                });
+
+                texture.setSampler(Cesium.TextureMinificationFilter.NEAREST);*/
+
+                // ... later calls just use the type.
+                //anotherPolygon.material = Material.fromType('MyNewMaterial');
+
+
                 var newmat = new Cesium.Material.fromType('Image', {
                     image : this.graph.getCanvasImage(),
                     color: new Cesium.Color(1, 1, 1, alpha),
@@ -1232,20 +1257,21 @@ define([
                 // to avoid the issue we take every third element which hopefully
                 // should hit not repeating or ascending/descending inverted values
                 // TODO: re-evaluate a correct method to handle this
-                var stepsize = 3;/*Math.floor(slicedLats.length/10);
-                if(stepsize<3){
-                    stepsize = 3;
-                }*/
-                if(slicedLats.length > 30){
-                    stepsize = 20;
+                var stepsize = 3;
+
+                if(slicedLats.length > 200){
+                    stepsize = 100;
                 }
                 if(slicedLats.length <5){
                     stepsize = 2;
                 }
                 var cleanLats = [];
+
                 for (var p = 0; p < slicedLats.length; p+=stepsize){
                     if(slicedLats[p] !== cleanLats[cleanLats.length-1]){
-                        cleanLats.push(slicedLats[p]);
+                        if(p+stepsize<=slicedLats.length){
+                            cleanLats.push(slicedLats[p]);
+                        }
                     }
                 }
                 if((slicedLats.length-1)%stepsize !== 0){
@@ -1257,7 +1283,9 @@ define([
                 var cleanLons = [];
                 for (var p = 0; p < slicedLons.length; p+=stepsize){
                     if(slicedLons[p] !== cleanLons[cleanLons.length-1]){
-                        cleanLons.push(slicedLons[p]);
+                        if(p+stepsize<=slicedLons.length){
+                            cleanLons.push(slicedLons[p]);
+                        }
                     }
                 }
                 if((slicedLons.length-1)%stepsize !== 0){
