@@ -270,6 +270,18 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 scaleFormat: 'time',
                 timeFormat: 'MJD2000_S'
             },
+            'time_freq_step_combined':{
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'time_freq_step_start':{
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
+            'time_freq_step_end':{
+                scaleFormat: 'time',
+                timeFormat: 'MJD2000_S'
+            },
             'measurement_error_mie_response': {
                 uom: 'ACCD pixel index',
                 regression: 'polynomial'
@@ -753,11 +765,15 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
               ],
            },
           'AUX_MRC_1B': [
+            // 2d data
+            'altitude',
+            'satellite_range',
+            'normalised_useful_signal',
+            'mie_scattering_ratio',
+            // 2d data end
             'lat_of_DEM_intersection',
             'lon_of_DEM_intersection',
             'time_freq_step',
-            // 'altitude', //2D data
-            // 'satellite_range', //2D data
             'frequency_offset',
             'frequency_valid',
             'measurement_response',
@@ -766,8 +782,6 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             'reference_pulse_response',
             'reference_pulse_response_valid',
             'reference_pulse_error_mie_response',
-            // 'normalised_useful_signal', //2D data
-            // 'mie_scattering_ratio', //2D data
             'num_measurements_usable',
             'num_valid_measurements',
             'num_reference_pulses_usable',
@@ -797,13 +811,16 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             'mie_core_measurement_offset',
           ],
           'AUX_RRC_1B': [
+            // 2d data
+            'altitude',
+            'satellite_range', 
+            'geoid_separation_obs',
+            //'geoid_separation_freq_step',
+            'normalised_useful_signal',
+            // end 2d data
             'lat_of_DEM_intersection',
             'lon_of_DEM_intersection',
             'time_freq_step',
-            // 'altitude', //2D data
-            // 'satellite_range', //2D data
-            //'geoid_separation_obs',
-            //'geoid_separation_freq_step',
             'frequency_offset',
             'frequency_valid',
             'ground_frequency_valid',
@@ -816,7 +833,6 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             'ground_measurement_response',
             'ground_measurement_response_valid',
             'ground_measurement_error_rayleigh_response',
-            // 'normalised_useful_signal', //2D data
             'num_measurements_usable',
             'num_valid_measurements',
             'num_reference_pulses_usable',

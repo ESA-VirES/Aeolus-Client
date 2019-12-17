@@ -234,6 +234,10 @@
                   'layer_cloud_cover_off_nadir',
                   'layer_cloud_liquid_water_content_off_nadir',
                   'layer_cloud_ice_water_content_off_nadir'
+                ],
+                'altitude': [
+                  'normalised_useful_signal',
+                  'mie_scattering_ratio'
                 ]
               };
               for(var depkey in relations){

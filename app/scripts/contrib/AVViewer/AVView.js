@@ -1124,43 +1124,200 @@ define(['backbone.marionette',
                     availableParameters: false
                 },
                 AUX_MRC_1B: {
-                    xAxis: ['frequency_offset'],
+                    //xAxis: ['frequency_offset'],
+                    xAxis: ['time_freq_step'],
                     yAxis: [['measurement_response'], ['measurement_error_mie_response']],
                     additionalXTicks: [],
                     additionalYTicks: [[],[]],
                     colorAxis: [ [null], [null] ],
                     y2Axis: [[], []],
                     colorAxis2: [[], []],
-                    combinedParameters: {},
-                    groups: false,
-                    renderGroups: false,
-                    sharedParameters: false,
+                    combinedParameters: {
+                        'altitude': ['altitude_start', 'altitude_end'],
+                        'satellite_range': ['satellite_range_start', 'satellite_range_end'],
+                        'time_freq_step_combined': ['time_freq_step_start', 'time_freq_step_end']
+                    },
+                    groups: ['1d_parameters', '1d_parameters'],
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
                         'longitude': 'lon_of_DEM_intersection',
                         'altitude': 'altitude'
                     },
-
+                    renderGroups: {
+                        '1d_parameters': {
+                            parameters: [
+                                'lat_of_DEM_intersection',
+                                'lon_of_DEM_intersection',
+                                'time_freq_step',
+                                'frequency_offset',
+                                'frequency_valid',
+                                'measurement_response',
+                                'measurement_response_valid',
+                                'measurement_error_mie_response',
+                                'reference_pulse_response',
+                                'reference_pulse_response_valid',
+                                'reference_pulse_error_mie_response',
+                                'num_measurements_usable',
+                                'num_valid_measurements',
+                                'num_reference_pulses_usable',
+                                'num_mie_core_algo_fails_measurements',
+                                'num_ground_echoes_not_detected_measurements',
+                                'measurement_mean_sensitivity',
+                                'measurement_zero_frequency',
+                                'measurement_error_mie_response_std_dev',
+                                'measurement_offset_frequency',
+                                'reference_pulse_mean_sensitivity',
+                                'reference_pulse_zero_frequency',
+                                'reference_pulse_error_mie_response_std_dev',
+                                'reference_pulse_offset_frequency',
+                                'satisfied_min_valid_freq_steps_per_cal',
+                                'freq_offset_data_monotonic',
+                                'num_of_valid_frequency_steps',
+                                'measurement_mean_sensitivity_valid',
+                                'measurement_error_response_std_dev_valid',
+                                'measurement_zero_frequency_response_valid',
+                                'measurement_data_monotonic',
+                                'reference_pulse_mean_sensitivity_valid',
+                                'reference_pulse_error_response_std_dev_valid',
+                                'reference_pulse_zero_frequency_response_valid',
+                                'reference_pulse_data_monotonic',
+                                'mie_core_measurement_FWHM',
+                                'mie_core_measurement_amplitude',
+                                'mie_core_measurement_offset'
+                            ],
+                            defaults: {
+                                yAxis: 'measurement_response',
+                                colorAxis: null
+                            }
+                        },
+                        '2d_parameter': {
+                            parameters: [
+                                'altitude',
+                                'satellite_range',
+                                'normalised_useful_signal',
+                                'mie_scattering_ratio',
+                                'time_freq_step_combined'
+                            ],
+                            defaults: {
+                                yAxis: 'altitude',
+                                colorAxis: 'mie_scattering_ratio'
+                            }
+                        }
+                    },
+                    sharedParameters: {
+                        'time_freq_step': [
+                            'time_freq_step', 'time_freq_step_combined'
+                        ],
+                    },
                     availableParameters: false,
                 },
                 AUX_RRC_1B: {
-                    xAxis: ['frequency_offset'],
+                    xAxis: ['time_freq_step'],
                     yAxis: [['measurement_response'], ['measurement_error_rayleigh_response']],
                     additionalXTicks: [],
                     additionalYTicks: [[],[]],
                     colorAxis: [ [null], [null] ],
                     y2Axis: [[], []],
                     colorAxis2: [[], []],
-                    combinedParameters: {},
-                    groups: false,
-                    renderGroups: false,
-                    sharedParameters: false,
+                    combinedParameters: {
+                        'altitude': ['altitude_start', 'altitude_end'],
+                        'satellite_range': ['satellite_range_start', 'satellite_range_end'],
+                        'time_freq_step_combined': ['time_freq_step_start', 'time_freq_step_end']
+                    },
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
                         'longitude': 'lon_of_DEM_intersection',
                         'altitude': 'altitude'
                     },
-
+                    groups: ['1d_parameters', '1d_parameters'],
+                    renderGroups: {
+                        '1d_parameters': {
+                            parameters: [
+                                'lat_of_DEM_intersection',
+                                'lon_of_DEM_intersection',
+                                'time_freq_step',
+                                'frequency_offset',
+                                'frequency_valid',
+                                'ground_frequency_valid',
+                                'measurement_response',
+                                'measurement_response_valid',
+                                'measurement_error_rayleigh_response',
+                                'reference_pulse_response',
+                                'reference_pulse_response_valid',
+                                'reference_pulse_error_rayleigh_response',
+                                'ground_measurement_response',
+                                'ground_measurement_response_valid',
+                                'ground_measurement_error_rayleigh_response',
+                                'num_measurements_usable',
+                                'num_valid_measurements',
+                                'num_reference_pulses_usable',
+                                'num_measurements_valid_ground',
+                                'measurement_mean_sensitivity',
+                                'measurement_zero_frequency',
+                                'measurement_error_rayleigh_response_std_dev',
+                                'measurement_offset_frequency',
+                                'measurement_error_fit_coefficient',
+                                'reference_pulse_mean_sensitivity',
+                                'reference_pulse_zero_frequency',
+                                'reference_pulse_error_rayleigh_response_std_dev',
+                                'reference_pulse_offset_frequency',
+                                'reference_pulse_error_fit_coefficient',
+                                'ground_measurement_mean_sensitivity',
+                                'ground_measurement_zero_frequency',
+                                'ground_measurement_error_rayleigh_response_std_dev',
+                                'ground_measurement_offset_frequency',
+                                'ground_measurement_error_fit_coefficient', 
+                                'satisfied_min_valid_freq_steps_per_cal',
+                                'satisfied_min_valid_ground_freq_steps_per_cal',
+                                'freq_offset_data_monotonic',
+                                'num_of_valid_frequency_steps',
+                                'num_of_valid_ground_frequency_steps',
+                                'measurement_mean_sensitivity_valid',
+                                'measurement_error_response_std_dev_valid',
+                                'measurement_zero_frequency_response_valid',
+                                'measurement_data_monotonic',
+                                'reference_pulse_mean_sensitivity_valid',
+                                'reference_pulse_error_response_std_dev_valid',
+                                'reference_pulse_zero_frequency_response_valid',
+                                'reference_pulse_data_monotonic',
+                                'ground_measurement_mean_sensitivity_valid',
+                                'ground_measurement_error_response_std_dev_valid',
+                                'ground_measurement_zero_frequency_response_valid',
+                                'ground_measurement_data_monotonic',
+                                'rayleigh_spectrometer_temperature_9',
+                                'rayleigh_spectrometer_temperature_10',
+                                'rayleigh_spectrometer_temperature_11',
+                                'rayleigh_thermal_hood_temperature_1',
+                                'rayleigh_thermal_hood_temperature_2',
+                                'rayleigh_thermal_hood_temperature_3',
+                                'rayleigh_thermal_hood_temperature_4',
+                                'rayleigh_optical_baseplate_avg_temperature'
+                            ],
+                            defaults: {
+                                yAxis: 'measurement_response',
+                                colorAxis: null
+                            }
+                        },
+                        '2d_parameter': {
+                            parameters: [
+                                'altitude',
+                                'satellite_range', 
+                                'geoid_separation_obs',
+                                //'geoid_separation_freq_step',
+                                'normalised_useful_signal',
+                                'time_freq_step_combined'
+                            ],
+                            defaults: {
+                                yAxis: 'altitude',
+                                colorAxis: 'normalised_useful_signal'
+                            }
+                        }
+                    },
+                    sharedParameters: {
+                        'time_freq_step': [
+                            'time_freq_step', 'time_freq_step_combined'
+                        ],
+                    },
                     availableParameters: false,
                 },
                 AUX_ISR_1B: {
@@ -2087,7 +2244,17 @@ define(['backbone.marionette',
 
                      } else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
 
-                        this.graph.renderSettings = this.renderSettings[idKeys[0]];
+                        this.graph.renderSettings = iterationCopy(this.renderSettings[(idKeys[0])]);
+
+                        if(this.currentKeys.indexOf('altitude_start') !== -1){
+                            // TODO: should we show 2d data by default?
+                            /*this.graph.renderSettings.groups[0] = '2d_parameter';
+                            this.graph.renderSettings.yAxis[0] = ['altitude'];
+                            this.graph.renderSettings.colorAxis[0] = [currpar2d];*/
+                        } else {
+                            delete this.graph.renderSettings.renderGroups['2d_parameter'];
+                        }
+
 
                         // Remove diff if no longer available
                         if(this.graph.renderSettings.yAxis.length>0 && this.graph.renderSettings.yAxis[0].length>0){

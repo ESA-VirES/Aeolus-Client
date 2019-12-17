@@ -2728,30 +2728,92 @@
                     }
                     // Flatten structure as we do not need the different levels
                     // to render the data
+                    var data2D = false;
                     for (var k = 0; k < keys.length; k++) {
                       for (var l = 0; l < ds[keys[k]].length; l++) {
-                        if(!Array.isArray(ds[keys[k]][l])){
+                        var currds = ds[keys[k]][l];
+                        if(!Array.isArray(currds)){
                           // Single value property save to be displayed as text 
                           if(resData.hasOwnProperty('singleValues')){
-                            resData.singleValues[keys[k]] = ds[keys[k]][l];
+                            resData.singleValues[keys[k]] = currds;
                           } else {
                             var obj = {};
-                            obj[keys[k]] = ds[keys[k]][l];
+                            obj[keys[k]] = currds;
                             resData.singleValues = obj;
                           }
                         }else {
-                          if(!Array.isArray(ds[keys[k]][l][0])){
+                          if(!Array.isArray(currds[0])){
                             if(resData.hasOwnProperty(keys[k])){
-                              resData[keys[k]] = resData[keys[k]].concat(ds[keys[k]][l]);
+                              resData[keys[k]] = resData[keys[k]].concat(currds);
                             } else {
-                              resData[keys[k]] = ds[keys[k]][l];
+                              resData[keys[k]] = currds;
                             }
                           } else {
-                            console.log(keys[k]);
-                            // TODO: Handle 2D AUX Data
+                            data2D = true;
+                            if(currds[0].length === 25){
+                              var sK = keys[k]+'_start';
+                              var eK = keys[k]+'_end';
+                              for (var cd = 0; cd < currds.length; cd++) {
+                                var stArr = currds[cd].slice(1, currds[cd].length);
+                                var endArr = currds[cd].slice(0, currds[cd].length-1);
+                                // We separate this in start/end variables
+                                if(resData.hasOwnProperty(sK)){
+                                  resData[sK] = resData[sK].concat(stArr);
+                                } else {
+                                  resData[sK] = stArr;
+                                }
+                                if(resData.hasOwnProperty(eK)){
+                                  resData[eK] = resData[eK].concat(endArr);
+                                } else {
+                                  resData[eK] = endArr;
+                                }
+                              }
+                            } else if (currds[0].length === 24){
+                              // This we flatten out
+                              var cK = keys[k];
+                              for (var cd = 0; cd < currds.length; cd++) {
+                                if(resData.hasOwnProperty(cK)){
+                                  resData[cK] = resData[cK].concat(currds[cd]);
+                                } else {
+                                  resData[cK] = currds[cd];
+                                }
+                              }
+                            }
                           }
-
                         }
+                      }
+                    }
+
+                    // If we have 2d data, we add combined frequency step
+                    // to allow rendering as 2d rectangles
+                    if(data2D){
+                      if(ds.hasOwnProperty('time_freq_step')){
+                        var tstart = [];
+                        var tend = [];
+                        var tfs = ds.time_freq_step;
+                        for (var dataset = 0; dataset < tfs.length; dataset++) {
+                          var currds = tfs[dataset];
+                          for (var tf = 0; tf < currds.length; tf++) {
+                            for (var ii = 0; ii < 24; ii++) {
+                              tstart.push(currds[tf])
+                            }
+                            if(tf>0){
+                              for (var ii = 0; ii < 24; ii++) {
+                                tend.push(currds[tf])
+                              }
+                            }
+                          }
+                          // if last dataset we add missing endtimes
+                          if(dataset === tfs.length-1){
+                            // Add missing end times
+                            for (var ii = 0; ii < 24; ii++) {
+                              tend.push(currds[currds.length-1]+24);
+                            }
+                          }
+                        }
+
+                        resData['time_freq_step_start'] = tstart;
+                        resData['time_freq_step_end'] = tend;
                       }
                     }
 
