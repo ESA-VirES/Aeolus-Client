@@ -1896,7 +1896,7 @@
                     "name": "North-South wind component at the surface (>0 to North) for each profile along the off-nadir track"
                 },
                 "surface_pressure_off_nadir": {
-                    "active": true,
+                    "required": true,
                     "uom": "Pa",
                     "name": "Surface pressure off nadir"
                 },
@@ -1916,7 +1916,7 @@
                     "name": "North-South wind component at the surface (>0 to North) for each profile along the nadir track"
                 },
                 "surface_pressure_nadir": {
-                    "active": true,
+                    "required": true,
                     "uom": "Pa",
                     "name": "Surface pressure nadir"
                 },

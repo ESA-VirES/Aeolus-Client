@@ -1870,38 +1870,11 @@
         // Add subsampling depending on selected time if AUX MET product selected
         if(collectionId === 'AUX_MET_12'){
           
-          // Seelct which fields are necessary based on parameter selected
-          // for product
-          /*var parameters = product.get('parameters');
-          var selectedParameter;
-          var keys = _.keys(parameters);
-          _.each(keys, function(key){
-              if(parameters[key].selected){
-                  selectedParameter = key;
-              }
-          });
-          
-          var params2DNadir = globals.fieldList[collectionId].params2DNadir;
-          var params2DOffNadir = globals.fieldList[collectionId].params2DOffNadir;
-
           var parameter2Dselected = false;
-
-          if(params2DNadir.indexOf(selectedParameter) !== -1){
-            options['fields'] = ['time_nadir', 'latitude_nadir', 'longitude_nadir'];
-            options['fields'].push(selectedParameter);
-            options['fields'].push('layer_altitude_nadir');
+          
+          if(options['fields'].indexOf('layer') !== -1){
             parameter2Dselected = true;
           }
-
-          if(params2DOffNadir.indexOf(selectedParameter) !== -1){
-            options['fields'] = ['time_off_nadir', 'latitude_off_nadir', 'longitude_off_nadir'];
-            options['fields'].push(selectedParameter);
-            options['fields'].push('layer_altitude_off_nadir');
-            parameter2Dselected = true;
-          }*/
-          var parameter2Dselected = false;
-          //options['fields'] = options['fields'].join();
-
 
           var scaleFactor = 1.0 - (
             (this.selected_time.end.getTime() - 
