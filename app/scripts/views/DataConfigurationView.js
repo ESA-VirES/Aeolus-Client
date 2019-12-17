@@ -97,6 +97,7 @@
         });
 
         $('#enableAll').on('click', function(){
+
           var selectedProduct = null;
           var currentId = that.currentSelection;
           globals.products.each(function(product){
@@ -105,20 +106,43 @@
             }
           });
 
-          if(selectedProduct !== null){
-            var parameterList = selectedProduct.get('download_parameters');
-            for (var key in parameterList){
-              if(that.currentChanges.hasOwnProperty(key)){
-                that.currentChanges[key].active = true;
-              } else {
-                that.currentChanges[key] = {
-                  active: true
+          if(currentId === 'AUX_MET_12'){
+            w2confirm('AUX MET product is very large, enabling all parameters'+
+            ' will result in large data request and long rendering times,'+
+            ' are you sure you want to continue?')
+              .yes(function () {
+                  if(selectedProduct !== null){
+                    var parameterList = selectedProduct.get('download_parameters');
+                    for (var key in parameterList){
+                      if(that.currentChanges.hasOwnProperty(key)){
+                        that.currentChanges[key].active = true;
+                      } else {
+                        that.currentChanges[key] = {
+                          active: true
+                        }
+                      }
+                    }
+                  }
+                  $('.parameterActivationCB:not(:disabled)').prop('checked', true);
+                  that.addApplyChanges();
+              });
+          } else {
+
+            if(selectedProduct !== null){
+              var parameterList = selectedProduct.get('download_parameters');
+              for (var key in parameterList){
+                if(that.currentChanges.hasOwnProperty(key)){
+                  that.currentChanges[key].active = true;
+                } else {
+                  that.currentChanges[key] = {
+                    active: true
+                  }
                 }
               }
             }
+            $('.parameterActivationCB:not(:disabled)').prop('checked', true);
+            that.addApplyChanges();
           }
-          $('.parameterActivationCB:not(:disabled)').prop('checked', true);
-          that.addApplyChanges();
         });
 
       },
@@ -181,6 +205,68 @@
               } else {
                 that.currentChanges[key] = {
                   active: selected
+                }
+              }
+
+              // Special handling for 2D data that need other parameters for 
+              // visualization
+              var relations = {
+                // AUX MET
+                'layer_altitude_nadir': [
+                  'layer_validity_flag_nadir',
+                  'layer_temperature_nadir',
+                  'layer_wind_component_u_nadir',
+                  'layer_wind_component_v_nadir',
+                  'layer_rel_humidity_nadir',
+                  'layer_spec_humidity_nadir',
+                  'layer_cloud_cover_nadir',
+                  'layer_cloud_liquid_water_content_nadir',
+                  'layer_cloud_ice_water_content_nadir'
+
+                ],
+                'layer_altitude_off_nadir': [
+                  'layer_validity_flag_off_nadir',
+                  'layer_temperature_off_nadir',
+                  'layer_wind_component_u_off_nadir',
+                  'layer_wind_component_v_off_nadir',
+                  'layer_rel_humidity_off_nadir',
+                  'layer_spec_humidity_off_nadir',
+                  'layer_cloud_cover_off_nadir',
+                  'layer_cloud_liquid_water_content_off_nadir',
+                  'layer_cloud_ice_water_content_off_nadir'
+                ]
+              };
+              for(var depkey in relations){
+                // If selected is one of the dependencies
+                if(selected && (relations[depkey].indexOf(key)!==-1)){
+                  // Check if necessery key already selected if not select it
+                  if(!globals.dataSettings[depkey].active){
+                    if(!that.currentChanges.hasOwnProperty(depkey)){
+                      that.currentChanges[depkey] = {
+                        active: true
+                      }
+                      // Add tick to checkbox
+                      $('#'+depkey).prop('checked', true);
+                    } else if(!that.currentChanges[depkey].active){
+                      that.currentChanges[depkey].active = true;
+                      $('#'+depkey).prop('checked', true);
+                    }
+                  }
+                } else if (!selected && (key === depkey)){
+                  // If selected is the necessary dependency and it is being
+                  // removed we need to remove all related parameters
+                  for(var pi=0; pi<relations[depkey].length; pi++){
+                    var currKey = relations[depkey][pi];
+                    if(globals.dataSettings[currKey].active){
+                      that.currentChanges[currKey] = {active: false};
+                      $('#'+currKey).prop('checked', false);
+                    } else if(that.currentChanges.hasOwnProperty(currKey)){
+                      if(that.currentChanges[currKey].active){
+                        delete that.currentChanges[currKey].active;
+                        $('#'+currKey).prop('checked', false);
+                      }
+                    }
+                  }
                 }
               }
             }
