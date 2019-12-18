@@ -374,3 +374,12 @@
     /*overwrite bootstrap box sizing which makes boy smaller then it should be*/
     box-sizing: content-box!important;
 }
+
+
+#globalSettings, #globalSettingsContainer, #newPlotLink{
+    margin-left: 50px;
+}
+
+#labelFontSize {
+    width: auto;
+}

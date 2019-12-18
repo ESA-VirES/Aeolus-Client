@@ -1497,7 +1497,7 @@ define(['backbone.marionette',
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
                     multiYAxis: true,
-                    ignoreParameters: [ /jumps.*/, /SignCross.*/, 'positions', 'stepPositions'],
+                    ignoreParameters: [ /jumps.*/, /SignCross.*/, 'positions', 'stepPositions', 'singleValues'],
                     enableSubXAxis: 'time',
                     enableSubYAxis: ['mie_altitude','rayleigh_altitude'],
                     colorAxisTickFormat: 'customExp',
@@ -2252,9 +2252,12 @@ define(['backbone.marionette',
                             this.graph.renderSettings.yAxis[0] = ['altitude'];
                             this.graph.renderSettings.colorAxis[0] = [currpar2d];*/
                         } else {
-                            delete this.graph.renderSettings.renderGroups['2d_parameter'];
+                            // We disable group selection completely if no 2D data is available
+                            this.graph.renderSettings.groups = false;
+                            this.graph.renderSettings.renderGroups = false;
+                            this.graph.renderSettings.sharedParameters = false;
+                            this.graph.renderSettings.availableParameters = false;
                         }
-
 
                         // Remove diff if no longer available
                         if(this.graph.renderSettings.yAxis.length>0 && this.graph.renderSettings.yAxis[0].length>0){
