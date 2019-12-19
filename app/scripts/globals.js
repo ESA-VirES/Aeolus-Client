@@ -563,7 +563,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
           'ALD_U_N_2B': {
               'mie_profile_fields': [
                 'mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection',
-                'mie_profile_datetime_start', 'mie_profile_datetime_stop'
+                /*'mie_profile_datetime_start', 'mie_profile_datetime_stop'*/
               ],
               'mie_wind_fields': [
                 'mie_wind_result_id',
@@ -639,13 +639,13 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
               ],
               'rayleigh_profile_fields': [
                 'rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection',
-                'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop'
+                /*'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop'*/
               ]
           },
           'ALD_U_N_2C': {
                'mie_profile_fields': [
                 'mie_profile_lat_of_DEM_intersection', 'mie_profile_lon_of_DEM_intersection',
-                'mie_profile_datetime_start', 'mie_profile_datetime_stop'
+                /*'mie_profile_datetime_start', 'mie_profile_datetime_stop'*/
               ],
               'mie_wind_fields': [
                 'mie_wind_result_id',
@@ -704,7 +704,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
               ],
               'rayleigh_profile_fields': [
                 'rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection',
-                'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop'
+                /*'rayleigh_profile_datetime_start', 'rayleigh_profile_datetime_stop'*/
               ],
               'rayleigh_wind_fields': [
                 'rayleigh_wind_result_id',
