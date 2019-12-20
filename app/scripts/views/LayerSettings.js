@@ -67,17 +67,22 @@
 
                 var that = this;
 
-                // Filter out unavailable data parameters
-                var currdata = globals.swarm.get('data');
-                if(!$.isEmptyObject(currdata)){
-                    for (var i = keys.length - 1; i >= 0; i--) {
-                        var currProd = this.current_model.get('download').id;
-                        if(currdata.hasOwnProperty(currProd)){
-                            if(!currdata[currProd].hasOwnProperty(keys[i])){
-                                keys.splice(i,1);
+                if(granularity !== 'group'){
+                    // Filter out unavailable data parameters
+                    var currdata = globals.swarm.get('data');
+                    if(!$.isEmptyObject(currdata)){
+                        for (var i = keys.length - 1; i >= 0; i--) {
+                            var currProd = this.current_model.get('download').id;
+                            if(currdata.hasOwnProperty(currProd)){
+                                if(!currdata[currProd].hasOwnProperty(keys[i])){
+                                    keys.splice(i,1);
+                                }
                             }
                         }
                     }
+                    this.enableInputs();
+                } else {
+                    this.disableInputs();
                 }
 
                 _.each(keys, function(key){
@@ -229,28 +234,7 @@
                         this.registerKeyEvents(this.$("#coefficients_range_min"));
                         this.registerKeyEvents(this.$("#coefficients_range_max"));
                         
-                    }   
-
-                    /*if (protocol == "WPS"){
-                        this.$("#shc").empty();
-                        this.$("#shc").append(
-                            '<p>Spherical Harmonics Coefficients</p>'+
-                            '<div class="myfileupload-buttonbar ">'+
-                                '<label class="btn btn-default shcbutton">'+
-                                '<span><i class="fa fa-fw fa-upload"></i> Upload SHC File</span>'+
-                                '<input id="upload-selection" type="file" accept=".shc" name="files[]" />'+
-                              '</label>'+
-                          '</div>'
-                        );
-
-                        this.$("#upload-selection").unbind();
-                        this.$("#upload-selection").change(this.onUploadSelectionChanged.bind(this));
-
-                        if(this.current_model.get('shc_name')){
-                            that.$("#shc").append('<p id="filename" style="font-size:.9em;">Selected File: '+this.current_model.get('shc_name')+'</p>');
-                        }
-                        
-                    }*/
+                    }
 
                     if(options[this.selected].hasOwnProperty("logarithmic"))
                         this.createScale(options[that.selected].logarithmic);
@@ -316,6 +300,12 @@
                         $("#granularity_selection").on('change', function(){
                             var granularity = $("#granularity_selection").find("option:selected").val();
                             that.model.set('granularity', granularity);
+                            // If group granularity is selected we hide some things
+                            if(granularity === 'group'){
+                                that.disableInputs();
+                            } else {
+                                that.enableInputs();
+                            }
                             Communicator.mediator.trigger("layer:granularity:beforechange", that.model.get("download").id);
                         });
                     }
@@ -366,6 +356,20 @@
                     this.current_model = this.model;
                 }
                 this.renderView();
+            },
+
+            disableInputs: function(){
+                $("#options").prop("disabled", true);
+                $("#style").prop("disabled", true);
+                $("#range_min").prop("disabled", true);
+                $("#range_max").prop("disabled", true);
+            },
+
+            enableInputs: function(){
+                $("#options").prop("disabled", false);
+                $("#style").prop("disabled", false);
+                $("#range_min").prop("disabled", false);
+                $("#range_max").prop("disabled", false);
             },
 
             onClose: function() {

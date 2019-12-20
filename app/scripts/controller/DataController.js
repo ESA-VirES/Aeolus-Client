@@ -2728,7 +2728,6 @@
                     }
                     // Flatten structure as we do not need the different levels
                     // to render the data
-                    var data2D = false;
                     for (var k = 0; k < keys.length; k++) {
                       for (var l = 0; l < ds[keys[k]].length; l++) {
                         var currds = ds[keys[k]][l];
@@ -2749,7 +2748,6 @@
                               resData[keys[k]] = currds;
                             }
                           } else {
-                            data2D = true;
                             if(currds[0].length === 25){
                               var sK = keys[k]+'_start';
                               var eK = keys[k]+'_end';
@@ -2786,11 +2784,11 @@
 
                     // If we have 2d data, we add combined frequency step
                     // to allow rendering as 2d rectangles
-                    if(data2D){
-                      if(ds.hasOwnProperty('time_freq_step')){
+                    if(ds.hasOwnProperty('altitude')){
+                      if(ds.hasOwnProperty('frequency_offset')){
                         var tstart = [];
                         var tend = [];
-                        var tfs = ds.time_freq_step;
+                        var tfs = ds.frequency_offset;
                         for (var dataset = 0; dataset < tfs.length; dataset++) {
                           var currds = tfs[dataset];
                           for (var tf = 0; tf < currds.length; tf++) {
@@ -2807,13 +2805,13 @@
                           if(dataset === tfs.length-1){
                             // Add missing end times
                             for (var ii = 0; ii < 24; ii++) {
-                              tend.push(currds[currds.length-1]+24);
+                              tend.push(currds[currds.length-1]+0.025);
                             }
                           }
                         }
 
-                        resData['time_freq_step_start'] = tstart;
-                        resData['time_freq_step_end'] = tend;
+                        resData['frequency_offset_start'] = tstart;
+                        resData['frequency_offset_end'] = tend;
                       }
                     }
 
@@ -2840,23 +2838,27 @@
                     // We go through currently selected parameters to make sure
                     // what is selected before we trigger the new load event
                     // as some parameters may have been removed
-                    // Filter out unavailable data parameters
+                    // Filter out unavailable data parameters unless we checked grou
+                    // granularity
+                    var gran = product.get('granularity');
                     var pars = product.get('parameters');
                     var keys = Object.keys(pars);
                     var changeSelected = false;
-                    for (var i = keys.length - 1; i >= 0; i--) {
-                        if(!resData.hasOwnProperty(keys[i])){
-                          if(pars[keys[i]].hasOwnProperty('selected') && pars[keys[i]]){
-                            changeSelected = true;
-                            delete pars[keys[i]].selected;
+                    if(gran !== 'group'){
+                      for (var i = keys.length - 1; i >= 0; i--) {
+                          if(!resData.hasOwnProperty(keys[i])){
+                            if(pars[keys[i]].hasOwnProperty('selected') && pars[keys[i]]){
+                              changeSelected = true;
+                              delete pars[keys[i]].selected;
+                            }
+                            keys.splice(i,1);
                           }
-                          keys.splice(i,1);
-                        }
+                      }
+                      if(changeSelected){
+                        pars[keys[0]].selected = true;
+                      }
+                      product.set('parameters', pars);
                     }
-                    if(changeSelected){
-                      pars[keys[0]].selected = true;
-                    }
-                    product.set('parameters', pars);
 
                     globals.swarm.set({data: tmpdata});
                   }

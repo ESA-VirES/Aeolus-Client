@@ -1124,8 +1124,7 @@ define(['backbone.marionette',
                     availableParameters: false
                 },
                 AUX_MRC_1B: {
-                    //xAxis: ['frequency_offset'],
-                    xAxis: ['time_freq_step'],
+                    xAxis: ['frequency_offset'],
                     yAxis: [['measurement_response'], ['measurement_error_mie_response']],
                     additionalXTicks: [],
                     additionalYTicks: [[],[]],
@@ -1135,7 +1134,7 @@ define(['backbone.marionette',
                     combinedParameters: {
                         'altitude': ['altitude_start', 'altitude_end'],
                         'satellite_range': ['satellite_range_start', 'satellite_range_end'],
-                        'time_freq_step_combined': ['time_freq_step_start', 'time_freq_step_end']
+                        'frequency_offset_combined': ['frequency_offset_start', 'frequency_offset_end']
                     },
                     groups: ['1d_parameters', '1d_parameters'],
                     positionAlias: {
@@ -1196,7 +1195,7 @@ define(['backbone.marionette',
                                 'satellite_range',
                                 'normalised_useful_signal',
                                 'mie_scattering_ratio',
-                                'time_freq_step_combined'
+                                'frequency_offset_combined'
                             ],
                             defaults: {
                                 yAxis: 'altitude',
@@ -1205,14 +1204,14 @@ define(['backbone.marionette',
                         }
                     },
                     sharedParameters: {
-                        'time_freq_step': [
-                            'time_freq_step', 'time_freq_step_combined'
+                        'frequency_offset': [
+                            'frequency_offset', 'frequency_offset_combined'
                         ],
                     },
                     availableParameters: false,
                 },
                 AUX_RRC_1B: {
-                    xAxis: ['time_freq_step'],
+                    xAxis: ['frequency_offset'],
                     yAxis: [['measurement_response'], ['measurement_error_rayleigh_response']],
                     additionalXTicks: [],
                     additionalYTicks: [[],[]],
@@ -1222,7 +1221,7 @@ define(['backbone.marionette',
                     combinedParameters: {
                         'altitude': ['altitude_start', 'altitude_end'],
                         'satellite_range': ['satellite_range_start', 'satellite_range_end'],
-                        'time_freq_step_combined': ['time_freq_step_start', 'time_freq_step_end']
+                        'frequency_offset_combined': ['frequency_offset_start', 'frequency_offset_end']
                     },
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
@@ -1305,7 +1304,7 @@ define(['backbone.marionette',
                                 'geoid_separation_obs',
                                 //'geoid_separation_freq_step',
                                 'normalised_useful_signal',
-                                'time_freq_step_combined'
+                                'frequency_offset_combined'
                             ],
                             defaults: {
                                 yAxis: 'altitude',
@@ -1314,8 +1313,8 @@ define(['backbone.marionette',
                         }
                     },
                     sharedParameters: {
-                        'time_freq_step': [
-                            'time_freq_step', 'time_freq_step_combined'
+                        'frequency_offset': [
+                            'frequency_offset', 'frequency_offset_combined'
                         ],
                     },
                     availableParameters: false,
