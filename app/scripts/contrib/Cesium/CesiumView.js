@@ -1257,14 +1257,9 @@ define([
                 // to avoid the issue we take every third element which hopefully
                 // should hit not repeating or ascending/descending inverted values
                 // TODO: re-evaluate a correct method to handle this
-                var stepsize = 3;
+                var stepdivider = 100;
+                var stepsize = Math.ceil(slicedLats.length/stepdivider);
 
-                if(slicedLats.length > 200){
-                    stepsize = 100;
-                }
-                if(slicedLats.length <5){
-                    stepsize = 2;
-                }
                 var cleanLats = [];
 
                 for (var p = 0; p < slicedLats.length; p+=stepsize){
