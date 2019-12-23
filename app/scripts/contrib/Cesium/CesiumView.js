@@ -1259,7 +1259,13 @@ define([
                 // TODO: re-evaluate a correct method to handle this
                 var stepdivider = 100;
                 var stepsize = Math.ceil(slicedLats.length/stepdivider);
-
+                // Add special check for L2B and L2C for strange formations in poles
+                if(cov_id === 'ALD_U_N_2B' || cov_id === 'ALD_U_N_2C'){
+                    if (stepsize < 100 && slicedLats.length>500) {
+                        stepsize = 100;
+                    }
+                }
+                console.log(stepsize);
                 var cleanLats = [];
 
                 for (var p = 0; p < slicedLats.length; p+=stepsize){
