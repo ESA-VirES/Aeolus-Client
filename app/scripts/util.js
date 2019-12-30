@@ -299,18 +299,5 @@ var isObject= function (obj) {
 }
 
 var iterationCopy = function (src) {
-  var target = {};
-  for (var prop in src) {
-    if (src.hasOwnProperty(prop)) {
-      // if the value is a nested object, recursively copy all it's properties
-      if (isObject(src[prop])) {
-        target[prop] = iterationCopy(src[prop]);
-      } else if(Array.isArray(src[prop])){
-        target[prop] = src[prop].slice();
-      } else {
-        target[prop] = src[prop];
-      }
-    }
-  }
-  return target;
+  return JSON.parse(JSON.stringify(src));
 }

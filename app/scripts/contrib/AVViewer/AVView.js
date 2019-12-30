@@ -17,6 +17,7 @@ define(['backbone.marionette',
             this.plotType = 'scatter';
             this.sp = undefined;
             this.currentKeys = [];
+            this.requestedListChanged = false;
 
             $(window).resize(function() {
                 if(this.graph){
@@ -89,6 +90,22 @@ define(['backbone.marionette',
                     } else if (settings.hasOwnProperty('sharedParameters') &&  settings.sharedParameters!== false){
                         if(!settings.sharedParameters.hasOwnProperty(parameter)){
                             allInside = false;
+                        } else {
+                            // Check if the related shared parameters are inside
+                            // of the current selection
+                            for (var sp = 0; sp < settings.sharedParameters[parameter].length; sp++) {
+                                var sps = settings.sharedParameters[parameter][sp];
+                                if(settings.combinedParameters.hasOwnProperty(sps)){
+                                    var combined = settings.combinedParameters[sps];
+                                    for (var cc = combined.length - 1; cc >= 0; cc--) {
+                                        if(this.currentKeys.indexOf(combined[cc]) === -1){
+                                            allInside = false;
+                                        }
+                                    }
+                                } else if(this.currentKeys.indexOf(sps) === -1){
+                                    allInside = false;
+                                }
+                            }
                         }
                     } else {
                         allInside = false;
@@ -136,6 +153,10 @@ define(['backbone.marionette',
             var that = this;
             this.stopListening(Communicator.mediator, 'change:axis:parameters', this.onChangeAxisParameters);
             this.listenTo(Communicator.mediator, 'change:axis:parameters', this.onChangeAxisParameters);
+
+            this.stopListening(Communicator.mediator, 'layer:parameterlist:changed', this.onRequestedListChanged);
+            this.listenTo(Communicator.mediator, 'layer:parameterlist:changed', this.onRequestedListChanged);
+            
 
             this.isClosed = false;
             this.selectionList = [];
@@ -1734,6 +1755,10 @@ define(['backbone.marionette',
                 
         },
 
+        onRequestedListChanged: function onRequestedListChanged(){
+            this.requestedListChanged = true;
+        },
+
         renderFilterList: function renderFilterList() {
 
             var that = this;
@@ -2119,6 +2144,10 @@ define(['backbone.marionette',
                     // First time loading data we set previous to current data
                     this.prevParams = idKeys;
                     firstLoad = true;
+                }
+                if(this.requestedListChanged){
+                    firstLoad = true;
+                    this.requestedListChanged = false;
                 }
 
                 this.graph.removeGroupArrows();
