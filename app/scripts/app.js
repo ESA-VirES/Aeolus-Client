@@ -393,61 +393,84 @@ var VECTOR_BREAKDOWN = {};
                 }, this);
 
 
-                // Go through products and fill global datasettings
-                globals.products.each(function(product){
-                    var downloadPars = product.get('download_parameters');
-                    var prodId = product.get('download').id;
-                    // Get keys we currently request for visualization
-                    var downloadKeys = [];
-                    if(globals.fieldList.hasOwnProperty(prodId)){
-                        if(Array.isArray(globals.fieldList[prodId])){
-                            downloadKeys = globals.fieldList[prodId];
-                        } else {
-                            for (var key in globals.fieldList[prodId]){
-                                downloadKeys = downloadKeys.concat(
-                                    globals.fieldList[prodId][key]
-                                );
+                // Check if datasettings already available
+                if(localStorage.getItem('dataSettings') !== null){
+                    globals.dataSettings = JSON.parse(localStorage.getItem('dataSettings'));
+                } else {
+                    // Go through products and fill global datasettings
+                    globals.products.each(function(product){
+                        var downloadPars = product.get('download_parameters');
+                        var productConf = product.get('parameters');
+                        var prodId = product.get('download').id;
+                        // Get keys we currently request for visualization
+                        var downloadKeys = [];
+
+                        if(globals.fieldList.hasOwnProperty(prodId)){
+                            if(Array.isArray(globals.fieldList[prodId])){
+                                downloadKeys = globals.fieldList[prodId];
+                            } else {
+                                for (var key in globals.fieldList[prodId]){
+                                    downloadKeys = downloadKeys.concat(
+                                        globals.fieldList[prodId][key]
+                                    );
+                                }
                             }
                         }
-                    }
-                    var isAux = prodId.indexOf('AUX_')!==-1;
-                    for(var key in downloadPars){
-                        if(!globals.dataSettings.hasOwnProperty(key) && 
-                            downloadKeys.indexOf(key)!==-1){
-                            var parInfo = {};
-                            if(downloadPars[key].hasOwnProperty('uom')){
-                                parInfo.uom = downloadPars[key].uom;
-                            }
-                            if(downloadPars[key].hasOwnProperty('required')){
-                                parInfo.active = true;
-                            }
-                            if(downloadPars[key].hasOwnProperty('active')){
-                                parInfo.active = downloadPars[key].active;
-                            }
-                            // For now we activate all auxiliary parameters per 
-                            // default
-                            // TODO: Will need to change once 2D parameters are introduced
-                            if(isAux && prodId!=='AUX_MET_12'){
-                                parInfo.active = true;
-                            }
-                            globals.dataSettings[key] = parInfo;
-                        } else if(downloadKeys.indexOf(key)!==-1){
-                            // Add active info if already present
-                            if(downloadPars[key].hasOwnProperty('required')){
-                                globals.dataSettings[key].active = true;
-                            }
-                            if(downloadPars[key].hasOwnProperty('active')){
-                                globals.dataSettings[key].active = downloadPars[key].active;
-                            }
-                            // For now we activate all auxiliary parameters per 
-                            // default
-                            // TODO: Will need to change once 2D parameters are introduced
-                            if(isAux && prodId!=='AUX_MET_12'){
-                                globals.dataSettings[key].active = true;
+                        var isAux = prodId.indexOf('AUX_')!==-1;
+                        for(var key in downloadPars){
+                            if(!globals.dataSettings.hasOwnProperty(key) && 
+                                downloadKeys.indexOf(key)!==-1){
+                                var parInfo = {};
+                                // Check if parameter defined in product config
+                                if(productConf.hasOwnProperty(key)){
+                                    for(var prk in productConf[key]){
+                                        parInfo[prk] = productConf[key][prk];
+                                    }
+                                }
+                                if(downloadPars[key].hasOwnProperty('uom')){
+                                    parInfo.uom = downloadPars[key].uom;
+                                }
+                                if(downloadPars[key].hasOwnProperty('required')){
+                                    parInfo.active = true;
+                                }
+                                if(downloadPars[key].hasOwnProperty('active')){
+                                    parInfo.active = downloadPars[key].active;
+                                }
+                                // For now we activate all auxiliary parameters per 
+                                // default
+                                // TODO: Will need to change once 2D parameters are introduced
+                                if(isAux && prodId!=='AUX_MET_12'){
+                                    parInfo.active = true;
+                                }
+                                globals.dataSettings[key] = parInfo;
+                            } else if(downloadKeys.indexOf(key)!==-1){
+                                // Add info if available in product config
+                                if(productConf.hasOwnProperty(key)){
+                                    for(var prk in productConf[key]){
+                                        if(productConf[key][prk]!==null){
+                                            globals.dataSettings[key][prk] = productConf[key][prk];
+                                        }
+                                    }
+                                    console.log(globals.dataSettings[key][prk]);
+                                }
+                                // Add active info if already present
+                                if(downloadPars[key].hasOwnProperty('required')){
+                                    globals.dataSettings[key].active = true;
+                                }
+                                if(downloadPars[key].hasOwnProperty('active')){
+                                    globals.dataSettings[key].active = downloadPars[key].active;
+                                }
+                                // For now we activate all auxiliary parameters per 
+                                // default
+                                // TODO: Will need to change once 2D parameters are introduced
+                                if(isAux && prodId!=='AUX_MET_12'){
+                                    globals.dataSettings[key].active = true;
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                    localStorage.setItem('dataSettings', JSON.stringify(globals.dataSettings));
+                }
 
                 var productcolors = d3.scale.ordinal().domain(domain).range(range);
 
