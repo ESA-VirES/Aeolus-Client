@@ -85,11 +85,13 @@ define(['backbone.marionette',
                         for (var j = combined.length - 1; j >= 0; j--) {
                             if(this.currentKeys.indexOf(combined[j]) === -1){
                                 allInside = false;
+                                comb.splice(i, 1);
                             }
                         }
                     } else if (settings.hasOwnProperty('sharedParameters') &&  settings.sharedParameters!== false){
                         if(!settings.sharedParameters.hasOwnProperty(parameter)){
                             allInside = false;
+                            comb.splice(i, 1);
                         } else {
                             // Check if the related shared parameters are inside
                             // of the current selection
@@ -100,21 +102,66 @@ define(['backbone.marionette',
                                     for (var cc = combined.length - 1; cc >= 0; cc--) {
                                         if(this.currentKeys.indexOf(combined[cc]) === -1){
                                             allInside = false;
+                                            comb.splice(i, 1);
                                         }
                                     }
                                 } else if(this.currentKeys.indexOf(sps) === -1){
                                     allInside = false;
+                                    comb.splice(i, 1);
                                 }
                             }
                         }
                     } else {
                         allInside = false;
+                        comb.splice(i, 1);
                     }
                 }
             }
 
             if(!allInside){
-                return settings;
+
+                if(comb.indexOf(xax) !== -1){
+                    // Empty y axis are fine, need to make sure settings are "balanced"
+                    // remove all parameters not available
+                    for (var yy = yax.length - 1; yy >= 0; yy--) {
+                        for (var suby = yax[yy].length - 1; suby >= 0; suby--) {
+                            if(comb.indexOf(yax[yy][suby]) === -1){
+                                yax[yy].splice(suby, 1);
+                                // Remove corresponding colorscale
+                                colax[yy].splice(suby, 1);
+                            }
+                        }
+                    }
+
+                    for (var yy2 = y2ax.length - 1; yy2 >= 0; yy2--) {
+                        for (var suby2 = y2ax[yy2].length - 1; suby2 >= 0; suby2--) {
+                            if(comb.indexOf(y2ax[yy2][suby2]) === -1){
+                                y2ax[yy2].splice(suby2, 1);
+                                // Remove corresponding colorscale
+                                colax2[yy2].splice(suby2, 1);
+                            }
+                        }
+                    }
+
+                    // Replace missing colorscale parameters with null
+                    for (var cc = colax.length - 1; cc >= 0; cc--) {
+                        for (var csub = colax[cc].length - 1; csub >= 0; csub--) {
+                            if(comb.indexOf(colax[cc][csub]) === -1){
+                                colax[cc][csub] = null;
+                            }
+                        }
+                    }
+                    for (var cc2 = colax2.length - 1; cc2 >= 0; cc2--) {
+                        for (var csub2 = colax2[cc2].length - 1; csub2 >= 0; csub2--) {
+                            if(comb.indexOf(colax2[cc2][csub2]) === -1){
+                                colax2[cc2][csub2] = null;
+                            }
+                        }
+                    }
+                } else {
+                    return settings;
+                }
+                // Once new settings are set we need to save them to localstorage
             }
 
             if (xax !== null) {
@@ -146,7 +193,13 @@ define(['backbone.marionette',
                 currSets.additionalYTicks = yticks;
             }
 
-            //return currSets;
+            localStorage.setItem('xAxisSelection', JSON.stringify(xax));
+            localStorage.setItem('yAxisSelection', JSON.stringify(yax));
+            localStorage.setItem('y2AxisSelection', JSON.stringify(y2ax));
+            localStorage.setItem('colorAxisSelection', JSON.stringify(colax));
+            localStorage.setItem('colorAxis2Selection', JSON.stringify(colax2));
+
+            return currSets;
         },
 
         onShow: function() {
