@@ -4,7 +4,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
 
     var swarm_model = Backbone.Model.extend({data:[]});
     return {
-        version: '1.4',
+        version: '1.41',
         objects: new ObjectStore(),
         selections: new ObjectStore(),
         baseLayers: new Backbone.Collection(),

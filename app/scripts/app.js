@@ -129,26 +129,47 @@ var VECTOR_BREAKDOWN = {};
 
                 // Check if version of service is set and if it differs from the
                 // current version
+                var serviceVersion;
                 if(localStorage.getItem('serviceVersion') !== null){
-                    var serviceVersion = JSON.parse(
+                    serviceVersion = JSON.parse(
                         localStorage.getItem('serviceVersion')
                     );
                     if(serviceVersion!==globals.version){
-                        // A new version has been loaded, here we could 
-                        // differentiate which version was previous and which
-                        // one ist the new, for now we reset and save the new
-                        // version
-                        showMessage('success',
-                            'A new version ('+globals.version+') of the service has been released. '+
-                            'Your configuration has been updated.</br>'+
-                            'You can find information on the changes in the '+
-                            '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
-                        );
-                        localStorage.clear();
-                        localStorage.setItem(
-                            'serviceVersion',
-                            JSON.stringify(globals.version)
-                        );
+                        if(localStorage.getItem('configurationLoaded') !== null){
+                            // A configuration from a previous version was loaded
+                            localStorage.removeItem('configurationLoaded');
+                            // If service version older then 1.3 it should not be
+                            // loaded anyhow, but we add check here just in case
+                            var numberSV = Number(serviceVersion);
+                            if(isNaN(numberSV) || numberSV<1.3){
+                                localStorage.clear();
+                                showMessage('success',
+                                    'The configuration you are trying to load is outdated.', 35
+                                );
+                            } else {
+                                localStorage.setItem(
+                                    'serviceVersion',
+                                    JSON.stringify(globals.version)
+                                );
+                            }
+
+                        } else {
+                            // A new version has been loaded, here we could 
+                            // differentiate which version was previous and which
+                            // one ist the new, for now we reset and save the new
+                            // version
+                            showMessage('success',
+                                'A new version ('+globals.version+') of the service has been released. '+
+                                'Your configuration has been updated.</br>'+
+                                'You can find information on the changes in the '+
+                                '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
+                            );
+                            localStorage.clear();
+                            localStorage.setItem(
+                                'serviceVersion',
+                                JSON.stringify(globals.version)
+                            );
+                        }
                     }
                 } else {
                     // This should be the case when loading version 2.3 for the 
@@ -393,8 +414,12 @@ var VECTOR_BREAKDOWN = {};
                 }, this);
 
 
-                // Check if datasettings already available
-                if(localStorage.getItem('dataSettings') !== null){
+                // Check if datasettings already available, and also from which
+                // service version the datasettings are coming from
+                var numberSV = Number(serviceVersion);
+
+                if(!isNaN(numberSV) && numberSV>1.4 && 
+                    localStorage.getItem('dataSettings') !== null){
                     globals.dataSettings = JSON.parse(localStorage.getItem('dataSettings'));
                 } else {
                     // Go through products and fill global datasettings
@@ -451,7 +476,6 @@ var VECTOR_BREAKDOWN = {};
                                             globals.dataSettings[key][prk] = productConf[key][prk];
                                         }
                                     }
-                                    console.log(globals.dataSettings[key][prk]);
                                 }
                                 // Add active info if already present
                                 if(downloadPars[key].hasOwnProperty('required')){

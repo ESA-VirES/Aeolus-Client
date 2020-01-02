@@ -272,6 +272,7 @@
                                 for( var key in obj ){
                                     localStorage.setItem(key, obj[key]);
                                 }
+                                localStorage.setItem('configurationLoaded', true);
                                 window.location.reload();
                             }
                         } else {
