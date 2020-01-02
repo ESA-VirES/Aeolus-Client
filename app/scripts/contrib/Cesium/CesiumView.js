@@ -1265,7 +1265,6 @@ define([
                         stepsize = 100;
                     }
                 }
-                console.log(stepsize);
                 var cleanLats = [];
 
                 for (var p = 0; p < slicedLats.length; p+=stepsize){
