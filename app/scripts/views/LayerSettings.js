@@ -131,7 +131,8 @@
                     var colorscale_options = "";
                     var selected_colorscale;
                     _.each(this.colorscaletypes, function(colorscale){
-                        if(options[that.selected].colorscale == colorscale){
+                        var prodId = that.current_model.get('download').id;
+                        if(globals.dataSettings[prodId][that.selected].colorscale == colorscale){
                             selected_colorscale = colorscale;
                             colorscale_options += '<option value="'+ colorscale + '" selected>' + colorscale + '</option>';
                         }else{
@@ -145,9 +146,10 @@
                     this.$("#style").append(colorscale_options);
 
                     this.$("#style").change(function(evt){
+                        var prodId = that.current_model.get('download').id;
                         var colScale = $(evt.target).find("option:selected").text();
-                        if(globals.dataSettings.hasOwnProperty(that.selected)){
-                            globals.dataSettings[that.selected].colorscale = colScale;
+                        if(globals.dataSettings[prodId].hasOwnProperty(that.selected)){
+                            globals.dataSettings[prodId][that.selected].colorscale = colScale;
                         }
                         selected_colorscale = colScale;
                         options[that.selected].colorscale = colScale;
@@ -541,14 +543,14 @@
                 var range_max = parseFloat($("#range_max").val());
                 error = error || this.checkValue(range_max,$("#range_max"));
 
-                
-                
+                var prodId = this.current_model.get('download').id;
+
                 // Set parameters and redraw color scale
                 if(!error){
                     options[this.selected].range = [range_min, range_max];
 
-                    if(globals.dataSettings.hasOwnProperty(this.selected)){
-                        globals.dataSettings[this.selected].extent = [range_min, range_max];
+                    if(globals.dataSettings[prodId].hasOwnProperty(this.selected)){
+                        globals.dataSettings[prodId][this.selected].extent = [range_min, range_max];
                     }
 
                     if(options[this.selected].hasOwnProperty("logarithmic"))
@@ -638,10 +640,12 @@
                 var width = $("#setting_colorscale").width();
                 var scalewidth =  width - margin *2;
 
-                var range_min = this.current_model.get("parameters")[this.selected].range[0];
-                var range_max = this.current_model.get("parameters")[this.selected].range[1];
-                var uom = this.current_model.get("parameters")[this.selected].uom;
-                var style = this.current_model.get("parameters")[this.selected].colorscale;
+                var prodId = this.current_model.get('download').id;
+
+                var range_min = globals.dataSettings[prodId][this.selected].range[0];
+                var range_max = globals.dataSettings[prodId][this.selected].range[1];
+                var uom = globals.dataSettings[prodId][this.selected].uom;
+                var style = globals.dataSettings[prodId][this.selected].colorscale;
 
                 $("#setting_colorscale").append(
                     '<div id="gradient" style="width:'+scalewidth+'px;margin-left:'+margin+'px"></div>'

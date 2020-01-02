@@ -30,337 +30,455 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
           }
         },
         dataSettings: {
+            'ALD_U_N_1B': {
+                time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                mie_time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                mie_time_start: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                mie_time_end: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                rayleigh_time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                rayleigh_time_start: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                rayleigh_time_end: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'rayleigh_HLOS_wind_speed': {
+                    uom: 'm/s',
+                    colorscale: 'viridis',
+                    extent: [-40,40]
+                },
+                'time_start': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'time_end': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'mie_HLOS_wind_speed': {
+                    uom: 'm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20]
+                }
+            },
+            'ALD_U_N_2A': {
+                'SCA_extinction': {
+                    uom: '10-6 * m^-1',
+                    colorscale: 'viridis',
+                    extent: [0, 250]
+                },
+                'SCA_extinction_variance': {
+                    uom: 'm^-2',
+                    nullValue: -1
+                },
+                'SCA_backscatter': {
+                    uom: '10-6 * m^-1* sr^-1',
+                    colorscale: 'viridis',
+                    extent: [0, 15]
+                },
+                'SCA_backscatter_variance': {
+                    uom: 'm^-2*sr^-2',
+                    nullValue: -1
+                },
+                'SCA_LOD_variance': {
+                    nullValue: -1
+                },
+                'SCA_time_obs':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'SCA_time_obs_start':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'SCA_time_obs_stop':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'SCA_middle_bin_time_obs':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'SCA_middle_bin_time_obs_start':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'SCA_middle_bin_time_obs_stop':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'MCA_extinction': {
+                    uom: '10-6 * m^-1',
+                    colorscale: 'viridis',
+                    extent: [-20, 20]
+                },
+                'MCA_backscatter': {
+                    uom: '10-6 * m^-1* sr^-1',
+                    colorscale: 'viridis',
+                    extent: [-20, 20]
+                },
+                'MCA_time_obs_start': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'MCA_time_obs_stop': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
 
-            time: {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            mie_time: {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            mie_time_start: {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            mie_time_end: {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            rayleigh_time: {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            rayleigh_time_start: {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            rayleigh_time_end: {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'rayleigh_HLOS_wind_speed': {
-                uom: 'm/s',
-                colorscale: 'viridis',
-                extent: [-40,40]
-            },
-            'time_start': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'time_end': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'mie_HLOS_wind_speed': {
-                uom: 'm/s',
-                colorscale: 'viridis',
-                extent: [-20,20]
-            },
+                'ICA_time_obs_start': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'ICA_time_obs_stop': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'ICA_extinction':{
+                    nullValue: -1000000
+                },
+                'ICA_backscatter':{
+                    nullValue: -1000000
+                },
 
-            // L2A
+                // L2A Group
+                'group_backscatter_variance':{
+                    uom: 'm^-2*sr^-2',
+                    nullValue: -1
+                },
+                'group_extinction_variance':{
+                    uom: 'm^-2',
+                    nullValue: -1
+                },
+                'group_extinction':{
+                    uom: '10-6 * m^-1',
+                    nullValue: -1
+                },
+                'group_backscatter':{
+                    uom: '10-6 * m^-1* sr^-1',
+                    nullValue: -1
+                },
+                'group_LOD_variance':{
+                    uom: null,
+                    nullValue: -1
+                }
+            },
+            'ALD_U_N_2B': {
+                'mie_meas_map': {
+                    colorscale: 'jet',
+                    csDiscrete: true
+                },
 
-            'SCA_extinction': {
-                uom: '10-6 * m^-1',
-                colorscale: 'viridis',
-                extent: [0, 250]
-            },
-            'SCA_extinction_variance': {
-                uom: 'm^-2',
-                nullValue: -1
-            },
-            'SCA_backscatter': {
-                uom: '10-6 * m^-1* sr^-1',
-                colorscale: 'viridis',
-                extent: [0, 15]
-            },
-            'SCA_backscatter_variance': {
-                uom: 'm^-2*sr^-2',
-                nullValue: -1
-            },
-            'SCA_LOD_variance': {
-                nullValue: -1
-            },
-            'SCA_time_obs':{
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'SCA_time_obs_start':{
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'SCA_time_obs_stop':{
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'SCA_middle_bin_time_obs':{
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'SCA_middle_bin_time_obs_start':{
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'SCA_middle_bin_time_obs_stop':{
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'MCA_extinction': {
-                uom: '10-6 * m^-1',
-                colorscale: 'viridis',
-                extent: [-20, 20]
-            },
-            'MCA_backscatter': {
-                uom: '10-6 * m^-1* sr^-1',
-                colorscale: 'viridis',
-                extent: [-20, 20]
-            },
-            'MCA_time_obs_start': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'MCA_time_obs_stop': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
+                'rayleigh_meas_map': {
+                    colorscale: 'jet',
+                    csDiscrete: true
+                },
+                'mie_wind_result_HLOS_error':{
+                    uom: 'm/s',
+                    nullValue: 1.7e+38
+                },
+                'rayleigh_wind_result_HLOS_error':{
+                    uom: 'm/s',
+                    nullValue: 1.7e+38
+                },
 
-            'ICA_time_obs_start': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'ICA_time_obs_stop': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'ICA_extinction':{
-                nullValue: -1000000
-            },
-            'ICA_backscatter':{
-                nullValue: -1000000
-            },
+                'mie_wind_result_scattering_ratio': {
+                    nullValue: 1.7e+38
+                },
+                'rayleigh_wind_result_scattering_ratio': {
+                    nullValue: 1.7e+38
+                },
 
-            // L2A Group
-            'group_backscatter_variance':{
-                uom: 'm^-2*sr^-2',
-                nullValue: -1
-            },
-            'group_extinction_variance':{
-                uom: 'm^-2',
-                nullValue: -1
-            },
-            'group_extinction':{
-                uom: '10-6 * m^-1',
-                nullValue: -1
-            },
-            'group_backscatter':{
-                uom: '10-6 * m^-1* sr^-1',
-                nullValue: -1
-            },
-            'group_LOD_variance':{
-                uom: null,
-                nullValue: -1
-            },
+                'rayleigh_wind_result_reference_pressure':{
+                    nullValue:4294967295
+                },
+                'mie_wind_result_reference_pressure':{
+                    nullValue:4294967295
+                },
 
-            // L2B, L2C
-
-            'mie_meas_map': {
-                colorscale: 'jet',
-                csDiscrete: true
-            },
-
-            'rayleigh_meas_map': {
-                colorscale: 'jet',
-                csDiscrete: true
-            },
-            'mie_wind_result_HLOS_error':{
-                uom: 'm/s',
-                nullValue: 1.7e+38
-            },
-            'rayleigh_wind_result_HLOS_error':{
-                uom: 'm/s',
-                nullValue: 1.7e+38
-            },
-
-            'mie_wind_result_scattering_ratio': {
-                nullValue: 1.7e+38
-            },
-            'rayleigh_wind_result_scattering_ratio': {
-                nullValue: 1.7e+38
-            },
-
-            'rayleigh_wind_result_reference_pressure':{
-                nullValue:4294967295
-            },
-            'mie_wind_result_reference_pressure':{
-                nullValue:4294967295
-            },
-
-            'rayleigh_wind_result_reference_temperature': {
-                nullValue: 65535
-            },
-            'mie_wind_result_reference_temperature': {
-                nullValue: 65535
-            },
-            'rayleigh_wind_result_start_time': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'rayleigh_wind_result_stop_time': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'rayleigh_wind_result_wind_velocity': {
-                uom: 'm/s',
-                colorscale: 'viridis',
-                extent: [-20,20]
-            },
-            'mie_wind_result_start_time': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'mie_wind_result_stop_time': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'mie_wind_result_wind_velocity': {
-                uom: 'm/s',
-                colorscale: 'viridis',
-                extent: [-20,20]
-            },
-            // AUX MRC and AUX RRC
-            'frequency_valid': {
-                extent: [0, 1],
-                uom: 'bool',
-                colorscale: 'redblue',
-
-            },
-            'reference_pulse_response_valid': {
-                range: [0, 1],
-                uom: 'bool',
-                colorscale: 'redblue',
-
-            },
-            'measurement_response_valid': {
-                range: [0, 1],
-                uom: 'bool',
-                colorscale: 'redblue',
-
-            },
-            'time_freq_step':{
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'time_freq_step_combined':{
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'time_freq_step_start':{
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'time_freq_step_end':{
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'measurement_error_mie_response': {
-                uom: 'ACCD pixel index',
-                regression: 'polynomial'
-            },
-            'ground_frequency_valid': {
-                extent: [0, 1],
-                uom: 'bool',
-                colorscale: 'redblue',
-
-            },
-            'ground_measurement_response_valid': {
-                extent: [0, 1],
-                uom: 'bool',
-                colorscale: 'redblue',
-
-            },
-            'measurement_error_rayleigh_response': {
-                uom: 'a.u.',
-                regression: 'polynomial'
+                'rayleigh_wind_result_reference_temperature': {
+                    nullValue: 65535
+                },
+                'mie_wind_result_reference_temperature': {
+                    nullValue: 65535
+                },
+                'rayleigh_wind_result_start_time': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'rayleigh_wind_result_stop_time': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'rayleigh_wind_result_wind_velocity': {
+                    uom: 'm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20]
+                },
+                'mie_wind_result_start_time': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'mie_wind_result_stop_time': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'mie_wind_result_wind_velocity': {
+                    uom: 'm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20]
+                }
             },
 
-            // AUX IRC
-            'rayleigh_channel_A_response':{
-                uom: 'a.u.',
+            'ALD_U_N_2C': {
+                'mie_meas_map': {
+                    colorscale: 'jet',
+                    csDiscrete: true
+                },
 
-                symbol: 'circle_empty',
-                lineConnect: true
-            },
-            'rayleigh_channel_B_response':{
-                uom: 'a.u.',
+                'rayleigh_meas_map': {
+                    colorscale: 'jet',
+                    csDiscrete: true
+                },
+                'mie_wind_result_HLOS_error':{
+                    uom: 'm/s',
+                    nullValue: 1.7e+38
+                },
+                'rayleigh_wind_result_HLOS_error':{
+                    uom: 'm/s',
+                    nullValue: 1.7e+38
+                },
 
-                symbol: 'rectangle_empty',
-                lineConnect: true
-            },
-            // AUX ZWC
-            'mie_ground_correction_velocity': {
-                selected: true,
-                range: [-0.5, 0.5],
-                uom: 'm/s',
-                colorscale: 'redblue',
-                symbol: 'x',
-                lineConnect: true,
+                'mie_wind_result_scattering_ratio': {
+                    nullValue: 1.7e+38
+                },
+                'rayleigh_wind_result_scattering_ratio': {
+                    nullValue: 1.7e+38
+                },
 
-            },
-            'rayleigh_ground_correction_velocity': {
-                selected: true,
-                range: [-1.6, 2],
-                uom: 'm/s',
-                colorscale: 'redblue',
-                symbol: 'triangle_empty',
-                lineConnect: true,
+                'rayleigh_wind_result_reference_pressure':{
+                    nullValue:4294967295
+                },
+                'mie_wind_result_reference_pressure':{
+                    nullValue:4294967295
+                },
 
+                'rayleigh_wind_result_reference_temperature': {
+                    nullValue: 65535
+                },
+                'mie_wind_result_reference_temperature': {
+                    nullValue: 65535
+                },
+                'rayleigh_wind_result_start_time': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'rayleigh_wind_result_stop_time': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'rayleigh_wind_result_wind_velocity': {
+                    uom: 'm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20]
+                },
+                'mie_wind_result_start_time': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'mie_wind_result_stop_time': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'mie_wind_result_wind_velocity': {
+                    uom: 'm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20]
+                }
             },
-            // AUX MET
-            'time_nadir_start': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'time_nadir_end': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'time_off_nadir_start': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'time_off_nadir_end': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'time_off_nadir': {
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            },
-            'time_nadir':{
-                scaleFormat: 'time',
-                timeFormat: 'MJD2000_S'
-            }
 
+            'AUX_MRC_1B': {
+                'frequency_valid': {
+                    extent: [0, 1],
+                    uom: 'bool',
+                    colorscale: 'redblue',
+                },
+                'reference_pulse_response_valid': {
+                    range: [0, 1],
+                    uom: 'bool',
+                    colorscale: 'redblue',
+                },
+                'measurement_response_valid': {
+                    range: [0, 1],
+                    uom: 'bool',
+                    colorscale: 'redblue',
+                },
+                'time_freq_step':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'time_freq_step_combined':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'time_freq_step_start':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'time_freq_step_end':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'measurement_error_mie_response': {
+                    uom: 'ACCD pixel index',
+                    regression: 'polynomial'
+                },
+                'ground_frequency_valid': {
+                    extent: [0, 1],
+                    uom: 'bool',
+                    colorscale: 'redblue',
+                },
+                'ground_measurement_response_valid': {
+                    extent: [0, 1],
+                    uom: 'bool',
+                    colorscale: 'redblue',
+                },
+                'measurement_error_rayleigh_response': {
+                    uom: 'a.u.',
+                    regression: 'polynomial'
+                }
+            },
+
+            'AUX_RRC_1B': {
+                'frequency_valid': {
+                    extent: [0, 1],
+                    uom: 'bool',
+                    colorscale: 'redblue',
+                },
+                'reference_pulse_response_valid': {
+                    range: [0, 1],
+                    uom: 'bool',
+                    colorscale: 'redblue',
+                },
+                'measurement_response_valid': {
+                    range: [0, 1],
+                    uom: 'bool',
+                    colorscale: 'redblue',
+                },
+                'time_freq_step':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'time_freq_step_combined':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'time_freq_step_start':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'time_freq_step_end':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'measurement_error_mie_response': {
+                    uom: 'ACCD pixel index',
+                    regression: 'polynomial'
+                },
+                'ground_frequency_valid': {
+                    extent: [0, 1],
+                    uom: 'bool',
+                    colorscale: 'redblue',
+                },
+                'ground_measurement_response_valid': {
+                    extent: [0, 1],
+                    uom: 'bool',
+                    colorscale: 'redblue',
+                },
+                'measurement_error_rayleigh_response': {
+                    uom: 'a.u.',
+                    regression: 'polynomial'
+                }
+            },
+
+            'AUX_ISR_1B': {
+                'rayleigh_channel_A_response':{
+                    uom: 'a.u.',
+                    symbol: 'circle_empty',
+                    lineConnect: true
+                },
+                'rayleigh_channel_B_response':{
+                    uom: 'a.u.',
+                    symbol: 'rectangle_empty',
+                    lineConnect: true
+                }
+            },
+
+            'AUX_ZWC_1B': {
+                'mie_ground_correction_velocity': {
+                    selected: true,
+                    range: [-0.5, 0.5],
+                    uom: 'm/s',
+                    colorscale: 'redblue',
+                    symbol: 'x',
+                    lineConnect: true,
+
+                },
+                'rayleigh_ground_correction_velocity': {
+                    selected: true,
+                    range: [-1.6, 2],
+                    uom: 'm/s',
+                    colorscale: 'redblue',
+                    symbol: 'triangle_empty',
+                    lineConnect: true,
+
+                }
+            },
+
+            'AUX_MET_12': {
+                'time_nadir_start': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'time_nadir_end': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'time_off_nadir_start': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'time_off_nadir_end': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'time_off_nadir': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'time_nadir':{
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                }
+            },
+            'ADAM_albedo': {}
         },
         fieldList: {
           'ALD_U_N_1B': {

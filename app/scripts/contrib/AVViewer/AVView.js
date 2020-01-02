@@ -1556,16 +1556,20 @@ define(['backbone.marionette',
 
             if (this.graph === undefined){
 
+                var activeProd = globals.products.find(
+                    function(p){return p.get('visible');}
+                ).get('download').id;
+
                 this.filterManager = globals.swarm.get('filterManager');
                 this.filterManager.visibleFilters = this.selectedFilterList;
 
 
-                var settings = iterationCopy(this.renderSettings['ALD_U_N_1B']);
+                var settings = iterationCopy(this.renderSettings[activeProd]);
 
                 this.graph = new graphly.graphly({
                     el: '#graph',
                     margin: {top: 30, left: 100, bottom: 50, right: 70},
-                    dataSettings: this.dataSettings,
+                    dataSettings: this.dataSettings[activeProd],
                     renderSettings: settings,
                     filterManager: globals.swarm.get('filterManager'),
                     displayParameterLabel: false,
@@ -1610,6 +1614,12 @@ define(['backbone.marionette',
                             that.createGroupInteractionButtons(data[datkey], that.currentGroup, 3);
                         }
                     }
+
+                    // Trigger layer parameters changed to make sure globe
+                    // view is updated acordingly
+                    Communicator.mediator.trigger(
+                        'layer:parameters:changed', datkey
+                    );
 
                     localStorage.setItem(
                         'dataSettings',
@@ -1711,7 +1721,12 @@ define(['backbone.marionette',
             });
 
             this.filterManager.on('parameterChange', function(filters){
-                var filterSetts = this.dataSettings;
+                var currProd = globals.products.find(
+                    function(p){return p.get('visible');}
+                );
+                var prodId = currProd.get('download').id;
+
+                var filterSetts = this.dataSettings[prodId];
                 for(var key in filterSetts){
                     if(filterSetts[key].hasOwnProperty('filterExtent')){
                         globals.dataSettings[key]['filterExtent'] = filterSetts[key].filterExtent;
@@ -2005,46 +2020,13 @@ define(['backbone.marionette',
 
         onLayerParametersChanged: function(layer){
 
-            this.graph.dataSettings = this.dataSettings;
+            var currProd = globals.products.find(
+                function(p){return p.get('visible');}
+            );
+            var prodId = currProd.get('download').id;
+            this.graph.dataSettings = this.dataSettings[prodId];
             this.graph.renderData();
 
-            // Parameters only apply for L1B curtains (possibly L2B)
-            /*if(layer === 'ALD_U_N_1B' || layer === 'ALD_U_N_2A' ||
-                layer === 'ALD_U_N_2B' || layer === 'ALD_U_N_2C'){
-                var currProd = globals.products.find(
-                    function(p){return p.get('download').id === layer;}
-                );
-
-                var parameters = currProd.get('parameters');
-                var band;
-                var keys = _.keys(parameters);
-                _.each(keys, function(key){
-                    if(parameters[key].selected){
-                        band = key;
-                    }
-                });
-                var style = parameters[band].colorscale;
-                var range = parameters[band].range;
-
-                this.dataSettings[band].colorscale = style;
-                this.dataSettings[band].extent = range;
-                //this.graph.dataSettings = this.dataSettings;
-                // Reset colorcache
-                for(var k in this.graph.colorCache){
-                    delete this.graph.colorCache[k];
-                }
-                
-
-                this.graph.dataSettings = this.dataSettings;
-                this.graph.renderData();
-
-                this.graph.createColorScales();
-
-                localStorage.setItem(
-                    'dataSettings',
-                    JSON.stringify(globals.dataSettings)
-                );
-            }*/
         },
 
 
@@ -2240,27 +2222,10 @@ define(['backbone.marionette',
                     $('#additionalProductInfo').remove();
                     $('#analyticsProductTooltip').remove();
 
-                    // Use descriptions and uom from download parameters
-                    var mergedDataSettings = globals.dataSettings;
-
-                    globals.products.each(function(prod) {
-                        if(prod.get('visible') && prod.get('download_parameters')) {
-                            var params = prod.get('download_parameters');
-                            for(var par in params){
-                                if(mergedDataSettings.hasOwnProperty(par)){
-                                    mergedDataSettings[par].uom = params[par].uom;
-                                    mergedDataSettings[par].name = params[par].name;
-                                } else{
-                                    mergedDataSettings[par] = params[par];
-                                }
-                            }
-                        }
-                    });
-
                     var currProd = globals.products.find(
                         function(p){return p.get('download').id === idKeys[0];}
                     );
-
+                    var prodId = currProd.get('download').id;
 
                     $('#nodataavailable').hide();
 
@@ -2297,7 +2262,7 @@ define(['backbone.marionette',
                     if( cP === 'ALD_U_N_1B' || cP === 'ALD_U_N_2A'){
 
                         this.graph.debounceActive = true;
-                        this.graph.dataSettings = mergedDataSettings;
+                        this.graph.dataSettings = globals.dataSettings[prodId];
                         this.graph.fileSaveString = cP+'_'+gran+'_'+timeString;
                         this.graph.loadData(data[cP]);
 
@@ -2356,7 +2321,7 @@ define(['backbone.marionette',
 
 
                         this.graph.debounceActive = false;
-                        this.graph.dataSettings = mergedDataSettings;
+                        this.graph.dataSettings = globals.dataSettings[prodId];
                         this.graph.loadData(data[idKeys[0]]);
                         this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
 
@@ -2423,11 +2388,11 @@ define(['backbone.marionette',
                         }
 
                         if(contains2DNadir || contains2DOffNadir) {
-                            this.graph.dataSettings = mergedDataSettings;
+                            this.graph.dataSettings = globals.dataSettings[prodId];
                             this.graph.loadData(data[idKeys[0]]);
                             this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
                         } else {
-                            this.graph.dataSettings = mergedDataSettings;
+                            this.graph.dataSettings = globals.dataSettings[prodId];
                             this.graph.loadData(data[idKeys[0]]);
                             this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
                         }
@@ -2462,7 +2427,7 @@ define(['backbone.marionette',
                         }
 
                         this.graph.debounceActive = false;
-                        this.graph.dataSettings = mergedDataSettings;
+                        this.graph.dataSettings = globals.dataSettings[prodId];
                         this.graph.renderSettings = iterationCopy(this.renderSettings[idKeys[0]]);
                         this.graph.loadData(data[idKeys[0]]);
                         this.graph.fileSaveString = idKeys[0]+'_'+timeString;
@@ -2501,10 +2466,10 @@ define(['backbone.marionette',
                                     tr = $('<tr></tr>');
                                     tr.append('<td>'+k+'</td>');
                                     tr.append('<td>'+singleValues[k]+'</td>');
-                                    if(that.dataSettings.hasOwnProperty(k) && 
-                                        that.dataSettings[k].hasOwnProperty('uom') &&
-                                        that.dataSettings[k].uom!==null){
-                                        tr.append('<td>'+that.dataSettings[k].uom+'</td>');
+                                    if(globals.dataSettings[prodId].hasOwnProperty(k) && 
+                                        globals.dataSettings[prodId][k].hasOwnProperty('uom') &&
+                                        globals.dataSettings[prodId][k].uom!==null){
+                                        tr.append('<td>'+globals.dataSettings[prodId][k].uom+'</td>');
                                     }else{
                                         tr.append('<td>-</td>');
                                     }

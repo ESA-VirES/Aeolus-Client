@@ -166,7 +166,7 @@
             // TODO: probably info should be kept somehow connected to product
             // right now information for all parameters is global, need to 
             // reconsider this approach
-            var parInfo = globals.dataSettings[key];
+            var parInfo = globals.dataSettings[currentId][key];
             var show = true;
             if(filter!==false && (
                   key.toLowerCase().indexOf(filter.toLowerCase()) === -1 &&
@@ -199,7 +199,7 @@
           $('.parameterActivationCB').change(function() {
             var selected = $(this).is(":checked");
             var key = $(this).attr('id');
-            if(globals.dataSettings.hasOwnProperty(key)){
+            if(globals.dataSettings[currentId].hasOwnProperty(key)){
               if(that.currentChanges.hasOwnProperty(key)){
                 that.currentChanges[key].active = selected;
               } else {
@@ -244,7 +244,7 @@
                 // If selected is one of the dependencies
                 if(selected && (relations[depkey].indexOf(key)!==-1)){
                   // Check if necessery key already selected if not select it
-                  if(!globals.dataSettings[depkey].active){
+                  if(!globals.dataSettings[currentId][depkey].active){
                     if(!that.currentChanges.hasOwnProperty(depkey)){
                       that.currentChanges[depkey] = {
                         active: true
@@ -261,7 +261,7 @@
                   // removed we need to remove all related parameters
                   for(var pi=0; pi<relations[depkey].length; pi++){
                     var currKey = relations[depkey][pi];
-                    if(globals.dataSettings[currKey].active){
+                    if(globals.dataSettings[currentId][currKey].active){
                       that.currentChanges[currKey] = {active: false};
                       $('#'+currKey).prop('checked', false);
                     } else if(that.currentChanges.hasOwnProperty(currKey)){
@@ -282,7 +282,7 @@
             var paramId = this.parentElement.parentElement.parentElement.parentElement.parentElement.id;
             var value = Number(this.value);
 
-            if(globals.dataSettings.hasOwnProperty(paramId)){
+            if(globals.dataSettings[currentId].hasOwnProperty(paramId)){
               if(that.currentChanges.hasOwnProperty(paramId)){
                 if($(this).hasClass('min')){
                   that.currentChanges[paramId][parItemId][0] = value;
@@ -323,12 +323,12 @@
           var changesToRequestedParameters = false;
           // Iterate current changes and apply them to global settings
           for(var key in that.currentChanges){
-            if(globals.dataSettings.hasOwnProperty(key)){
+            if(globals.dataSettings[currentId].hasOwnProperty(key)){
               for(var parItem in that.currentChanges[key]){
                 if(parItem === 'active'){
                   changesToRequestedParameters = true;
                 }
-                globals.dataSettings[key][parItem] = that.currentChanges[key][parItem];
+                globals.dataSettings[currentId][key][parItem] = that.currentChanges[key][parItem];
               }
             } else {
               console.log('Error: Parameter changed does not exist in global datasettings '+ key);

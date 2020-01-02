@@ -33,14 +33,6 @@
 
         this.xhr = null;
 
-        this.dataSettings = globals.dataSettings;
-
-        // Check if styling settings have been saved
-        if (localStorage.getItem('dataSettings') !== null) {
-          this.dataSettings = JSON.parse(localStorage.getItem('dataSettings'));
-          globals.dataSettings = this.dataSettings;
-        }
-
         var filterSettings = {
             parameterMatrix: {
               'latitude_of_DEM_intersection': [
@@ -76,7 +68,7 @@
                 'mie_altitude_obs_bottom'
               ],
             },
-            dataSettings: this.dataSettings,
+            dataSettings: {},
 
             filterRelation: [
                 [
@@ -583,15 +575,16 @@
             );
 
             var parameters = currProd.get('parameters');
+            var prodId = currProd.get('download').id;
             var band;
             var keys = _.keys(parameters);
             _.each(keys, function(key){
-                if(this.dataSettings.hasOwnProperty(key)){
+                if(globals.dataSettings[prodId].hasOwnProperty(key)){
                   if(parameters[key].hasOwnProperty('colorscale')){
-                    this.dataSettings[key].colorscale = parameters[key].colorscale;
+                    globals.dataSettings[prodId][key].colorscale = parameters[key].colorscale;
                   }
                   if(parameters[key].hasOwnProperty('range')){
-                      this.dataSettings[key].extent = parameters[key].range;
+                      globals.dataSettings[prodId][key].extent = parameters[key].range;
                   }
                 } else {
                   console.log('Missing key in datasettings: '+key);
@@ -1768,6 +1761,7 @@
         // TODO: Maybe we should not keep an additional list here but get the
         //       parameters to be loaded directly from the global defintion
 
+        var prodId = product.get('download').id;
         for(var collType in fieldsList){
 
           if(collType.indexOf('AUX_')===-1){
@@ -1775,9 +1769,9 @@
               var pars = fieldsList[collType][gran];
               for (var i = pars.length - 1; i >= 0; i--) {
                 var field = pars[i];
-                if(globals.dataSettings.hasOwnProperty(field)){
-                  if(!globals.dataSettings[field].hasOwnProperty('active') || 
-                    !globals.dataSettings[field].active){
+                if(globals.dataSettings[collType].hasOwnProperty(field)){
+                  if(!globals.dataSettings[collType][field].hasOwnProperty('active') || 
+                    !globals.dataSettings[collType][field].active){
                     pars.splice(i, 1);
                   }
                 } else {
@@ -1790,9 +1784,9 @@
             var pars = fieldsList[collType];
             for (var i = pars.length - 1; i >= 0; i--) {
               var field = pars[i];
-              if(globals.dataSettings.hasOwnProperty(field)){
-                if(!globals.dataSettings[field].hasOwnProperty('active') ||
-                  !globals.dataSettings[field].active){
+              if(globals.dataSettings[collType].hasOwnProperty(field)){
+                if(!globals.dataSettings[collType][field].hasOwnProperty('active') ||
+                  !globals.dataSettings[collType][field].active){
                   pars.splice(i, 1);
                 }
               } else {

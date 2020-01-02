@@ -77,8 +77,6 @@ define([
                 availableParameters: false
             };
 
-            this.dataSettings = globals.dataSettings;
-
 
             $('body').append($('<div/>', {
                 id: 'hiddenRenderArea' ,
@@ -88,7 +86,7 @@ define([
 
             this.graph = new graphly.graphly({
                 el: '#hiddenRenderArea',
-                dataSettings: this.dataSettings,
+                //dataSettings: this.dataSettings,
                 renderSettings: renderSettings,
                 filterManager: globals.swarm.get('filterManager'),
                 multiYAxis: false,
@@ -679,6 +677,7 @@ define([
             var currProd = globals.products.find(
                 function(p){return p.get('download').id === cov_id;}
             );
+            var prodId = currProd.get('download').id;
 
             var curtainCollection;
 
@@ -693,7 +692,7 @@ define([
             }
 
             var alpha = currProd.get('opacity');
-            this.graph.dataSettings = globals.dataSettings;
+            this.graph.dataSettings = globals.dataSettings[prodId];
 
             var dataJumps;
 
@@ -958,7 +957,7 @@ define([
             });
             var alpha = currProd.get('opacity');
 
-            this.graph.dataSettings = globals.dataSettings;
+            this.graph.dataSettings = globals.dataSettings[cov_id];
 
             var dataJumps, lats, lons, pStartTimes, pStopTimes, signCross;
 
@@ -2563,6 +2562,7 @@ define([
             if (product && product.get('showColorscale') &&
                 product.get('visible') && visible){
 
+                var prodId = product.get('download').id;
                 var options = product.get('parameters');
                 var keys = _.keys(options);
                 var sel = false;
@@ -2577,117 +2577,124 @@ define([
                     return;
                 }
 
-                var rangeMin = product.get('parameters')[sel].range[0];
-                var rangeMax = product.get('parameters')[sel].range[1];
-                var uom = product.get('parameters')[sel].uom;
-                var style = product.get('parameters')[sel].colorscale;
-                var logscale = defaultFor(product.get('parameters')[sel].logarithmic, false);
-                var axisScale;
+                if(globals.dataSettings[prodId].hasOwnProperty(sel)){
+
+                    var rangeMin = globals.dataSettings[prodId][sel].range[0];
+                    var rangeMax = globals.dataSettings[prodId][sel].range[1];
+                    var uom = globals.dataSettings[prodId][sel].uom;
+                    var style = globals.dataSettings[prodId][sel].colorscale;
+                    var logscale = defaultFor(globals.dataSettings[prodId][sel].logarithmic, false);
+                    var axisScale;
 
 
-                this.plot.setColorScale(style);
-                var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
+                    this.plot.setColorScale(style);
+                    var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
 
-                $('#svgcolorscalecontainer').remove();
-                var svgContainer = d3.select('body').append('svg')
-                    .attr('width', 300)
-                    .attr('height', 60)
-                    .attr('id', 'svgcolorscalecontainer');
+                    $('#svgcolorscalecontainer').remove();
+                    var svgContainer = d3.select('body').append('svg')
+                        .attr('width', 300)
+                        .attr('height', 60)
+                        .attr('id', 'svgcolorscalecontainer');
 
-                if(logscale){
-                    axisScale = d3.scale.log();
-                }else{
-                    axisScale = d3.scale.linear();
-                }
-
-                axisScale.domain([rangeMin, rangeMax]);
-                axisScale.range([0, scalewidth]);
-
-                var xAxis = d3.svg.axis()
-                    .scale(axisScale);
-
-                if(logscale){
-                    var numberFormat = d3.format(',f');
-                    function logFormat(d) {
-                        var x = Math.log(d) / Math.log(10) + 1e-6;
-                        return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
+                    if(logscale){
+                        axisScale = d3.scale.log();
+                    }else{
+                        axisScale = d3.scale.linear();
                     }
-                     xAxis.tickFormat(logFormat);
 
-                }else{
-                    var step = (rangeMax - rangeMin)/5;
-                    xAxis.tickValues(
-                        d3.range(rangeMin,rangeMax+step, step)
+                    axisScale.domain([rangeMin, rangeMax]);
+                    axisScale.range([0, scalewidth]);
+
+                    var xAxis = d3.svg.axis()
+                        .scale(axisScale);
+
+                    if(logscale){
+                        var numberFormat = d3.format(',f');
+                        function logFormat(d) {
+                            var x = Math.log(d) / Math.log(10) + 1e-6;
+                            return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
+                        }
+                         xAxis.tickFormat(logFormat);
+
+                    }else{
+                        var step = (rangeMax - rangeMin)/5;
+                        xAxis.tickValues(
+                            d3.range(rangeMin,rangeMax+step, step)
+                        );
+                        xAxis.tickFormat(d3.format('g'));
+                    }
+
+                    var g = svgContainer.append('g')
+                        .attr('class', 'x axis')
+                        .attr('transform', 'translate(' + [margin, 20]+')')
+                        .call(xAxis);
+
+                    // Add layer info
+                    var info = product.get('name');
+                    info += ' - ' + sel;
+                    if(uom){
+                        info += ' ['+uom+']';
+                    }
+
+                     g.append('text')
+                        .style('text-anchor', 'middle')
+                        .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
+                        .attr('font-weight', 'bold')
+                        .text(info);
+
+                    svgContainer.selectAll('text')
+                        .attr('stroke', 'none')
+                        .attr('fill', 'black')
+                        .attr('font-weight', 'bold');
+
+                    svgContainer.selectAll('.tick').select('line')
+                        .attr('stroke', 'black');
+
+                    svgContainer.selectAll('.axis .domain')
+                        .attr('stroke-width', '2')
+                        .attr('stroke', '#000')
+                        .attr('shape-rendering', 'crispEdges')
+                        .attr('fill', 'none');
+
+                    svgContainer.selectAll('.axis path')
+                        .attr('stroke-width', '2')
+                        .attr('shape-rendering', 'crispEdges')
+                        .attr('stroke', '#000');
+
+                    var svgHtml = d3.select('#svgcolorscalecontainer')
+                        .attr('version', 1.1)
+                        .attr('xmlns', 'http://www.w3.org/2000/svg')
+                        .node().innerHTML;
+
+                    var renderHeight = 55;
+                    var renderWidth = width;
+
+                    var index = Object.keys(this.colorscales).length;
+
+                    var prim = this.map.scene.primitives.add(
+                        this.createViewportQuad(
+                            this.renderSVG(svgHtml, renderWidth, renderHeight),
+                            0, index*55+5, renderWidth, renderHeight
+                        )
                     );
-                    xAxis.tickFormat(d3.format('g'));
+                    var csPrim = this.map.scene.primitives.add(
+                        this.createViewportQuad(
+                            colorscaleimage, 20, index*55 +42, scalewidth, 10
+                        )
+                    );
+
+                    this.colorscales[pId] = {
+                        index: index,
+                        prim: prim,
+                        csPrim: csPrim
+                    };
+
+                    svgContainer.remove();
+
+                } else {
+                    console.log('Error creating colorscale for parameter '+sel+
+                        '. Parameter not defined in global datasettings');
                 }
-
-                var g = svgContainer.append('g')
-                    .attr('class', 'x axis')
-                    .attr('transform', 'translate(' + [margin, 20]+')')
-                    .call(xAxis);
-
-                // Add layer info
-                var info = product.get('name');
-                info += ' - ' + sel;
-                if(uom){
-                    info += ' ['+uom+']';
-                }
-
-                 g.append('text')
-                    .style('text-anchor', 'middle')
-                    .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
-                    .attr('font-weight', 'bold')
-                    .text(info);
-
-                svgContainer.selectAll('text')
-                    .attr('stroke', 'none')
-                    .attr('fill', 'black')
-                    .attr('font-weight', 'bold');
-
-                svgContainer.selectAll('.tick').select('line')
-                    .attr('stroke', 'black');
-
-                svgContainer.selectAll('.axis .domain')
-                    .attr('stroke-width', '2')
-                    .attr('stroke', '#000')
-                    .attr('shape-rendering', 'crispEdges')
-                    .attr('fill', 'none');
-
-                svgContainer.selectAll('.axis path')
-                    .attr('stroke-width', '2')
-                    .attr('shape-rendering', 'crispEdges')
-                    .attr('stroke', '#000');
-
-                var svgHtml = d3.select('#svgcolorscalecontainer')
-                    .attr('version', 1.1)
-                    .attr('xmlns', 'http://www.w3.org/2000/svg')
-                    .node().innerHTML;
-
-                var renderHeight = 55;
-                var renderWidth = width;
-
-                var index = Object.keys(this.colorscales).length;
-
-                var prim = this.map.scene.primitives.add(
-                    this.createViewportQuad(
-                        this.renderSVG(svgHtml, renderWidth, renderHeight),
-                        0, index*55+5, renderWidth, renderHeight
-                    )
-                );
-                var csPrim = this.map.scene.primitives.add(
-                    this.createViewportQuad(
-                        colorscaleimage, 20, index*55 +42, scalewidth, 10
-                    )
-                );
-
-                this.colorscales[pId] = {
-                    index: index,
-                    prim: prim,
-                    csPrim: csPrim
-                };
-
-                svgContainer.remove();
             }
 
         },
