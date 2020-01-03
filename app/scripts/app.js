@@ -408,24 +408,6 @@ var VECTOR_BREAKDOWN = {};
                     console.log("Added product " + product.name );
                 }, this);
 
-/*
-
-// Datasettings was reordered so that every parameter
-                                // is defined inside each product type as parameter names
-                                // are not unique and overwrite each other, here we sort
-                                // current datasettings to new structure if conf file comming 
-                                // from version 1.4
-                                if(obj.hasOwnProperty('dataSettings')){
-                                    var dataSettings = JSON.parse(obj.dataSettings)
-                                    for (var parK in dataSettings){
-                                        for(var prodKey in globals.dataSettings){
-                                            
-                                        }
-                                    }
-                                }
-
-                                */
-                                
                 // Check if datasettings already available, and also from which
                 // service version the datasettings are coming from
                 var numberSV = Number(serviceVersion);
@@ -498,7 +480,6 @@ var VECTOR_BREAKDOWN = {};
                                 }
                                 // For now we activate all auxiliary parameters per 
                                 // default
-                                // TODO: Will need to change once 2D parameters are introduced
                                 if(isAux && prodId!=='AUX_MET_12'){
                                     globals.dataSettings[prodId][key].active = true;
                                 }

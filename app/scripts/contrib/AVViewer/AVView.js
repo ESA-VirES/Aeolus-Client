@@ -1555,7 +1555,7 @@ define(['backbone.marionette',
             if (this.graph === undefined){
 
                 var prod = globals.products.find(
-                    function(p){return p.get('visible');}
+                    function(p){return (p.get('visible') && p.get('name')!=='ADAM_albedo');}
                 );
                 var activeProd = 'ALD_U_N_1B';
                 if(typeof prod !== 'undefined'){
@@ -2020,19 +2020,21 @@ define(['backbone.marionette',
 
         onLayerParametersChanged: function(layer){
 
-            var currProd = globals.products.find(
-                function(p){return p.get('visible');}
-            );
-            var prodId = currProd.get('download').id;
-            this.graph.dataSettings = globals.dataSettings[prodId];
-            globals.filterManager.dataSettings = globals.dataSettings[prodId];
-            globals.filterManager._initData();
-            globals.filterManager._renderFilters();
-            var data = globals.swarm.get('data');
-            var datkey = Object.keys(data)[0];
-            var parkeys = Object.keys(data[datkey]);
-            if(parkeys.length>0){
-                this.graph.renderData();
+            if(layer !== 'ADAM_albedo'){
+                var currProd = globals.products.find(
+                    function(p){return p.get('visible');}
+                );
+                var prodId = currProd.get('download').id;
+                this.graph.dataSettings = globals.dataSettings[prodId];
+                globals.filterManager.dataSettings = globals.dataSettings[prodId];
+                globals.filterManager._initData();
+                globals.filterManager._renderFilters();
+                var data = globals.swarm.get('data');
+                var datkey = Object.keys(data)[0];
+                var parkeys = Object.keys(data[datkey]);
+                if(parkeys.length>0){
+                    this.graph.renderData();
+                }
             }
         },
 

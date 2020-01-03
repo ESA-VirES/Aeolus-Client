@@ -541,7 +541,7 @@
 
         // Find active product
         var currProd = globals.products.find(
-          function(p){return p.get('visible');}
+          function(p){return (p.get('visible') && p.get('name')!=='ADAM_albedo');}
         );
         var prodId = 'ALD_U_N_1B';
         if(typeof currProd !== 'undefined'){
@@ -1775,7 +1775,9 @@
 
         var prodId = product.get('download').id;
         for(var collType in fieldsList){
-
+          if(collType === 'ADAM_albedo'){
+            break;
+          }
           if(collType.indexOf('AUX_')===-1){
             for(var gran in fieldsList[collType]){
               var pars = fieldsList[collType][gran];

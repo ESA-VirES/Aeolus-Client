@@ -39,7 +39,9 @@
         var that = this;
         // Load list of available product types
         globals.products.each(function(product){
-
+          if(product.get('name')==='ADAM_albedo'){
+            return;
+          }
           var button = $(
             '<button type="button" class="btn btn-default productSelect" value="'+
             product.get('download').id+'"">'+

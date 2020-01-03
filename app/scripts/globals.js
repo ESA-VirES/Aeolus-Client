@@ -489,7 +489,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     timeFormat: 'MJD2000_S'
                 }
             },
-            'ADAM_albedo': {}
+            'ADAM_albedo': {
+            }
         },
         fieldList: {
           'ALD_U_N_1B': {
@@ -1117,6 +1118,9 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             'layer_cloud_cover_off_nadir',
             'layer_cloud_liquid_water_content_off_nadir',
             'layer_cloud_ice_water_content_off_nadir'
+          ],
+          'ADAM_albedo': [
+            'nadir', 'offnadir'
           ]
         },
 
