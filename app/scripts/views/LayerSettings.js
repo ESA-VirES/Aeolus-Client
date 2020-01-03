@@ -18,13 +18,6 @@
 
             template: {type: 'handlebars', template: LayerSettingsTmpl},
             className: "panel panel-default optionscontrol not-selectable",
-            colorscaletypes : [
-                'coolwarm', 'rainbow', 'jet', 'diverging_1', 'diverging_2',
-                'blackwhite','viridis','inferno', 'hsv','hot','cool',
-                'spring', 'summer','autumn','winter','bone','copper','yignbu',
-                'greens','yiorrd','bluered', 'portland', 'blackbody','earth',
-                'electric','magma','plasma', 'redblue'
-            ],
 
             initialize: function(options) {
                 this.selected = null;
@@ -130,7 +123,7 @@
 
                     var colorscale_options = "";
                     var selected_colorscale;
-                    _.each(this.colorscaletypes, function(colorscale){
+                    _.each(globals.colorscaletypes, function(colorscale){
                         var prodId = that.current_model.get('download').id;
                         if(globals.dataSettings[prodId][that.selected].colorscale == colorscale){
                             selected_colorscale = colorscale;

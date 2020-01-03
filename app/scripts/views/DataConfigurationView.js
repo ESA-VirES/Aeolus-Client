@@ -163,9 +163,6 @@
           var parameterList = selectedProduct.get('download_parameters');
           for (var key in parameterList){
 
-            // TODO: probably info should be kept somehow connected to product
-            // right now information for all parameters is global, need to 
-            // reconsider this approach
             var parInfo = globals.dataSettings[currentId][key];
             var show = true;
             if(filter!==false && (
@@ -181,20 +178,37 @@
                   uom: parameterList[key].uom,
                   extent: defaultFor(parInfo.extent, null),
                   filterExtent: defaultFor(parInfo.filterExtent, null),
-                  colorscale: defaultFor(parInfo.colorscale, 'viridis'),
+                  colorscaleOptions: globals.colorscaletypes,
                   active: defaultFor(parInfo.active, false)
                 };
                 if(parameterList[key].hasOwnProperty('required')){
                   parOptions.required = true;
                   parOptions.active = true;
                 }
-                this.$('#parameterList').append(parameterItemTmpl(parOptions))
+                this.$('#parameterList').append(parameterItemTmpl(parOptions));
+                // We now select the current colorscale
+                $("#cs"+key).val(defaultFor(parInfo.colorscale, 'viridis'));
               } else {
-                console.log('Warning: parameter not defined: '+key);
+                // TODO: We don not expose all parameters right now
+                //console.log('Warning: parameter not defined: '+key);
               }
             }
           }
           var that = this;
+
+          $('.colorscaleselector').change(function(){
+            var paramId = $(this).attr('id').substr(2);
+            var selectedCS = $(this).children("option:selected").val();
+            if(globals.dataSettings[currentId].hasOwnProperty(paramId)){
+              if(that.currentChanges.hasOwnProperty(paramId)){
+                  that.currentChanges[paramId].colorscale = selectedCS;
+              } else {
+                that.currentChanges[paramId]={};
+                that.currentChanges[paramId].colorscale = selectedCS;
+              }
+            }
+            that.addApplyChanges();
+          });
           // Add listener for checkboxes
           $('.parameterActivationCB').change(function() {
             var selected = $(this).is(":checked");
@@ -284,6 +298,9 @@
 
             if(globals.dataSettings[currentId].hasOwnProperty(paramId)){
               if(that.currentChanges.hasOwnProperty(paramId)){
+                if(!that.currentChanges[paramId].hasOwnProperty(parItemId)){
+                  that.currentChanges[paramId][parItemId] = [null, null];
+                }
                 if($(this).hasClass('min')){
                   that.currentChanges[paramId][parItemId][0] = value;
                 } else if($(this).hasClass('max')){

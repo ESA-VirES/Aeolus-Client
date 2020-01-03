@@ -1529,8 +1529,6 @@ define(['backbone.marionette',
                 }
             };
 
-            this.dataSettings = globals.dataSettings;
-
 
             // Check for already defined data settings
             globals.products.each(function(product) {
@@ -1560,18 +1558,16 @@ define(['backbone.marionette',
                     function(p){return p.get('visible');}
                 ).get('download').id;
 
-                this.filterManager = globals.swarm.get('filterManager');
-                this.filterManager.visibleFilters = this.selectedFilterList;
-
+                globals.filterManager.visibleFilters = this.selectedFilterList;
 
                 var settings = iterationCopy(this.renderSettings[activeProd]);
 
                 this.graph = new graphly.graphly({
                     el: '#graph',
                     margin: {top: 30, left: 100, bottom: 50, right: 70},
-                    dataSettings: this.dataSettings[activeProd],
+                    dataSettings: globals.dataSettings[activeProd],
                     renderSettings: settings,
-                    filterManager: globals.swarm.get('filterManager'),
+                    filterManager: globals.filterManager,
                     displayParameterLabel: false,
                     multiYAxis: true,
                     ignoreParameters: [ /jumps.*/, /SignCross.*/, 'positions', 'stepPositions', 'singleValues'],
@@ -1591,7 +1587,7 @@ define(['backbone.marionette',
                     );
                 }
 
-                globals.swarm.get('filterManager').setRenderNode('#analyticsFilters');
+                globals.filterManager.setRenderNode('#analyticsFilters');
                 this.graph.on('pointSelect', function(values){
                     Communicator.mediator.trigger('cesium:highlight:point', values);
                 });
@@ -1647,7 +1643,7 @@ define(['backbone.marionette',
                 // Check for combined filters
                 for (var f in filters){
                     var parentFilter = null;
-                    var parM = this.filterManager.filterSettings.parameterMatrix;
+                    var parM = globals.filterManager.filterSettings.parameterMatrix;
                     for (var rel in parM){
                         if(parM[rel].indexOf(f)!==-1){
                             parentFilter = rel;
@@ -1660,14 +1656,14 @@ define(['backbone.marionette',
                     }
                 }
                 
-                this.filterManager.brushes = brushes;
+                globals.filterManager.brushes = brushes;
                 if(this.graph){
                     this.graph.filters = globals.swarm.get('filters');
                 }
-                this.filterManager.filters = globals.swarm.get('filters');
+                globals.filterManager.filters = globals.swarm.get('filters');
             }
 
-            this.filterManager.on('filterChange', function(filters){
+            globals.filterManager.on('filterChange', function(filters){
                 var filterRanges = {};
                 for (var f in this.brushes){
                     // check if filter is a combined filter
@@ -1702,16 +1698,16 @@ define(['backbone.marionette',
 
             });
 
-            this.filterManager.on('removeFilter', function(filter){
+            globals.filterManager.on('removeFilter', function(filter){
                 var index = that.selectedFilterList.indexOf(filter);
                 if(index !== -1){
                     that.selectedFilterList.splice(index, 1);
                     // Check if filter was set
-                    if (that.filterManager.filters.hasOwnProperty(filter)){
+                    if (globals.filterManager.filters.hasOwnProperty(filter)){
                         delete that.filterManager.filters[filter];
                         delete that.filterManager.brushes[filter];
                     }
-                    that.filterManager._filtersChanged();
+                    globals.filterManager._filtersChanged();
                     localStorage.setItem(
                         'selectedFilterList',
                         JSON.stringify(that.selectedFilterList)
@@ -1720,13 +1716,13 @@ define(['backbone.marionette',
                 that.renderFilterList();
             });
 
-            this.filterManager.on('parameterChange', function(filters){
+            globals.filterManager.on('parameterChange', function(filters){
                 var currProd = globals.products.find(
                     function(p){return p.get('visible');}
                 );
                 var prodId = currProd.get('download').id;
 
-                var filterSetts = this.dataSettings[prodId];
+                var filterSetts = globals.dataSettings[prodId];
                 for(var key in filterSetts){
                     if(filterSetts[key].hasOwnProperty('filterExtent')){
                         globals.dataSettings[key]['filterExtent'] = filterSetts[key].filterExtent;
@@ -1772,9 +1768,9 @@ define(['backbone.marionette',
             var selected = $('#inputAnalyticsAddfilter').val();
             if(selected !== ''){
                 this.selectedFilterList.push(selected);
-                var setts = this.filterManager.filterSettings;
+                var setts = globals.filterManager.filterSettings;
                 setts.visibleFilters = this.selectedFilterList;
-                this.filterManager.updateFilterSettings(setts);
+                globals.filterManager.updateFilterSettings(setts);
                 localStorage.setItem(
                     'selectedFilterList',
                     JSON.stringify(this.selectedFilterList)
@@ -1839,14 +1835,14 @@ define(['backbone.marionette',
                 var setts = JSON.parse(JSON.stringify(
                     globals.swarm.get('originalFilterSettings')
                 ));
-                that.filterManager.filterSettings = setts;
+                globals.filterManager.filterSettings = setts;
                 if(setts.hasOwnProperty('boolParameter')){
-                    that.filterManager.boolParameter = setts.boolParameter;
+                    globals.filterManager.boolParameter = setts.boolParameter;
                 }
                 if(setts.hasOwnProperty('maskParameter')){
-                    that.filterManager.maskParameter = setts.maskParameter;
+                    globals.filterManager.maskParameter = setts.maskParameter;
                 }
-                that.filterManager.resetManager();
+                globals.filterManager.resetManager();
             });
 
             $('#clearFilters').off();
@@ -1874,13 +1870,13 @@ define(['backbone.marionette',
                         }
                     }
                 }
-                that.filterManager.initManager();
-                that.filterManager.filterSettings = setts;
-                that.filterManager.maskParameter = setts.maskParameter;
-                that.filterManager.boolParameter = setts.boolParameter;
-                that.filterManager._filtersChanged();
-                that.filterManager._renderFilters();
-                that.filterManager._filtersChanged();
+                globals.filterManager.initManager();
+                globals.filterManager.filterSettings = setts;
+                globals.filterManager.maskParameter = setts.maskParameter;
+                globals.filterManager.boolParameter = setts.boolParameter;
+                globals.filterManager._filtersChanged();
+                globals.filterManager._renderFilters();
+                globals.filterManager._filtersChanged();
             });
 
 
@@ -2024,9 +2020,11 @@ define(['backbone.marionette',
                 function(p){return p.get('visible');}
             );
             var prodId = currProd.get('download').id;
-            this.graph.dataSettings = this.dataSettings[prodId];
+            this.graph.dataSettings = globals.dataSettings[prodId];
+            globals.filterManager.dataSettings = globals.dataSettings[prodId];
+            globals.filterManager._initData();
+            globals.filterManager._renderFilters();
             this.graph.renderData();
-
         },
 
 
@@ -2193,11 +2191,11 @@ define(['backbone.marionette',
                 // If data parameters have changed
                 if (!firstLoad && !_.isEqual(this.prevParams, idKeys)){
                     // Define which parameters should be selected defaultwise as filtering
-                    var setts = this.filterManager.filterSettings;
+                    var setts = globals.filterManager.filterSettings;
                     setts.visibleFilters = this.selectedFilterList;
 
 
-                    this.filterManager.updateFilterSettings(setts);
+                    globals.filterManager.updateFilterSettings(setts);
                     localStorage.setItem(
                         'selectedFilterList',
                         JSON.stringify(this.selectedFilterList)
@@ -2492,8 +2490,6 @@ define(['backbone.marionette',
                     $('#nodataavailable').show();
 
                 }
-
-
                 this.renderFilterList();
             }
         },

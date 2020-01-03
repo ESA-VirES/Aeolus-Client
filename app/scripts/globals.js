@@ -1107,6 +1107,14 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             'layer_cloud_liquid_water_content_off_nadir',
             'layer_cloud_ice_water_content_off_nadir'
           ]
-        }
+        },
+
+        colorscaletypes : [
+            'coolwarm', 'rainbow', 'jet', 'diverging_1', 'diverging_2',
+            'blackwhite','viridis','inferno', 'hsv','hot','cool',
+            'spring', 'summer','autumn','winter','bone','copper','yignbu',
+            'greens','yiorrd','bluered', 'portland', 'blackbody','earth',
+            'electric','magma','plasma', 'redblue', 'rdylbu'
+        ]
     };
 });

@@ -30,7 +30,6 @@
         this.selected_time = null;
         this.previousCollection = '';
         this.firstLoad = true;
-
         this.xhr = null;
 
         var filterSettings = {
@@ -68,8 +67,6 @@
                 'mie_altitude_obs_bottom'
               ],
             },
-            dataSettings: {},
-
             filterRelation: [
                 [
                   'mie_time_start',
@@ -517,10 +514,11 @@
             replaceUnderlines: true,
             filterAxisTickFormat: 'customExp'
         });
+        
+        globals.filterManager = this.filterManager;
 
         globals.swarm.set('originalFilterSettings', JSON.parse(JSON.stringify(filterSettings)));
 
-        globals.swarm.set('filterManager', this.filterManager);
 
         this.listenTo(Communicator.mediator, "map:layer:change",this.changeLayer);
         this.listenTo(Communicator.mediator, "map:multilayer:change",this.multiChangeLayer);
@@ -542,6 +540,14 @@
         if(bbox !== null){
           this.selection_list.push(bbox);
         }
+
+        // Find active product
+        var currProd = globals.products.find(
+          function(p){return p.get('visible');}
+        );
+        var prodId = currProd.get('download').id;
+        globals.filterManager.updateDataSettings(globals.dataSettings[prodId]);
+
 
         // TODO: Check to see if already active products are configured
         for (var i = 0; i < globals.products.models.length; i++) {

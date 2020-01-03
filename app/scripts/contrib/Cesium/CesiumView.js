@@ -88,7 +88,7 @@ define([
                 el: '#hiddenRenderArea',
                 //dataSettings: this.dataSettings,
                 renderSettings: renderSettings,
-                filterManager: globals.swarm.get('filterManager'),
+                filterManager: globals.filterManager,
                 multiYAxis: false,
                 fixedSize: true,
                 fixedWidth: 2048,
@@ -104,7 +104,7 @@ define([
                 }
             }
 
-            globals.swarm.get('filterManager').on('filterChange', function(filters){
+            globals.filterManager.on('filterChange', function(filters){
                 //console.log(filters);
                 var data = globals.swarm.get('data');
                 if (Object.keys(data).length){
