@@ -62,7 +62,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 'rayleigh_HLOS_wind_speed': {
                     uom: 'm/s',
                     colorscale: 'viridis',
-                    extent: [-40,40]
+                    extent: [-40,40],
+                    filterExtent: [-40, 40]
                 },
                 'time_start': {
                     scaleFormat: 'time',
@@ -75,7 +76,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 'mie_HLOS_wind_speed': {
                     uom: 'm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    filterExtent: [-20, 20]
                 }
             },
             'ALD_U_N_2A': {
@@ -86,16 +88,19 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 },
                 'SCA_extinction_variance': {
                     uom: 'm^-2',
-                    nullValue: -1
+                    nullValue: -1,
+                    filterExtent: [0,1e-8]
                 },
                 'SCA_backscatter': {
                     uom: '10-6 * m^-1* sr^-1',
                     colorscale: 'viridis',
-                    extent: [0, 15]
+                    extent: [0, 15],
+                    filterExtent: [-1,1]
                 },
                 'SCA_backscatter_variance': {
                     uom: 'm^-2*sr^-2',
-                    nullValue: -1
+                    nullValue: -1,
+                    filterExtent: [0,1e-13]
                 },
                 'SCA_LOD_variance': {
                     nullValue: -1
@@ -192,11 +197,13 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 },
                 'mie_wind_result_HLOS_error':{
                     uom: 'm/s',
-                    nullValue: 1.7e+38
+                    nullValue: 1.7e+38,
+                    filterExtent: [0, 20]
                 },
                 'rayleigh_wind_result_HLOS_error':{
                     uom: 'm/s',
-                    nullValue: 1.7e+38
+                    nullValue: 1.7e+38,
+                    filterExtent: [0, 20]
                 },
 
                 'mie_wind_result_scattering_ratio': {
@@ -453,6 +460,10 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             },
 
             'AUX_MET_12': {
+                time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
                 'time_nadir_start': {
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
