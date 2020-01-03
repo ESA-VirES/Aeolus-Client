@@ -1554,9 +1554,13 @@ define(['backbone.marionette',
 
             if (this.graph === undefined){
 
-                var activeProd = globals.products.find(
+                var prod = globals.products.find(
                     function(p){return p.get('visible');}
-                ).get('download').id;
+                );
+                var activeProd = 'ALD_U_N_1B';
+                if(typeof prod !== 'undefined'){
+                    activeProd = prod.get('download').id;
+                }
 
                 globals.filterManager.visibleFilters = this.selectedFilterList;
 
@@ -2024,7 +2028,12 @@ define(['backbone.marionette',
             globals.filterManager.dataSettings = globals.dataSettings[prodId];
             globals.filterManager._initData();
             globals.filterManager._renderFilters();
-            this.graph.renderData();
+            var data = globals.swarm.get('data');
+            var datkey = Object.keys(data)[0];
+            var parkeys = Object.keys(data[datkey]);
+            if(parkeys.length>0){
+                this.graph.renderData();
+            }
         },
 
 
@@ -2254,17 +2263,22 @@ define(['backbone.marionette',
                             }
                         }
                     }
-                    this.extendSettings(renderSettings);
+                    if(prodId === this.previousCollection ||
+                        typeof this.previousCollection === 'undefined'){
+                        // If there was no collection change try to adapt settings
+                        // to conserve as much of the user config as possible
+                        this.extendSettings(renderSettings);
+                    }
                     this.graph.renderSettings = renderSettings;
 
-                    if( cP === 'ALD_U_N_1B' || cP === 'ALD_U_N_2A'){
+                    if(cP === 'ALD_U_N_1B' || cP === 'ALD_U_N_2A'){
 
                         this.graph.debounceActive = true;
                         this.graph.dataSettings = globals.dataSettings[prodId];
                         this.graph.fileSaveString = cP+'_'+gran+'_'+timeString;
                         this.graph.loadData(data[cP]);
 
-                     } else if(cP === 'ALD_U_N_2B' || cP === 'ALD_U_N_2C'){
+                    } else if(cP === 'ALD_U_N_2B' || cP === 'ALD_U_N_2C'){
 
                         if(gran === 'group'){
 
@@ -2283,10 +2297,13 @@ define(['backbone.marionette',
                             this.createGroupInteractionButtons(ds, currGroup, pageSize);
                             $('#newPlotLink').hide();
                         } else {
+                            this.graph.debounceActive = true;
+                            this.graph.dataSettings = globals.dataSettings[prodId];
+                            this.graph.fileSaveString = cP+'_'+gran+'_'+timeString;
                             this.graph.loadData(data[cP]);
                         }
 
-                     } else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
+                    } else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
 
                         this.graph.renderSettings = iterationCopy(this.renderSettings[(idKeys[0])]);
 
@@ -2367,7 +2384,9 @@ define(['backbone.marionette',
                             }
                         }
 
-                        this.graph.renderSettings = iterationCopy(this.renderSettings[(idKeys[0])]);
+                        this.graph.dataSettings = globals.dataSettings[idKeys[0]];
+                        this.graph.renderSettings = iterationCopy(this.renderSettings[idKeys[0]]);
+                        this.graph.debounceActive = true;
 
                         if(contains2DNadir){
                             this.graph.renderSettings.groups[0] = 'layer_nadir';
@@ -2385,16 +2404,8 @@ define(['backbone.marionette',
                             delete this.graph.renderSettings.renderGroups.layer_off_nadir;
                         }
 
-                        if(contains2DNadir || contains2DOffNadir) {
-                            this.graph.dataSettings = globals.dataSettings[prodId];
-                            this.graph.loadData(data[idKeys[0]]);
-                            this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
-                        } else {
-                            this.graph.dataSettings = globals.dataSettings[prodId];
-                            this.graph.loadData(data[idKeys[0]]);
-                            this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
-                        }
-                        this.graph.debounceActive = true;
+                        this.graph.loadData(data[idKeys[0]]);
+                        this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
 
 
                     } else {
@@ -2485,6 +2496,7 @@ define(['backbone.marionette',
                     }
 
                     this.previousKeys = this.currentKeys;
+                    this.previousCollection = prodId;
 
                 }else{
                     $('#nodataavailable').show();

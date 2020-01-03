@@ -509,13 +509,11 @@
           }
         };
 
-        this.filterManager = new FilterManager({
+        globals.filterManager = new FilterManager({
             filterSettings: filterSettings,
             replaceUnderlines: true,
             filterAxisTickFormat: 'customExp'
         });
-        
-        globals.filterManager = this.filterManager;
 
         globals.swarm.set('originalFilterSettings', JSON.parse(JSON.stringify(filterSettings)));
 
@@ -545,8 +543,13 @@
         var currProd = globals.products.find(
           function(p){return p.get('visible');}
         );
-        var prodId = currProd.get('download').id;
-        globals.filterManager.updateDataSettings(globals.dataSettings[prodId]);
+        var prodId = 'ALD_U_N_1B';
+        if(typeof currProd !== 'undefined'){
+          prodId = currProd.get('download').id;
+        }
+        
+        globals.filterManager.dataSettings = globals.dataSettings[prodId];
+        globals.filterManager._initData();
 
 
         // TODO: Check to see if already active products are configured
@@ -693,10 +696,11 @@
             if(options.visible){
               // Make sure correct albedo map is set for active product
               var pId = product.get('download').id;
-              var albedoProd = globals.products.find(
+              /*var albedoProd = globals.products.find(
                 function(model) { return model.get('download').id == 'ADAM_albedo'; }
               );
               var albedoPars = albedoProd.get('parameters');
+
               if(pId === 'AUX_MRC_1B' || pId === 'AUX_RRC_1B'){
                 if(albedoPars.offnadir.hasOwnProperty('selected')){
                   delete albedoPars.offnadir.selected;
@@ -714,7 +718,7 @@
                   albedoProd.set('parameters', albedoPars);
                   Communicator.mediator.trigger("layer:parameters:changed", 'ADAM_albedo');
                 }
-              }
+              }*/
               
               if (product.get("model")){
                 this.activeModels.push(product.get("download").id);
@@ -853,10 +857,12 @@
           }
           product.set('parameters', pars);
 
-          this.filterManager._renderFilters();
-          this.filterManager._renderFilters();
+          globals.filterManager.dataSettings = globals.dataSettings[collId];
+          globals.filterManager.loadData(resData[this.collectionId]);
+          globals.filterManager._initData();
+          globals.filterManager._renderFilters();
+          globals.filterManager._renderFilters();
           globals.swarm.set({data: resData});
-          this.filterManager.loadData(resData[this.collectionId]);
         }
       },
 
@@ -1961,7 +1967,7 @@
                   if(that.firstLoad){
                     that.firstLoad = false;
                   } else {
-                    that.filterManager.resetManager();
+                    globals.filterManager.resetManager();
                   }
                 }
 
@@ -2831,9 +2837,6 @@
                   if($.isEmptyObject(resData) || empty){
                     globals.swarm.set({data: {}});
                   } else {
-                    that.filterManager.loadData(resData);
-                    that.filterManager._renderFilters();
-                    that.filterManager._renderFilters();
 
                     // We go through currently selected parameters to make sure
                     // what is selected before we trigger the new load event
@@ -2860,9 +2863,13 @@
                       product.set('parameters', pars);
                     }
 
+                    globals.filterManager.dataSettings = globals.dataSettings[collectionId];
+                    globals.filterManager.loadData(resData);
+                    globals.filterManager._initData();
+                    globals.filterManager._renderFilters();
+                    globals.filterManager._renderFilters();
                     globals.swarm.set({data: tmpdata});
                   }
-                  
 
                 }
                 that.xhr = null;
