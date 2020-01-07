@@ -16,7 +16,7 @@
 
     var DataConfigurationView = Backbone.Marionette.ItemView.extend({
       tagName: "div",
-      id: "modalDataCOnfiguration",
+      id: "modalDataConfiguration",
       className: "panel panel-default download",
       template: {
           type: 'handlebars',
