@@ -1615,18 +1615,25 @@ define(['backbone.marionette',
                         }
                     }
 
-                    // Trigger layer parameters changed to make sure globe
-                    // view is updated acordingly
-                    Communicator.mediator.trigger(
-                        'layer:parameters:changed', datkey
-                    );
-
                     localStorage.setItem(
                         'dataSettings',
                         JSON.stringify(globals.dataSettings)
                     );
 
                     that.savePlotConfig(that.graph);
+                });
+
+                this.graph.on('colorScaleChange', function(obj){
+
+                    var currProd = globals.products.find(
+                        function(p){return p.get('visible');}
+                    );
+                    var prodId = currProd.get('download').id;
+                    // Trigger layer parameters changed to make sure globe
+                    // view is updated acordingly
+                    Communicator.mediator.trigger(
+                        'layer:parameters:changed', prodId
+                    );
                 });
 
                 this.graph.on('axisExtentChanged', function () {
@@ -2031,9 +2038,11 @@ define(['backbone.marionette',
                 globals.filterManager._renderFilters();
                 var data = globals.swarm.get('data');
                 var datkey = Object.keys(data)[0];
-                var parkeys = Object.keys(data[datkey]);
-                if(parkeys.length>0){
-                    this.graph.renderData();
+                if(typeof datkey !== 'undefined'){
+                    var parkeys = Object.keys(data[datkey]);
+                    if(parkeys.length>0){
+                        this.graph.renderData();
+                    }
                 }
             }
         },
@@ -2496,6 +2505,14 @@ define(['backbone.marionette',
                             
                         });
                     }
+
+                    // Make sure applied render settings are saved to localstorage
+                    var crs = this.graph.renderSettings;
+                    localStorage.setItem('xAxisSelection', JSON.stringify(crs.xAxis));
+                    localStorage.setItem('yAxisSelection', JSON.stringify(crs.yAxis));
+                    localStorage.setItem('y2AxisSelection', JSON.stringify(crs.y2Axis));
+                    localStorage.setItem('colorAxisSelection', JSON.stringify(crs.colorAxis));
+                    localStorage.setItem('colorAxis2Selection', JSON.stringify(crs.colorAxis2));
 
                     this.previousKeys = this.currentKeys;
                     this.previousCollection = prodId;
