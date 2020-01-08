@@ -17,6 +17,7 @@ define(['backbone.marionette',
             this.plotType = 'scatter';
             this.sp = undefined;
             this.currentKeys = [];
+            this.requestedListChanged = false;
 
             $(window).resize(function() {
                 if(this.graph){
@@ -84,20 +85,83 @@ define(['backbone.marionette',
                         for (var j = combined.length - 1; j >= 0; j--) {
                             if(this.currentKeys.indexOf(combined[j]) === -1){
                                 allInside = false;
+                                comb.splice(i, 1);
                             }
                         }
                     } else if (settings.hasOwnProperty('sharedParameters') &&  settings.sharedParameters!== false){
                         if(!settings.sharedParameters.hasOwnProperty(parameter)){
                             allInside = false;
+                            comb.splice(i, 1);
+                        } else {
+                            // Check if the related shared parameters are inside
+                            // of the current selection
+                            for (var sp = 0; sp < settings.sharedParameters[parameter].length; sp++) {
+                                var sps = settings.sharedParameters[parameter][sp];
+                                if(settings.combinedParameters.hasOwnProperty(sps)){
+                                    var combined = settings.combinedParameters[sps];
+                                    for (var cc = combined.length - 1; cc >= 0; cc--) {
+                                        if(this.currentKeys.indexOf(combined[cc]) === -1){
+                                            allInside = false;
+                                            comb.splice(i, 1);
+                                        }
+                                    }
+                                } else if(this.currentKeys.indexOf(sps) === -1){
+                                    allInside = false;
+                                    comb.splice(i, 1);
+                                }
+                            }
                         }
                     } else {
                         allInside = false;
+                        comb.splice(i, 1);
                     }
                 }
             }
 
             if(!allInside){
-                return settings;
+
+                if(comb.indexOf(xax) !== -1){
+                    // Empty y axis are fine, need to make sure settings are "balanced"
+                    // remove all parameters not available
+                    for (var yy = yax.length - 1; yy >= 0; yy--) {
+                        for (var suby = yax[yy].length - 1; suby >= 0; suby--) {
+                            if(comb.indexOf(yax[yy][suby]) === -1){
+                                yax[yy].splice(suby, 1);
+                                // Remove corresponding colorscale
+                                colax[yy].splice(suby, 1);
+                            }
+                        }
+                    }
+
+                    for (var yy2 = y2ax.length - 1; yy2 >= 0; yy2--) {
+                        for (var suby2 = y2ax[yy2].length - 1; suby2 >= 0; suby2--) {
+                            if(comb.indexOf(y2ax[yy2][suby2]) === -1){
+                                y2ax[yy2].splice(suby2, 1);
+                                // Remove corresponding colorscale
+                                colax2[yy2].splice(suby2, 1);
+                            }
+                        }
+                    }
+
+                    // Replace missing colorscale parameters with null
+                    for (var cc = colax.length - 1; cc >= 0; cc--) {
+                        for (var csub = colax[cc].length - 1; csub >= 0; csub--) {
+                            if(comb.indexOf(colax[cc][csub]) === -1){
+                                colax[cc][csub] = null;
+                            }
+                        }
+                    }
+                    for (var cc2 = colax2.length - 1; cc2 >= 0; cc2--) {
+                        for (var csub2 = colax2[cc2].length - 1; csub2 >= 0; csub2--) {
+                            if(comb.indexOf(colax2[cc2][csub2]) === -1){
+                                colax2[cc2][csub2] = null;
+                            }
+                        }
+                    }
+                } else {
+                    return settings;
+                }
+                // Once new settings are set we need to save them to localstorage
             }
 
             if (xax !== null) {
@@ -129,13 +193,23 @@ define(['backbone.marionette',
                 currSets.additionalYTicks = yticks;
             }
 
-            //return currSets;
+            localStorage.setItem('xAxisSelection', JSON.stringify(xax));
+            localStorage.setItem('yAxisSelection', JSON.stringify(yax));
+            localStorage.setItem('y2AxisSelection', JSON.stringify(y2ax));
+            localStorage.setItem('colorAxisSelection', JSON.stringify(colax));
+            localStorage.setItem('colorAxis2Selection', JSON.stringify(colax2));
+
+            return currSets;
         },
 
         onShow: function() {
             var that = this;
             this.stopListening(Communicator.mediator, 'change:axis:parameters', this.onChangeAxisParameters);
             this.listenTo(Communicator.mediator, 'change:axis:parameters', this.onChangeAxisParameters);
+
+            this.stopListening(Communicator.mediator, 'layer:parameterlist:changed', this.onRequestedListChanged);
+            this.listenTo(Communicator.mediator, 'layer:parameterlist:changed', this.onRequestedListChanged);
+            
 
             this.isClosed = false;
             this.selectionList = [];
@@ -342,19 +416,15 @@ define(['backbone.marionette',
                                 'mie_time',
                                 'mie_time_start',
                                 'mie_time_end',
-                                'longitude_of_DEM_intersection',
                                 'longitude_of_DEM_intersection_start',
                                 'longitude_of_DEM_intersection_end',
-                                'latitude_of_DEM_intersection',
                                 'latitude_of_DEM_intersection_start',
                                 'latitude_of_DEM_intersection_end',
                                 'altitude_of_DEM_intersection',
                                 'mie_longitude',
                                 'mie_latitude',
-                                'mie_altitude',
                                 'mie_altitude_start',
                                 'mie_altitude_end',
-                                'mie_range',
                                 'mie_range_start',
                                 'mie_range_end',
                                 'geoid_separation',
@@ -389,19 +459,15 @@ define(['backbone.marionette',
                                 'rayleigh_time',
                                 'rayleigh_time_start',
                                 'rayleigh_time_end',
-                                'longitude_of_DEM_intersection',
                                 'longitude_of_DEM_intersection_start',
                                 'longitude_of_DEM_intersection_end',
-                                'latitude_of_DEM_intersection',
                                 'latitude_of_DEM_intersection_start',
                                 'latitude_of_DEM_intersection_end',
                                 'altitude_of_DEM_intersection',
                                 'rayleigh_longitude',
                                 'rayleigh_latitude',
-                                'rayleigh_altitude',
                                 'rayleigh_altitude_start',
                                 'rayleigh_altitude_end',
-                                'rayleigh_range',
                                 'rayleigh_range_start',
                                 'rayleigh_range_end',
                                 'geoid_separation',
@@ -439,9 +505,9 @@ define(['backbone.marionette',
                         'time': [
                             'mie_time', 'rayleigh_time'
                         ],
-                        'altitude': [
+                        /*'altitude': [
                             'rayleigh_altitude', 'mie_altitude'
-                        ],
+                        ],*/
                         'geoid_separation': ['geoid_separation'],
                         'longitude_of_DEM_intersection': ['longitude_of_DEM_intersection'],
                         'latitude_of_DEM_intersection': ['latitude_of_DEM_intersection'],
@@ -1131,16 +1197,83 @@ define(['backbone.marionette',
                     colorAxis: [ [null], [null] ],
                     y2Axis: [[], []],
                     colorAxis2: [[], []],
-                    combinedParameters: {},
-                    groups: false,
-                    renderGroups: false,
-                    sharedParameters: false,
+                    combinedParameters: {
+                        'altitude': ['altitude_start', 'altitude_end'],
+                        'satellite_range': ['satellite_range_start', 'satellite_range_end'],
+                        'frequency_offset_combined': ['frequency_offset_start', 'frequency_offset_end']
+                    },
+                    groups: ['1d_parameters', '1d_parameters'],
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
                         'longitude': 'lon_of_DEM_intersection',
                         'altitude': 'altitude'
                     },
-
+                    renderGroups: {
+                        '1d_parameters': {
+                            parameters: [
+                                'lat_of_DEM_intersection',
+                                'lon_of_DEM_intersection',
+                                'time_freq_step',
+                                'frequency_offset',
+                                'frequency_valid',
+                                'measurement_response',
+                                'measurement_response_valid',
+                                'measurement_error_mie_response',
+                                'reference_pulse_response',
+                                'reference_pulse_response_valid',
+                                'reference_pulse_error_mie_response',
+                                'num_measurements_usable',
+                                'num_valid_measurements',
+                                'num_reference_pulses_usable',
+                                'num_mie_core_algo_fails_measurements',
+                                'num_ground_echoes_not_detected_measurements',
+                                'measurement_mean_sensitivity',
+                                'measurement_zero_frequency',
+                                'measurement_error_mie_response_std_dev',
+                                'measurement_offset_frequency',
+                                'reference_pulse_mean_sensitivity',
+                                'reference_pulse_zero_frequency',
+                                'reference_pulse_error_mie_response_std_dev',
+                                'reference_pulse_offset_frequency',
+                                'satisfied_min_valid_freq_steps_per_cal',
+                                'freq_offset_data_monotonic',
+                                'num_of_valid_frequency_steps',
+                                'measurement_mean_sensitivity_valid',
+                                'measurement_error_response_std_dev_valid',
+                                'measurement_zero_frequency_response_valid',
+                                'measurement_data_monotonic',
+                                'reference_pulse_mean_sensitivity_valid',
+                                'reference_pulse_error_response_std_dev_valid',
+                                'reference_pulse_zero_frequency_response_valid',
+                                'reference_pulse_data_monotonic',
+                                'mie_core_measurement_FWHM',
+                                'mie_core_measurement_amplitude',
+                                'mie_core_measurement_offset'
+                            ],
+                            defaults: {
+                                yAxis: 'measurement_response',
+                                colorAxis: null
+                            }
+                        },
+                        '2d_parameter': {
+                            parameters: [
+                                'altitude',
+                                'satellite_range',
+                                'normalised_useful_signal',
+                                'mie_scattering_ratio',
+                                'frequency_offset_combined'
+                            ],
+                            defaults: {
+                                yAxis: 'altitude',
+                                colorAxis: 'mie_scattering_ratio'
+                            }
+                        }
+                    },
+                    sharedParameters: {
+                        'frequency_offset': [
+                            'frequency_offset', 'frequency_offset_combined'
+                        ],
+                    },
                     availableParameters: false,
                 },
                 AUX_RRC_1B: {
@@ -1151,16 +1284,105 @@ define(['backbone.marionette',
                     colorAxis: [ [null], [null] ],
                     y2Axis: [[], []],
                     colorAxis2: [[], []],
-                    combinedParameters: {},
-                    groups: false,
-                    renderGroups: false,
-                    sharedParameters: false,
+                    combinedParameters: {
+                        'altitude': ['altitude_start', 'altitude_end'],
+                        'satellite_range': ['satellite_range_start', 'satellite_range_end'],
+                        'frequency_offset_combined': ['frequency_offset_start', 'frequency_offset_end']
+                    },
                     positionAlias: {
                         'latitude': 'lat_of_DEM_intersection',
                         'longitude': 'lon_of_DEM_intersection',
                         'altitude': 'altitude'
                     },
-
+                    groups: ['1d_parameters', '1d_parameters'],
+                    renderGroups: {
+                        '1d_parameters': {
+                            parameters: [
+                                'lat_of_DEM_intersection',
+                                'lon_of_DEM_intersection',
+                                'time_freq_step',
+                                'frequency_offset',
+                                'frequency_valid',
+                                'ground_frequency_valid',
+                                'measurement_response',
+                                'measurement_response_valid',
+                                'measurement_error_rayleigh_response',
+                                'reference_pulse_response',
+                                'reference_pulse_response_valid',
+                                'reference_pulse_error_rayleigh_response',
+                                'ground_measurement_response',
+                                'ground_measurement_response_valid',
+                                'ground_measurement_error_rayleigh_response',
+                                'num_measurements_usable',
+                                'num_valid_measurements',
+                                'num_reference_pulses_usable',
+                                'num_measurements_valid_ground',
+                                'measurement_mean_sensitivity',
+                                'measurement_zero_frequency',
+                                'measurement_error_rayleigh_response_std_dev',
+                                'measurement_offset_frequency',
+                                'measurement_error_fit_coefficient',
+                                'reference_pulse_mean_sensitivity',
+                                'reference_pulse_zero_frequency',
+                                'reference_pulse_error_rayleigh_response_std_dev',
+                                'reference_pulse_offset_frequency',
+                                'reference_pulse_error_fit_coefficient',
+                                'ground_measurement_mean_sensitivity',
+                                'ground_measurement_zero_frequency',
+                                'ground_measurement_error_rayleigh_response_std_dev',
+                                'ground_measurement_offset_frequency',
+                                'ground_measurement_error_fit_coefficient', 
+                                'satisfied_min_valid_freq_steps_per_cal',
+                                'satisfied_min_valid_ground_freq_steps_per_cal',
+                                'freq_offset_data_monotonic',
+                                'num_of_valid_frequency_steps',
+                                'num_of_valid_ground_frequency_steps',
+                                'measurement_mean_sensitivity_valid',
+                                'measurement_error_response_std_dev_valid',
+                                'measurement_zero_frequency_response_valid',
+                                'measurement_data_monotonic',
+                                'reference_pulse_mean_sensitivity_valid',
+                                'reference_pulse_error_response_std_dev_valid',
+                                'reference_pulse_zero_frequency_response_valid',
+                                'reference_pulse_data_monotonic',
+                                'ground_measurement_mean_sensitivity_valid',
+                                'ground_measurement_error_response_std_dev_valid',
+                                'ground_measurement_zero_frequency_response_valid',
+                                'ground_measurement_data_monotonic',
+                                'rayleigh_spectrometer_temperature_9',
+                                'rayleigh_spectrometer_temperature_10',
+                                'rayleigh_spectrometer_temperature_11',
+                                'rayleigh_thermal_hood_temperature_1',
+                                'rayleigh_thermal_hood_temperature_2',
+                                'rayleigh_thermal_hood_temperature_3',
+                                'rayleigh_thermal_hood_temperature_4',
+                                'rayleigh_optical_baseplate_avg_temperature'
+                            ],
+                            defaults: {
+                                yAxis: 'measurement_response',
+                                colorAxis: null
+                            }
+                        },
+                        '2d_parameter': {
+                            parameters: [
+                                'altitude',
+                                'satellite_range', 
+                                'geoid_separation_obs',
+                                //'geoid_separation_freq_step',
+                                'normalised_useful_signal',
+                                'frequency_offset_combined'
+                            ],
+                            defaults: {
+                                yAxis: 'altitude',
+                                colorAxis: 'normalised_useful_signal'
+                            }
+                        }
+                    },
+                    sharedParameters: {
+                        'frequency_offset': [
+                            'frequency_offset', 'frequency_offset_combined'
+                        ],
+                    },
                     availableParameters: false,
                 },
                 AUX_ISR_1B: {
@@ -1203,9 +1425,9 @@ define(['backbone.marionette',
                     colorAxis: [ [null], [null] ],
                     y2Axis: [[],[]],
                     colorAxis2: [[],[]],
-                    groups: ['nadir', 'off_nadir'],
+                    groups: ['surface_nadir', 'surface_off_nadir'],
                     renderGroups: {
-                        nadir: {
+                        surface_nadir: {
                             parameters: [
                                 'time_nadir',
                                 'surface_wind_component_u_nadir',
@@ -1224,7 +1446,7 @@ define(['backbone.marionette',
                                 'longitude': 'longitude_nadir'
                             }
                         },
-                        off_nadir: {
+                        surface_off_nadir: {
                             parameters: [
                                 'time_off_nadir',
                                 'surface_wind_component_u_off_nadir',
@@ -1242,11 +1464,51 @@ define(['backbone.marionette',
                                 'latitude': 'latitude_off_nadir',
                                 'longitude': 'longitude_off_nadir'
                             }
+                        },
+                        layer_nadir: {
+                            parameters: [
+                                'time_nadir_combined',
+                                'layer_validity_flag_nadir',
+                                //'layer_pressure_nadir',
+                                'layer_altitude_nadir',
+                                'layer_temperature_nadir',
+                                'layer_wind_component_u_nadir',
+                                'layer_wind_component_v_nadir',
+                                'layer_rel_humidity_nadir',
+                                'layer_spec_humidity_nadir',
+                                'layer_cloud_cover_nadir',
+                                'layer_cloud_liquid_water_content_nadir',
+                                'layer_cloud_ice_water_content_nadir'
+                            ],
+                            defaults: {
+                                yAxis: 'layer_altitude_nadir',
+                                colorAxis: null
+                            }
+                        },
+                        layer_off_nadir: {
+                            parameters: [
+                                'time_off_nadir_combined',
+                                'layer_validity_flag_off_nadir',
+                                //'layer_pressure_off_nadir',
+                                'layer_altitude_off_nadir',
+                                'layer_temperature_off_nadir',
+                                'layer_wind_component_u_off_nadir',
+                                'layer_wind_component_v_off_nadir',
+                                'layer_rel_humidity_off_nadir',
+                                'layer_spec_humidity_off_nadir',
+                                'layer_cloud_cover_off_nadir',
+                                'layer_cloud_liquid_water_content_off_nadir',
+                                'layer_cloud_ice_water_content_off_nadir'
+                            ],
+                            defaults: {
+                                yAxis: 'layer_altitude_off_nadir',
+                                colorAxis: null
+                            }
                         }
                     },
                     sharedParameters: {
                         'time': [
-                            'time_nadir', 'time_off_nadir'
+                            'time_nadir', 'time_off_nadir', 'time_nadir_combined', 'time_off_nadir_combined'
                         ]
                     },
                     combinedParameters: {
@@ -1256,33 +1518,8 @@ define(['backbone.marionette',
                         layer_altitude_off_nadir: ['layer_altitude_off_nadir_end', 'layer_altitude_off_nadir_start']
                     },
                     availableParameters: false
-                },
-                'AUX_MET_12_nadir': {
-                    xAxis: 'time_nadir',
-                    yAxis: ['surface_wind_component_u_nadir'],
-                    additionalXTicks: [],
-                    additionalYTicks: [[]],
-                    colorAxis: [ null ],
-                    combinedParameters: {
-                        time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
-                        layer_altitude_nadir: ['layer_altitude_nadir_end', 'layer_altitude_nadir_start']
-                    },
-                    availableParameters: false,
-                },
-                'AUX_MET_12_off_nadir': {
-                    xAxis: 'time_off_nadir',
-                    yAxis: ['surface_wind_component_u_off_nadir'],
-                    additionalXTicks: [],
-                    additionalYTicks: [[]],
-                    colorAxis: [ null ],
-                    combinedParameters: {
-                        time_off_nadir_combined: ['time_off_nadir_start', 'time_off_nadir_end'],
-                        layer_altitude_off_nadir: ['layer_altitude_off_nadir_end', 'layer_altitude_off_nadir_start']
-                    },
                 }
             };
-
-            this.dataSettings = globals.dataSettings;
 
 
             // Check for already defined data settings
@@ -1309,21 +1546,27 @@ define(['backbone.marionette',
 
             if (this.graph === undefined){
 
-                this.filterManager = globals.swarm.get('filterManager');
-                this.filterManager.visibleFilters = this.selectedFilterList;
+                var prod = globals.products.find(
+                    function(p){return (p.get('visible') && p.get('name')!=='ADAM_albedo');}
+                );
+                var activeProd = 'ALD_U_N_1B';
+                if(typeof prod !== 'undefined'){
+                    activeProd = prod.get('download').id;
+                }
 
+                globals.filterManager.visibleFilters = this.selectedFilterList;
 
-                var settings = iterationCopy(this.renderSettings['ALD_U_N_1B']);
+                var settings = iterationCopy(this.renderSettings[activeProd]);
 
                 this.graph = new graphly.graphly({
                     el: '#graph',
                     margin: {top: 30, left: 100, bottom: 50, right: 70},
-                    dataSettings: this.dataSettings,
+                    dataSettings: globals.dataSettings[activeProd],
                     renderSettings: settings,
-                    filterManager: globals.swarm.get('filterManager'),
+                    filterManager: globals.filterManager,
                     displayParameterLabel: false,
                     multiYAxis: true,
-                    ignoreParameters: [ /jumps.*/, /SignCross.*/, 'positions', 'stepPositions'],
+                    ignoreParameters: [ /jumps.*/, /SignCross.*/, 'positions', 'stepPositions', 'singleValues'],
                     enableSubXAxis: 'time',
                     enableSubYAxis: ['mie_altitude','rayleigh_altitude'],
                     colorAxisTickFormat: 'customExp',
@@ -1340,7 +1583,7 @@ define(['backbone.marionette',
                     );
                 }
 
-                globals.swarm.get('filterManager').setRenderNode('#analyticsFilters');
+                globals.filterManager.setRenderNode('#analyticsFilters');
                 this.graph.on('pointSelect', function(values){
                     Communicator.mediator.trigger('cesium:highlight:point', values);
                 });
@@ -1372,6 +1615,19 @@ define(['backbone.marionette',
                     that.savePlotConfig(that.graph);
                 });
 
+                this.graph.on('colorScaleChange', function(obj){
+
+                    var currProd = globals.products.find(
+                        function(p){return p.get('visible');}
+                    );
+                    var prodId = currProd.get('download').id;
+                    // Trigger layer parameters changed to make sure globe
+                    // view is updated acordingly
+                    Communicator.mediator.trigger(
+                        'layer:parameters:changed', prodId
+                    );
+                });
+
                 this.graph.on('axisExtentChanged', function () {
                     // Save parameter style changes
                     localStorage.setItem(
@@ -1390,7 +1646,7 @@ define(['backbone.marionette',
                 // Check for combined filters
                 for (var f in filters){
                     var parentFilter = null;
-                    var parM = this.filterManager.filterSettings.parameterMatrix;
+                    var parM = globals.filterManager.filterSettings.parameterMatrix;
                     for (var rel in parM){
                         if(parM[rel].indexOf(f)!==-1){
                             parentFilter = rel;
@@ -1403,14 +1659,14 @@ define(['backbone.marionette',
                     }
                 }
                 
-                this.filterManager.brushes = brushes;
+                globals.filterManager.brushes = brushes;
                 if(this.graph){
                     this.graph.filters = globals.swarm.get('filters');
                 }
-                this.filterManager.filters = globals.swarm.get('filters');
+                globals.filterManager.filters = globals.swarm.get('filters');
             }
 
-            this.filterManager.on('filterChange', function(filters){
+            globals.filterManager.on('filterChange', function(filters){
                 var filterRanges = {};
                 for (var f in this.brushes){
                     // check if filter is a combined filter
@@ -1445,16 +1701,16 @@ define(['backbone.marionette',
 
             });
 
-            this.filterManager.on('removeFilter', function(filter){
+            globals.filterManager.on('removeFilter', function(filter){
                 var index = that.selectedFilterList.indexOf(filter);
                 if(index !== -1){
                     that.selectedFilterList.splice(index, 1);
                     // Check if filter was set
-                    if (that.filterManager.filters.hasOwnProperty(filter)){
+                    if (globals.filterManager.filters.hasOwnProperty(filter)){
                         delete that.filterManager.filters[filter];
                         delete that.filterManager.brushes[filter];
                     }
-                    that.filterManager._filtersChanged();
+                    globals.filterManager._filtersChanged();
                     localStorage.setItem(
                         'selectedFilterList',
                         JSON.stringify(that.selectedFilterList)
@@ -1463,8 +1719,13 @@ define(['backbone.marionette',
                 that.renderFilterList();
             });
 
-            this.filterManager.on('parameterChange', function(filters){
-                var filterSetts = this.dataSettings;
+            globals.filterManager.on('parameterChange', function(filters){
+                var currProd = globals.products.find(
+                    function(p){return p.get('visible');}
+                );
+                var prodId = currProd.get('download').id;
+
+                var filterSetts = globals.dataSettings[prodId];
                 for(var key in filterSetts){
                     if(filterSetts[key].hasOwnProperty('filterExtent')){
                         globals.dataSettings[key]['filterExtent'] = filterSetts[key].filterExtent;
@@ -1510,9 +1771,9 @@ define(['backbone.marionette',
             var selected = $('#inputAnalyticsAddfilter').val();
             if(selected !== ''){
                 this.selectedFilterList.push(selected);
-                var setts = this.filterManager.filterSettings;
+                var setts = globals.filterManager.filterSettings;
                 setts.visibleFilters = this.selectedFilterList;
-                this.filterManager.updateFilterSettings(setts);
+                globals.filterManager.updateFilterSettings(setts);
                 localStorage.setItem(
                     'selectedFilterList',
                     JSON.stringify(this.selectedFilterList)
@@ -1561,6 +1822,10 @@ define(['backbone.marionette',
                 
         },
 
+        onRequestedListChanged: function onRequestedListChanged(){
+            this.requestedListChanged = true;
+        },
+
         renderFilterList: function renderFilterList() {
 
             var that = this;
@@ -1573,14 +1838,14 @@ define(['backbone.marionette',
                 var setts = JSON.parse(JSON.stringify(
                     globals.swarm.get('originalFilterSettings')
                 ));
-                that.filterManager.filterSettings = setts;
+                globals.filterManager.filterSettings = setts;
                 if(setts.hasOwnProperty('boolParameter')){
-                    that.filterManager.boolParameter = setts.boolParameter;
+                    globals.filterManager.boolParameter = setts.boolParameter;
                 }
                 if(setts.hasOwnProperty('maskParameter')){
-                    that.filterManager.maskParameter = setts.maskParameter;
+                    globals.filterManager.maskParameter = setts.maskParameter;
                 }
-                that.filterManager.resetManager();
+                globals.filterManager.resetManager();
             });
 
             $('#clearFilters').off();
@@ -1608,13 +1873,13 @@ define(['backbone.marionette',
                         }
                     }
                 }
-                that.filterManager.initManager();
-                that.filterManager.filterSettings = setts;
-                that.filterManager.maskParameter = setts.maskParameter;
-                that.filterManager.boolParameter = setts.boolParameter;
-                that.filterManager._filtersChanged();
-                that.filterManager._renderFilters();
-                that.filterManager._filtersChanged();
+                globals.filterManager.initManager();
+                globals.filterManager.filterSettings = setts;
+                globals.filterManager.maskParameter = setts.maskParameter;
+                globals.filterManager.boolParameter = setts.boolParameter;
+                globals.filterManager._filtersChanged();
+                globals.filterManager._renderFilters();
+                globals.filterManager._filtersChanged();
             });
 
 
@@ -1754,40 +2019,23 @@ define(['backbone.marionette',
 
         onLayerParametersChanged: function(layer){
 
-            // Parameters only apply for L1B curtains (possibly L2B)
-            if(layer === 'ALD_U_N_1B' || layer === 'ALD_U_N_2A' ||
-                layer === 'ALD_U_N_2B' || layer === 'ALD_U_N_2C'){
+            if(layer !== 'ADAM_albedo'){
                 var currProd = globals.products.find(
-                    function(p){return p.get('download').id === layer;}
+                    function(p){return p.get('visible');}
                 );
-
-                var parameters = currProd.get('parameters');
-                var band;
-                var keys = _.keys(parameters);
-                _.each(keys, function(key){
-                    if(parameters[key].selected){
-                        band = key;
+                var prodId = currProd.get('download').id;
+                this.graph.dataSettings = globals.dataSettings[prodId];
+                globals.filterManager.dataSettings = globals.dataSettings[prodId];
+                globals.filterManager._initData();
+                globals.filterManager._renderFilters();
+                var data = globals.swarm.get('data');
+                var datkey = Object.keys(data)[0];
+                if(typeof datkey !== 'undefined'){
+                    var parkeys = Object.keys(data[datkey]);
+                    if(parkeys.length>0){
+                        this.graph.renderData();
                     }
-                });
-                var style = parameters[band].colorscale;
-                var range = parameters[band].range;
-
-                this.dataSettings[band].colorscale = style;
-                this.dataSettings[band].extent = range;
-                //this.graph.dataSettings = this.dataSettings;
-                // Reset colorcache
-                for(var k in this.graph.colorCache){
-                    delete this.graph.colorCache[k];
                 }
-
-                this.graph.dataSettings = this.dataSettings;
-                this.graph.renderData();
-                this.graph.createColorScales();
-
-                localStorage.setItem(
-                    'dataSettings',
-                    JSON.stringify(globals.dataSettings)
-                );
             }
         },
 
@@ -1942,6 +2190,10 @@ define(['backbone.marionette',
                     this.prevParams = idKeys;
                     firstLoad = true;
                 }
+                if(this.requestedListChanged){
+                    firstLoad = true;
+                    this.requestedListChanged = false;
+                }
 
                 this.graph.removeGroupArrows();
                 this.graph.margin.bottom = 50;
@@ -1951,11 +2203,11 @@ define(['backbone.marionette',
                 // If data parameters have changed
                 if (!firstLoad && !_.isEqual(this.prevParams, idKeys)){
                     // Define which parameters should be selected defaultwise as filtering
-                    var setts = this.filterManager.filterSettings;
+                    var setts = globals.filterManager.filterSettings;
                     setts.visibleFilters = this.selectedFilterList;
 
 
-                    this.filterManager.updateFilterSettings(setts);
+                    globals.filterManager.updateFilterSettings(setts);
                     localStorage.setItem(
                         'selectedFilterList',
                         JSON.stringify(this.selectedFilterList)
@@ -1980,27 +2232,10 @@ define(['backbone.marionette',
                     $('#additionalProductInfo').remove();
                     $('#analyticsProductTooltip').remove();
 
-                    // Use descriptions and uom from download parameters
-                    var mergedDataSettings = globals.dataSettings;
-
-                    globals.products.each(function(prod) {
-                        if(prod.get('visible') && prod.get('download_parameters')) {
-                            var params = prod.get('download_parameters');
-                            for(var par in params){
-                                if(mergedDataSettings.hasOwnProperty(par)){
-                                    mergedDataSettings[par].uom = params[par].uom;
-                                    mergedDataSettings[par].name = params[par].name;
-                                } else{
-                                    mergedDataSettings[par] = params[par];
-                                }
-                            }
-                        }
-                    });
-
                     var currProd = globals.products.find(
                         function(p){return p.get('download').id === idKeys[0];}
                     );
-
+                    var prodId = currProd.get('download').id;
 
                     $('#nodataavailable').hide();
 
@@ -2031,17 +2266,22 @@ define(['backbone.marionette',
                             }
                         }
                     }
-                    this.extendSettings(renderSettings);
+                    if(prodId === this.previousCollection ||
+                        typeof this.previousCollection === 'undefined'){
+                        // If there was no collection change try to adapt settings
+                        // to conserve as much of the user config as possible
+                        this.extendSettings(renderSettings);
+                    }
                     this.graph.renderSettings = renderSettings;
 
-                    if( cP === 'ALD_U_N_1B' || cP === 'ALD_U_N_2A'){
+                    if(cP === 'ALD_U_N_1B' || cP === 'ALD_U_N_2A'){
 
                         this.graph.debounceActive = true;
-                        this.graph.dataSettings = mergedDataSettings;
+                        this.graph.dataSettings = globals.dataSettings[prodId];
                         this.graph.fileSaveString = cP+'_'+gran+'_'+timeString;
                         this.graph.loadData(data[cP]);
 
-                     } else if(cP === 'ALD_U_N_2B' || cP === 'ALD_U_N_2C'){
+                    } else if(cP === 'ALD_U_N_2B' || cP === 'ALD_U_N_2C'){
 
                         if(gran === 'group'){
 
@@ -2060,12 +2300,28 @@ define(['backbone.marionette',
                             this.createGroupInteractionButtons(ds, currGroup, pageSize);
                             $('#newPlotLink').hide();
                         } else {
+                            this.graph.debounceActive = true;
+                            this.graph.dataSettings = globals.dataSettings[prodId];
+                            this.graph.fileSaveString = cP+'_'+gran+'_'+timeString;
                             this.graph.loadData(data[cP]);
                         }
 
-                     } else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
+                    } else if(idKeys[0] === 'AUX_MRC_1B' || idKeys[0] === 'AUX_RRC_1B'){
 
-                        this.graph.renderSettings = this.renderSettings[idKeys[0]];
+                        this.graph.renderSettings = iterationCopy(this.renderSettings[(idKeys[0])]);
+
+                        if(this.currentKeys.indexOf('altitude_start') !== -1){
+                            // TODO: should we show 2d data by default?
+                            /*this.graph.renderSettings.groups[0] = '2d_parameter';
+                            this.graph.renderSettings.yAxis[0] = ['altitude'];
+                            this.graph.renderSettings.colorAxis[0] = [currpar2d];*/
+                        } else {
+                            // We disable group selection completely if no 2D data is available
+                            this.graph.renderSettings.groups = false;
+                            this.graph.renderSettings.renderGroups = false;
+                            this.graph.renderSettings.sharedParameters = false;
+                            this.graph.renderSettings.availableParameters = false;
+                        }
 
                         // Remove diff if no longer available
                         if(this.graph.renderSettings.yAxis.length>0 && this.graph.renderSettings.yAxis[0].length>0){
@@ -2083,7 +2339,7 @@ define(['backbone.marionette',
 
 
                         this.graph.debounceActive = false;
-                        this.graph.dataSettings = mergedDataSettings;
+                        this.graph.dataSettings = globals.dataSettings[prodId];
                         this.graph.loadData(data[idKeys[0]]);
                         this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
 
@@ -2118,69 +2374,41 @@ define(['backbone.marionette',
                         ];
                         var contains2DNadir = false;
                         var contains2DOffNadir = false;
-                        var param2D = null;
+                        var param2DNadir, param2DOffNadir = null;
                         
                         for (var i = 0; i < this.currentKeys.length; i++) {
                             if(params2DNadir.indexOf(this.currentKeys[i]) !== -1){
                                 contains2DNadir = true;
-                                param2D = this.currentKeys[i];
+                                param2DNadir = this.currentKeys[i];
                             }
                             if(params2DOffNadir.indexOf(this.currentKeys[i]) !== -1){
                                 contains2DOffNadir = true;
-                                param2D = this.currentKeys[i];
+                                param2DOffNadir = this.currentKeys[i];
                             }
                         }
 
+                        this.graph.dataSettings = globals.dataSettings[idKeys[0]];
+                        this.graph.renderSettings = iterationCopy(this.renderSettings[idKeys[0]]);
+                        this.graph.debounceActive = true;
+
                         if(contains2DNadir){
-                            this.graph.renderSettings = {
-                                xAxis: ['time_nadir_combined'],
-                                yAxis: [['layer_altitude_nadir']],
-                                y2Axis: [[]],
-                                colorAxis2: [[]],
-                                additionalXTicks: [],
-                                additionalYTicks: [[]],
-                                colorAxis: [ [param2D] ],
-                                combinedParameters: {
-                                    time_nadir_combined: ['time_nadir_start', 'time_nadir_end'],
-                                    layer_altitude_nadir: ['layer_altitude_nadir_end', 'layer_altitude_nadir_start']
-                                },
-                                availableParameters: false,
-                                groups: false,
-                                renderGroups: false,
-                                sharedParameters: false
-                            };
-                        } else if(contains2DOffNadir){
-                            this.graph.renderSettings = {
-                                xAxis: ['time_off_nadir_combined'],
-                                yAxis: [['layer_altitude_off_nadir']],
-                                y2Axis: [[]],
-                                colorAxis2: [[]],
-                                additionalXTicks: [],
-                                additionalYTicks: [[]],
-                                colorAxis: [ [param2D] ],
-                                combinedParameters: {
-                                    time_off_nadir_combined: ['time_off_nadir_start', 'time_off_nadir_end'],
-                                    layer_altitude_off_nadir: ['layer_altitude_off_nadir_end', 'layer_altitude_off_nadir_start']
-                                },
-                                availableParameters: false,
-                                groups: false,
-                                renderGroups: false,
-                                sharedParameters: false
-                            };
+                            this.graph.renderSettings.groups[0] = 'layer_nadir';
+                            this.graph.renderSettings.yAxis[0] = ['layer_altitude_nadir'];
+                            this.graph.renderSettings.colorAxis[0] = [param2DNadir];
                         } else {
-                            this.graph.renderSettings = iterationCopy(this.renderSettings[(idKeys[0])]);
+                            delete this.graph.renderSettings.renderGroups.layer_nadir;
                         }
 
-                        if(contains2DNadir || contains2DOffNadir) {
-                            this.graph.dataSettings = mergedDataSettings;
-                            this.graph.loadData(data[idKeys[0]]);
-                            this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
+                        if(contains2DOffNadir){
+                            this.graph.renderSettings.groups[1] = 'layer_off_nadir';
+                            this.graph.renderSettings.yAxis[1] = ['layer_altitude_off_nadir'];
+                            this.graph.renderSettings.colorAxis[1] = [param2DOffNadir];
                         } else {
-                            this.graph.dataSettings = mergedDataSettings;
-                            this.graph.loadData(data[idKeys[0]]);
-                            this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
+                            delete this.graph.renderSettings.renderGroups.layer_off_nadir;
                         }
-                        this.graph.debounceActive = true;
+
+                        this.graph.loadData(data[idKeys[0]]);
+                        this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
 
 
                     } else {
@@ -2211,7 +2439,7 @@ define(['backbone.marionette',
                         }
 
                         this.graph.debounceActive = false;
-                        this.graph.dataSettings = mergedDataSettings;
+                        this.graph.dataSettings = globals.dataSettings[prodId];
                         this.graph.renderSettings = iterationCopy(this.renderSettings[idKeys[0]]);
                         this.graph.loadData(data[idKeys[0]]);
                         this.graph.fileSaveString = idKeys[0]+'_'+timeString;
@@ -2250,10 +2478,10 @@ define(['backbone.marionette',
                                     tr = $('<tr></tr>');
                                     tr.append('<td>'+k+'</td>');
                                     tr.append('<td>'+singleValues[k]+'</td>');
-                                    if(that.dataSettings.hasOwnProperty(k) && 
-                                        that.dataSettings[k].hasOwnProperty('uom') &&
-                                        that.dataSettings[k].uom!==null){
-                                        tr.append('<td>'+that.dataSettings[k].uom+'</td>');
+                                    if(globals.dataSettings[prodId].hasOwnProperty(k) && 
+                                        globals.dataSettings[prodId][k].hasOwnProperty('uom') &&
+                                        globals.dataSettings[prodId][k].uom!==null){
+                                        tr.append('<td>'+globals.dataSettings[prodId][k].uom+'</td>');
                                     }else{
                                         tr.append('<td>-</td>');
                                     }
@@ -2270,14 +2498,21 @@ define(['backbone.marionette',
                         });
                     }
 
+                    // Make sure applied render settings are saved to localstorage
+                    var crs = this.graph.renderSettings;
+                    localStorage.setItem('xAxisSelection', JSON.stringify(crs.xAxis));
+                    localStorage.setItem('yAxisSelection', JSON.stringify(crs.yAxis));
+                    localStorage.setItem('y2AxisSelection', JSON.stringify(crs.y2Axis));
+                    localStorage.setItem('colorAxisSelection', JSON.stringify(crs.colorAxis));
+                    localStorage.setItem('colorAxis2Selection', JSON.stringify(crs.colorAxis2));
+
                     this.previousKeys = this.currentKeys;
+                    this.previousCollection = prodId;
 
                 }else{
                     $('#nodataavailable').show();
 
                 }
-
-
                 this.renderFilterList();
             }
         },

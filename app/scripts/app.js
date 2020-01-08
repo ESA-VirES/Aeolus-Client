@@ -129,26 +129,47 @@ var VECTOR_BREAKDOWN = {};
 
                 // Check if version of service is set and if it differs from the
                 // current version
+                var serviceVersion;
                 if(localStorage.getItem('serviceVersion') !== null){
-                    var serviceVersion = JSON.parse(
+                    serviceVersion = JSON.parse(
                         localStorage.getItem('serviceVersion')
                     );
                     if(serviceVersion!==globals.version){
-                        // A new version has been loaded, here we could 
-                        // differentiate which version was previous and which
-                        // one ist the new, for now we reset and save the new
-                        // version
-                        showMessage('success',
-                            'A new version ('+globals.version+') of the service has been released. '+
-                            'Your configuration has been updated.</br>'+
-                            'You can find information on the changes in the '+
-                            '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
-                        );
-                        localStorage.clear();
-                        localStorage.setItem(
-                            'serviceVersion',
-                            JSON.stringify(globals.version)
-                        );
+                        if(localStorage.getItem('configurationLoaded') !== null){
+                            // A configuration from a previous version was loaded
+                            localStorage.removeItem('configurationLoaded');
+                            // If service version older then 1.3 it should not be
+                            // loaded anyhow, but we add check here just in case
+                            var numberSV = Number(serviceVersion);
+                            if(isNaN(numberSV) || numberSV<1.3){
+                                localStorage.clear();
+                                showMessage('success',
+                                    'The configuration you are trying to load is outdated.', 35
+                                );
+                            } else {
+                                localStorage.setItem(
+                                    'serviceVersion',
+                                    JSON.stringify(globals.version)
+                                );
+                            }
+
+                        } else {
+                            // A new version has been loaded, here we could 
+                            // differentiate which version was previous and which
+                            // one ist the new, for now we reset and save the new
+                            // version
+                            showMessage('success',
+                                'A new version ('+globals.version+') of the service has been released. '+
+                                'Your configuration has been updated.</br>'+
+                                'You can find information on the changes in the '+
+                                '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
+                            );
+                            localStorage.clear();
+                            localStorage.setItem(
+                                'serviceVersion',
+                                JSON.stringify(globals.version)
+                            );
+                        }
                     }
                 } else {
                     // This should be the case when loading version 2.3 for the 
@@ -387,6 +408,87 @@ var VECTOR_BREAKDOWN = {};
                     console.log("Added product " + product.name );
                 }, this);
 
+                // Check if datasettings already available, and also from which
+                // service version the datasettings are coming from
+                var numberSV = Number(serviceVersion);
+
+                if(!isNaN(numberSV) && numberSV>1.4 && 
+                    localStorage.getItem('dataSettings') !== null){
+                    globals.dataSettings = JSON.parse(localStorage.getItem('dataSettings'));
+                } else {
+                    // Go through products and fill global datasettings
+                    globals.products.each(function(product){
+                        var downloadPars = product.get('download_parameters');
+                        var productConf = product.get('parameters');
+                        var prodId = product.get('download').id;
+                        // Get keys we currently request for visualization
+                        var downloadKeys = [];
+
+                        if(globals.fieldList.hasOwnProperty(prodId)){
+                            if(Array.isArray(globals.fieldList[prodId])){
+                                downloadKeys = globals.fieldList[prodId];
+                            } else {
+                                for (var key in globals.fieldList[prodId]){
+                                    downloadKeys = downloadKeys.concat(
+                                        globals.fieldList[prodId][key]
+                                    );
+                                }
+                            }
+                        }
+                        var isAux = prodId.indexOf('AUX_')!==-1;
+                        for(var key in downloadPars){
+                            if(!globals.dataSettings[prodId].hasOwnProperty(key) && 
+                                downloadKeys.indexOf(key)!==-1){
+                                var parInfo = {};
+                                // Check if parameter defined in product config
+                                if(productConf.hasOwnProperty(key)){
+                                    for(var prk in productConf[key]){
+                                        parInfo[prk] = productConf[key][prk];
+                                    }
+                                }
+                                if(downloadPars[key].hasOwnProperty('uom')){
+                                    parInfo.uom = downloadPars[key].uom;
+                                }
+                                if(downloadPars[key].hasOwnProperty('required')){
+                                    parInfo.active = true;
+                                }
+                                if(downloadPars[key].hasOwnProperty('active')){
+                                    parInfo.active = downloadPars[key].active;
+                                }
+                                // For now we activate all auxiliary parameters per 
+                                // default
+                                // TODO: Will need to change once 2D parameters are introduced
+                                if(isAux && prodId!=='AUX_MET_12'){
+                                    parInfo.active = true;
+                                }
+                                globals.dataSettings[prodId][key] = parInfo;
+                            } else if(downloadKeys.indexOf(key)!==-1){
+                                // Add info if available in product config
+                                if(productConf.hasOwnProperty(key)){
+                                    for(var prk in productConf[key]){
+                                        if(productConf[key][prk]!==null){
+                                            globals.dataSettings[prodId][key][prk] = productConf[key][prk];
+                                        }
+                                    }
+                                }
+                                // Add active info if already present
+                                if(downloadPars[key].hasOwnProperty('required')){
+                                    globals.dataSettings[prodId][key].active = true;
+                                }
+                                if(downloadPars[key].hasOwnProperty('active')){
+                                    globals.dataSettings[prodId][key].active = downloadPars[key].active;
+                                }
+                                // For now we activate all auxiliary parameters per 
+                                // default
+                                if(isAux && prodId!=='AUX_MET_12'){
+                                    globals.dataSettings[prodId][key].active = true;
+                                }
+                            }
+                        }
+                    });
+                    localStorage.setItem('dataSettings', JSON.stringify(globals.dataSettings));
+                }
+
                 var productcolors = d3.scale.ordinal().domain(domain).range(range);
 
                 globals.objects.add('productcolors', productcolors);
@@ -573,6 +675,9 @@ var VECTOR_BREAKDOWN = {};
                         }
                     })
                 });
+
+                // Create data configuration view
+                this.dataConfigurationView = new v.DataConfigurationView();
 
 
                 this.layerSettings = new v.LayerSettings();
