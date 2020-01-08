@@ -569,7 +569,8 @@
                 "scene_classification_NWP_cloud_flag": {"uom": null, "name": "Bit flag composed of  ClTp + 3*ClContent"},
                 "scene_classification_group_class_reliability": {"uom": null, "name": "Coefficient characterising the reliability of the classification"},
                 "sca_mask":{"required": true,"uom": null, "name": "SCA mask"},
-                "ica_mask":{"required": true,"uom": null, "name": "ICA mask"}
+                "ica_mask":{"required": true,"uom": null, "name": "ICA mask"},
+                "albedo_off_nadir": {"uom": null, "name": "Albedo off-nadir value"}
             },
             "download_groups": {
                 "observation": [
