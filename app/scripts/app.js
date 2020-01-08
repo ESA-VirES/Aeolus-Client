@@ -146,6 +146,28 @@ var VECTOR_BREAKDOWN = {};
                                 showMessage('success',
                                     'The configuration you are trying to load is outdated.', 35
                                 );
+                            } else if(numberSV === 1.4){
+                                // In version 1.4 all parameters are requested
+                                // so we need to identify which parameter
+                                // are used to make sure they are available
+                                var usedPars = [
+                                    JSON.parse(localStorage.getItem('xAxisSelection')),
+                                    JSON.parse(localStorage.getItem('yAxisSelection')),
+                                    JSON.parse(localStorage.getItem('y2AxisSelection')),
+                                    JSON.parse(localStorage.getItem('colorAxisSelection')),
+                                    JSON.parse(localStorage.getItem('colorAxis2Selection'))
+                                ].flat(2);
+
+                                var dataSettings = JSON.parse(localStorage.getItem('dataSettings'));
+                                for (var uu = 0; uu < usedPars.length; uu++) {
+                                    if(usedPars[uu] !== null){
+                                        // Look for parameter in product config
+                                        if(dataSettings.hasOwnProperty(usedPars[uu])){
+                                            dataSettings[usedPars[uu]].active = true;
+                                        }
+                                    }
+                                }
+                                localStorage.setItem('dataSettings', JSON.stringify(dataSettings));
                             } else {
                                 localStorage.setItem(
                                     'serviceVersion',
@@ -421,6 +443,7 @@ var VECTOR_BREAKDOWN = {};
                         var downloadPars = product.get('download_parameters');
                         var productConf = product.get('parameters');
                         var prodId = product.get('download').id;
+                        var prevDataSettings = JSON.parse(localStorage.getItem('dataSettings'));
                         // Get keys we currently request for visualization
                         var downloadKeys = [];
 
@@ -484,9 +507,15 @@ var VECTOR_BREAKDOWN = {};
                                     globals.dataSettings[prodId][key].active = true;
                                 }
                             }
+                            if(prevDataSettings && prevDataSettings.hasOwnProperty(key)){
+                                if(prevDataSettings[key].hasOwnProperty('active')){
+                                    globals.dataSettings[prodId][key].active = true;
+                                }
+                            }
                         }
                     });
                     localStorage.setItem('dataSettings', JSON.stringify(globals.dataSettings));
+                    localStorage.setItem('serviceVersion', JSON.stringify(globals.version));
                 }
 
                 var productcolors = d3.scale.ordinal().domain(domain).range(range);
