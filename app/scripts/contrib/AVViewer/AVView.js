@@ -407,6 +407,7 @@ define(['backbone.marionette',
                         mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
                         rayleigh_range: ['rayleigh_range_start', 'rayleigh_range_end'],
                         mie_range: ['mie_range_start', 'mie_range_end'],
+                        bin_number: ['bin_number_start', 'bin_number_end']
                     },
                     colorAxis: [['rayleigh_HLOS_wind_speed'], ['mie_HLOS_wind_speed']],
                     colorAxis2: [[], []],
@@ -2512,6 +2513,7 @@ define(['backbone.marionette',
                     localStorage.setItem('y2AxisSelection', JSON.stringify(crs.y2Axis));
                     localStorage.setItem('colorAxisSelection', JSON.stringify(crs.colorAxis));
                     localStorage.setItem('colorAxis2Selection', JSON.stringify(crs.colorAxis2));
+                    localStorage.setItem('groupSelected', JSON.stringify(crs.groups));
 
                     this.previousKeys = this.currentKeys;
                     this.previousCollection = prodId;
