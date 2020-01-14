@@ -65,7 +65,9 @@
             graphly: {
                 deps: ['d3', 'msgpack']
             },
-            
+            Anno: {
+                deps: ['jquery-scrollintoview']
+            }
         },
 
         paths: {
@@ -120,8 +122,10 @@
 
             w2ui: '../bower_components/w2ui/dist/w2ui-fields.min',
             w2popup: '../bower_components/w2ui/src/w2popup',
-            w2utils: '../bower_components/w2ui/src/w2utils'
+            w2utils: '../bower_components/w2ui/src/w2utils',
 
+            Anno: '../bower_components/anno.js/anno',
+            'jquery-scrollintoview': '../bower_components/jquery-scrollintoview/jquery.scrollintoview.min'
         },
 
         hbs: {

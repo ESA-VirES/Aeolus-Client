@@ -25,7 +25,8 @@ var VECTOR_BREAKDOWN = {};
             'controller/LayerController',
             'controller/SelectionController',
             'controller/DifferenceController',
-            'controller/DataController'
+            'controller/DataController',
+            'Anno'
         ],
 
         function(Backbone, globals, DialogRegion,
@@ -853,8 +854,6 @@ var VECTOR_BREAKDOWN = {};
 
                 // Remove loading screen when this point is reached in the script
                 $('#loadscreen').remove();
-
-
             }
 
 

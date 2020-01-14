@@ -3,10 +3,11 @@ define(['backbone.marionette',
     'app',
     'models/AVModel',
     'globals',
+    'tutorial',
     'd3',
     'graphly',
     'underscore',
-], function(Marionette, Communicator, App, AVModel, globals) {
+], function(Marionette, Communicator, App, AVModel, globals, tutorial) {
     'use strict';
     var AVView = Marionette.View.extend({
         model: new AVModel.AVModel(),
@@ -2593,6 +2594,9 @@ define(['backbone.marionette',
                 }
                 this.renderFilterList();
             }
+
+            var annotutorial = new Anno(tutorial.steps);
+            annotutorial.show();
         },
 
         reloadUOM: function(){
