@@ -8,8 +8,7 @@
         'communicator',
         'globals',
         'hbs!tmpl/LayerSettings',
-        'underscore',
-        'plotty'
+        'underscore'
     ],
 
     function( Backbone, Communicator, globals, LayerSettingsTmpl ) {
@@ -21,15 +20,12 @@
 
             initialize: function(options) {
                 this.selected = null;
-                this.plot = new plotty.plot({
-                    colorScale: 'jet',
-                    domain: [0,1]
-                });
                 this.selected_satellite = "Alpha";
 
             },
 
             renderView: function(){
+                this.plot = globals.cesGraph.batchDrawer;
 
                 // Unbind first to make sure we are not binding to many times
                 this.stopListening(Communicator.mediator, "layer:settings:changed", this.onParameterChange);
@@ -123,7 +119,7 @@
 
                     var colorscale_options = "";
                     var selected_colorscale;
-                    _.each(globals.colorscaletypes, function(colorscale){
+                    _.each(this.colorscaletypes, function(colorscale){
                         var prodId = that.current_model.get('download').id;
                         if(globals.dataSettings[prodId][that.selected].colorscale == colorscale){
                             selected_colorscale = colorscale;
@@ -265,10 +261,10 @@
             },
 
             onShow: function(view){
-                
-                // Overwrite with plotty colorscales
-                if (plotty.hasOwnProperty('colorscales')) {
-                    this.colorscaletypes = Object.keys(plotty.colorscales);
+                this.plot = globals.cesGraph.batchDrawer;
+                // Overwrite with graphly colorscales
+                if (this.plot.hasOwnProperty('colorscales')) {
+                    this.colorscaletypes = Object.keys(this.plot.colorscales);
                 }
                 this.colorscaletypes = _.sortBy(this.colorscaletypes, function (c) {return c;});
 
@@ -646,7 +642,7 @@
                 /*'<div class="'+style+'" style="width:'+scalewidth+'px; height:20px; margin-left:'+margin+'px"></div>'*/
 
                 this.plot.setColorScale(style);
-                var base64_string = this.plot.colorScaleImage.toDataURL();
+                var base64_string = this.plot.getColorScaleImage().toDataURL();
                 $('#gradient').css('background-image', 'url(' + base64_string + ')');
 
 

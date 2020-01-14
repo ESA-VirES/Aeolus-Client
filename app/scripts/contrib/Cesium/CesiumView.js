@@ -9,8 +9,7 @@ define([
     'papaparse',
     'cesium/Cesium',
     'drawhelper',
-    'FileSaver',
-    'plotty'
+    'FileSaver'
 ], function( Marionette, Communicator, App, MapModel, globals, Papa) {
     'use strict';
     var CesiumView = Marionette.View.extend({
@@ -43,16 +42,7 @@ define([
             this.colorscales = {};
             this.beginTime = null;
             this.endTime = null;
-            this.plot = null;
             this.curtainPrimitive = null;
-
-            for(var cskey in additionalColorscales){
-                plotty.addColorScale(
-                    cskey, 
-                    additionalColorscales[cskey][0],
-                    additionalColorscales[cskey][1]
-                );
-            }
 
             var renderSettings = {
                 xAxis: [
@@ -95,6 +85,16 @@ define([
                 fixedHeigt: 512,
                 defaultAlpha: 1.0
             });
+
+            for(var cskey in additionalColorscales){
+                this.graph.addColorScale(
+                    cskey, 
+                    additionalColorscales[cskey][0],
+                    additionalColorscales[cskey][1]
+                );
+            }
+
+            globals.cesGraph = this.graph;
 
             var that = this;
 
@@ -464,8 +464,6 @@ define([
                     container: $('.cesium-viewer-toolbar')[0]
                 });
             } 
-            this.plot = new plotty.plot({});
-            this.plot.setClamp(true, true);
             this.isClosed = false;
 
             $('#cesium_save').on('click', this.onSaveImage.bind(this));
@@ -2032,8 +2030,8 @@ define([
             height = 0;
             var renderOutlines = defaultFor(currProd.get('outlines'), false);
 
-            this.plot.setColorScale(style);
-            this.plot.setDomain(range);
+            this.graph.batchDrawer.setColorScale(style);
+            this.graph.batchDrawer.setDomain(range);
 
             var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
             
@@ -2060,7 +2058,7 @@ define([
                 positions.push(data[lonPar][i]+1);
                 positions.push(data[latPar][i]);
 
-                var color = this.plot.getColor(data[band][i]);
+                var color = this.graph.batchDrawer.getColor(data[band][i]);
                 var options = {
                     position : new Cesium.Cartesian3.fromDegrees(
                         data[lonPar][i],
@@ -2250,8 +2248,8 @@ define([
                             for (var i = tovisualize.length - 1; i >= 0; i--) {
                                 var set = settings[row.id][tovisualize[i]];
                                 var alpha = set.alpha;
-                                this.plot.setColorScale(set.colorscale);
-                                this.plot.setDomain(set.range);
+                                this.graph.batchDrawer.setColorScale(set.colorscale);
+                                this.graph.batchDrawer.setDomain(set.range);
 
                                 if (_.find(SCALAR_PARAM, function(par){
                                     return set.band === par;
@@ -2277,7 +2275,7 @@ define([
                                     }
 
                                     if(!isNaN(row[set.band])){
-                                        color = this.plot.getColor(row[set.band]);
+                                        color = this.graph.batchDrawer.getColor(row[set.band]);
                                         var options = {
                                             position : new Cesium.Cartesian3.fromDegrees(
                                                 row.Longitude, row.Latitude,
@@ -2308,7 +2306,7 @@ define([
                                            !isNaN(row[sb[1]]) &&
                                            !isNaN(row[sb[2]])) {
                                             var vLen = Math.sqrt(Math.pow(row[sb[0]],2)+Math.pow(row[sb[1]],2)+Math.pow(row[sb[2]],2));
-                                            color = this.plot.getColor(vLen);
+                                            color = this.graph.batchDrawer.getColor(vLen);
                                             var addLen = 10;
                                             var vN = (row[sb[0]]/vLen)*addLen;
                                             var vE = (row[sb[1]]/vLen)*addLen;
@@ -2587,8 +2585,8 @@ define([
                     var axisScale;
 
 
-                    this.plot.setColorScale(style);
-                    var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
+                    this.graph.batchDrawer.setColorScale(style);
+                    var colorscaleimage = this.graph.batchDrawer.getColorScaleImage().toDataURL();
 
                     $('#svgcolorscalecontainer').remove();
                     var svgContainer = d3.select('body').append('svg')

@@ -53,6 +53,16 @@ define(['backbone.marionette',
             );
 
             localStorage.setItem(
+                'reversedYAxis',
+                JSON.stringify(graph.renderSettings.reversedYAxis)
+            );
+
+            localStorage.setItem(
+                'reversedY2Axis',
+                JSON.stringify(graph.renderSettings.reversedY2Axis)
+            );
+
+            localStorage.setItem(
                 'groupSelected',
                 JSON.stringify(graph.renderSettings.groups)
             )
@@ -70,6 +80,15 @@ define(['backbone.marionette',
             var colax = JSON.parse(localStorage.getItem('colorAxisSelection'));
             var colax2 = JSON.parse(localStorage.getItem('colorAxis2Selection'));
             var groups = JSON.parse(localStorage.getItem('groupSelected'));
+
+            var revY = null;
+            var revY2 = null;
+            if(localStorage.getItem('reversedYAxis') !== 'undefined'){
+                revY = JSON.parse(localStorage.getItem('reversedYAxis'));
+            }
+            if(localStorage.getItem('reversedYAxis') !== 'undefined'){
+                revY2 = JSON.parse(localStorage.getItem('reversedY2Axis'));
+            }
 
             var comb = [].concat(xax, yax, y2ax, colax);
             comb = _.flatten(comb);
@@ -182,6 +201,12 @@ define(['backbone.marionette',
             if (groups !== null) {
                 currSets.groups = groups;
             }
+            if (revY !== null) {
+                currSets.reversedYAxis = revY;
+            }
+            if (revY2 !== null) {
+                currSets.reversedY2Axis = revY2;
+            }
 
             // Apply custom subticks in the size of the amount of plots
             // subticks are not saved at the moment
@@ -192,13 +217,6 @@ define(['backbone.marionette',
                 }
                 currSets.additionalYTicks = yticks;
             }
-
-            localStorage.setItem('xAxisSelection', JSON.stringify(xax));
-            localStorage.setItem('yAxisSelection', JSON.stringify(yax));
-            localStorage.setItem('y2AxisSelection', JSON.stringify(y2ax));
-            localStorage.setItem('colorAxisSelection', JSON.stringify(colax));
-            localStorage.setItem('colorAxis2Selection', JSON.stringify(colax2));
-
             return currSets;
         },
 
@@ -407,7 +425,7 @@ define(['backbone.marionette',
                         mie_altitude: ['mie_altitude_start', 'mie_altitude_end'],
                         rayleigh_range: ['rayleigh_range_start', 'rayleigh_range_end'],
                         mie_range: ['mie_range_start', 'mie_range_end'],
-                        bin_number: ['bin_number_start', 'bin_number_end']
+                        range_bin_number: ['range_bin_number_start', 'range_bin_number_end']
                     },
                     colorAxis: [['rayleigh_HLOS_wind_speed'], ['mie_HLOS_wind_speed']],
                     colorAxis2: [[], []],
@@ -430,6 +448,9 @@ define(['backbone.marionette',
                                 'mie_range',
                                 'mie_range_start',
                                 'mie_range_end',
+                                'bin_number',
+                                'range_bin_number_start',
+                                'range_bin_number_end',
                                 'geoid_separation',
                                 'velocity_at_DEM_intersection',
                                 'AOCS_pitch_angle',
@@ -475,6 +496,9 @@ define(['backbone.marionette',
                                 'rayleigh_range',
                                 'rayleigh_range_start',
                                 'rayleigh_range_end',
+                                'bin_number',
+                                'range_bin_number_start',
+                                'range_bin_number_end',
                                 'geoid_separation',
                                 'velocity_at_DEM_intersection',
                                 'AOCS_pitch_angle',
@@ -883,7 +907,8 @@ define(['backbone.marionette',
                         ['rayleigh_meas_map']
                     ],
                     groups: ['rayleigh'],
-                    reversedYAxis: true,
+                    reversedYAxis: [true],
+                    reversedY2Axis: [false],
                     additionalXTicks: [],
                     additionalYTicks: [[]],
                     y2Axis: [[]],
@@ -1150,7 +1175,8 @@ define(['backbone.marionette',
                         ['rayleigh_meas_map']
                     ],
                     groups: ['rayleigh'],
-                    reversedYAxis: true,
+                    reversedYAxis: [true],
+                    reversedY2Axis: [false],
                     additionalXTicks: [],
                     additionalYTicks: [[]],
                     y2Axis: [[]],
@@ -1597,6 +1623,44 @@ define(['backbone.marionette',
                 });
 
                 this.graph.on('axisChange', function () {
+                    // If a parameter should be plotted reversed in y axis we
+                    // change it here
+                    // TODO: It would be more effincient if we could do this
+                    // before rendering was done, this way it is rendered twice
+                    var parsToReverse = [
+                        'range_bin_number',
+                        'rayleigh_bins', 'mie_bins',
+                        'mie_wind_result_range_bin_number',
+                        'rayleigh_wind_result_range_bin_number'
+                    ];
+                    var needRerender = false;
+                    var rS = that.graph.renderSettings;
+                    for (var yPos = 0; yPos < rS.yAxis.length; yPos++) {
+                        var revAv = false;
+                        for (var par = 0; par < rS.yAxis[yPos].length; par++) {
+                            if(parsToReverse.indexOf(rS.yAxis[yPos][par]) !== -1){
+                                revAv = true;
+                            }
+                        }
+                        if(revAv !== rS.reversedYAxis[yPos]){
+                            needRerender = true;
+                            rS.reversedYAxis[yPos] = revAv;
+                        }
+                        revAv = false;
+                        for (var par = 0; par < rS.y2Axis[yPos].length; par++) {
+                            if(parsToReverse.indexOf(rS.y2Axis[yPos][par]) !== -1){
+                                revAv = true;
+                            }
+                        }
+                        if(revAv !== rS.reversedY2Axis[yPos]){
+                            needRerender = true;
+                            rS.reversedY2Axis[yPos] = revAv;
+                        }
+                    }
+                    if(needRerender){
+                        that.graph.initAxis();
+                        that.graph.renderData();
+                    }
                     var data = globals.swarm.get('data');
                     var datkey = Object.keys(data)[0];
                     // Check to see if L2B or L2C groups are currently visualized
@@ -1629,6 +1693,18 @@ define(['backbone.marionette',
                         function(p){return p.get('visible');}
                     );
                     var prodId = currProd.get('download').id;
+
+
+                    var parOpts = currProd.get('parameters');
+                    // Go trough product parameters and update based on data settings
+                    for (var pk in parOpts){
+                        if(globals.dataSettings[prodId].hasOwnProperty(pk)){
+                            if(globals.dataSettings[prodId][pk].hasOwnProperty('colorscale')){
+                                parOpts[pk].colorscale = globals.dataSettings[prodId][pk].colorscale;
+                            }
+                        }
+                    }
+                    currProd.set('parameters', parOpts);
                     // Trigger layer parameters changed to make sure globe
                     // view is updated acordingly
                     Communicator.mediator.trigger(
@@ -2245,6 +2321,9 @@ define(['backbone.marionette',
                     );
                     var prodId = currProd.get('download').id;
 
+                    // Re-set datasettings
+                    this.graph.dataSettings = globals.dataSettings[prodId];
+
                     $('#nodataavailable').hide();
 
                     var cP = idKeys[0];
@@ -2285,7 +2364,6 @@ define(['backbone.marionette',
                     if(cP === 'ALD_U_N_1B' || cP === 'ALD_U_N_2A'){
 
                         this.graph.debounceActive = true;
-                        this.graph.dataSettings = globals.dataSettings[prodId];
                         this.graph.fileSaveString = cP+'_'+gran+'_'+timeString;
                         this.graph.loadData(data[cP]);
 
@@ -2309,7 +2387,6 @@ define(['backbone.marionette',
                             $('#newPlotLink').hide();
                         } else {
                             this.graph.debounceActive = true;
-                            this.graph.dataSettings = globals.dataSettings[prodId];
                             this.graph.fileSaveString = cP+'_'+gran+'_'+timeString;
                             this.graph.loadData(data[cP]);
                         }
@@ -2347,7 +2424,6 @@ define(['backbone.marionette',
 
 
                         this.graph.debounceActive = false;
-                        this.graph.dataSettings = globals.dataSettings[prodId];
                         this.graph.loadData(data[idKeys[0]]);
                         this.graph.fileSaveString = idKeys[0]+'_top'+'_'+timeString;
 
@@ -2394,8 +2470,6 @@ define(['backbone.marionette',
                                 param2DOffNadir = this.currentKeys[i];
                             }
                         }
-
-                        this.graph.dataSettings = globals.dataSettings[idKeys[0]];
                         this.graph.renderSettings = iterationCopy(this.renderSettings[idKeys[0]]);
                         this.graph.debounceActive = true;
 
@@ -2447,7 +2521,6 @@ define(['backbone.marionette',
                         }
 
                         this.graph.debounceActive = false;
-                        this.graph.dataSettings = globals.dataSettings[prodId];
                         this.graph.renderSettings = iterationCopy(this.renderSettings[idKeys[0]]);
                         this.graph.loadData(data[idKeys[0]]);
                         this.graph.fileSaveString = idKeys[0]+'_'+timeString;
@@ -2508,19 +2581,15 @@ define(['backbone.marionette',
 
                     // Make sure applied render settings are saved to localstorage
                     var crs = this.graph.renderSettings;
-                    localStorage.setItem('xAxisSelection', JSON.stringify(crs.xAxis));
-                    localStorage.setItem('yAxisSelection', JSON.stringify(crs.yAxis));
-                    localStorage.setItem('y2AxisSelection', JSON.stringify(crs.y2Axis));
-                    localStorage.setItem('colorAxisSelection', JSON.stringify(crs.colorAxis));
-                    localStorage.setItem('colorAxis2Selection', JSON.stringify(crs.colorAxis2));
-                    localStorage.setItem('groupSelected', JSON.stringify(crs.groups));
 
-                    this.previousKeys = this.currentKeys;
+                    this.savePlotConfig(this.graph);
+
                     this.previousCollection = prodId;
+                    this.previousKeys = this.currentKeys;
 
                 }else{
                     $('#nodataavailable').show();
-
+                    this.previousCollection = false;
                 }
                 this.renderFilterList();
             }

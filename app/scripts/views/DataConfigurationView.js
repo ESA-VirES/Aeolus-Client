@@ -151,6 +151,11 @@
 
       renderProductParameterList: function(filter){
 
+        if (globals.cesGraph.batchDrawer.hasOwnProperty('colorscales')) {
+            this.colorscaletypes = Object.keys(globals.cesGraph.batchDrawer.colorscales);
+        }
+        this.colorscaletypes = _.sortBy(this.colorscaletypes, function (c) {return c;});
+
         this.$('#parameterList').empty();
         // Load parameters for selected product type
         var selectedProduct = null;
@@ -180,7 +185,7 @@
                   uom: parameterList[key].uom,
                   extent: defaultFor(parInfo.extent, null),
                   filterExtent: defaultFor(parInfo.filterExtent, null),
-                  colorscaleOptions: globals.colorscaletypes,
+                  colorscaleOptions: this.colorscaletypes,
                   active: defaultFor(parInfo.active, false)
                 };
                 if(parameterList[key].hasOwnProperty('required')){

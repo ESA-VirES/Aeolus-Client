@@ -2100,13 +2100,23 @@
                     }
                   }
 
+                  var range_bin_number = [];
+                  var bin_number = [];
 
                   // First thing we need to find possible jumps in data and handle them
                   var positions = [];
                   for (var i = 0; i < ds.latitude_of_DEM_intersection.length; i++) {
                     positions.push(ds.longitude_of_DEM_intersection[i]);
                     positions.push(ds.latitude_of_DEM_intersection[i]);
+                    var prof = [];
+                    for (var bn = 0; bn < 25; bn++) {
+                      prof.push(bn);
+                    }
+                    range_bin_number.push(prof);
+                    bin_number.push(prof.slice(1, 25));
                   }
+                  ds.range_bin_number = range_bin_number;
+                  ds.bin_number = bin_number;
 
                   var lonStep = 10;
                   var latStep = 10;
@@ -2217,6 +2227,8 @@
                     'AOCS_yaw_angle',
                     'velocity_at_DEM_intersection', 
                     'albedo_off_nadir',
+                    'range_bin_number',
+                    'bin_number'
                   ];
 
                   if(mieDiffVars){
@@ -2269,7 +2281,8 @@
 
                   var startEndVars = [
                     'time','latitude_of_DEM_intersection','longitude_of_DEM_intersection',
-                    'rayleigh_altitude', 'rayleigh_range', 'mie_altitude', 'mie_range'
+                    'rayleigh_altitude', 'rayleigh_range', 'mie_altitude', 'mie_range',
+                    'range_bin_number'
                   ];
 
                   // Three data structures possible:

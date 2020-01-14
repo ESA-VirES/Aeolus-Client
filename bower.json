@@ -21,12 +21,11 @@
     "font-awesome": "~4.5.0",
     "cesium": "https://github.com/AnalyticalGraphicsInc/cesium/releases/download/1.39/Cesium-1.39.zip",
     "papaparse": "~4.1.0",
-    "plotty": "santilland/plotty#^0.1.1",
     "jqueryui-touch-punch": "*",
     "FileSaver.js": "eligrey/FileSaver.js#~1.2.0",
     "canvas-toBlob.js": "eligrey/canvas-toBlob.js",
     "Blob.js": "eligrey/Blob.js",
-    "graphly": "EOX-A/graphly#3d5b751d58112a248d29df7b0512c2c5a4dea3b2",
+    "graphly": "EOX-A/graphly#25380b3d11ce638d7ec2090dac7c22e390bca4fc",
     "filepond": "pqina/filepond#^2.0.1",
     "w2ui": "vitmalina/w2ui#b2216cbef7e940c8efaf0b07a94ce2f01d194c39"
   },

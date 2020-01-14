@@ -63,7 +63,7 @@
                 deps: ['w2utils', 'jquery']
             },
             graphly: {
-                deps: ['d3', 'plotty', 'msgpack']
+                deps: ['d3', 'msgpack']
             },
             
         },
@@ -115,8 +115,6 @@
             'marionette.handlebars': '../bower_components/backbone.marionette.handlebars/backbone.marionette.handlebars.min',
 
             papaparse: '../bower_components/papaparse/papaparse.min',
-
-            plotty: '../bower_components/plotty/dist/plotty.min',
 
             sumoselect: '../bower_components/sumoselect/jquery.sumoselect.min',
 
