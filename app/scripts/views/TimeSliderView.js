@@ -275,6 +275,9 @@
                     source: {fetch: this.fetchWPS.bind(attrs)}
                 });
 
+                $(this.el).append('<div id="timesliderSelectionArea"></div>');
+                $(this.el).append('<div id="timesliderInteractionArea"></div>');
+
 
             }, // END of onShow
 

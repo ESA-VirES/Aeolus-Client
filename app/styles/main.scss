@@ -224,7 +224,7 @@ button[active=active] {
     left: 3em;
     font-size: .9em;
     position: absolute;
-    z-index: 1031 !important;
+    z-index: $layer-gui;
 }
 .layercontrol ul {
     margin: 0 0 1em 1.5em;
@@ -499,7 +499,7 @@ button[active=active] {
   width: 400px;
   position: absolute;
   right: 10px;
-  z-index: 501;
+  z-index: $layer-gui;
   display: none;
 }
 
@@ -516,7 +516,7 @@ button[active=active] {
   position: absolute;
   top:18px;
   left: 10px;
-  z-index: 1030;
+  z-index: $layer-gui;
 }
 
 .nav.navbar-nav li a{
@@ -529,8 +529,4 @@ button[active=active] {
 .nav.navbar-nav a{
   padding-left: 8px;
   padding-right: 8px;
-}
-
-.anno-overlay{
-  z-index: 1004!important;
 }
