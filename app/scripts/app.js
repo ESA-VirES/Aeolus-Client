@@ -25,8 +25,7 @@ var VECTOR_BREAKDOWN = {};
             'controller/LayerController',
             'controller/SelectionController',
             'controller/DifferenceController',
-            'controller/DataController',
-            'Anno'
+            'controller/DataController'
         ],
 
         function(Backbone, globals, DialogRegion,

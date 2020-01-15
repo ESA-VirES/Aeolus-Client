@@ -2202,6 +2202,11 @@
             }]
         },
         {
+            "name": "Tutorial",
+            "icon": "fa-book",
+            "eventToRaise": "ui:open:tutorial"
+        },
+        {
             "name": "About",
             "icon": "fa-info-circle",
             "eventToRaise": "dialog:open:about"

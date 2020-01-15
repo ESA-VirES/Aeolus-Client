@@ -2595,8 +2595,7 @@ define(['backbone.marionette',
                 this.renderFilterList();
             }
 
-            var annotutorial = new Anno(tutorial.steps);
-            annotutorial.show();
+            tutorial.tutorialObject.show();
         },
 
         reloadUOM: function(){
