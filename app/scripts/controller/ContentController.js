@@ -141,7 +141,7 @@
 
             },
             onOpenDataConfiguration: function(){
-                if (_.isUndefined(App.viewContent.isClosed) || App.dataConfigurationView.isClosed) {
+                if (_.isUndefined(App.dataConfigurationView.isClosed) || App.dataConfigurationView.isClosed) {
                     App.viewContent.show(App.dataConfigurationView);
                 } else {
                     App.viewContent.close();

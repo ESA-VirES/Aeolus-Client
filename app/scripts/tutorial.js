@@ -78,11 +78,37 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
                 }
             },
             buttons: [
+                AnnoButton.BackButton,
+                new AnnoButton({
+                    text: 'Next',
+                    click: function(){
+                        if($('#viewContent').is(':empty')){
+                            Communicator.mediator.trigger('dialog:show:dataconfiguration');
+                        }
+                        this.switchToChainNext();
+                    }
+                }),
+            ]
+        },
+        {
+            target: '#modalDataConfiguration',
+            content: 'by clicking data the data configuration panel opens which allows selection of parameters you are interested in as well as other configuration options',
+            position: {
+                top: '126px',
+                left: '290px'
+            },
+            arrowPosition: 'right',
+            onHide: function(anno, $target, $annoElem, returnFromOnShow) {
+                if(!$('#viewContent').is(':empty')){
+                    Communicator.mediator.trigger('dialog:show:dataconfiguration');
+                }
+            },
+            buttons: [
                 new AnnoButton({
                     text: 'Back', className: 'anno-btn-low-importance',
                     click: function(){
-                        if($('#leftSideBar').is(':empty')){
-                            Communicator.mediator.trigger('ui:open:layercontrol');
+                        if($('#optionsBar').is(':empty')){
+                            showCurrentLayerSettings();
                         }
                         this.switchToChainPrev();
                     }
@@ -98,8 +124,8 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
                 new AnnoButton({
                     text: 'Back', className: 'anno-btn-low-importance',
                     click: function(){
-                        if($('#optionsBar').is(':empty')){
-                            showCurrentLayerSettings();
+                        if($('#viewContent').is(':empty')){
+                            Communicator.mediator.trigger('dialog:show:dataconfiguration');
                         }
                         this.switchToChainPrev();
                     }
@@ -240,6 +266,55 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
             ]
         },
         {
+            target: '.groupSelect:first',
+            content: 'visualization group selection',
+            position: 'center-bottom',
+            buttons: [
+                new AnnoButton({
+                    text: 'Back', className: 'anno-btn-low-importance',
+                    click: function(){
+                        if($('.parameterInfo:first').css('visibility') === 'hidden'){
+                            $('#cogIcon0').click();
+                        }
+                        if($('#parameterSettings').css('display') === 'none'){
+                            $('.parameterInfo:first > div > div').click();
+                        }
+                        this.switchToChainPrev();
+                    }
+                }),
+                AnnoButton.NextButton
+            ]
+        },
+        {
+            target: '#filterDivContainer',
+            content: 'this is the filter panel, where you can specify how the data should be filtered',
+            position: 'center-top',
+            buttons: [
+                new AnnoButton({
+                    text: 'Back', className: 'anno-btn-low-importance',
+                    click: function(){
+                        if($('.parameterInfo:first').css('visibility') === 'hidden'){
+                            $('#cogIcon0').click();
+                        }
+                        if($('#parameterSettings').css('display') === 'none'){
+                            $('.parameterInfo:first > div > div').click();
+                        }
+                        this.switchToChainPrev();
+                    }
+                }),
+                AnnoButton.NextButton
+            ]
+        },
+        {
+            target: '.filterContainer:first',
+            content: 'this is an interactive filter, you can set filter extent by clicking and dragging on the axis, you can also set the shown data range by clicking the edit button',
+            position: 'left',
+            buttons: [
+                AnnoButton.BackButton,
+                AnnoButton.NextButton
+            ]
+        },
+        {
             target: '.view1',
             content: 'this is the globe visualization',
             position: 'right',
@@ -264,6 +339,23 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
                     }
                 }),
                 AnnoButton.NextButton
+            ]
+        },
+        {
+            target: '.view1',
+            content: 'on the top right are interaction buttons to load kml files, setting an area of interest, save the current globe as image, interaction help information and visualization change between globe, 2D and 2.5D view',
+            position: {top:'42px', left:'337px'},
+            arrowPosition: 'center-top',
+            buttons: [AnnoButton.BackButton,AnnoButton.NextButton]
+        },
+        {
+            target: '.navbar',
+            content:'This concludes the tutorial, if you have any questions or issues feel free to contact us at <a href="mailto:feedback@vires.services?subject=[VirES-Aeolus]:&nbsp;">feedback@vires.services</a>',
+            position: 'center-bottom',
+            arrowPosition: {},
+            buttons: [
+                AnnoButton.BackButton,
+                AnnoButton.EndButton
             ]
         },
     ]
