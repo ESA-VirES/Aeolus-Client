@@ -93,10 +93,8 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         {
             target: '#modalDataConfiguration',
             content: 'by clicking data the data configuration panel opens which allows selection of parameters you are interested in as well as other configuration options',
-            position: {
-                top: '126px',
-                left: '290px'
-            },
+            position: 'left',
+            className: 'anno-left-offset',
             arrowPosition: 'right',
             onHide: function(anno, $target, $annoElem, returnFromOnShow) {
                 if(!$('#viewContent').is(':empty')){
@@ -149,6 +147,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
             target: '#timeslider',
             content: 'interaction area, click and drag to move time domain',
             position: 'center-top',
+            className: 'anno-height-offset-small',
             onShow: function (anno, $target, $annoElem) {
                 $('#timesliderSelectionArea').css('display', 'block');
             },
@@ -308,7 +307,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         {
             target: '.filterContainer:first',
             content: 'this is an interactive filter, you can set filter extent by clicking and dragging on the axis, you can also set the shown data range by clicking the edit button',
-            position: 'left',
+            position: 'right',
             buttons: [
                 AnnoButton.BackButton,
                 AnnoButton.NextButton
@@ -344,9 +343,119 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         {
             target: '.view1',
             content: 'on the top right are interaction buttons to load kml files, setting an area of interest, save the current globe as image, interaction help information and visualization change between globe, 2D and 2.5D view',
-            position: {top:'42px', left:'337px'},
-            arrowPosition: 'center-top',
-            buttons: [AnnoButton.BackButton,AnnoButton.NextButton]
+            position: 'right',
+            buttons: [
+                AnnoButton.BackButton,
+                new AnnoButton({
+                    text: 'Next',
+                    click: function(){
+                        if($('#viewContent').is(':empty')){
+                            Communicator.mediator.trigger('dialog:open:download:filter', true);
+                        }
+                        this.switchToChainNext();
+                    }
+                })
+            ]
+        },
+        {
+            target: '.panel.download',
+            content: 'If you want to also download the selected data you can click on the "Download" button in the navigation bar which opens the download panel',
+            position: 'left',
+            className: 'anno-left-offset',
+            buttons: [
+                new AnnoButton({
+                    text: 'Back', className: 'anno-btn-low-importance',
+                    click: function(){
+                        Communicator.mediator.trigger('dialog:open:download:filter', false);
+                        this.switchToChainPrev();
+                    }
+                }),
+                AnnoButton.NextButton
+            ]
+        },
+        {
+            target: '#filterContainer',
+            content: 'All the currently applied filters are shown here',
+            position: 'bottom',
+            onShow: function (anno, $target, $annoElem) {
+                $('.panel.download').css('z-index', 1005);
+            },
+            onHide: function(anno, $target, $annoElem, returnFromOnShow) {
+                $('.panel.download').css('z-index', 600);
+            },
+            buttons: [
+                AnnoButton.BackButton,
+                AnnoButton.NextButton
+            ]
+        },
+        {
+            target: '#btn-start-download',
+            content: 'Once happy with the selection you can click here, this will start the process on the server',
+            position: 'top',
+            onShow: function (anno, $target, $annoElem) {
+                $('.panel.download').css('z-index', 1005);
+            },
+            onHide: function(anno, $target, $annoElem, returnFromOnShow) {
+                $('.panel.download').css('z-index', 600);
+            },
+            buttons: [
+                AnnoButton.BackButton,
+                AnnoButton.NextButton
+            ]
+        },
+        {
+            target: '#download_processes',
+            content: 'The process status is then shown here, once a process is finished the "Download" button will be enabled where you can download the results',
+            position: 'bottom',
+            onShow: function (anno, $target, $annoElem) {
+                $('.panel.download').css('z-index', 1005);
+            },
+            onHide: function(anno, $target, $annoElem, returnFromOnShow) {
+                $('.panel.download').css('z-index', 600);
+            },
+            buttons: [
+                AnnoButton.BackButton,
+                AnnoButton.NextButton
+            ]
+        },
+        {
+            target: '#containerFurtherOptions',
+            content: 'Further options for the download are to add or remove the data set descriptors or to only download specific parameters',
+            position: 'left',
+            className: 'anno-height-offset',
+            onShow: function (anno, $target, $annoElem) {
+                $('.panel.download').css('z-index', 1005);
+                $('#containerFurtherOptions:not(.anno-placeholder)').hide();
+            },
+            onHide: function(anno, $target, $annoElem, returnFromOnShow) {
+                $('.panel.download').css('z-index', 600);
+                $('#containerFurtherOptions:not(.anno-placeholder)').show();
+            },
+            buttons: [
+                AnnoButton.BackButton,
+                AnnoButton.NextButton
+            ]
+        },
+        {
+            target: '#origDownload',
+            content: 'If you are interested in the original datasets instead of the converted netCDF files you can use this button to create a package containing the original datasets used',
+            position: 'top',
+            onShow: function (anno, $target, $annoElem) {
+                $('.panel.download').css('z-index', 1005);
+            },
+            onHide: function(anno, $target, $annoElem, returnFromOnShow) {
+                $('.panel.download').css('z-index', 600);
+            },
+            buttons: [
+                AnnoButton.BackButton,
+                new AnnoButton({
+                    text: 'Next',
+                    click: function(){
+                        Communicator.mediator.trigger('dialog:open:download:filter', false);
+                        this.switchToChainNext();
+                    }
+                })
+            ]
         },
         {
             target: '.navbar',
@@ -354,7 +463,13 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
             position: 'center-bottom',
             arrowPosition: {},
             buttons: [
-                AnnoButton.BackButton,
+                new AnnoButton({
+                    text: 'Back', className: 'anno-btn-low-importance',
+                    click: function(){
+                        Communicator.mediator.trigger('dialog:open:download:filter', true);
+                        this.switchToChainPrev();
+                    }
+                }),
                 AnnoButton.EndButton
             ]
         },

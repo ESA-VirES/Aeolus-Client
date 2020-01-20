@@ -6,25 +6,27 @@
   
   <div id="download_processes"></div>
   
-  <div style="font-weight:bold;">Filters</div>
+  <div id="filterContainer">
+    <div style="font-weight:bold;">Filters</div>
 
-  <div class="input-group" id="date" style="margin:7px">
-    <span class="form-control">
-      Date ( <input type="checkbox" style="vertical-align:top;" value="" id="custom_time_cb"> specify time <i style="cursor: help;" class="fa fa-info-circle" title="As default 00:00:00 and 23:59:59 is selected for start and end dates"></i>) 
-      <div style="float:right; margin-right:27px;">
-      <input type="text" id="starttime" style="width: 11em; margin-left:6px;">
-      <input type="text" id="endtime" style="margin-left:29px;width: 11em;">
-      </div>
-    </span>
-    <span class="input-group-btn">
-      <button class="btn btn-danger delete-filter disabled" type="button">
-        <i class="fa fa-minus-circle"></i>
-      </button>
-    </span>
+    <div class="input-group" id="date" style="margin:7px">
+      <span class="form-control">
+        Date ( <input type="checkbox" style="vertical-align:top;" value="" id="custom_time_cb"> specify time <i style="cursor: help;" class="fa fa-info-circle" title="As default 00:00:00 and 23:59:59 is selected for start and end dates"></i>) 
+        <div style="float:right; margin-right:27px;">
+        <input type="text" id="starttime" style="width: 11em; margin-left:6px;">
+        <input type="text" id="endtime" style="margin-left:29px;width: 11em;">
+        </div>
+      </span>
+      <span class="input-group-btn">
+        <button class="btn btn-danger delete-filter disabled" type="button">
+          <i class="fa fa-minus-circle"></i>
+        </button>
+      </span>
+    </div>
+    <div id="customtimefilter"></div>
+
+    <div id="filters"></div>
   </div>
-  <div id="customtimefilter"></div>
-
-  <div id="filters"></div>
 
   <div style="margin-top:10px;">
     <div id="products" style="float:left;"></div>
@@ -32,8 +34,10 @@
     <div class="spacer" style="clear: both;"></div>
   </div>
 
-  <div id="dsd_info"></div>
-  <div id="custom_download"></div>
+  <div id="containerFurtherOptions">
+    <div id="dsd_info"></div>
+    <div id="custom_download"></div>
+  </div>
 
 </div>
 
