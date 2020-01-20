@@ -31,7 +31,7 @@
             },
 
             onOpenTutorial: function() {
-                tutorial.tutorialObject.show();
+                tutorial.resetAndRunTutorial();
             },
 
             onFullscrenGlobe: function () {
@@ -149,11 +149,15 @@
             },
             onApplicationReset: function(){
                 if (typeof(Storage) !== "undefined") {
+                    var tutorialShown = localStorage.getItem('tutorialShown');
                     localStorage.clear();
                     localStorage.setItem(
                         'serviceVersion',
                         JSON.stringify(globals.version)
                     );
+                    if(tutorialShown){
+                        localStorage.setItem('tutorialShown', true);
+                    }
                     location.reload(true);
                 }
             },

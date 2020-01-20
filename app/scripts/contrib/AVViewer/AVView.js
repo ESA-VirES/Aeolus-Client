@@ -2595,7 +2595,11 @@ define(['backbone.marionette',
                 this.renderFilterList();
             }
 
-            tutorial.tutorialObject.show();
+            // See if we need to run the tutorial
+            if(localStorage.getItem('tutorialShown') === null){
+                tutorial.tutorialObject.show();
+                localStorage.setItem('tutorialShown', true);
+            }
         },
 
         reloadUOM: function(){
