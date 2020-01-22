@@ -25,7 +25,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
     var tutorialSteps = [
         {
             target: '.navbar',
-            content:'Welcome to VirES for Aeolus, this tutorial will be shown the first time automatically and can be opened any time by clicking on the <i class="fa fa-fw fa-book"></i>Tutorial button on the navigation bar. We recommend using the right arrow or Enter key on the keyboard to navigate the tutorial',
+            content:'Welcome to VirES for Aeolus, this tutorial will be shown the first time automatically and can be opened any time by clicking on the <i class="fa fa-fw fa-book"></i> <b>Tutorial</b> button on the navigation bar.</br>We recommend using the right arrow or Enter key on the keyboard to navigate the tutorial.',
             position: 'center-bottom',
             arrowPosition: {},
             className: 'anno-width-400',
@@ -43,12 +43,12 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '.layercontrol',
-            content: 'This is the product control panel, you can open it clicking on the </br> <i class="fa fa-fw fa-globe"></i>Products item in the navigation bar. Here you can activate the product you are interested in by clicking the checkbox on the left. It is also possible to change the base layer by clicking on the radio buttons on the bottom ',
+            content: 'This is the <b>Products panel</b>, you can open it clicking on the </br> <i class="fa fa-fw fa-globe"></i> <b>Products</b> item in the navigation bar.</br>Here you can activate the product you are interested in by clicking the checkbox on the left.</br>It is also possible to change the base layer by clicking on the radio buttons on the bottom.',
             position: 'right',
         },
         {
             target: '.input-group.input-group-sm:has(.input-group-addon:has(input:checked))',
-            content: 'Each product has a settings panel to configure what should be shown on the globe. The settings panel can be opend by clicking on this button',
+            content: 'Each product has a settings panel to configure what should be shown on the globe.</br>The settings panel can be opend by clicking on this button.',
             position: {
                 top: '13.5em',
                 left: '8.7em'
@@ -77,7 +77,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '.optionscontrol',
-            content: 'This is settings panel, it allows selecting the wanted granularity, which parameter should be represented on the globe, and the styling of the representation, such as range, colorscale and opacity',
+            content: 'This is <b>Settings panel</b>, it allows selecting the wanted granularity, which parameter should be represented on the globe, and the styling of the representation, such as range, colorscale and opacity.',
             position: 'left',
             onHide: function(anno, $target, $annoElem, returnFromOnShow) {
                 if(!$('#optionsBar').is(':empty')){
@@ -99,7 +99,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#modalDataConfiguration',
-            content: 'Which parameters are available for a product can be defined here. This is the data configuration panel which can be opened by clicking on the <i class="fa fa-fw fa-database"></i>Data button in the navigation bar',
+            content: 'Which parameters are available for a product can be defined here.</br>This is the <b>data configuration panel</b> which can be opened by clicking on the <i class="fa fa-fw fa-database"></i> <b>Data</b> button in the navigation bar.',
             position: 'left',
             className: 'anno-left-offset',
             arrowPosition: 'right',
@@ -118,7 +118,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#productList',
-            content: 'Here is the product list, the currently selected product will be selected automatically',
+            content: 'Here is the product list, the currently selected product will be selected automatically.',
             position: 'left',
             arrowPosition: 'right',
             onShow: function (anno, $target, $annoElem) {
@@ -134,7 +134,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#parameterSearchInput',
-            content: 'The search field allows filtering the parameter list, the list will update dynamically while typing',
+            content: 'The search field allows filtering the parameter list, the list will update dynamically while typing.',
             position: 'left',
             className: 'anno-search-offset',
             arrowPosition: 'right',
@@ -159,7 +159,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#timeslider',
-            content: 'This is timebar, it shows with colored rectangles (or points) when datasets are available for the selected Product. With the mouse wheel it is possible to zoom in or out',
+            content: 'This is the <b>timebar</b>, it shows with colored rectangles (or points) when datasets are available for the selected Product.</br>With the mouse wheel it is possible to zoom in or out.',
             position: 'center-top',
             buttons: [
                 new AnnoButton({
@@ -176,7 +176,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#timeslider',
-            content: 'This is the selection area, it is possible to select a time interval by clicking and dragging an extent. It is also possible to click on product to automatically select its time extent',
+            content: 'This is the selection area, it is possible to select a time interval by clicking and dragging an extent.</br>It is also possible to click on product to automatically select its time extent.',
             position: 'center-top',
             onShow: function (anno, $target, $annoElem) {
                 $('#timesliderInteractionArea').css('display', 'block');
@@ -188,7 +188,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#timeslider',
-            content: 'This is the interaction area, by clicking and dragging this area it is possible to move time domain',
+            content: 'This is the interaction area, by clicking and dragging this area it is possible to move time domain.',
             position: 'center-top',
             className: 'anno-height-offset-small',
             onShow: function (anno, $target, $annoElem) {
@@ -201,7 +201,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#calendarselection',
-            content: 'This is the date widget which allows easily jump to a specific date',
+            content: 'This is the <b>date widget</b> which allows easily jump to a specific date.',
             position: {
                 top: '-6.5em',
                 right: '3em'
@@ -214,13 +214,13 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '.view2',
-            content: 'This is the analytics panel, it allows dynamic analysis of the data. Each plot is interactive, can be zoomed (mouse wheel) and panned (click and drag). By clicking a point or bin in the plot further information will be shown. Each plot can be further configured this will be explained in the next steps. As a general rule, labels in blue can be interacted with',
+            content: 'This is the <b>analytics panel</b>, it allows dynamic analysis of the data.</br>Each plot is interactive, can be zoomed (mouse wheel) and panned (click and drag).</br>By clicking a point or bin in the plot further information will be shown.</br>Each plot can be further configured. This will be explained in the next steps.</br>As a general rule, labels in blue can be interacted with.',
             position: 'left',
             buttons: [AnnoButton.BackButton, AnnoButton.NextButton]
         },
         {
             target: '.view2',
-            content: 'This panel are the axis settings, they can be opened foe each axis by clicking the axis label. It allows adding/removing parameters to be shown on that axis, changing the shown axis label as well as showing a logarithmic scale or switching between ascending/descending order',
+            content: 'This panel are the axis settings, they can be opened for each axis by clicking the axis label.</br>It allows adding/removing parameters to be shown on that axis, changing the shown axis label as well as showing a logarithmic scale or switching between ascending/descending order.',
             position: 'left',
             onShow: function (anno, $target, $annoElem) {
                 var pos = $('.yAxis.axisLabel:first').offset();
@@ -239,7 +239,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '.view2',
-            content: 'The labels for the currently displayed parameters can be shown by clicking on the cog icon',
+            content: 'The labels for the currently displayed parameters can be shown by clicking on the cog icon.',
             position: {top:'0px', left:'0px'},
             onShow: function (anno, $target, $annoElem) {
                 var pos = $('#cogIcon0').offset();
@@ -261,7 +261,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '.parameterInfo:first',
-            content: 'Each label can be clicked to open further settings for each of the available parameters',
+            content: 'Each label can be clicked to open further settings for each of the available parameters.',
             position: 'center-bottom',
             buttons: [
                 new AnnoButton({
@@ -309,7 +309,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '.groupSelect:first',
-            content: 'The Aeolus data contains not equally sized parameters as part of the same product based on different groups, for example for mie or rayleigh. To allow easy interaction it is possible to switch between these groups using this dropdown',
+            content: 'The Aeolus data contains not equally sized parameters as part of the same product based on different groups, for example for mie or rayleigh.</br>To allow easy interaction it is possible to switch between these groups using this dropdown.',
             position: 'center-bottom',
             buttons: [
                 new AnnoButton({
@@ -329,7 +329,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#filterDivContainer',
-            content: 'Below the plots is the filter panel, which allow managing filters interactively for all parameters. It is possible to add and remove the shown filter panels using the "Add filter" button or the cross on the each of the filters',
+            content: 'Below the plots is the <b>filters panel</b>, which allow managing filters interactively for all parameters.</br>It is possible to add and remove the shown filter panels using the "Add filter" button or the cross on the each of the filters.',
             position: 'center-top',
             buttons: [
                 new AnnoButton({
@@ -349,7 +349,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '.filterContainer:first',
-            content: 'This is a filter panel for a linear parameter, it shows a histogram to visualize how the data is distributed. You can set a filter extent by clicking and dragging on the axis. You can also set the shown data range by clicking the edit button',
+            content: 'This is one of the filters for a linear parameter, it shows a histogram to visualize how the data is distributed.</br>You can set a filter extent by clicking and dragging on the axis.</br>You can also set the shown data range by clicking the edit button <div style="position:relative;left:-3px;" class="pencilIcon"></div>',
             position: 'right',
             buttons: [
                 AnnoButton.BackButton,
@@ -358,7 +358,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '.view1',
-            content: 'This is the globe visualization',
+            content: 'This is the interactive 3D <b>globe visualization</b>.',
             position: 'right',
             onShow: function (anno, $target, $annoElem) {
                 if(!$('#leftSideBar').is(':empty')){
@@ -385,7 +385,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '.view1',
-            content: 'On the top right are interaction buttons to load kml files, setting an area of interest, save the current globe as image, interaction help information and visualization change between globe, 2D and 2.5D view',
+            content: 'On the top right are interaction buttons to load kml files, setting an area of interest, save the current globe as image, interaction help information and visualization change between globe, 2D and 2.5D view.',
             position: 'right',
             buttons: [
                 AnnoButton.BackButton,
@@ -402,7 +402,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '.panel.download',
-            content: 'If you want to also download the selected data you can click on the "Download" button in the navigation bar which opens the download panel',
+            content: 'If you want to also download the selected data you can click on the <i class="fa fa-fw fa-download"></i> <b>Download</b> button in the navigation bar which opens the <b>download panel</b>.',
             position: 'left',
             className: 'anno-left-offset',
             buttons: [
@@ -418,7 +418,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#filterContainer',
-            content: 'All the currently applied filters are shown here',
+            content: 'All the currently applied filters are shown here.',
             position: 'bottom',
             onShow: function (anno, $target, $annoElem) {
                 $('.panel.download').css('z-index', 1005);
@@ -433,7 +433,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#btn-start-download',
-            content: 'Once happy with the selection you can click here, this will start the process on the server',
+            content: 'Once happy with the selection you can click here, this will start the process on the server.',
             position: 'top',
             onShow: function (anno, $target, $annoElem) {
                 $('.panel.download').css('z-index', 1005);
@@ -448,7 +448,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#download_processes',
-            content: 'The process status is then shown here, once a process is finished the "Download" button will be enabled where you can download the results',
+            content: 'The process status is then shown here, once a process is finished the <b>Download</b> button will be enabled where you can download the results.',
             position: 'bottom',
             onShow: function (anno, $target, $annoElem) {
                 $('.panel.download').css('z-index', 1005);
@@ -463,7 +463,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#containerFurtherOptions',
-            content: 'Further options for the download are to add or remove the data set descriptors or to only download specific parameters',
+            content: 'Further options for the download are to add or remove the data set descriptors or to only download specific parameters.',
             position: 'left',
             className: 'anno-height-offset',
             onShow: function (anno, $target, $annoElem) {
@@ -481,7 +481,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#origDownload',
-            content: 'If you are interested in the original datasets instead of the converted netCDF files you can use this button to create a package containing the original datasets used',
+            content: 'If you are interested in the original datasets instead of the converted netCDF files you can use this button to create a package containing the original datasets used.',
             position: 'top',
             onShow: function (anno, $target, $annoElem) {
                 $('.panel.download').css('z-index', 1005);
@@ -502,7 +502,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: 'ul.navbar-nav li.dropdown:eq(1)',
-            content: 'Under the workspace navigation panel button it is possible to save the current status as file (that can be shared) by using the "Export" function, to load such a file with the "Load" function and to completely reset the configuration to default by using the "Reset" function',
+            content: 'Under the workspace navigation panel button it is possible to save the current status as file (that can be shared) by using the "Export" function, to load such a file with the "Load" function and to completely reset the configuration to default by using the "Reset" function.',
             position: 'center-bottom',
             buttons: [
                 new AnnoButton({
@@ -517,17 +517,17 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: 'ul.navbar-nav li:eq(3)',
-            content: 'With the upload button an upload panel is opened where it is possible to upload one local file to be visualized in the web client. Currently the file has to have the same format and structure as the original Aeolus files to be supported',
+            content: 'With the upload button an upload panel is opened where it is possible to upload one local file to be visualized in the web client.<br/>Currently the file has to have the same format and structure as the original Aeolus files to be supported.',
             position: 'center-bottom',
         },
         {
             target: 'ul.navbar-nav li:eq(5)',
-            content: 'With the Views button it is possible to switch between three view types, showing only the globe, showing only the analytics panel, or showing both in split screen (default)',
+            content: 'With the Views button it is possible to switch between three view types, showing only the globe, showing only the analytics panel, or showing both in split screen (default).',
             position: 'center-bottom',
         },
         {
             target: '.navbar',
-            content:'This concludes the tutorial, if you have any questions or issues feel free to contact us at <a href="mailto:feedback@vires.services?subject=[VirES-Aeolus]:&nbsp;">feedback@vires.services</a>',
+            content:'This concludes the tutorial, if you have any questions or issues feel free to contact us at <a href="mailto:feedback@vires.services?subject=[VirES-Aeolus]:&nbsp;">feedback@vires.services</a>.',
             position: 'center-bottom',
             arrowPosition: {},
             buttons: [
