@@ -577,10 +577,10 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
                 // Data is empty need to select another time interval
                 localStorage.removeItem('tutorialShown');
                 var opt = {};
-                /*opt.start = new Date('2020-01-20T00:44:26.880Z');
-                opt.end = new Date('2020-01-20T01:28:23.132Z');*/
-                opt.start = new Date('2019-10-31T14:29:03.264Z');
-                opt.end = new Date('2019-10-31T15:06:57.127Z');
+                opt.start = new Date('2020-01-20T00:44:26.880Z');
+                opt.end = new Date('2020-01-20T01:28:23.132Z');
+                /*opt.start = new Date('2019-10-31T14:29:03.264Z');
+                opt.end = new Date('2019-10-31T15:06:57.127Z');*/
                 
                 
                 Communicator.mediator.trigger("date:selection:change", opt);
