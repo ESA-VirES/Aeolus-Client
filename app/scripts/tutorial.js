@@ -43,12 +43,12 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '.layercontrol',
-            content: 'This is the layer control panel, you can open it clicking on the </br> <i class="fa fa-fw fa-globe"></i>Layers item in the navigation bar',
+            content: 'This is the product control panel, you can open it clicking on the </br> <i class="fa fa-fw fa-globe"></i>Products item in the navigation bar. Here you can activate the product you are interested in by clicking the checkbox on the left. It is also possible to change the base layer by clicking on the radio buttons on the bottom ',
             position: 'right',
         },
         {
             target: '.input-group.input-group-sm:has(.input-group-addon:has(input:checked))',
-            content: 'Each layer has a settings panel to configure what should be shown on the globe. The settings panel can be opend by clicking on this button',
+            content: 'Each product has a settings panel to configure what should be shown on the globe. The settings panel can be opend by clicking on this button',
             position: {
                 top: '13.5em',
                 left: '8.7em'
@@ -99,7 +99,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#modalDataConfiguration',
-            content: 'Which parameters are available for a layer can be defined here. This is the data configuration panel which can be opened by clicking on the <i class="fa fa-fw fa-database"></i>Data button in the navigation bar',
+            content: 'Which parameters are available for a product can be defined here. This is the data configuration panel which can be opened by clicking on the <i class="fa fa-fw fa-database"></i>Data button in the navigation bar',
             position: 'left',
             className: 'anno-left-offset',
             arrowPosition: 'right',
@@ -118,7 +118,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#productList',
-            content: 'Here is the product list, the currently selected Layer will be selected automatically',
+            content: 'Here is the product list, the currently selected product will be selected automatically',
             position: 'left',
             arrowPosition: 'right',
             onShow: function (anno, $target, $annoElem) {
@@ -159,7 +159,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '#timeslider',
-            content: 'This is timebar, it shows with colored rectangles (or points) when datasets are available for the selected Layer. With the mouse wheel it is possible to zoom in or out',
+            content: 'This is timebar, it shows with colored rectangles (or points) when datasets are available for the selected Product. With the mouse wheel it is possible to zoom in or out',
             position: 'center-top',
             buttons: [
                 new AnnoButton({
@@ -214,7 +214,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '.view2',
-            content: 'This is the analytics panel, it allows dynamic analysis of the data. Each plot is interactive, can be zoomed (mouse wheel) and panned (click and drag). Each plot can also be configured as you will see in the next steps',
+            content: 'This is the analytics panel, it allows dynamic analysis of the data. Each plot is interactive, can be zoomed (mouse wheel) and panned (click and drag). By clicking a point or bin in the plot further information will be shown. Each plot can be further configured this will be explained in the next steps. As a general rule, labels in blue can be interacted with',
             position: 'left',
             buttons: [AnnoButton.BackButton, AnnoButton.NextButton]
         },
@@ -385,7 +385,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
         },
         {
             target: '.view1',
-            content: 'on the top right are interaction buttons to load kml files, setting an area of interest, save the current globe as image, interaction help information and visualization change between globe, 2D and 2.5D view',
+            content: 'On the top right are interaction buttons to load kml files, setting an area of interest, save the current globe as image, interaction help information and visualization change between globe, 2D and 2.5D view',
             position: 'right',
             buttons: [
                 AnnoButton.BackButton,
@@ -501,10 +501,9 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
             ]
         },
         {
-            target: '.navbar',
-            content:'This concludes the tutorial, if you have any questions or issues feel free to contact us at <a href="mailto:feedback@vires.services?subject=[VirES-Aeolus]:&nbsp;">feedback@vires.services</a>',
+            target: 'ul.navbar-nav li.dropdown:eq(1)',
+            content: 'Under the workspace navigation panel button it is possible to save the current status as file (that can be shared) by using the "Export" function, to load such a file with the "Load" function and to completely reset the configuration to default by using the "Reset" function',
             position: 'center-bottom',
-            arrowPosition: {},
             buttons: [
                 new AnnoButton({
                     text: 'Back', className: 'anno-btn-low-importance',
@@ -513,6 +512,26 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
                         this.switchToChainPrev();
                     }
                 }),
+                AnnoButton.NextButton
+            ]
+        },
+        {
+            target: 'ul.navbar-nav li:eq(3)',
+            content: 'With the upload button an upload panel is opened where it is possible to upload one local file to be visualized in the web client. Currently the file has to have the same format and structure as the original Aeolus files to be supported',
+            position: 'center-bottom',
+        },
+        {
+            target: 'ul.navbar-nav li:eq(5)',
+            content: 'With the Views button it is possible to switch between three view types, showing only the globe, showing only the analytics panel, or showing both in split screen (default)',
+            position: 'center-bottom',
+        },
+        {
+            target: '.navbar',
+            content:'This concludes the tutorial, if you have any questions or issues feel free to contact us at <a href="mailto:feedback@vires.services?subject=[VirES-Aeolus]:&nbsp;">feedback@vires.services</a>',
+            position: 'center-bottom',
+            arrowPosition: {},
+            buttons: [
+                AnnoButton.BackButton,
                 AnnoButton.EndButton
             ]
         },
