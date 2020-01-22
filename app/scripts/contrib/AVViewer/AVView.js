@@ -3,11 +3,10 @@ define(['backbone.marionette',
     'app',
     'models/AVModel',
     'globals',
-    'tutorial',
     'd3',
     'graphly',
     'underscore',
-], function(Marionette, Communicator, App, AVModel, globals, tutorial) {
+], function(Marionette, Communicator, App, AVModel, globals) {
     'use strict';
     var AVView = Marionette.View.extend({
         model: new AVModel.AVModel(),
@@ -229,7 +228,6 @@ define(['backbone.marionette',
             this.stopListening(Communicator.mediator, 'layer:parameterlist:changed', this.onRequestedListChanged);
             this.listenTo(Communicator.mediator, 'layer:parameterlist:changed', this.onRequestedListChanged);
             
-
             this.isClosed = false;
             this.selectionList = [];
             this.plotdata = [];
@@ -2593,12 +2591,6 @@ define(['backbone.marionette',
                     this.previousCollection = false;
                 }
                 this.renderFilterList();
-            }
-
-            // See if we need to run the tutorial
-            if(localStorage.getItem('tutorialShown') === null){
-                tutorial.tutorialObject.show();
-                localStorage.setItem('tutorialShown', true);
             }
         },
 

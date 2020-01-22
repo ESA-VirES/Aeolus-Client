@@ -57,6 +57,11 @@
                     this.onLayerGranularityBeforeChanged
                 );
 
+                this.listenTo(
+                    Communicator.mediator, 'timeslider:update:domain',
+                    this.onUpdateTimesliderDomain
+                );
+
                 
 
                 Communicator.reqres.setHandler('get:time', this.returnTime);
@@ -280,6 +285,15 @@
 
 
             }, // END of onShow
+
+            onUpdateTimesliderDomain: function(opt){
+                this.slider.center(opt.start, opt.end);
+                var domain = this.slider.scales.x.domain();
+                Communicator.mediator.trigger(
+                    'time:domain:change', 
+                    {start: domain[0], end: domain[1]}
+                );
+            },
 
             onUpdateUserCollection: function(){
                 var collectionId;

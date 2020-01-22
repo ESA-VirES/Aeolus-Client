@@ -534,6 +534,10 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
                 showCurrentLayerSettings();
             }
 
+            // Reset view to split screen
+            if($('.view2').hasClass('disabled')){
+                Communicator.mediator.trigger('layout:switch:splitview');
+            }
         }
 
         var prod = globals.products.find(
@@ -546,23 +550,57 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
 
         if(activeProd === 'ALD_U_N_2B'){
             var data = globals.swarm.get('data');
-            if(!$.isEmptyObject(data)){
+            if(!$.isEmptyObject(data) && !(Array.isArray(data) && data.length===0)){
                 closeAllPanels();
                 annoTutorial.show();
                 localStorage.setItem('tutorialShown', true);
             } else {
                 // Data is empty need to select another time interval
+                localStorage.removeItem('tutorialShown');
+                var opt = {};
+                /*opt.start = new Date('2020-01-20T00:44:26.880Z');
+                opt.end = new Date('2020-01-20T01:28:23.132Z');*/
+                opt.start = new Date('2019-10-31T14:29:03.264Z');
+                opt.end = new Date('2019-10-31T15:06:57.127Z');
+                
+                
+                Communicator.mediator.trigger("date:selection:change", opt);
+                
+                opt.start.setDate(opt.start.getDate() - 1);
+                opt.end.setDate(opt.end.getDate() + 1);
+                Communicator.mediator.trigger(
+                    'timeslider:update:domain', opt
+                );
+                globals.tutorialShouldLoad = true;
             }
         } else {
-
+            // IF L2B is not selected we switch to L2B
+            var product = globals.products.find(
+                function(p){return p.get('download').id === 'ALD_U_N_2B';}
+            );
+            product.set('visible', true);
+            if(product){
+                // Deactivate all other products
+                globals.products.each(function(p) {
+                    if(p.get('download').id !== product.get('download').id &&
+                       p.get('visible') && p.get('views')[0].protocol !== 'WMS'){
+                        p.set('visible', false);
+                        Communicator.mediator.trigger('map:layer:change', { 
+                            name: p.get('name'), isBaseLayer: false, visible: false 
+                        });
+                    }
+                   
+                });
+            }
+            localStorage.removeItem('tutorialShown');
+            Communicator.mediator.trigger('map:layer:change', { 
+                name: product.get('name'), isBaseLayer: false, visible: true 
+            });
         }
 
-        // Close all UI elements
-        // Set correct layer selection
-        // If dataselection correct just run tutorial if not change data selection
-        
-        // Wait until data loaded
-        // After finish tutorial go to "current" date
+        // TODO
+        // Reset view
+        // After finish tutorial go to "current" date?
     };
 
     return {
