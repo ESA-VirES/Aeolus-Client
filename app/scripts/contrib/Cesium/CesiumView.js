@@ -1159,13 +1159,38 @@ define([
             var lineInstances = [];
             var renderOutlines = defaultFor(currProd.get('outlines'), false);
 
-            console.log('Curtain composed of: ' + jIdx+' elements');
-            //TODO: How to correctly handle multiple curtains with jumps
+            console.log('Curtain composed of: ' + dataJumps.length+' elements');
+
+            // Go through slices and render them
             for (var jIdx = 0; jIdx <= dataJumps.length; jIdx++) {
 
+                var start, end;
                 var startSlice, endSlice;
+
                 if(dataJumps.length === 0){
+
                     this.graph.loadData(data);
+                    if(pStartTimes[0] instanceof Date){
+                        start = pStartTimes[0];
+                    }else{
+                        start = new Date('2000-01-01');
+                        start.setUTCMilliseconds(
+                            start.getUTCMilliseconds() + pStartTimes[0]*1000
+                        );
+                    }
+
+                    if(pStopTimes[pStopTimes.length-1] instanceof Date){
+                        end = pStopTimes[pStopTimes.length-1];
+                    }else{
+                        end = new Date('2000-01-01');
+                        end.setUTCMilliseconds(
+                            end.getUTCMilliseconds() + 
+                            pStopTimes[pStopTimes.length-1]*1000
+                        );
+                    }
+                    startSlice = 0;
+                    endSlice = lats.length-1;
+
                 } else {
                     // get extent limits for curtain piece
                     startSlice = 0;
@@ -1186,7 +1211,6 @@ define([
                         continue;
                     }
 
-                    var start, end;
                     if(pStartTimes[startSlice] instanceof Date){
                         start = pStartTimes[startSlice];
                     }else{
@@ -1206,37 +1230,12 @@ define([
                     this.graph.clearXDomain();
                 }
 
-                /*var fabric = {
-                   type : 'curtainMaterial',
-                    uniforms : {
-                        image : this.graph.getCanvasImage()
-                    },
-                    components : {
-                        diffuse : 'texture2D(image, materialInput.st).rgb'
-                    },
-                    sampler: Cesium.TextureMinificationFilter.NEAREST
-                };
-                var newmat = new Cesium.Material({
-                  fabric : fabric
-                });*/
-
-                /*var texture = this.map.scene.context.createTexture2D({
-                    source : this.graph.getCanvasImage()
-                });
-
-                texture.setSampler(Cesium.TextureMinificationFilter.NEAREST);*/
-
-                // ... later calls just use the type.
-                //anotherPolygon.material = Material.fromType('MyNewMaterial');
-
-
                 var newmat = new Cesium.Material.fromType('Image', {
                     image : this.graph.getCanvasImage(),
                     color: new Cesium.Color(1, 1, 1, alpha),
                 });
 
-
-                var slicedLats, slicedLons;
+                var slicedLats, slicedLons, slicedTime;
 
                 if(dataJumps.length > 0){
                     slicedLats = lats.slice(startSlice, endSlice-1);
@@ -1246,68 +1245,41 @@ define([
                     slicedLons = lons;
                 }
 
-
                 var posDataHeight = [];
+                var posDataLineHeight = [];
                 var posData = [];
-                
-                // Data provided has jumps back an forth in lat and long, trying
-                // to avoid the issue we take every third element which hopefully
-                // should hit not repeating or ascending/descending inverted values
-                // TODO: re-evaluate a correct method to handle this
-                var stepdivider = 100;
-                var stepsize = Math.ceil(slicedLats.length/stepdivider);
-                // Add special check for L2B and L2C for strange formations in poles
-                if(cov_id === 'ALD_U_N_2B' || cov_id === 'ALD_U_N_2C'){
-                    if (stepsize < 30) {
-                        stepsize = 30;
-                    }
+
+                // We need uniformly distributed sections in the curtain to not 
+                // create distortions in the texture, for this we use the time
+                // information which should be uniform
+
+                var cleanLats = [];
+                var cleanLons = [];
+
+                var sliceTimeInterval = end.getTime() - start.getTime();
+                var endMs = end.getTime();
+                // Lets try to get around a value each ~90 seconds, more or less
+                // a curtain section per profile
+                var steps = (sliceTimeInterval/1000) / 90;
+                if(steps < 1.0){
+                    steps = 1.0;
                 }
-                if(stepsize%2!==0){
-                    stepsize-=1;
-                }
-                var cleanLats = [slicedLats[0]];
-                var cleanLons = [slicedLons[0]];
+                var datastepsize = Math.floor(slicedLats.length / steps);
+                var timeDelta = (sliceTimeInterval/steps);
 
-                console.log('Curtain element: ' + jIdx);
-                console.log('element stepsize: ' + stepsize);
+                var currentTime = start.getTime();
+                var currSliceStep = startSlice;
 
-                for (var p = stepsize; p < slicedLats.length; p+=stepsize){
-                    // We make sure it is not a duplicate value
-                    if( (slicedLats[p] !== cleanLats[cleanLats.length-1]) && 
-                        (slicedLons[p] !== cleanLons[cleanLons.length-1])) {
-                        // We make sure value does not go forward and then backward
-                        var prevLatDir = cleanLats[cleanLats.length-1]- slicedLats[p];
-                        var nextslicedLat;
-                        if(p+stepsize <= slicedLats.length){
-                            nextslicedLat = slicedLats[p+stepsize];
-                        } else {
-                            nextslicedLat = slicedLats[slicedLats.length];
-                        }
-                        var nextLatDir = slicedLats[p] - nextslicedLat;
-
-                        var prevLonDir = cleanLons[cleanLons.length-1]- slicedLons[p];
-                        var nextslicedLon;
-                        if(p+stepsize <= slicedLons.length){
-                            nextslicedLon = slicedLons[p+stepsize];
-                        } else {
-                            nextslicedLon = slicedLons[slicedLons.length];
-                        }
-                        var nextLonDir = slicedLons[p] - nextslicedLon;
-
-                        if( (prevLatDir<0 && nextLatDir<0) || (prevLatDir>0 && nextLatDir>0) &&
-                            (prevLonDir<0 && nextLonDir<0) || (prevLonDir>0 && nextLonDir>0) ){
-                            cleanLats.push(slicedLats[p]);
-                            cleanLons.push(slicedLons[p]);
-                        } else {
-                            console.log('skip at position: '+p);
-                        }
-                    }
+                for (var currStep = 0; currStep < slicedLats.length; currStep+=datastepsize) {
+                    cleanLats.push(slicedLats[currStep]);
+                    cleanLons.push(slicedLons[currStep]);
                 }
 
-                // Check if last element was added
                 if(cleanLats[cleanLats.length-1] !== slicedLats[slicedLats.length-1]){
-                    cleanLats.pop();
-                    cleanLons.pop();
+                    if(cleanLats.length>1){
+                        cleanLats.pop();
+                        cleanLons.pop();
+                    }
                     cleanLats.push(slicedLats[slicedLats.length-1]);
                     cleanLons.push(slicedLons[slicedLons.length-1]);
                 }
@@ -1316,6 +1288,9 @@ define([
                     posDataHeight.push(cleanLons[p]);
                     posDataHeight.push(cleanLats[p]);
                     posDataHeight.push(height);
+                    posDataLineHeight.push(cleanLons[p]);
+                    posDataLineHeight.push(cleanLats[p]);
+                    posDataLineHeight.push(height+20000);
                     posData.push(cleanLons[p]);
                     posData.push(cleanLats[p]);
                 }
@@ -1326,7 +1301,7 @@ define([
                             geometry : new Cesium.PolylineGeometry({
                                 positions : 
                                 Cesium.Cartesian3.fromDegreesArrayHeights(
-                                    posDataHeight
+                                    posDataLineHeight
                                 ),
                                 width : 10.0
                             })
@@ -1346,12 +1321,6 @@ define([
                     );
                 }
 
-                /*var maxHeights = [];
-                var minHeights = [];
-                for (var j = 0; j <posData.length; j++) {
-                    maxHeights.push(height);
-                    minHeights.push(0);
-                }*/
                 if(posDataHeight.length === 6){
                     if (posDataHeight[0] === posDataHeight[3] &&
                         posDataHeight[1] === posDataHeight[4]){
@@ -1360,18 +1329,8 @@ define([
                     }
                 }
 
-                /*var walloutline = new Cesium.WallOutlineGeometry({
-                    positions : Cesium.Cartesian3.fromDegreesArrayHeights(
-                        posDataHeight
-                    )
-                });
-                var walloutlinegeometry = Cesium.WallOutlineGeometry.createGeometry(
-                    walloutline
-                );
-
-                var outlineinstance = new Cesium.GeometryInstance({
-                  geometry : wallGeometry
-                }); */
+                // Debug helper
+                /*
                 if(this.auxOutlineLines){
                     this.map.entities.remove(this.auxOutlineLines);
                 }
@@ -1386,12 +1345,14 @@ define([
                         material : Cesium.Color.fromRandom({alpha : 0.7})
                     }
                 });
+                */
 
                 var wall = new Cesium.WallGeometry({
                     positions : Cesium.Cartesian3.fromDegreesArrayHeights(
                         posDataHeight
                     )
                 });
+
                 var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
                 if(wallGeometry){
                     var instance = new Cesium.GeometryInstance({
@@ -1434,8 +1395,6 @@ define([
                     material : newmat
                 });
 
-
-                //instances.push(instance);
                 var prim = new Cesium.Primitive({
                   geometryInstances : instance,
                   appearance : sliceAppearance,
