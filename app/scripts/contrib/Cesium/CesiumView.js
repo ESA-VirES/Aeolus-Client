@@ -1159,7 +1159,7 @@ define([
             var lineInstances = [];
             var renderOutlines = defaultFor(currProd.get('outlines'), false);
 
-            
+            console.log('Curtain composed of: ' + jIdx+' elements');
             //TODO: How to correctly handle multiple curtains with jumps
             for (var jIdx = 0; jIdx <= dataJumps.length; jIdx++) {
 
@@ -1258,97 +1258,59 @@ define([
                 var stepsize = Math.ceil(slicedLats.length/stepdivider);
                 // Add special check for L2B and L2C for strange formations in poles
                 if(cov_id === 'ALD_U_N_2B' || cov_id === 'ALD_U_N_2C'){
-                    if (stepsize < 100 && slicedLats.length>500) {
-                        stepsize = 100;
+                    if (stepsize < 30) {
+                        stepsize = 30;
                     }
                 }
-                var cleanLats = [];
+                if(stepsize%2!==0){
+                    stepsize-=1;
+                }
+                var cleanLats = [slicedLats[0]];
+                var cleanLons = [slicedLons[0]];
 
-                for (var p = 0; p < slicedLats.length; p+=stepsize){
-                    if(slicedLats[p] !== cleanLats[cleanLats.length-1]){
-                        if(p+stepsize<=slicedLats.length){
+                console.log('Curtain element: ' + jIdx);
+                console.log('element stepsize: ' + stepsize);
+
+                for (var p = stepsize; p < slicedLats.length; p+=stepsize){
+                    // We make sure it is not a duplicate value
+                    if( (slicedLats[p] !== cleanLats[cleanLats.length-1]) && 
+                        (slicedLons[p] !== cleanLons[cleanLons.length-1])) {
+                        // We make sure value does not go forward and then backward
+                        var prevLatDir = cleanLats[cleanLats.length-1]- slicedLats[p];
+                        var nextslicedLat;
+                        if(p+stepsize <= slicedLats.length){
+                            nextslicedLat = slicedLats[p+stepsize];
+                        } else {
+                            nextslicedLat = slicedLats[slicedLats.length];
+                        }
+                        var nextLatDir = slicedLats[p] - nextslicedLat;
+
+                        var prevLonDir = cleanLons[cleanLons.length-1]- slicedLons[p];
+                        var nextslicedLon;
+                        if(p+stepsize <= slicedLons.length){
+                            nextslicedLon = slicedLons[p+stepsize];
+                        } else {
+                            nextslicedLon = slicedLons[slicedLons.length];
+                        }
+                        var nextLonDir = slicedLons[p] - nextslicedLon;
+
+                        if( (prevLatDir<0 && nextLatDir<0) || (prevLatDir>0 && nextLatDir>0) &&
+                            (prevLonDir<0 && nextLonDir<0) || (prevLonDir>0 && nextLonDir>0) ){
                             cleanLats.push(slicedLats[p]);
-                        }
-                    }
-                }
-                if((slicedLats.length-1)%stepsize !== 0){
-                    if(cleanLats[cleanLats.length-1] !== slicedLats[slicedLats.length-1]){
-                        cleanLats.push(slicedLats[slicedLats.length-1]);
-                    }
-                }
-
-                var cleanLons = [];
-                for (var p = 0; p < slicedLons.length; p+=stepsize){
-                    if(slicedLons[p] !== cleanLons[cleanLons.length-1]){
-                        if(p+stepsize<=slicedLons.length){
                             cleanLons.push(slicedLons[p]);
-                        }
-                    }
-                }
-                if((slicedLons.length-1)%stepsize !== 0){
-                    if(cleanLons[cleanLons.length-1] !== slicedLons[slicedLons.length-1]){
-                        cleanLons.push(slicedLons.slice(-1)[0]);
-                    }
-
-                }
-
-                var itemsToRemove = [];
-                // Check lats to make sure direction does not change
-                for (var i = cleanLats.length - 1; i >= 0; i--) {
-                    if(i>3){
-                        if( (cleanLats[i]-cleanLats[i-2] <= 0 && 
-                            cleanLats[i-1]-cleanLats[i-2] >= 0 ) ||
-                            (cleanLats[i]-cleanLats[i-2] >= 0 && 
-                            cleanLats[i-1]-cleanLats[i-2] <= 0)){
-                            itemsToRemove.push(i-1);
+                        } else {
+                            console.log('skip at position: '+p);
                         }
                     }
                 }
 
-                for (var i = 0; i < itemsToRemove.length; i++) {
-                    cleanLats.splice(itemsToRemove[i],1);
-                    cleanLons.splice(itemsToRemove[i],1);
+                // Check if last element was added
+                if(cleanLats[cleanLats.length-1] !== slicedLats[slicedLats.length-1]){
+                    cleanLats.pop();
+                    cleanLons.pop();
+                    cleanLats.push(slicedLats[slicedLats.length-1]);
+                    cleanLons.push(slicedLons[slicedLons.length-1]);
                 }
-
-                itemsToRemove = [];
-                // Check lons to make sure direction does not change
-                for (var i = cleanLons.length - 1; i >= 0; i--) {
-                    if(i>3){
-                        if( (cleanLons[i]-cleanLons[i-2] <= 0 && 
-                            cleanLons[i-1]-cleanLons[i-2] >= 0 ) ||
-                            (cleanLons[i]-cleanLons[i-2] >= 0 && 
-                            cleanLons[i-1]-cleanLons[i-2] <= 0)){
-                            itemsToRemove.push(i-1);
-                        }
-                    }
-                }
-
-                for (var i = 0; i < itemsToRemove.length; i++) {
-                    cleanLats.splice(itemsToRemove[i],1);
-                    cleanLons.splice(itemsToRemove[i],1);
-                }
-
-                // Check lons to make sure direction does not change
-
-
-                /*var cleanLats = [];
-                for (var p = 1; p < slicedLats.length; p++){
-                    if(slicedLats[p-1] !== slicedLats[p]){
-                        cleanLats.push(slicedLats[p]);
-                    }
-                }
-                // Remove duplicates
-                var cleanLons = [];
-                for (var p = 1; p < slicedLons.length; p++){
-                    if(slicedLons[p-1] !== slicedLons[p]){
-                        cleanLons.push(slicedLons[p]);
-                    }
-                }*/
-
-                // Change direction of texture depending if curtain beginning 
-                // and end latitude coordinates
-                var lastLats = cleanLats.slice(-2);
-                
 
                 for (var p = 0; p < cleanLats.length; p++) {
                     posDataHeight.push(cleanLons[p]);
@@ -1397,6 +1359,33 @@ define([
                         continue;
                     }
                 }
+
+                /*var walloutline = new Cesium.WallOutlineGeometry({
+                    positions : Cesium.Cartesian3.fromDegreesArrayHeights(
+                        posDataHeight
+                    )
+                });
+                var walloutlinegeometry = Cesium.WallOutlineGeometry.createGeometry(
+                    walloutline
+                );
+
+                var outlineinstance = new Cesium.GeometryInstance({
+                  geometry : wallGeometry
+                }); */
+                if(this.auxOutlineLines){
+                    this.map.entities.remove(this.auxOutlineLines);
+                }
+                this.auxOutlineLines = this.map.entities.add({
+                    wall : {
+                        positions : Cesium.Cartesian3.fromDegreesArrayHeights(
+                            posDataHeight
+                        ),
+                        outline : true,
+                        outlineColor : Cesium.Color.RED,
+                        outlineWidth : 2,
+                        material : Cesium.Color.fromRandom({alpha : 0.7})
+                    }
+                });
 
                 var wall = new Cesium.WallGeometry({
                     positions : Cesium.Cartesian3.fromDegreesArrayHeights(
