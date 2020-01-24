@@ -5,9 +5,10 @@
         'backbone',
         'communicator',
         'app',
-        'globals'
+        'globals',
+        'tutorial'
     ],
-    function( Backbone, Communicator, App , globals) {
+    function( Backbone, Communicator, App , globals, tutorial) {
 
         var ContentController = Backbone.Marionette.Controller.extend({
             initialize: function(options){
@@ -25,7 +26,12 @@
                 this.listenTo(Communicator.mediator, "application:load", this.onApplicationLoad);
                 this.listenTo(Communicator.mediator, "dialog:show:upload", this.onShowUpload);
                 this.listenTo(Communicator.mediator, "dialog:show:dataconfiguration", this.onOpenDataConfiguration);
+                this.listenTo(Communicator.mediator, "ui:open:tutorial", this.onOpenTutorial);
                 
+            },
+
+            onOpenTutorial: function() {
+                tutorial.resetAndRunTutorial();
             },
 
             onFullscrenGlobe: function () {
@@ -135,7 +141,7 @@
 
             },
             onOpenDataConfiguration: function(){
-                if (_.isUndefined(App.viewContent.isClosed) || App.dataConfigurationView.isClosed) {
+                if (_.isUndefined(App.dataConfigurationView.isClosed) || App.dataConfigurationView.isClosed) {
                     App.viewContent.show(App.dataConfigurationView);
                 } else {
                     App.viewContent.close();
@@ -143,11 +149,15 @@
             },
             onApplicationReset: function(){
                 if (typeof(Storage) !== "undefined") {
+                    var tutorialShown = localStorage.getItem('tutorialShown');
                     localStorage.clear();
                     localStorage.setItem(
                         'serviceVersion',
                         JSON.stringify(globals.version)
                     );
+                    if(tutorialShown){
+                        localStorage.setItem('tutorialShown', true);
+                    }
                     location.reload(true);
                 }
             },

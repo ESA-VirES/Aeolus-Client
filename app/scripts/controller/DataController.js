@@ -14,10 +14,11 @@
     'hbs!tmpl/wps_dataRequest',
     'app',
     'papaparse',
+    'tutorial',
     'graphly'
   ],
 
-  function( Backbone, Communicator, globals, msgpack, wps_dataRequestTmpl, App, Papa) {
+  function( Backbone, Communicator, globals, msgpack, wps_dataRequestTmpl, App, Papa, tutorial) {
 
     var DataController = Backbone.Marionette.Controller.extend({
 
@@ -602,6 +603,29 @@
         }, this);
       },
 
+      checkTutorialStatus: function(){
+        // See if we need to run the tutorial
+        if(localStorage.getItem('tutorialShown') === null){
+            if(globals.tutorialShouldLoad === true){
+              var data = globals.swarm.get('data');
+              if(!$.isEmptyObject(data) && !(Array.isArray(data) && data.length===0)){
+                  tutorial.resetAndRunTutorial();
+              } else {
+                localStorage.setItem('tutorialShown', true);
+                globals.tutorialShouldLoad = false;
+                showMessage('warning',
+                    'There was an issue trying to load default data for tutorial. '+
+                    'Please try re-opening the tutorial by clicking on the "Tutorial" button on the navigation bar. '+
+                    'If the issue persists please contact '+
+                    '<a href="mailto:feedback@vires.services?subject=[VirES-Aeolus]:&nbsp;">feedback@vires.services</a>.', 35
+                );
+              }
+            } else {
+                tutorial.resetAndRunTutorial();
+            }
+        }
+      },
+
       checkModelValidity: function(){
         // Added some checks here to see if model is outside validity
         $(".validitywarning").remove();
@@ -863,6 +887,7 @@
           globals.filterManager._renderFilters();
           globals.filterManager._renderFilters();
           globals.swarm.set({data: resData});
+          this.checkTutorialStatus();
         }
       },
 
@@ -2089,6 +2114,7 @@
 
                   if($.isEmptyObject(ds)){
                     globals.swarm.set({data: {}});
+                    that.checkTutorialStatus();
                     return;
                   } else {
                     // Check if returned parameters are empty (e.g. bbox selection)
@@ -2096,6 +2122,7 @@
                     var keys = Object.keys(ds);
                     if(ds[keys[0]].length === 0){
                       globals.swarm.set({data: {}});
+                      that.checkTutorialStatus();
                       return;
                     }
                   }
@@ -2850,6 +2877,7 @@
                   }
 
                   if($.isEmptyObject(resData) || empty){
+                    that.checkTutorialStatus();
                     globals.swarm.set({data: {}});
                   } else {
 
@@ -2884,6 +2912,7 @@
                     globals.filterManager._renderFilters();
                     globals.filterManager._renderFilters();
                     globals.swarm.set({data: tmpdata});
+                    that.checkTutorialStatus();
                   }
 
                 }
@@ -2892,6 +2921,7 @@
               } else if(request.status!== 0 && request.responseText != "") {
                   Communicator.mediator.trigger("progress:change", false);
                   globals.swarm.set({data: {}});
+                  that.checkTutorialStatus();
                   var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
                   if (error_text && error_text.length > 1) {
                       error_text = error_text[1];

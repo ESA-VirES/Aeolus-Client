@@ -853,8 +853,6 @@ var VECTOR_BREAKDOWN = {};
 
                 // Remove loading screen when this point is reached in the script
                 $('#loadscreen').remove();
-
-
             }
 
 

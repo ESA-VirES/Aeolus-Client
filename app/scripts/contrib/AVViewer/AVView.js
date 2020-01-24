@@ -228,7 +228,6 @@ define(['backbone.marionette',
             this.stopListening(Communicator.mediator, 'layer:parameterlist:changed', this.onRequestedListChanged);
             this.listenTo(Communicator.mediator, 'layer:parameterlist:changed', this.onRequestedListChanged);
             
-
             this.isClosed = false;
             this.selectionList = [];
             this.plotdata = [];

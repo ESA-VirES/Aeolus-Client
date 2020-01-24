@@ -2153,7 +2153,7 @@
         "title": "VirES for Aeolus",
         "url": "/",
         "items": [{
-            "name": "Layers",
+            "name": "Products",
             "icon": "fa-globe",
             "eventToRaise": "ui:open:layercontrol",
             "template": "LayerControl"
@@ -2200,6 +2200,11 @@
                 "name": "Reset",
                 "eventToRaise": "application:reset"
             }]
+        },
+        {
+            "name": "Tutorial",
+            "icon": "fa-book",
+            "eventToRaise": "ui:open:tutorial"
         },
         {
             "name": "About",
