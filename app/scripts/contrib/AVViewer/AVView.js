@@ -475,6 +475,10 @@ define(['backbone.marionette',
                                 'latitude': 'mie_latitude',
                                 'longitude': 'mie_longitude',
                                 'altitude': 'mie_altitude'
+                            },
+                            defaults: {
+                                yAxis: 'mie_altitude',
+                                colorAxis: 'mie_HLOS_wind_speed'
                             }
                         },
                         rayleigh: {
@@ -526,6 +530,10 @@ define(['backbone.marionette',
                                 'latitude': 'rayleigh_latitude',
                                 'longitude': 'rayleigh_longitude',
                                 'altitude': 'rayleigh_altitude'
+                            },
+                            defaults: {
+                                yAxis: 'rayleigh_altitude',
+                                colorAxis: 'rayleigh_HLOS_wind_speed'
                             }
                         }
                     },
@@ -805,9 +813,9 @@ define(['backbone.marionette',
                                 colorAxis: 'mie_wind_result_wind_velocity'
                             },
                             positionAlias: {
-                                'latitude': 'mie_wind_result_start_latitude',
-                                'longitude': 'mie_wind_result_start_longitude',
-                                'altitude': 'mie_altitude'
+                                'latitude': 'mie_wind_result_lat_of_DEM_intersection',
+                                'longitude': 'mie_wind_result_lon_of_DEM_intersection',
+                                'altitude': 'mie_altitude_start'
                             }
                         },
                         rayleigh: {
@@ -870,8 +878,8 @@ define(['backbone.marionette',
                                 colorAxis: 'rayleigh_wind_result_wind_velocity'
                             },
                             positionAlias: {
-                                'latitude': 'rayleigh_wind_result_start_latitude',
-                                'longitude': 'rayleigh_wind_result_start_longitude',
+                                'latitude': 'rayleigh_wind_result_lat_of_DEM_intersection',
+                                'longitude': 'rayleigh_wind_result_lon_of_DEM_intersection',
                                 'altitude': 'rayleigh_altitude'
                             }
                         }
@@ -1053,8 +1061,8 @@ define(['backbone.marionette',
                                 colorAxis: 'mie_wind_result_wind_velocity'
                             },
                             positionAlias: {
-                                'latitude': 'mie_wind_result_start_latitude',
-                                'longitude': 'mie_wind_result_start_longitude',
+                                'latitude': 'mie_wind_result_lat_of_DEM_intersection',
+                                'longitude': 'mie_wind_result_lon_of_DEM_intersection',
                                 'altitude': 'mie_altitude'
                             }
                         },
@@ -1136,8 +1144,8 @@ define(['backbone.marionette',
                                 colorAxis: 'rayleigh_wind_result_wind_velocity'
                             },
                             positionAlias: {
-                                'latitude': 'rayleigh_wind_result_start_latitude',
-                                'longitude': 'rayleigh_wind_result_start_longitude',
+                                'latitude': 'rayleigh_wind_result_lat_of_DEM_intersection',
+                                'longitude': 'rayleigh_wind_result_lon_of_DEM_intersection',
                                 'altitude': 'rayleigh_altitude'
                             }
                         }
