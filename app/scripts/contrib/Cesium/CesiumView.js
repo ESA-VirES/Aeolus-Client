@@ -795,9 +795,20 @@ define([
                 this.graph.loadData(dataSlice);
 
 
-                var newmat = new Cesium.Material.fromType('Image', {
+                /*var newmat = new Cesium.Material.fromType('Image', {
                     image : this.graph.getCanvasImage(),
                     color: new Cesium.Color(1, 1, 1, alpha),
+                });*/
+
+                var newmat = new Cesium.Material({
+                    fabric : {
+                        type : 'Image',
+                        uniforms : {
+                            image : this.graph.getCanvasImage()
+                        }
+                    },
+                    minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
+                    magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST
                 });
                 
                 var slicedPosData = data.positions.slice(start, end);
@@ -1223,9 +1234,20 @@ define([
                     this.graph.clearXDomain();
                 }
 
-                var newmat = new Cesium.Material.fromType('Image', {
+                /*var newmat = new Cesium.Material.fromType('Image', {
                     image : this.graph.getCanvasImage(),
                     color: new Cesium.Color(1, 1, 1, alpha),
+                });*/
+
+                var newmat = new Cesium.Material({
+                    fabric : {
+                        type : 'Image',
+                        uniforms : {
+                            image : this.graph.getCanvasImage()
+                        }
+                    },
+                    minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
+                    magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST
                 });
 
                 var slicedLats, slicedLons, slicedTime;
