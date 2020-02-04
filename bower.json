@@ -19,7 +19,7 @@
     "lm.js": "madhums/lm.js#~0.1.0",
     "bootstrap": "~3.0.1",
     "font-awesome": "~4.5.0",
-    "cesium": "https://github.com/AnalyticalGraphicsInc/cesium/releases/download/1.39/Cesium-1.39.zip",
+    "cesium": "https://github.com/AnalyticalGraphicsInc/cesium/releases/download/1.66/Cesium-1.66.zip",
     "papaparse": "~4.1.0",
     "jqueryui-touch-punch": "*",
     "FileSaver.js": "eligrey/FileSaver.js#~1.2.0",

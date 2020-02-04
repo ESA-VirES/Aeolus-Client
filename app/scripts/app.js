@@ -11,6 +11,7 @@ var VECTOR_BREAKDOWN = {};
     root.define([
             'backbone',
             'globals',
+            'cesium',
             'regions/DialogRegion', 'regions/UIRegion',
             'layouts/LayerControlLayout',
             'layouts/ToolControlLayout',
@@ -28,7 +29,7 @@ var VECTOR_BREAKDOWN = {};
             'controller/DataController'
         ],
 
-        function(Backbone, globals, DialogRegion,
+        function(Backbone, globals, Cesium, DialogRegion,
             UIRegion, LayerControlLayout, ToolControlLayout, OptionsLayout,
             WindowView, Communicator, FilePond) {
 

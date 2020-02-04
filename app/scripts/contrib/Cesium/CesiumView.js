@@ -7,10 +7,10 @@ define([
     'models/MapModel',
     'globals',
     'papaparse',
-    'cesium/Cesium',
+    'cesium',
     'drawhelper',
     'FileSaver'
-], function( Marionette, Communicator, App, MapModel, globals, Papa) {
+], function( Marionette, Communicator, App, MapModel, globals, Papa, Cesium) {
     'use strict';
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
@@ -137,15 +137,8 @@ define([
             Cesium.Camera.DEFAULT_VIEW_RECTANGLE = Cesium.Rectangle.fromDegrees(0.0, -10.0, 30.0, 55.0);
 
             Cesium.WebMapServiceImageryProvider.prototype.updateProperties = function(property, value) {
-                property = '&'+property+'=';
-                value = ''+value;
-                var i = _.indexOf(this._tileProvider._urlParts, property);
-                if (i>=0){
-                    this._tileProvider._urlParts[i+1] = value;
-                }else{
-                    this._tileProvider._urlParts.push(property);
-                    this._tileProvider._urlParts.push(encodeURIComponent(value));
-                }
+                var qPars = this._tileProvider._resource._queryParameters;
+                qPars[property] = value;
             };
 
             this.$el.append('<div id="coordinates_label"></div>');
@@ -216,9 +209,6 @@ define([
                 var initialCesiumLayer = this.map.imageryLayers.get(0);
             }
 
-            // disable fxaa
-            this.map.scene.fxaa = false;
-
             if(localStorage.getItem('cameraPosition') !== null){
                 var c = JSON.parse(localStorage.getItem('cameraPosition'));
                 this.map.scene.camera.position = new Cesium.Cartesian3(
@@ -248,6 +238,9 @@ define([
             this.map.scene.backgroundColor = new Cesium.Color.fromCssColorString(
                 mm.get('backgroundColor')
             );
+
+            this.map.scene.globe.dynamicAtmosphereLighting = false;
+            this.map.scene.globe.showGroundAtmosphere = false;
 
             // TODO: Removes fog for now as it is not very good at this point
             if(this.map.scene.hasOwnProperty('fog')){
