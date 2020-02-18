@@ -83,7 +83,8 @@ define([
                 fixedSize: true,
                 fixedWidth: 2048,
                 fixedHeigt: 512,
-                defaultAlpha: 1.0
+                defaultAlpha: 1.0,
+                disableAntiAlias: true
             });
 
             for(var cskey in additionalColorscales){
@@ -1622,55 +1623,6 @@ define([
                     cesLayer.alpha = options.value;
                 }
             }
-
-            /*globals.products.each(function(product) {
-                if(product.get('download').id === options.model.get('download').id){
-                    var cesLayer = product.get('ces_layer');
-                    // Find active parameter and satellite
-                    var sat, key;
-                    _.each(globals.swarm.products, function(p){
-                        var keys = _.keys(p);
-                        for (var i = 0; i < keys.length; i++) {
-                            if(p[keys[i]] === options.model.get('views')[0].id){
-                                sat = keys[i];
-                            }
-                        }
-                    });
-                    _.each(options.model.get('parameters'), function(pa, k){
-                        if(pa.selected){
-                            key = k;
-                        }
-                    });
-                    if( sat && key &&_.has(this.featuresCollection, (sat+key)) ){
-                        var fc = this.featuresCollection[(sat+key)];
-                        if(fc.hasOwnProperty('geometryInstances')){
-                            for (var i = fc._instanceIds.length - 1; i >= 0; i--) {
-                                var attributes = fc.getGeometryInstanceAttributes(fc._instanceIds[i]);
-                                var nc = attributes.color;
-                                nc[3] = Math.floor(options.value*255);
-                                attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(
-                                    Cesium.Color.fromBytes(nc[0], nc[1], nc[2], nc[3])
-                                );
-                            }
-                        }else{
-                            for (var i = fc.length - 1; i >= 0; i--) {
-                                var b = fc.get(i);
-                                if(b.color){
-                                    var c = b.color.clone();
-                                    c.alpha = options.value;
-                                    b.color = c;
-                                }else if(b.appearance){
-                                    var c = b.appearance.material.uniforms.color.clone();
-                                    c.alpha = options.value;
-                                    b.appearance.material.uniforms.color = c;
-                                }
-                            }
-                        }
-                    }else if(cesLayer){
-                        cesLayer.alpha = options.value;
-                    }
-                }
-            }, this);*/
         },
 
         addCustomAttribution: function(view) {
