@@ -815,7 +815,7 @@ define(['backbone.marionette',
                             positionAlias: {
                                 'latitude': 'mie_wind_result_lat_of_DEM_intersection',
                                 'longitude': 'mie_wind_result_lon_of_DEM_intersection',
-                                'altitude': 'mie_altitude_start'
+                                'altitude': 'mie_altitude'
                             }
                         },
                         rayleigh: {
