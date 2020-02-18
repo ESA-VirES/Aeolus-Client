@@ -85,7 +85,15 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
                 }
             },
             buttons: [
-                AnnoButton.BackButton,
+                new AnnoButton({
+                    text: 'Back', className: 'anno-btn-low-importance',
+                    click: function(){
+                        if($('#leftSideBar').is(':empty')){
+                            Communicator.mediator.trigger('ui:open:layercontrol');
+                        }
+                        this.switchToChainPrev();
+                    }
+                }),
                 new AnnoButton({
                     text: 'Next',
                     click: function(){
@@ -519,21 +527,20 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
             target: 'ul.navbar-nav li:eq(3)',
             content: 'With the upload button an upload panel is opened where it is possible to upload one local file to be visualized in the web client.<br/>Currently the file has to have the same format and structure as the original Aeolus files to be supported.',
             position: 'center-bottom',
+            buttons: [AnnoButton.BackButton, AnnoButton.NextButton]
         },
         {
             target: 'ul.navbar-nav li:eq(5)',
             content: 'With the Views button it is possible to switch between three view types, showing only the globe, showing only the analytics panel, or showing both in split screen (default).',
             position: 'center-bottom',
+            buttons: [AnnoButton.BackButton, AnnoButton.NextButton]
         },
         {
             target: '.navbar',
             content:'This concludes the tutorial, if you have any questions or issues feel free to contact us at <a href="mailto:feedback@vires.services?subject=[VirES-Aeolus]:&nbsp;">feedback@vires.services</a>.',
             position: 'center-bottom',
             arrowPosition: {},
-            buttons: [
-                AnnoButton.BackButton,
-                AnnoButton.EndButton
-            ]
+            buttons: [AnnoButton.BackButton, AnnoButton.EndButton]
         },
     ];
 
