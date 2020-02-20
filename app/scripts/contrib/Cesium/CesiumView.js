@@ -1172,9 +1172,10 @@ define([
                 var start, end;
                 var startSlice, endSlice;
 
-                if(signCross){
+                /*if(signCross){
                     modifier = -2;
-                }
+                }*/
+                
                 if(dataJumps.length === 0){
                     this.graph.loadData(data);
                     if(pStartTimes[0] instanceof Date){
