@@ -1172,8 +1172,8 @@ define([
                 var start, end;
                 var startSlice, endSlice;
 
+                console.log(pStartTimes[0]);
                 if(dataJumps.length === 0){
-
                     this.graph.loadData(data);
                     if(pStartTimes[0] instanceof Date){
                         start = pStartTimes[0];
@@ -1218,27 +1218,28 @@ define([
 
                     if(pStartTimes[startSlice] instanceof Date){
                         start = pStartTimes[startSlice];
+                        if(start.getTime()>pStartTimes[startSlice+1].getTime()){
+                            start = pStartTimes[startSlice+1];
+                        }
                     }else{
                         start = new Date('2000-01-01');
-                        start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice]*1000);
+                        start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice+1]*1000);
                     }
 
                     if(pStopTimes[endSlice] instanceof Date){
                         end = pStopTimes[endSlice-1];
+                        if(end.getTime()<pStopTimes[endSlice-2].getTime()){
+                            end = pStopTimes[endSlice-2];
+                        }
                     }else{
                         end = new Date('2000-01-01');
-                        end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice-1]*1000);
+                        end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice-2]*1000);
                     }
                     
                     this.graph.setXDomain([start, end]);
                     this.graph.loadData(data);
                     this.graph.clearXDomain();
                 }
-
-                /*var newmat = new Cesium.Material.fromType('Image', {
-                    image : this.graph.getCanvasImage(),
-                    color: new Cesium.Color(1, 1, 1, alpha),
-                });*/
 
                 var newmat = new Cesium.Material({
                     fabric : {
