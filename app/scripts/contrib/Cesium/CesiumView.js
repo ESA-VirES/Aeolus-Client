@@ -1087,7 +1087,7 @@ define([
             };
 
             var currPar;
-            var modifier = -1;
+            var modifier = 1;
 
             if(cov_id === 'AUX_MET_12'){
                 modifier = 0;
@@ -1218,22 +1218,22 @@ define([
 
                     if(pStartTimes[startSlice] instanceof Date){
                         start = pStartTimes[startSlice];
-                        if(start.getTime()>pStartTimes[startSlice+1].getTime()){
+                      /*  if(start.getTime()>pStartTimes[startSlice+1].getTime()){
                             start = pStartTimes[startSlice+1];
-                        }
+                        }*/
                     }else{
                         start = new Date('2000-01-01');
-                        start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice+1]*1000);
+                        start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice]*1000);
                     }
 
                     if(pStopTimes[endSlice] instanceof Date){
                         end = pStopTimes[endSlice-1];
-                        if(end.getTime()<pStopTimes[endSlice-2].getTime()){
+                        /*if(end.getTime()<pStopTimes[endSlice-2].getTime()){
                             end = pStopTimes[endSlice-2];
-                        }
+                        }*/
                     }else{
                         end = new Date('2000-01-01');
-                        end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice-2]*1000);
+                        end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice]*1000);
                     }
                     
                     this.graph.setXDomain([start, end]);
@@ -1307,11 +1307,9 @@ define([
                 // values
                 var delta = 1;
                 if(cleanLats[0]-cleanLats[1]<0){
-                    console.log('Ascending');
                     cleanLats[0] = d3.min(slicedLats.slice(0,delta));
                     cleanLats[cleanLats.length-1] = d3.max(slicedLats.slice(-delta));
                 } else {
-                    console.log('Descending');
                     cleanLats[0] = d3.max(slicedLats.slice(0,delta));
                     cleanLats[cleanLats.length-1] = d3.min(slicedLats.slice(-delta));
                 }
