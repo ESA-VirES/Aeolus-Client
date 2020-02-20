@@ -10,6 +10,8 @@
 
 var DrawHelper = (function() {
 
+    var Cesium = require('cesium');
+
     // static variables
     var ellipsoid = Cesium.Ellipsoid.WGS84;
 

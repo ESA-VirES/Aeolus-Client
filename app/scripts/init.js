@@ -53,7 +53,7 @@
                 exports: 'dat'
             },
             drawhelper: {
-                deps: ['cesium/Cesium'],
+                deps: ['cesium'],
                 exports: 'DrawHelper'
             },
             w2ui: {
@@ -67,6 +67,9 @@
             },
             Anno: {
                 deps: ['jquery-scrollintoview']
+            },
+            cesium: {
+                exports: 'Cesium'
             }
         },
 
@@ -74,7 +77,7 @@
             filepond: '../bower_components/filepond/dist/filepond',
             msgpack: '../bower_components/msgpack-lite/dist/msgpack.min',
             graphly: '../bower_components/graphly/dist/graphly.min',
-            cesium: "../bower_components/cesium/Build/Cesium",
+            cesium: "../bower_components/cesium/Build/Cesium/Cesium",
             drawhelper: "../scripts/vendor/cesium_DrawHelper",
             contrib: 'contrib',
             core: 'core',

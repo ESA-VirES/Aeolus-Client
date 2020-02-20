@@ -7,10 +7,10 @@ define([
     'models/MapModel',
     'globals',
     'papaparse',
-    'cesium/Cesium',
+    'cesium',
     'drawhelper',
     'FileSaver'
-], function( Marionette, Communicator, App, MapModel, globals, Papa) {
+], function( Marionette, Communicator, App, MapModel, globals, Papa, Cesium) {
     'use strict';
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
@@ -81,9 +81,10 @@ define([
                 filterManager: globals.filterManager,
                 multiYAxis: false,
                 fixedSize: true,
-                fixedWidth: 2048,
-                fixedHeigt: 512,
-                defaultAlpha: 1.0
+                fixedWidth: (2048*2),
+                fixedHeigt: 256,
+                defaultAlpha: 1.0,
+                disableAntiAlias: true
             });
 
             for(var cskey in additionalColorscales){
@@ -137,15 +138,8 @@ define([
             Cesium.Camera.DEFAULT_VIEW_RECTANGLE = Cesium.Rectangle.fromDegrees(0.0, -10.0, 30.0, 55.0);
 
             Cesium.WebMapServiceImageryProvider.prototype.updateProperties = function(property, value) {
-                property = '&'+property+'=';
-                value = ''+value;
-                var i = _.indexOf(this._tileProvider._urlParts, property);
-                if (i>=0){
-                    this._tileProvider._urlParts[i+1] = value;
-                }else{
-                    this._tileProvider._urlParts.push(property);
-                    this._tileProvider._urlParts.push(encodeURIComponent(value));
-                }
+                var qPars = this._tileProvider._resource._queryParameters;
+                qPars[property] = value;
             };
 
             this.$el.append('<div id="coordinates_label"></div>');
@@ -216,9 +210,6 @@ define([
                 var initialCesiumLayer = this.map.imageryLayers.get(0);
             }
 
-            // disable fxaa
-            this.map.scene.fxaa = false;
-
             if(localStorage.getItem('cameraPosition') !== null){
                 var c = JSON.parse(localStorage.getItem('cameraPosition'));
                 this.map.scene.camera.position = new Cesium.Cartesian3(
@@ -248,6 +239,9 @@ define([
             this.map.scene.backgroundColor = new Cesium.Color.fromCssColorString(
                 mm.get('backgroundColor')
             );
+
+            this.map.scene.globe.dynamicAtmosphereLighting = false;
+            this.map.scene.globe.showGroundAtmosphere = false;
 
             // TODO: Removes fog for now as it is not very good at this point
             if(this.map.scene.hasOwnProperty('fog')){
@@ -802,9 +796,20 @@ define([
                 this.graph.loadData(dataSlice);
 
 
-                var newmat = new Cesium.Material.fromType('Image', {
+                /*var newmat = new Cesium.Material.fromType('Image', {
                     image : this.graph.getCanvasImage(),
                     color: new Cesium.Color(1, 1, 1, alpha),
+                });*/
+
+                var newmat = new Cesium.Material({
+                    fabric : {
+                        type : 'Image',
+                        uniforms : {
+                            image : this.graph.getCanvasImage()
+                        }
+                    },
+                    minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
+                    magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST
                 });
                 
                 var slicedPosData = data.positions.slice(start, end);
@@ -1082,7 +1087,7 @@ define([
             };
 
             var currPar;
-            var modifier = 1;
+            var modifier = -1;
 
             if(cov_id === 'AUX_MET_12'){
                 modifier = 0;
@@ -1167,8 +1172,8 @@ define([
                 var start, end;
                 var startSlice, endSlice;
 
+                console.log(pStartTimes[0]);
                 if(dataJumps.length === 0){
-
                     this.graph.loadData(data);
                     if(pStartTimes[0] instanceof Date){
                         start = pStartTimes[0];
@@ -1213,16 +1218,22 @@ define([
 
                     if(pStartTimes[startSlice] instanceof Date){
                         start = pStartTimes[startSlice];
+                        if(start.getTime()>pStartTimes[startSlice+1].getTime()){
+                            start = pStartTimes[startSlice+1];
+                        }
                     }else{
                         start = new Date('2000-01-01');
-                        start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice]*1000);
+                        start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice+1]*1000);
                     }
 
                     if(pStopTimes[endSlice] instanceof Date){
                         end = pStopTimes[endSlice-1];
+                        if(end.getTime()<pStopTimes[endSlice-2].getTime()){
+                            end = pStopTimes[endSlice-2];
+                        }
                     }else{
                         end = new Date('2000-01-01');
-                        end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice-1]*1000);
+                        end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice-2]*1000);
                     }
                     
                     this.graph.setXDomain([start, end]);
@@ -1230,9 +1241,15 @@ define([
                     this.graph.clearXDomain();
                 }
 
-                var newmat = new Cesium.Material.fromType('Image', {
-                    image : this.graph.getCanvasImage(),
-                    color: new Cesium.Color(1, 1, 1, alpha),
+                var newmat = new Cesium.Material({
+                    fabric : {
+                        type : 'Image',
+                        uniforms : {
+                            image : this.graph.getCanvasImage()
+                        }
+                    },
+                    minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
+                    magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST
                 });
 
                 var slicedLats, slicedLons, slicedTime;
@@ -1275,6 +1292,7 @@ define([
                     cleanLons.push(slicedLons[currStep]);
                 }
 
+
                 if(cleanLats[cleanLats.length-1] !== slicedLats[slicedLats.length-1]){
                     if(cleanLats.length>1){
                         cleanLats.pop();
@@ -1283,6 +1301,30 @@ define([
                     cleanLats.push(slicedLats[slicedLats.length-1]);
                     cleanLons.push(slicedLons[slicedLons.length-1]);
                 }
+
+                // As first and last profile can have very different size
+                // we make sure we find the min and max value of initial and last
+                // values
+                var delta = 1;
+                if(cleanLats[0]-cleanLats[1]<0){
+                    console.log('Ascending');
+                    cleanLats[0] = d3.min(slicedLats.slice(0,delta));
+                    cleanLats[cleanLats.length-1] = d3.max(slicedLats.slice(-delta));
+                } else {
+                    console.log('Descending');
+                    cleanLats[0] = d3.max(slicedLats.slice(0,delta));
+                    cleanLats[cleanLats.length-1] = d3.min(slicedLats.slice(-delta));
+                }
+                
+                
+                if(cleanLons[0]-cleanLons[1]<0){
+                    cleanLons[0] = d3.min(slicedLons.slice(0,delta));
+                    cleanLons[cleanLons.length-1] = d3.max(slicedLons.slice(-delta));
+                } else {
+                    cleanLons[0] = d3.max(slicedLons.slice(0,delta));
+                    cleanLons[cleanLons.length-1] = d3.min(slicedLons.slice(-delta));
+                }
+                
 
                 for (var p = 0; p < cleanLats.length; p++) {
                     posDataHeight.push(cleanLons[p]);
@@ -1607,55 +1649,6 @@ define([
                     cesLayer.alpha = options.value;
                 }
             }
-
-            /*globals.products.each(function(product) {
-                if(product.get('download').id === options.model.get('download').id){
-                    var cesLayer = product.get('ces_layer');
-                    // Find active parameter and satellite
-                    var sat, key;
-                    _.each(globals.swarm.products, function(p){
-                        var keys = _.keys(p);
-                        for (var i = 0; i < keys.length; i++) {
-                            if(p[keys[i]] === options.model.get('views')[0].id){
-                                sat = keys[i];
-                            }
-                        }
-                    });
-                    _.each(options.model.get('parameters'), function(pa, k){
-                        if(pa.selected){
-                            key = k;
-                        }
-                    });
-                    if( sat && key &&_.has(this.featuresCollection, (sat+key)) ){
-                        var fc = this.featuresCollection[(sat+key)];
-                        if(fc.hasOwnProperty('geometryInstances')){
-                            for (var i = fc._instanceIds.length - 1; i >= 0; i--) {
-                                var attributes = fc.getGeometryInstanceAttributes(fc._instanceIds[i]);
-                                var nc = attributes.color;
-                                nc[3] = Math.floor(options.value*255);
-                                attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(
-                                    Cesium.Color.fromBytes(nc[0], nc[1], nc[2], nc[3])
-                                );
-                            }
-                        }else{
-                            for (var i = fc.length - 1; i >= 0; i--) {
-                                var b = fc.get(i);
-                                if(b.color){
-                                    var c = b.color.clone();
-                                    c.alpha = options.value;
-                                    b.color = c;
-                                }else if(b.appearance){
-                                    var c = b.appearance.material.uniforms.color.clone();
-                                    c.alpha = options.value;
-                                    b.appearance.material.uniforms.color = c;
-                                }
-                            }
-                        }
-                    }else if(cesLayer){
-                        cesLayer.alpha = options.value;
-                    }
-                }
-            }, this);*/
         },
 
         addCustomAttribution: function(view) {
