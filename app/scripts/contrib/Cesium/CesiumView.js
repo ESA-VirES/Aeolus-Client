@@ -81,8 +81,8 @@ define([
                 filterManager: globals.filterManager,
                 multiYAxis: false,
                 fixedSize: true,
-                fixedWidth: 2048,
-                fixedHeigt: 512,
+                fixedWidth: (2048*2),
+                fixedHeigt: 256,
                 defaultAlpha: 1.0,
                 disableAntiAlias: true
             });
@@ -1087,7 +1087,7 @@ define([
             };
 
             var currPar;
-            var modifier = 1;
+            var modifier = -1;
 
             if(cov_id === 'AUX_MET_12'){
                 modifier = 0;
@@ -1291,6 +1291,7 @@ define([
                     cleanLons.push(slicedLons[currStep]);
                 }
 
+
                 if(cleanLats[cleanLats.length-1] !== slicedLats[slicedLats.length-1]){
                     if(cleanLats.length>1){
                         cleanLats.pop();
@@ -1299,6 +1300,30 @@ define([
                     cleanLats.push(slicedLats[slicedLats.length-1]);
                     cleanLons.push(slicedLons[slicedLons.length-1]);
                 }
+
+                // As first and last profile can have very different size
+                // we make sure we find the min and max value of initial and last
+                // values
+                var delta = 1;
+                if(cleanLats[0]-cleanLats[1]<0){
+                    console.log('Ascending');
+                    cleanLats[0] = d3.min(slicedLats.slice(0,delta));
+                    cleanLats[cleanLats.length-1] = d3.max(slicedLats.slice(-delta));
+                } else {
+                    console.log('Descending');
+                    cleanLats[0] = d3.max(slicedLats.slice(0,delta));
+                    cleanLats[cleanLats.length-1] = d3.min(slicedLats.slice(-delta));
+                }
+                
+                
+                if(cleanLons[0]-cleanLons[1]<0){
+                    cleanLons[0] = d3.min(slicedLons.slice(0,delta));
+                    cleanLons[cleanLons.length-1] = d3.max(slicedLons.slice(-delta));
+                } else {
+                    cleanLons[0] = d3.max(slicedLons.slice(0,delta));
+                    cleanLons[cleanLons.length-1] = d3.min(slicedLons.slice(-delta));
+                }
+                
 
                 for (var p = 0; p < cleanLats.length; p++) {
                     posDataHeight.push(cleanLons[p]);
