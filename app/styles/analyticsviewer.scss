@@ -387,3 +387,11 @@
 #labelFontSize {
     width: auto;
 }
+
+
+/*Breaking of long filter words*/
+.choiceParameterContainer label{
+    word-break: break-word;
+    width: 150px!important;
+    padding-left: 15px;
+}

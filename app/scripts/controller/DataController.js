@@ -506,6 +506,22 @@
                     {'name': 'ZWC_Rayleigh', value:'ZWC_Rayleigh'}
                 ],
                 selected: -1
+              },
+              'mie_wind_result_observation_type': {
+                  options: [
+                    {'name': 'undefined', value: 0},
+                    {'name': 'cloudy', value: 1},
+                    {'name': 'clear', value: 2},
+                  ],
+                  selected: 1
+              },
+              'rayleigh_wind_result_observation_type': {
+                  options: [
+                    {'name': 'undefined', value: 0},
+                    {'name': 'cloudy', value: 1},
+                    {'name': 'clear', value: 2},
+                  ],
+                  selected: 2
               }
           }
         };
