@@ -1725,6 +1725,27 @@ define(['backbone.marionette',
                         'dataSettings',
                         JSON.stringify(globals.dataSettings)
                     );
+                    var currProd = globals.products.find(
+                        function(p){return p.get('visible');}
+                    );
+                    var prodId = currProd.get('download').id;
+
+
+                    var parOpts = currProd.get('parameters');
+                    // Go trough product parameters and update based on data settings
+                    for (var pk in parOpts){
+                        if(globals.dataSettings[prodId].hasOwnProperty(pk)){
+                            if(globals.dataSettings[prodId][pk].hasOwnProperty('extent')){
+                                parOpts[pk].range = globals.dataSettings[prodId][pk].extent;
+                            }
+                        }
+                    }
+                    currProd.set('parameters', parOpts);
+                    // Trigger layer parameters changed to make sure globe
+                    // view is updated acordingly
+                    Communicator.mediator.trigger(
+                        'layer:parameters:changed', prodId
+                    );
                 });
             }
 
