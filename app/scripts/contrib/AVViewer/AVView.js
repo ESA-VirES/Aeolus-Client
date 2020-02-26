@@ -1612,6 +1612,7 @@ define(['backbone.marionette',
                     enableSubYAxis: ['mie_altitude','rayleigh_altitude'],
                     colorAxisTickFormat: 'customExp',
                     defaultAxisTickFormat: 'customExp',
+                    replaceUnderscore: true
                     //debug: true
                 });
 

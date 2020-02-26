@@ -528,8 +528,8 @@
 
         globals.filterManager = new FilterManager({
             filterSettings: filterSettings,
-            replaceUnderlines: true,
-            filterAxisTickFormat: 'customExp'
+            filterAxisTickFormat: 'customExp',
+            replaceUnderscore: true
         });
 
         globals.swarm.set('originalFilterSettings', JSON.parse(JSON.stringify(filterSettings)));
