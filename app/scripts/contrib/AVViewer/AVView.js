@@ -2089,7 +2089,7 @@ define(['backbone.marionette',
             $('#inputAnalyticsAddfilter').w2field('list', { 
               items: _.keys(aUOM).sort(),
               renderDrop: function (item, options) {
-                var html = '<b>'+(item.id)+'</b>';
+                var html = '<b>'+(item.id.replace(/_/g, ' '))+'</b>';
                 if(aUOM[item.id].uom != null){
                   html += ' ['+aUOM[item.id].uom+']';
                 }

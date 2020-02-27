@@ -2571,7 +2571,7 @@ define([
 
                     // Add layer info
                     var info = product.get('name');
-                    info += ' - ' + sel;
+                    info += ' - ' + sel.replace(/_/g, ' ');
                     if(uom){
                         info += ' ['+uom+']';
                     }
