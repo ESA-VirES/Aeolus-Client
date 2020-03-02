@@ -519,12 +519,6 @@ button[active=active] {
   z-index: $layer-gui;
 }
 
-@media(min-width: 992px) {
-    .container {
-        width:990px!important;
-    }
-}
-
 .nav.navbar-nav li a{
   max-width: 130px; 
   white-space: nowrap;
