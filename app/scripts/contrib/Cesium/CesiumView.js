@@ -1164,8 +1164,6 @@ define([
             var lineInstances = [];
             var renderOutlines = defaultFor(currProd.get('outlines'), false);
 
-            console.log('Curtain composed of: ' + dataJumps.length+' elements');
-
             // Go through slices and render them
             for (var jIdx = 0; jIdx <= dataJumps.length; jIdx++) {
 

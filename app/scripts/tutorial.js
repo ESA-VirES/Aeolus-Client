@@ -25,7 +25,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
     var tutorialSteps = [
         {
             target: '.navbar',
-            content:'Welcome to VirES for Aeolus, this tutorial will be shown the first time automatically and can be opened any time by clicking on the <i class="fa fa-fw fa-book"></i> <b>Tutorial</b> button on the navigation bar.</br>We recommend using the right arrow or Enter key on the keyboard to navigate the tutorial.',
+            content:'Welcome to VirES for Aeolus, this tutorial will be shown the first time automatically and can be opened any time by clicking on the <i class="fa fa-fw fa-book"></i> <b>Tutorial</b> button on the navigation bar.</br>We recommend using the right arrow or Enter key on the keyboard to navigate the tutorial. You can exit the tutorial at any time by pressing the "Esc" key or clicking outside the tutorial panel.',
             position: 'center-bottom',
             arrowPosition: {},
             className: 'anno-width-400',
@@ -45,6 +45,18 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
             target: '.layercontrol',
             content: 'This is the <b>Products panel</b>, you can open it clicking on the </br> <i class="fa fa-fw fa-globe"></i> <b>Products</b> item in the navigation bar.</br>Here you can activate the product you are interested in by clicking the checkbox on the left.</br>It is also possible to change the base layer by clicking on the radio buttons on the bottom.',
             position: 'right',
+            buttons: [
+                new AnnoButton({
+                    text: 'Back', className: 'anno-btn-low-importance',
+                    click: function(){
+                        if(!$('#leftSideBar').is(':empty')){
+                            Communicator.mediator.trigger('ui:open:layercontrol');
+                        }
+                        this.switchToChainPrev();
+                    }
+                }),
+                AnnoButton.NextButton
+            ]
         },
         {
             target: '.input-group.input-group-sm:has(.input-group-addon:has(input:checked))',
@@ -622,7 +634,26 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
             Communicator.mediator.trigger('map:layer:change', { 
                 name: product.get('name'), isBaseLayer: false, visible: true 
             });
+
         }
+
+        function escapeTutorial(e){
+            if (e.key === 'Escape') {
+                // Go through all anno elements and see if any is not empty
+                var currAnno = annoTutorial;
+                while(currAnno._chainNext){
+                    if(currAnno._annoElem !== null){
+                        currAnno.hide();
+                        $(document).off('keyup');
+                        break;
+                    } else {
+                        currAnno = currAnno._chainNext;
+                    }
+                }
+            }
+        };
+        $(document).off('keyup');
+        $(document).on('keyup', escapeTutorial);
 
         // TODO
         // Reset view
