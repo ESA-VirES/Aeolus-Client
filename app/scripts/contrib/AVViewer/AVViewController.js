@@ -37,6 +37,11 @@ define([
                 Communicator.mediator, 'layer:parameters:changed', 
                 _.bind(this.analyticsView.onLayerParametersChanged, this.analyticsView)
             );
+
+            this.analyticsView.listenTo(
+                Communicator.mediator, 'analytics:toggle:filters', 
+                _.bind(this.analyticsView.changeFilterDisplayStatus, this.analyticsView)
+            );
         },
 
         isActive: function(){

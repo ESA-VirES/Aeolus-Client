@@ -344,7 +344,17 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
                         this.switchToChainPrev();
                     }
                 }),
-                AnnoButton.NextButton
+                //'<div id="minimizeFilters" class="visible minimized"><i class="fa fa-chevron-circle-up" aria-hidden="true"></i></div>'
+                new AnnoButton({
+                    text: 'Next',
+                    click: function(){
+                        // Check that filters panel is open
+                        if($('#minimizeFilters').hasClass('minimized')){
+                            Communicator.mediator.trigger('analytics:toggle:filters');
+                        }
+                        this.switchToChainNext();
+                    }
+                })
             ]
         },
         {
@@ -586,7 +596,7 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
             activeProd = prod.get('download').id;
         }
 
-        if(activeProd === 'ALD_U_N_2B'){
+        if(activeProd === 'ALD_U_N_2B' && prod.get('granularity')==='wind-accumulation-result'){
             var data = globals.swarm.get('data');
             if(!$.isEmptyObject(data) && !(Array.isArray(data) && data.length===0)){
                 closeAllPanels();
@@ -616,6 +626,9 @@ define(['communicator', 'globals', 'Anno'], function(Communicator, globals) {
             var product = globals.products.find(
                 function(p){return p.get('download').id === 'ALD_U_N_2B';}
             );
+            if(product.get('granularity')!=='wind-accumulation-result'){
+                product.set('granularity', 'wind-accumulation-result');
+            }
             product.set('visible', true);
             if(product){
                 // Deactivate all other products
