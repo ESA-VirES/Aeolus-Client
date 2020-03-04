@@ -309,7 +309,7 @@ var VECTOR_BREAKDOWN = {};
                         }
 
                         // Check if there are changes saved for parameter settings
-                        if(localStorage.getItem('dataSettings') !== null){
+                        if(localStorage.getItem('dataSettings') !== 'null'){
                             var setts = JSON.parse(localStorage.getItem('dataSettings'));
                             for (var key in product_config[i].parameters){
                                 if(setts.hasOwnProperty(key)){

@@ -209,6 +209,8 @@
                                     localStorage.setItem(key, obj[key]);
                                 }
                                 localStorage.setItem('configurationLoaded', true);
+                                // We also dont want the tutorial to run so we set it to true
+                                localStorage.setItem('tutorialShown', true);
                                 window.location.reload();
                             }
                         } else {
