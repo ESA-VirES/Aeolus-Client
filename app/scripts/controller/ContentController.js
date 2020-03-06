@@ -5,9 +5,10 @@
         'backbone',
         'communicator',
         'app',
-        'globals'
+        'globals',
+        'tutorial'
     ],
-    function( Backbone, Communicator, App , globals) {
+    function( Backbone, Communicator, App , globals, tutorial) {
 
         var ContentController = Backbone.Marionette.Controller.extend({
             initialize: function(options){
@@ -24,7 +25,13 @@
                 this.listenTo(Communicator.mediator, "application:save", this.onApplicationSave);
                 this.listenTo(Communicator.mediator, "application:load", this.onApplicationLoad);
                 this.listenTo(Communicator.mediator, "dialog:show:upload", this.onShowUpload);
+                this.listenTo(Communicator.mediator, "dialog:show:dataconfiguration", this.onOpenDataConfiguration);
+                this.listenTo(Communicator.mediator, "ui:open:tutorial", this.onOpenTutorial);
                 
+            },
+
+            onOpenTutorial: function() {
+                tutorial.resetAndRunTutorial();
             },
 
             onFullscrenGlobe: function () {
@@ -133,13 +140,24 @@
                 }
 
             },
+            onOpenDataConfiguration: function(){
+                if (_.isUndefined(App.dataConfigurationView.isClosed) || App.dataConfigurationView.isClosed) {
+                    App.viewContent.show(App.dataConfigurationView);
+                } else {
+                    App.viewContent.close();
+                }
+            },
             onApplicationReset: function(){
                 if (typeof(Storage) !== "undefined") {
+                    var tutorialShown = localStorage.getItem('tutorialShown');
                     localStorage.clear();
                     localStorage.setItem(
                         'serviceVersion',
                         JSON.stringify(globals.version)
                     );
+                    if(tutorialShown){
+                        localStorage.setItem('tutorialShown', true);
+                    }
                     location.reload(true);
                 }
             },
@@ -185,85 +203,14 @@
                                     'load is from an older version of the service and no longer supported.',
                                     35
                                 );
-                                // There was a change in the plot library 
-                                // and both separate plots were integrated into one
-                                // try to recombine them here
-                                /*var plot1Settings = {};
-                                var plot2Settings = {};
-                                function getSettings(pars, setts){
-                                    for(var ps=0; ps<pars.length;ps++){
-                                        if(obj.hasOwnProperty(pars[ps])){
-                                            if(obj[pars[ps]] === 'undefined'){
-                                                setts[pars[ps].substring(2)] = undefined;
-                                            } else {
-                                                setts[pars[ps].substring(2)] = JSON.parse(obj[pars[ps]]);
-                                            }
-                                            delete obj[pars[ps]];
-                                        }
-                                    }
-                                }
-                                getSettings(
-                                    ['G1colorAxisSelection','G1colorAxis2Selection',
-                                     'G1xAxisSelection','G1y2AxisSelection','G1yAxisSelection'],
-                                    plot1Settings
-                                );
-                                
-                                getSettings(
-                                    ['G2colorAxisSelection','G2colorAxis2Selection',
-                                     'G2xAxisSelection','G2y2AxisSelection','G2yAxisSelection'],
-                                    plot2Settings
-                                );
-
-                                // Combine settings
-                                var yaxis = [];
-                                var y2axis = [];
-                                var colaxis = [];
-                                var col2axis = [];
-                                // For the xaxis it is going to be difficult to find
-                                // an equivalent so we remove the setting and that
-                                // will load the default for each different product type
-                                //var xaxis = [];
-
-                                if(plot1Settings.hasOwnProperty('yAxisSelection')){
-                                    yaxis.push(plot1Settings.yAxisSelection);
-                                }
-                                if(plot2Settings.hasOwnProperty('yAxisSelection')){
-                                    yaxis.push(plot2Settings.yAxisSelection);
-                                }
-
-                                if(plot1Settings.hasOwnProperty('y2AxisSelection')){
-                                    y2axis.push(plot1Settings.y2AxisSelection);
-                                }
-                                if(plot2Settings.hasOwnProperty('y2AxisSelection')){
-                                    y2axis.push(plot2Settings.y2AxisSelection);
-                                }
-
-                                if(plot1Settings.hasOwnProperty('colorAxisSelection')){
-                                    colaxis.push(plot1Settings.colorAxisSelection);
-                                }
-                                if(plot2Settings.hasOwnProperty('colorAxisSelection')){
-                                    colaxis.push(plot2Settings.colorAxisSelection);
-                                }
-
-                                if(plot1Settings.hasOwnProperty('colorAxis2Selection')){
-                                    col2axis.push(plot1Settings.colorAxis2Selection);
-                                }
-                                if(plot2Settings.hasOwnProperty('colorAxis2Selection')){
-                                    col2axis.push(plot2Settings.colorAxis2Selection);
-                                }
-
-                                // Check for same length
-
-                                obj['yAxisSelection'] = JSON.stringify(yaxis);
-                                obj['y2AxisSelection'] = JSON.stringify(y2axis);
-                                obj['colorAxisSelection'] = JSON.stringify(colaxis);
-                                obj['colorAxis2Selection'] = JSON.stringify(col2axis);*/
-
                             } else {
                                 localStorage.clear();
                                 for( var key in obj ){
                                     localStorage.setItem(key, obj[key]);
                                 }
+                                localStorage.setItem('configurationLoaded', true);
+                                // We also dont want the tutorial to run so we set it to true
+                                localStorage.setItem('tutorialShown', true);
                                 window.location.reload();
                             }
                         } else {

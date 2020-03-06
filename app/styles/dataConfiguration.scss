@@ -1,0 +1,41 @@
+@import "defaults";
+
+#productList {
+	float: left;
+	width: 20%;
+}
+
+#rightPanelContainer {
+	float: left;
+	width: 80%;
+	padding-left: 10px;
+}
+
+#productbtnGroup {
+	width: 100%;
+}
+
+.configButton {
+	padding-left: 0px;
+	margin-left: 0px;
+}
+
+.dataconfigSearchIcon{
+	margin-left: 23px;
+	margin-right: 12px;
+	float: left;
+	margin-top: 11px;
+}
+
+.footerPanelButton{
+	float: right;
+	margin-top: -5px;
+	margin-bottom: 5px;
+	margin-left: 5px;
+}
+
+#parameterList{
+	margin-top: 6px;
+	max-height: 25em;
+	overflow-y: auto;
+}

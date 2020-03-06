@@ -375,6 +375,8 @@ module.exports = function (grunt) {
                         'bower_components/msgpack-lite/dist/msgpack.min.js',
                         'bower_components/graphly/dist/graphly.min.js',
                         'bower_components/filepond/dist/filepond.js',
+                        'bower_components/anno.js/anno.js',
+                        'bower_components/jquery-scrollintoview/jquery.scrollintoview.min.js',
                         'scripts/vendor/**',
                     ]
                 },{

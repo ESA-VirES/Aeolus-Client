@@ -1,0 +1,45 @@
+<div class="input-group" style="margin:7px">
+    <span class="input-group-addon">
+        <input id={{key}} class="parameterActivationCB" type="checkbox" aria-label="..."{{#if active}} checked{{/if}}{{#if required}} disabled{{/if}}>
+      </span>
+    <span class="form-control" id={{key}}>
+        <b>{{key}}</b>{{#if uom}} [{{uom}}]{{/if}}{{#if required}} (default){{/if}}<br/>
+        {{name}}
+        </br>
+        <button class="btn-link collapsed configButton" data-toggle="collapse" data-target="#collapse{{key}}" aria-expanded="false" aria-controls="collapse{{key}}" style="font-size: 0.9em;">
+        Configuration</button>
+        <div id="collapse{{key}}" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+            <span style="font-size:0.9em;">Range is calculated automatically if fields are empty</span>
+            <div class="input-group" id="extent" style="margin:7px;width:100%;">
+                <span class="form-control">
+                    Colorscale range (min/max)
+                    <span style="float:right;">
+                        <textarea class="parameterConfInput min" rows="1" cols="15" style="resize:none;">{{extent.[0]}}</textarea>
+                        <textarea class="parameterConfInput max" rows="1" cols="15" style="resize:none;">{{extent.[1]}}</textarea>
+                    </span>
+                </span>
+            </div>
+            <div class="input-group" id="filterExtent" style="margin:7px;width:100%;">
+                <span class="form-control">
+                    Filter range extent (min/max)
+                    <span style="float:right;">
+                        <textarea class="parameterConfInput min" rows="1" cols="15" style="resize:none;">{{filterExtent.[0]}}</textarea>
+                        <textarea class="parameterConfInput max" rows="1" cols="15"  style="resize:none;">{{filterExtent.[1]}}</textarea>
+                    </span>
+                </span>
+            </div>
+            <div class="input-group" id="colorscale" style="margin:7px;width:100%;">
+                <span class="form-control">
+                    Colorscale: 
+                        <select id="cs{{key}}" class="colorscaleselector">
+                            {{#each colorscaleOptions}}
+                                <option value={{this}}>{{this}}</option>
+                            {{/each}}
+                        </select>
+                </span>
+            </div>
+          </div>
+    </span>
+</div>
+
+

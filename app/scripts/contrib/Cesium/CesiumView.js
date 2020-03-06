@@ -7,11 +7,10 @@ define([
     'models/MapModel',
     'globals',
     'papaparse',
-    'cesium/Cesium',
+    'cesium',
     'drawhelper',
-    'FileSaver',
-    'plotty'
-], function( Marionette, Communicator, App, MapModel, globals, Papa) {
+    'FileSaver'
+], function( Marionette, Communicator, App, MapModel, globals, Papa, Cesium) {
     'use strict';
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
@@ -43,16 +42,7 @@ define([
             this.colorscales = {};
             this.beginTime = null;
             this.endTime = null;
-            this.plot = null;
             this.curtainPrimitive = null;
-
-            for(var cskey in additionalColorscales){
-                plotty.addColorScale(
-                    cskey, 
-                    additionalColorscales[cskey][0],
-                    additionalColorscales[cskey][1]
-                );
-            }
 
             var renderSettings = {
                 xAxis: [
@@ -77,8 +67,6 @@ define([
                 availableParameters: false
             };
 
-            this.dataSettings = globals.dataSettings;
-
 
             $('body').append($('<div/>', {
                 id: 'hiddenRenderArea' ,
@@ -88,15 +76,26 @@ define([
 
             this.graph = new graphly.graphly({
                 el: '#hiddenRenderArea',
-                dataSettings: this.dataSettings,
+                //dataSettings: this.dataSettings,
                 renderSettings: renderSettings,
-                filterManager: globals.swarm.get('filterManager'),
+                filterManager: globals.filterManager,
                 multiYAxis: false,
                 fixedSize: true,
-                fixedWidth: 2048,
-                fixedHeigt: 512,
-                defaultAlpha: 1.0
+                fixedWidth: (2048*2),
+                fixedHeigt: 256,
+                defaultAlpha: 1.0,
+                disableAntiAlias: true
             });
+
+            for(var cskey in additionalColorscales){
+                this.graph.addColorScale(
+                    cskey, 
+                    additionalColorscales[cskey][0],
+                    additionalColorscales[cskey][1]
+                );
+            }
+
+            globals.cesGraph = this.graph;
 
             var that = this;
 
@@ -106,7 +105,7 @@ define([
                 }
             }
 
-            globals.swarm.get('filterManager').on('filterChange', function(filters){
+            globals.filterManager.on('filterChange', function(filters){
                 //console.log(filters);
                 var data = globals.swarm.get('data');
                 if (Object.keys(data).length){
@@ -139,15 +138,8 @@ define([
             Cesium.Camera.DEFAULT_VIEW_RECTANGLE = Cesium.Rectangle.fromDegrees(0.0, -10.0, 30.0, 55.0);
 
             Cesium.WebMapServiceImageryProvider.prototype.updateProperties = function(property, value) {
-                property = '&'+property+'=';
-                value = ''+value;
-                var i = _.indexOf(this._tileProvider._urlParts, property);
-                if (i>=0){
-                    this._tileProvider._urlParts[i+1] = value;
-                }else{
-                    this._tileProvider._urlParts.push(property);
-                    this._tileProvider._urlParts.push(encodeURIComponent(value));
-                }
+                var qPars = this._tileProvider._resource._queryParameters;
+                qPars[property] = value;
             };
 
             this.$el.append('<div id="coordinates_label"></div>');
@@ -218,9 +210,6 @@ define([
                 var initialCesiumLayer = this.map.imageryLayers.get(0);
             }
 
-            // disable fxaa
-            this.map.scene.fxaa = false;
-
             if(localStorage.getItem('cameraPosition') !== null){
                 var c = JSON.parse(localStorage.getItem('cameraPosition'));
                 this.map.scene.camera.position = new Cesium.Cartesian3(
@@ -250,6 +239,9 @@ define([
             this.map.scene.backgroundColor = new Cesium.Color.fromCssColorString(
                 mm.get('backgroundColor')
             );
+
+            this.map.scene.globe.dynamicAtmosphereLighting = false;
+            this.map.scene.globe.showGroundAtmosphere = false;
 
             // TODO: Removes fog for now as it is not very good at this point
             if(this.map.scene.hasOwnProperty('fog')){
@@ -466,8 +458,6 @@ define([
                     container: $('.cesium-viewer-toolbar')[0]
                 });
             } 
-            this.plot = new plotty.plot({});
-            this.plot.setClamp(true, true);
             this.isClosed = false;
 
             $('#cesium_save').on('click', this.onSaveImage.bind(this));
@@ -679,14 +669,13 @@ define([
             var currProd = globals.products.find(
                 function(p){return p.get('download').id === cov_id;}
             );
+            var prodId = currProd.get('download').id;
 
             var curtainCollection;
 
             if(currProd.hasOwnProperty('curtains')){
                 currProd.curtains.removeAll();
                 curtainCollection = currProd.curtains;
-                /*this.map.scene.primitives.remove(currProd.curtains);
-                delete currProd.curtains;*/
             }else{
                 curtainCollection = new Cesium.PrimitiveCollection();
                 this.activeCurtainCollections.push(curtainCollection);
@@ -695,23 +684,7 @@ define([
             }
 
             var alpha = currProd.get('opacity');
-
-            var parameters = currProd.get('parameters');
-            var band;
-            var keys = _.keys(parameters);
-            _.each(keys, function(key){
-                if(parameters[key].selected){
-                    band = key;
-                }
-            });
-            var style = parameters[band].colorscale;
-            var range = parameters[band].range;
-
-            
-
-            this.dataSettings[band].colorscale = style;
-            this.dataSettings[band].extent = range;
-            this.graph.dataSettings = this.dataSettings;
+            this.graph.dataSettings = globals.dataSettings[prodId];
 
             var dataJumps;
 
@@ -726,6 +699,15 @@ define([
                 mie_time: ['mie_time_start', 'mie_time_end'],
                 rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end']
             };
+
+            var parameters = currProd.get('parameters');
+            var band;
+            var keys = _.keys(parameters);
+            _.each(keys, function(key){
+                if(parameters[key].selected){
+                    band = key;
+                }
+            });
 
             if(band === 'mie_HLOS_wind_speed'){
                 this.graph.renderSettings.colorAxis = [['mie_HLOS_wind_speed']];
@@ -814,9 +796,20 @@ define([
                 this.graph.loadData(dataSlice);
 
 
-                var newmat = new Cesium.Material.fromType('Image', {
+                /*var newmat = new Cesium.Material.fromType('Image', {
                     image : this.graph.getCanvasImage(),
                     color: new Cesium.Color(1, 1, 1, alpha),
+                });*/
+
+                var newmat = new Cesium.Material({
+                    fabric : {
+                        type : 'Image',
+                        uniforms : {
+                            image : this.graph.getCanvasImage()
+                        }
+                    },
+                    minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
+                    magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST
                 });
                 
                 var slicedPosData = data.positions.slice(start, end);
@@ -957,7 +950,6 @@ define([
                 this.map.scene.primitives.add(curtainCollection);
                 currProd.curtains = curtainCollection;
             }
-
             var parameters = currProd.get('parameters');
             var band;
             var keys = _.keys(parameters);
@@ -966,14 +958,9 @@ define([
                     band = key;
                 }
             });
-            var style = parameters[band].colorscale;
-            var range = parameters[band].range;
-
             var alpha = currProd.get('opacity');
 
-            this.dataSettings[band].colorscale = style;
-            this.dataSettings[band].extent = range;
-            this.graph.dataSettings = this.dataSettings;
+            this.graph.dataSettings = globals.dataSettings[cov_id];
 
             var dataJumps, lats, lons, pStartTimes, pStopTimes, signCross;
 
@@ -1177,13 +1164,39 @@ define([
             var lineInstances = [];
             var renderOutlines = defaultFor(currProd.get('outlines'), false);
 
-            
-            //TODO: How to correctly handle multiple curtains with jumps
+            // Go through slices and render them
             for (var jIdx = 0; jIdx <= dataJumps.length; jIdx++) {
 
+                var start, end;
                 var startSlice, endSlice;
+
+                /*if(signCross){
+                    modifier = -2;
+                }*/
+                
                 if(dataJumps.length === 0){
                     this.graph.loadData(data);
+                    if(pStartTimes[0] instanceof Date){
+                        start = pStartTimes[0];
+                    }else{
+                        start = new Date('2000-01-01');
+                        start.setUTCMilliseconds(
+                            start.getUTCMilliseconds() + pStartTimes[0]*1000
+                        );
+                    }
+
+                    if(pStopTimes[pStopTimes.length-1] instanceof Date){
+                        end = pStopTimes[pStopTimes.length-1];
+                    }else{
+                        end = new Date('2000-01-01');
+                        end.setUTCMilliseconds(
+                            end.getUTCMilliseconds() + 
+                            pStopTimes[pStopTimes.length-1]*1000
+                        );
+                    }
+                    startSlice = 0;
+                    endSlice = lats.length-1;
+
                 } else {
                     // get extent limits for curtain piece
                     startSlice = 0;
@@ -1204,9 +1217,11 @@ define([
                         continue;
                     }
 
-                    var start, end;
                     if(pStartTimes[startSlice] instanceof Date){
                         start = pStartTimes[startSlice];
+                      /*  if(start.getTime()>pStartTimes[startSlice+1].getTime()){
+                            start = pStartTimes[startSlice+1];
+                        }*/
                     }else{
                         start = new Date('2000-01-01');
                         start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice]*1000);
@@ -1214,22 +1229,31 @@ define([
 
                     if(pStopTimes[endSlice] instanceof Date){
                         end = pStopTimes[endSlice-1];
+                        /*if(end.getTime()<pStopTimes[endSlice-2].getTime()){
+                            end = pStopTimes[endSlice-2];
+                        }*/
                     }else{
                         end = new Date('2000-01-01');
-                        end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice-1]*1000);
+                        end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice]*1000);
                     }
                     
                     this.graph.setXDomain([start, end]);
                     this.graph.loadData(data);
                     this.graph.clearXDomain();
                 }
-                var newmat = new Cesium.Material.fromType('Image', {
-                    image : this.graph.getCanvasImage(),
-                    color: new Cesium.Color(1, 1, 1, alpha),
+
+                var newmat = new Cesium.Material({
+                    fabric : {
+                        type : 'Image',
+                        uniforms : {
+                            image : this.graph.getCanvasImage()
+                        }
+                    },
+                    minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
+                    magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST
                 });
 
-
-                var slicedLats, slicedLons;
+                var slicedLats, slicedLons, slicedTime;
 
                 if(dataJumps.length > 0){
                     slicedLats = lats.slice(startSlice, endSlice-1);
@@ -1239,111 +1263,75 @@ define([
                     slicedLons = lons;
                 }
 
-
                 var posDataHeight = [];
+                var posDataLineHeight = [];
                 var posData = [];
-                
-                // Data provided has jumps back an forth in lat and long, trying
-                // to avoid the issue we take every third element which hopefully
-                // should hit not repeating or ascending/descending inverted values
-                // TODO: re-evaluate a correct method to handle this
-                var stepsize = 3;/*Math.floor(slicedLats.length/10);
-                if(stepsize<3){
-                    stepsize = 3;
-                }*/
-                if(slicedLats.length > 30){
-                    stepsize = 20;
-                }
-                if(slicedLats.length <5){
-                    stepsize = 2;
-                }
+
+                // We need uniformly distributed sections in the curtain to not 
+                // create distortions in the texture, for this we use the time
+                // information which should be uniform
+
                 var cleanLats = [];
-                for (var p = 0; p < slicedLats.length; p+=stepsize){
-                    if(slicedLats[p] !== cleanLats[cleanLats.length-1]){
-                        cleanLats.push(slicedLats[p]);
-                    }
-                }
-                if((slicedLats.length-1)%stepsize !== 0){
-                    if(cleanLats[cleanLats.length-1] !== slicedLats[slicedLats.length-1]){
-                        cleanLats.push(slicedLats[slicedLats.length-1]);
-                    }
-                }
-
                 var cleanLons = [];
-                for (var p = 0; p < slicedLons.length; p+=stepsize){
-                    if(slicedLons[p] !== cleanLons[cleanLons.length-1]){
-                        cleanLons.push(slicedLons[p]);
+
+                var sliceTimeInterval = end.getTime() - start.getTime();
+                var endMs = end.getTime();
+                // Lets try to get around a value each ~90 seconds, more or less
+                // a curtain section per profile
+                var steps = (sliceTimeInterval/1000) / 90;
+                if(steps < 1.0){
+                    steps = 1.0;
+                }
+                var datastepsize = Math.floor(slicedLats.length / steps);
+                var timeDelta = (sliceTimeInterval/steps);
+
+                var currentTime = start.getTime();
+                var currSliceStep = startSlice;
+
+                for (var currStep = 0; currStep < slicedLats.length; currStep+=datastepsize) {
+                    cleanLats.push(slicedLats[currStep]);
+                    cleanLons.push(slicedLons[currStep]);
+                }
+
+
+                if(cleanLats[cleanLats.length-1] !== slicedLats[slicedLats.length-1]){
+                    if(cleanLats.length>1){
+                        cleanLats.pop();
+                        cleanLons.pop();
                     }
-                }
-                if((slicedLons.length-1)%stepsize !== 0){
-                    if(cleanLons[cleanLons.length-1] !== slicedLons[slicedLons.length-1]){
-                        cleanLons.push(slicedLons.slice(-1)[0]);
-                    }
-
+                    cleanLats.push(slicedLats[slicedLats.length-1]);
+                    cleanLons.push(slicedLons[slicedLons.length-1]);
                 }
 
-                var itemsToRemove = [];
-                // Check lats to make sure direction does not change
-                for (var i = cleanLats.length - 1; i >= 0; i--) {
-                    if(i>3){
-                        if( (cleanLats[i]-cleanLats[i-2] <= 0 && 
-                            cleanLats[i-1]-cleanLats[i-2] >= 0 ) ||
-                            (cleanLats[i]-cleanLats[i-2] >= 0 && 
-                            cleanLats[i-1]-cleanLats[i-2] <= 0)){
-                            itemsToRemove.push(i-1);
-                        }
-                    }
+                // As first and last profile can have very different size
+                // we make sure we find the min and max value of initial and last
+                // values
+                var delta = 1;
+                if(cleanLats[0]-cleanLats[1]<0){
+                    cleanLats[0] = d3.min(slicedLats.slice(0,delta));
+                    cleanLats[cleanLats.length-1] = d3.max(slicedLats.slice(-delta));
+                } else {
+                    cleanLats[0] = d3.max(slicedLats.slice(0,delta));
+                    cleanLats[cleanLats.length-1] = d3.min(slicedLats.slice(-delta));
                 }
-
-                for (var i = 0; i < itemsToRemove.length; i++) {
-                    cleanLats.splice(itemsToRemove[i],1);
-                    cleanLons.splice(itemsToRemove[i],1);
+                
+                
+                if(cleanLons[0]-cleanLons[1]<0){
+                    cleanLons[0] = d3.min(slicedLons.slice(0,delta));
+                    cleanLons[cleanLons.length-1] = d3.max(slicedLons.slice(-delta));
+                } else {
+                    cleanLons[0] = d3.max(slicedLons.slice(0,delta));
+                    cleanLons[cleanLons.length-1] = d3.min(slicedLons.slice(-delta));
                 }
-
-                itemsToRemove = [];
-                // Check lons to make sure direction does not change
-                for (var i = cleanLons.length - 1; i >= 0; i--) {
-                    if(i>3){
-                        if( (cleanLons[i]-cleanLons[i-2] <= 0 && 
-                            cleanLons[i-1]-cleanLons[i-2] >= 0 ) ||
-                            (cleanLons[i]-cleanLons[i-2] >= 0 && 
-                            cleanLons[i-1]-cleanLons[i-2] <= 0)){
-                            itemsToRemove.push(i-1);
-                        }
-                    }
-                }
-
-                for (var i = 0; i < itemsToRemove.length; i++) {
-                    cleanLats.splice(itemsToRemove[i],1);
-                    cleanLons.splice(itemsToRemove[i],1);
-                }
-
-                // Check lons to make sure direction does not change
-
-
-                /*var cleanLats = [];
-                for (var p = 1; p < slicedLats.length; p++){
-                    if(slicedLats[p-1] !== slicedLats[p]){
-                        cleanLats.push(slicedLats[p]);
-                    }
-                }
-                // Remove duplicates
-                var cleanLons = [];
-                for (var p = 1; p < slicedLons.length; p++){
-                    if(slicedLons[p-1] !== slicedLons[p]){
-                        cleanLons.push(slicedLons[p]);
-                    }
-                }*/
-
-                // Change direction of texture depending if curtain beginning 
-                // and end latitude coordinates
-                var lastLats = cleanLats.slice(-2);
                 
 
                 for (var p = 0; p < cleanLats.length; p++) {
                     posDataHeight.push(cleanLons[p]);
                     posDataHeight.push(cleanLats[p]);
                     posDataHeight.push(height);
+                    posDataLineHeight.push(cleanLons[p]);
+                    posDataLineHeight.push(cleanLats[p]);
+                    posDataLineHeight.push(height+20000);
                     posData.push(cleanLons[p]);
                     posData.push(cleanLats[p]);
                 }
@@ -1354,7 +1342,7 @@ define([
                             geometry : new Cesium.PolylineGeometry({
                                 positions : 
                                 Cesium.Cartesian3.fromDegreesArrayHeights(
-                                    posDataHeight
+                                    posDataLineHeight
                                 ),
                                 width : 10.0
                             })
@@ -1374,12 +1362,6 @@ define([
                     );
                 }
 
-                /*var maxHeights = [];
-                var minHeights = [];
-                for (var j = 0; j <posData.length; j++) {
-                    maxHeights.push(height);
-                    minHeights.push(0);
-                }*/
                 if(posDataHeight.length === 6){
                     if (posDataHeight[0] === posDataHeight[3] &&
                         posDataHeight[1] === posDataHeight[4]){
@@ -1388,11 +1370,30 @@ define([
                     }
                 }
 
+                // Debug helper
+                /*
+                if(this.auxOutlineLines){
+                    this.map.entities.remove(this.auxOutlineLines);
+                }
+                this.auxOutlineLines = this.map.entities.add({
+                    wall : {
+                        positions : Cesium.Cartesian3.fromDegreesArrayHeights(
+                            posDataHeight
+                        ),
+                        outline : true,
+                        outlineColor : Cesium.Color.RED,
+                        outlineWidth : 2,
+                        material : Cesium.Color.fromRandom({alpha : 0.7})
+                    }
+                });
+                */
+
                 var wall = new Cesium.WallGeometry({
                     positions : Cesium.Cartesian3.fromDegreesArrayHeights(
                         posDataHeight
                     )
                 });
+
                 var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
                 if(wallGeometry){
                     var instance = new Cesium.GeometryInstance({
@@ -1435,8 +1436,6 @@ define([
                     material : newmat
                 });
 
-
-                //instances.push(instance);
                 var prim = new Cesium.Primitive({
                   geometryInstances : instance,
                   appearance : sliceAppearance,
@@ -1649,55 +1648,6 @@ define([
                     cesLayer.alpha = options.value;
                 }
             }
-
-            /*globals.products.each(function(product) {
-                if(product.get('download').id === options.model.get('download').id){
-                    var cesLayer = product.get('ces_layer');
-                    // Find active parameter and satellite
-                    var sat, key;
-                    _.each(globals.swarm.products, function(p){
-                        var keys = _.keys(p);
-                        for (var i = 0; i < keys.length; i++) {
-                            if(p[keys[i]] === options.model.get('views')[0].id){
-                                sat = keys[i];
-                            }
-                        }
-                    });
-                    _.each(options.model.get('parameters'), function(pa, k){
-                        if(pa.selected){
-                            key = k;
-                        }
-                    });
-                    if( sat && key &&_.has(this.featuresCollection, (sat+key)) ){
-                        var fc = this.featuresCollection[(sat+key)];
-                        if(fc.hasOwnProperty('geometryInstances')){
-                            for (var i = fc._instanceIds.length - 1; i >= 0; i--) {
-                                var attributes = fc.getGeometryInstanceAttributes(fc._instanceIds[i]);
-                                var nc = attributes.color;
-                                nc[3] = Math.floor(options.value*255);
-                                attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(
-                                    Cesium.Color.fromBytes(nc[0], nc[1], nc[2], nc[3])
-                                );
-                            }
-                        }else{
-                            for (var i = fc.length - 1; i >= 0; i--) {
-                                var b = fc.get(i);
-                                if(b.color){
-                                    var c = b.color.clone();
-                                    c.alpha = options.value;
-                                    b.color = c;
-                                }else if(b.appearance){
-                                    var c = b.appearance.material.uniforms.color.clone();
-                                    c.alpha = options.value;
-                                    b.appearance.material.uniforms.color = c;
-                                }
-                            }
-                        }
-                    }else if(cesLayer){
-                        cesLayer.alpha = options.value;
-                    }
-                }
-            }, this);*/
         },
 
         addCustomAttribution: function(view) {
@@ -1955,6 +1905,9 @@ define([
             // If selected parameter is from AUX MET and 2D we need to create
             // a curtain isntead of points
             if(cov_id === 'AUX_MET_12' && AUXMET2D.indexOf(band)!==-1 ){
+                if(currProd.hasOwnProperty('points')){
+                    currProd.points.removeAll();
+                }
                 this.createL2Curtains(data, cov_id);
                 return;
             } 
@@ -1972,7 +1925,7 @@ define([
                 lonPar = 'lon_of_DEM_intersection';
             }
 
-            if(!data.hasOwnProperty(latPar) || !data.hasOwnProperty(lonPar) ){
+            if(typeof data === 'undefined' || !data.hasOwnProperty(latPar) || !data.hasOwnProperty(lonPar)){
                 // If data does not have required position information
                 // do not try to render it
                 return;
@@ -2017,8 +1970,8 @@ define([
             height = 0;
             var renderOutlines = defaultFor(currProd.get('outlines'), false);
 
-            this.plot.setColorScale(style);
-            this.plot.setDomain(range);
+            this.graph.batchDrawer.setColorScale(style);
+            this.graph.batchDrawer.setDomain(range);
 
             var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
             
@@ -2045,7 +1998,7 @@ define([
                 positions.push(data[lonPar][i]+1);
                 positions.push(data[latPar][i]);
 
-                var color = this.plot.getColor(data[band][i]);
+                var color = this.graph.batchDrawer.getColor(data[band][i]);
                 var options = {
                     position : new Cesium.Cartesian3.fromDegrees(
                         data[lonPar][i],
@@ -2235,8 +2188,8 @@ define([
                             for (var i = tovisualize.length - 1; i >= 0; i--) {
                                 var set = settings[row.id][tovisualize[i]];
                                 var alpha = set.alpha;
-                                this.plot.setColorScale(set.colorscale);
-                                this.plot.setDomain(set.range);
+                                this.graph.batchDrawer.setColorScale(set.colorscale);
+                                this.graph.batchDrawer.setDomain(set.range);
 
                                 if (_.find(SCALAR_PARAM, function(par){
                                     return set.band === par;
@@ -2262,7 +2215,7 @@ define([
                                     }
 
                                     if(!isNaN(row[set.band])){
-                                        color = this.plot.getColor(row[set.band]);
+                                        color = this.graph.batchDrawer.getColor(row[set.band]);
                                         var options = {
                                             position : new Cesium.Cartesian3.fromDegrees(
                                                 row.Longitude, row.Latitude,
@@ -2293,7 +2246,7 @@ define([
                                            !isNaN(row[sb[1]]) &&
                                            !isNaN(row[sb[2]])) {
                                             var vLen = Math.sqrt(Math.pow(row[sb[0]],2)+Math.pow(row[sb[1]],2)+Math.pow(row[sb[2]],2));
-                                            color = this.plot.getColor(vLen);
+                                            color = this.graph.batchDrawer.getColor(vLen);
                                             var addLen = 10;
                                             var vN = (row[sb[0]]/vLen)*addLen;
                                             var vE = (row[sb[1]]/vLen)*addLen;
@@ -2349,7 +2302,6 @@ define([
         OnLayerParametersChanged: function(layer){
 
             // TODO: Rewrite all references to change layer to use download id and not name!
-
             var product = globals.products.find(
                 function(p){return p.get('download').id === layer;}
             );
@@ -2357,8 +2309,6 @@ define([
             if(product){
                 
                 if(product.hasOwnProperty('curtains')){
-                    //product.curtain
-                    //this.updateCurtain(product.get('download').id);
                     var covid = product.get('download').id;
                     var data = globals.swarm.get('data')[covid];
 
@@ -2399,19 +2349,9 @@ define([
 
                         cesLayer.imageryProvider.updateProperties('dim_bands', band);
                         cesLayer.imageryProvider.updateProperties('dim_range', (range[0]+','+range[1]));
-                        /*cesLayer.imageryProvider.updateProperties('elevation', height);*/
                         if(style){
                             cesLayer.imageryProvider.updateProperties('styles', style);
                         }
-                        /*if(contours){
-                            cesLayer.imageryProvider.updateProperties('dim_contours', 1);
-                        } else {
-                            cesLayer.imageryProvider.updateProperties('dim_contours', 0);
-                        }*/
-                        
-                        /*if(coeffRange){
-                            cesLayer.imageryProvider.updateProperties('dim_coeff', (coeffRange[0]+','+coeffRange[1]));
-                        }*/
                         if (cesLayer.show){
                             var index = this.map.scene.imageryLayers.indexOf(cesLayer);
                             this.map.scene.imageryLayers.remove(cesLayer, false);
@@ -2560,6 +2500,7 @@ define([
             if (product && product.get('showColorscale') &&
                 product.get('visible') && visible){
 
+                var prodId = product.get('download').id;
                 var options = product.get('parameters');
                 var keys = _.keys(options);
                 var sel = false;
@@ -2574,117 +2515,124 @@ define([
                     return;
                 }
 
-                var rangeMin = product.get('parameters')[sel].range[0];
-                var rangeMax = product.get('parameters')[sel].range[1];
-                var uom = product.get('parameters')[sel].uom;
-                var style = product.get('parameters')[sel].colorscale;
-                var logscale = defaultFor(product.get('parameters')[sel].logarithmic, false);
-                var axisScale;
+                if(globals.dataSettings[prodId].hasOwnProperty(sel)){
+
+                    var rangeMin = globals.dataSettings[prodId][sel].range[0];
+                    var rangeMax = globals.dataSettings[prodId][sel].range[1];
+                    var uom = globals.dataSettings[prodId][sel].uom;
+                    var style = globals.dataSettings[prodId][sel].colorscale;
+                    var logscale = defaultFor(globals.dataSettings[prodId][sel].logarithmic, false);
+                    var axisScale;
 
 
-                this.plot.setColorScale(style);
-                var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
+                    this.graph.batchDrawer.setColorScale(style);
+                    var colorscaleimage = this.graph.batchDrawer.getColorScaleImage().toDataURL();
 
-                $('#svgcolorscalecontainer').remove();
-                var svgContainer = d3.select('body').append('svg')
-                    .attr('width', 300)
-                    .attr('height', 60)
-                    .attr('id', 'svgcolorscalecontainer');
+                    $('#svgcolorscalecontainer').remove();
+                    var svgContainer = d3.select('body').append('svg')
+                        .attr('width', 300)
+                        .attr('height', 60)
+                        .attr('id', 'svgcolorscalecontainer');
 
-                if(logscale){
-                    axisScale = d3.scale.log();
-                }else{
-                    axisScale = d3.scale.linear();
-                }
-
-                axisScale.domain([rangeMin, rangeMax]);
-                axisScale.range([0, scalewidth]);
-
-                var xAxis = d3.svg.axis()
-                    .scale(axisScale);
-
-                if(logscale){
-                    var numberFormat = d3.format(',f');
-                    function logFormat(d) {
-                        var x = Math.log(d) / Math.log(10) + 1e-6;
-                        return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
+                    if(logscale){
+                        axisScale = d3.scale.log();
+                    }else{
+                        axisScale = d3.scale.linear();
                     }
-                     xAxis.tickFormat(logFormat);
 
-                }else{
-                    var step = (rangeMax - rangeMin)/5;
-                    xAxis.tickValues(
-                        d3.range(rangeMin,rangeMax+step, step)
+                    axisScale.domain([rangeMin, rangeMax]);
+                    axisScale.range([0, scalewidth]);
+
+                    var xAxis = d3.svg.axis()
+                        .scale(axisScale);
+
+                    if(logscale){
+                        var numberFormat = d3.format(',f');
+                        function logFormat(d) {
+                            var x = Math.log(d) / Math.log(10) + 1e-6;
+                            return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
+                        }
+                         xAxis.tickFormat(logFormat);
+
+                    }else{
+                        var step = (rangeMax - rangeMin)/5;
+                        xAxis.tickValues(
+                            d3.range(rangeMin,rangeMax+step, step)
+                        );
+                        xAxis.tickFormat(d3.format('g'));
+                    }
+
+                    var g = svgContainer.append('g')
+                        .attr('class', 'x axis')
+                        .attr('transform', 'translate(' + [margin, 20]+')')
+                        .call(xAxis);
+
+                    // Add layer info
+                    var info = product.get('name');
+                    info += ' - ' + sel.replace(/_/g, ' ');
+                    if(uom){
+                        info += ' ['+uom+']';
+                    }
+
+                     g.append('text')
+                        .style('text-anchor', 'middle')
+                        .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
+                        .attr('font-weight', 'bold')
+                        .text(info);
+
+                    svgContainer.selectAll('text')
+                        .attr('stroke', 'none')
+                        .attr('fill', 'black')
+                        .attr('font-weight', 'bold');
+
+                    svgContainer.selectAll('.tick').select('line')
+                        .attr('stroke', 'black');
+
+                    svgContainer.selectAll('.axis .domain')
+                        .attr('stroke-width', '2')
+                        .attr('stroke', '#000')
+                        .attr('shape-rendering', 'crispEdges')
+                        .attr('fill', 'none');
+
+                    svgContainer.selectAll('.axis path')
+                        .attr('stroke-width', '2')
+                        .attr('shape-rendering', 'crispEdges')
+                        .attr('stroke', '#000');
+
+                    var svgHtml = d3.select('#svgcolorscalecontainer')
+                        .attr('version', 1.1)
+                        .attr('xmlns', 'http://www.w3.org/2000/svg')
+                        .node().innerHTML;
+
+                    var renderHeight = 55;
+                    var renderWidth = width;
+
+                    var index = Object.keys(this.colorscales).length;
+
+                    var prim = this.map.scene.primitives.add(
+                        this.createViewportQuad(
+                            this.renderSVG(svgHtml, renderWidth, renderHeight),
+                            0, index*55+5, renderWidth, renderHeight
+                        )
                     );
-                    xAxis.tickFormat(d3.format('g'));
+                    var csPrim = this.map.scene.primitives.add(
+                        this.createViewportQuad(
+                            colorscaleimage, 20, index*55 +42, scalewidth, 10
+                        )
+                    );
+
+                    this.colorscales[pId] = {
+                        index: index,
+                        prim: prim,
+                        csPrim: csPrim
+                    };
+
+                    svgContainer.remove();
+
+                } else {
+                    console.log('Error creating colorscale for parameter '+sel+
+                        '. Parameter not defined in global datasettings');
                 }
-
-                var g = svgContainer.append('g')
-                    .attr('class', 'x axis')
-                    .attr('transform', 'translate(' + [margin, 20]+')')
-                    .call(xAxis);
-
-                // Add layer info
-                var info = product.get('name');
-                info += ' - ' + sel;
-                if(uom){
-                    info += ' ['+uom+']';
-                }
-
-                 g.append('text')
-                    .style('text-anchor', 'middle')
-                    .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
-                    .attr('font-weight', 'bold')
-                    .text(info);
-
-                svgContainer.selectAll('text')
-                    .attr('stroke', 'none')
-                    .attr('fill', 'black')
-                    .attr('font-weight', 'bold');
-
-                svgContainer.selectAll('.tick').select('line')
-                    .attr('stroke', 'black');
-
-                svgContainer.selectAll('.axis .domain')
-                    .attr('stroke-width', '2')
-                    .attr('stroke', '#000')
-                    .attr('shape-rendering', 'crispEdges')
-                    .attr('fill', 'none');
-
-                svgContainer.selectAll('.axis path')
-                    .attr('stroke-width', '2')
-                    .attr('shape-rendering', 'crispEdges')
-                    .attr('stroke', '#000');
-
-                var svgHtml = d3.select('#svgcolorscalecontainer')
-                    .attr('version', 1.1)
-                    .attr('xmlns', 'http://www.w3.org/2000/svg')
-                    .node().innerHTML;
-
-                var renderHeight = 55;
-                var renderWidth = width;
-
-                var index = Object.keys(this.colorscales).length;
-
-                var prim = this.map.scene.primitives.add(
-                    this.createViewportQuad(
-                        this.renderSVG(svgHtml, renderWidth, renderHeight),
-                        0, index*55+5, renderWidth, renderHeight
-                    )
-                );
-                var csPrim = this.map.scene.primitives.add(
-                    this.createViewportQuad(
-                        colorscaleimage, 20, index*55 +42, scalewidth, 10
-                    )
-                );
-
-                this.colorscales[pId] = {
-                    index: index,
-                    prim: prim,
-                    csPrim: csPrim
-                };
-
-                svgContainer.remove();
             }
 
         },

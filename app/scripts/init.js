@@ -5,7 +5,7 @@
 
     root.require.config({
         // Update for each release
-        urlArgs: 'bust=v1.4',
+        urlArgs: 'bust=v2.0',
 
         waitSeconds: 120,
         /* starting point for application */
@@ -53,7 +53,7 @@
                 exports: 'dat'
             },
             drawhelper: {
-                deps: ['cesium/Cesium'],
+                deps: ['cesium'],
                 exports: 'DrawHelper'
             },
             w2ui: {
@@ -63,16 +63,21 @@
                 deps: ['w2utils', 'jquery']
             },
             graphly: {
-                deps: ['d3', 'plotty', 'msgpack']
+                deps: ['d3', 'msgpack']
             },
-            
+            Anno: {
+                deps: ['jquery-scrollintoview']
+            },
+            cesium: {
+                exports: 'Cesium'
+            }
         },
 
         paths: {
             filepond: '../bower_components/filepond/dist/filepond',
             msgpack: '../bower_components/msgpack-lite/dist/msgpack.min',
             graphly: '../bower_components/graphly/dist/graphly.min',
-            cesium: "../bower_components/cesium/Build/Cesium",
+            cesium: "../bower_components/cesium/Build/Cesium/Cesium",
             drawhelper: "../scripts/vendor/cesium_DrawHelper",
             contrib: 'contrib',
             core: 'core',
@@ -116,14 +121,14 @@
 
             papaparse: '../bower_components/papaparse/papaparse.min',
 
-            plotty: '../bower_components/plotty/dist/plotty.min',
-
             sumoselect: '../bower_components/sumoselect/jquery.sumoselect.min',
 
             w2ui: '../bower_components/w2ui/dist/w2ui-fields.min',
             w2popup: '../bower_components/w2ui/src/w2popup',
-            w2utils: '../bower_components/w2ui/src/w2utils'
+            w2utils: '../bower_components/w2ui/src/w2utils',
 
+            Anno: '../bower_components/anno.js/anno',
+            'jquery-scrollintoview': '../bower_components/jquery-scrollintoview/jquery.scrollintoview.min'
         },
 
         hbs: {

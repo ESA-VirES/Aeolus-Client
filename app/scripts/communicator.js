@@ -144,6 +144,26 @@
                     localStorage.setItem('viewSelection', 'split');
                 }
 
+                if(event === 'layer:parameters:changed'){
+                    // Save changes to datasettings
+                    localStorage.setItem(
+                        'dataSettings',
+                        JSON.stringify(globals.dataSettings)
+                    );
+
+                    // Save also product parameters
+                    // TODO: Centralize options to just one place -> globals datasettings
+                    localStorage.setItem(
+                        'productsConfig',
+                        JSON.stringify(
+                            globals.products.models.map(function(m){
+                                return m.attributes;
+                            }),replacer
+                        )
+                    );
+                }
+                
+
                 // Tracking of layers
                 if(event === 'map:layer:change' || event === 'layer:granularity:changed'){
 

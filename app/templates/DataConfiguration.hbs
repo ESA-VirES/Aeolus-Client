@@ -1,0 +1,34 @@
+<div class="panel-heading">
+    <button type="button" class="close"><i class="fa fa-times-circle"></i></button>
+    <h3 class="panel-title"><i class="fa fa-fw fa-database"></i> Data configuration </h3>
+</div>
+
+<div class="panel-body" style="max-height:30em">
+  <div id="productList">
+    <div class="btn-group-vertical" id="productbtnGroup" role="group" aria-label="...">
+    </div>
+  </div>
+  <div id=rightPanelContainer>
+    <div id="searchContainer">
+      <i class="fa fa-search dataconfigSearchIcon" aria-hidden="true"></i>
+      <input id="parameterSearchInput" class="form-control form-control-sm ml-3 w-75" type="text" placeholder="Search" style="width: calc(100% - 55px);"
+        aria-label="Search">
+    </div>
+    <div id="parameterList"></div>
+  </div>
+</div>
+
+<div class="panel-footer" style="height:46px">
+  <button style="pointer-events: auto;" type="button" class="btn btn-primary footerPanelButton" disabled
+    target="_blank" id="applyDataChanges" title="Apply changes done and close panel">
+      Apply & Close
+  </button>
+  <button style="pointer-events: auto;" type="button" class="btn btn-primary footerPanelButton"
+    target="_blank" id="disableAll" title="Disable all optional parameters">
+      Disable all
+  </button>
+  <button style="pointer-events: auto;" type="button" class="btn btn-primary footerPanelButton"
+    target="_blank" id="enableAll" title="Enable all optional parameters">
+      Enable all
+  </button>
+</div>
