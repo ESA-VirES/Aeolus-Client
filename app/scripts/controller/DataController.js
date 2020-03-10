@@ -1139,6 +1139,20 @@
             /*ds.ica_data.ica_altitude_obs = ds.observation_data.rayleigh_altitude_obs.filter(function(e,i){
               return ds.observation_data.ica_mask[i]===1;
             });*/
+            // TODO: There seems to be an issue where less mask elements are 
+            // returned from the server then time elements, this creates 
+            // a rendering issue where the last profile is not shown and 
+            // shifts the curtain texture
+            var diff = ds.sca_data.SCA_time_obs.length - ds.observation_data.sca_mask.length;
+            if(diff !== 0){
+              if(diff > 0){
+                // TODO: For now we remove the additional time observations
+                for (var i = 0; i < diff; i++) {
+                  ds.sca_data.SCA_time_obs.pop();
+                }
+              }
+            }
+
             ds.sca_data.rayleigh_altitude_obs = ds.observation_data.rayleigh_altitude_obs.filter(function(e,i){
               return ds.observation_data.sca_mask[i]===1;
             });
