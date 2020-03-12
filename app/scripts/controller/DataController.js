@@ -1131,40 +1131,59 @@
 
         } else {
 
-          // check if same length for mca elements and mca mask
-          var nonMasked = ds.observation_data.sca_mask.filter(function(e){
-            return e===1;
-          });
-          if(nonMasked.length !== ds.sca_data.SCA_time_obs.length){
-            // We remove first item for all SCA elements
-            console.log('NonMasked length: '+nonMasked.length+ ' ; sca elements length: '+ds.sca_data.SCA_time_obs.length);
-            if(ds.sca_data.SCA_time_obs.length > nonMasked.length){
-              console.log('Lesser items nonmasked then in sca values; This should not happen');
-              /*for(var param in ds.sca_data){
-                ds.sca_data[param] = ds.sca_data[param].slice(1, ds.sca_data[param].length);
-              }*/
-            } else {
-              // Remove first element from all observation data as it should have
-              // have been filtered out
-              for(var param in ds.observation_data){
-                ds.observation_data[param] = ds.observation_data[param].slice(1, ds.observation_data[param].length);
+          
+          if(ds.observation_data.hasOwnProperty('sca_mask')){
+            // check if same length for mca elements and mca mask
+            var nonMasked = ds.observation_data.sca_mask.filter(function(e){
+              return e===1;
+            });
+            if(nonMasked.length !== ds.sca_data.SCA_time_obs.length){
+              if(ds.sca_data.SCA_time_obs.length > nonMasked.length){
+                console.log('Lesser items nonmasked then in sca values; This should not happen');
+              } else {
+                // Remove first element from all observation data as it should have
+                // have been filtered out
+                for(var param in ds.observation_data){
+                  ds.observation_data[param] = ds.observation_data[param].slice(1, ds.observation_data[param].length);
+                }
               }
             }
           }
+
+          if(ds.observation_data.hasOwnProperty('ica_mask')){
+            // We also need to filter the ICA location data
+            ds.ica_data.ica_latitude_of_DEM_intersection_obs = 
+              ds.observation_data.latitude_of_DEM_intersection_obs.filter(
+                function(e,i){
+                  return ds.observation_data.sca_mask[i]===1;
+            });
+            ds.ica_data.ica_longitude_of_DEM_intersection_obs = 
+              ds.observation_data.longitude_of_DEM_intersection_obs.filter(
+              function(e,i){
+                return ds.observation_data.sca_mask[i]===1;
+            });
+          }
+
           // Convert rayleigh altitude into sca and ica altitudes based on the
           // sca and ica masks provided by the product
           if(ds.observation_data.hasOwnProperty('rayleigh_altitude_obs') &&
              ds.observation_data.hasOwnProperty('sca_mask')){
 
-            ds.sca_data.rayleigh_altitude_obs = ds.observation_data.rayleigh_altitude_obs.filter(function(e,i){
-              return ds.observation_data.sca_mask[i]===1;
+            ds.sca_data.rayleigh_altitude_obs = 
+              ds.observation_data.rayleigh_altitude_obs.filter(
+                function(e,i){
+                  return ds.observation_data.sca_mask[i]===1;
             });
 
-            ds.sca_data.sca_latitude_of_DEM_intersection_obs = ds.observation_data.latitude_of_DEM_intersection_obs.filter(function(e,i){
-              return ds.observation_data.sca_mask[i]===1;
+            ds.sca_data.sca_latitude_of_DEM_intersection_obs = 
+              ds.observation_data.latitude_of_DEM_intersection_obs.filter(
+                function(e,i){
+                  return ds.observation_data.sca_mask[i]===1;
             });
-            ds.sca_data.sca_longitude_of_DEM_intersection_obs = ds.observation_data.longitude_of_DEM_intersection_obs.filter(function(e,i){
-              return ds.observation_data.sca_mask[i]===1;
+            ds.sca_data.sca_longitude_of_DEM_intersection_obs = 
+              ds.observation_data.longitude_of_DEM_intersection_obs.filter(
+                function(e,i){
+                  return ds.observation_data.sca_mask[i]===1;
             });
             delete ds.observation_data.rayleigh_altitude_obs;
 
