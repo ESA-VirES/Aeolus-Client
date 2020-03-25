@@ -168,6 +168,7 @@
                   'SCA_backscatter',
                   'SCA_LOD',
                   'SCA_SR',
+                  'SCA_processing_qc_flag'
                 ],
                 [
                   'SCA_middle_bin_time',
@@ -185,7 +186,8 @@
                   'SCA_middle_bin_extinction',
                   'SCA_middle_bin_backscatter',
                   'SCA_middle_bin_LOD',
-                  'SCA_middle_bin_BER'
+                  'SCA_middle_bin_BER',
+                  'SCA_middle_bin_processing_qc_flag'
                 ],
                 [
                   'bins',
@@ -326,6 +328,7 @@
                 'SCA_backscatter','SCA_QC_flag',
                 'SCA_extinction_variance', 'SCA_backscatter_variance','SCA_LOD_variance',
                 'mie_altitude_obs','MCA_LOD',
+                'SCA_processing_qc_flag', 'SCA_middle_bin_processing_qc_flag',
                 // L2B, L2C
                 'mie_wind_result_SNR', 'mie_wind_result_HLOS_error',
                 'mie_wind_result_COG_range',
@@ -443,6 +446,50 @@
                       false,
                       false,
                       false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false
+                  ]
+              },
+              'SCA_processing_qc_flag': {
+                  values: [
+                      ['Bit 1', 'Extinction; data valid 1, otherwise 0'],
+                      ['Bit 2', 'Backscatter; data valid 1, otherwise 0'],
+                      ['Bit 3', 'Mie SNR; data valid 1, otherwise 0'],
+                      ['Bit 4', 'Rayleigh SNR; data valid 1, otherwise 0'],
+                      ['Bit 5', 'Extinction error bar; data valid 1, otherwise 0'],
+                      ['Bit 6', 'Backscatter error bar; data valid 1, otherwise 0'],
+                      ['Bit 7', 'cumulative LOD; data valid 1, otherwise 0'],
+                      ['Bit 8', 'Spare'],
+                  ],
+                   enabled: [
+                      true,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false
+                  ]
+              },'SCA_middle_bin_processing_qc_flag': {
+                  values: [
+                      ['Bit 1', 'Extinction; data valid 1, otherwise 0'],
+                      ['Bit 2', 'Backscatter; data valid 1, otherwise 0'],
+                      ['Bit 3', 'BER; data valid 1, otherwise 0'],
+                      ['Bit 4', 'Mie SNR; data valid 1, otherwise 0'],
+                      ['Bit 5', 'Rayleigh SNR; data valid 1, otherwise 0'],
+                      ['Bit 6', 'Extinction error bar; data valid 1, otherwise 0'],
+                      ['Bit 7', 'Backscatter error bar; data valid 1, otherwise 0'],
+                      ['Bit 8', 'Cumulative LOD; data valid 1, otherwise 0'],
+                  ],
+                   enabled: [
+                      true,
                       false,
                       false,
                       false,

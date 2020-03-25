@@ -630,7 +630,8 @@ define(['backbone.marionette',
                                 'longitude_of_DEM_intersection_obs',
                                 'latitude_of_DEM_intersection_obs',
                                 'altitude_of_DEM_intersection_obs',
-                                'albedo_off_nadir'
+                                'albedo_off_nadir',
+                                'SCA_processing_qc_flag'
                             ],
                             defaults: {
                                 yAxis: 'rayleigh_altitude',
@@ -663,7 +664,8 @@ define(['backbone.marionette',
                                 'longitude_of_DEM_intersection_obs',
                                 'latitude_of_DEM_intersection_obs',
                                 'altitude_of_DEM_intersection_obs',
-                                'albedo_off_nadir'
+                                'albedo_off_nadir',
+                                'SCA_middle_bin_processing_qc_flag'
                             ],
                             defaults: {
                                 yAxis: 'SCA_middle_bin_altitude',

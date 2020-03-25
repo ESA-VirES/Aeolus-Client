@@ -630,7 +630,9 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
               'SCA_middle_bin_extinction',
               'SCA_middle_bin_backscatter',
               'SCA_middle_bin_LOD',
-              'SCA_middle_bin_BER'
+              'SCA_middle_bin_BER',
+              'SCA_processing_qc_flag',
+              'SCA_middle_bin_processing_qc_flag'
             ],
             'measurement_fields': [
               'L1B_time_meas',
