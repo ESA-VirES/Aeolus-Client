@@ -171,6 +171,16 @@
                   'SCA_processing_qc_flag'
                 ],
                 [
+                  'SCA_extinction_valid',
+                  'SCA_extinction',
+                  'rayleigh_altitude',
+                  'rayleigh_altitude_obs_top',
+                  'rayleigh_altitude_obs_bottom',
+                  'SCA_time_obs_start',
+                  'SCA_time_obs_stop',
+                  'SCA_time',
+                ],
+                [
                   'SCA_middle_bin_time',
                   'SCA_middle_bin_altitude',
                   'SCA_middle_bin_time_obs',
@@ -329,6 +339,7 @@
                 'SCA_extinction_variance', 'SCA_backscatter_variance','SCA_LOD_variance',
                 'mie_altitude_obs','MCA_LOD',
                 'SCA_processing_qc_flag', 'SCA_middle_bin_processing_qc_flag',
+                'SCA_extinction_valid',
                 // L2B, L2C
                 'mie_wind_result_SNR', 'mie_wind_result_HLOS_error',
                 'mie_wind_result_COG_range',
@@ -371,9 +382,11 @@
                     'SCA_QC_flag',
                     'mie_wind_result_validity_flag',
                     'rayleigh_wind_result_validity_flag',
+                    'SCA_extinction_valid'
                 ],
                 enabled: [
                     false,
+                    true,
                     true,
                     true
                 ]
@@ -1178,7 +1191,44 @@
 
         } else {
 
-          
+          var conversionFunction = function(value, maskLength){
+            var boolArray = [];
+            var result = Math.abs(value).toString(2);
+            while(result.length < maskLength) {
+                result = "0" + result;
+            }
+            for (var i=0; i<result.length; i++) {
+                boolArray.push(result[i] === '1');
+            }
+            return boolArray;
+          }
+
+          if(ds.sca_data.hasOwnProperty('SCA_processing_qc_flag')){
+            // Split up bits into separate components
+            /*
+            ['Bit 8', 'Extinction; data valid 1, otherwise 0'],
+            ['Bit 7', 'Backscatter; data valid 1, otherwise 0'],
+            ['Bit 6', 'Mie SNR; data valid 1, otherwise 0'],
+            ['Bit 5', 'Rayleigh SNR; data valid 1, otherwise 0'],
+            ['Bit 4', 'Extinction error bar; data valid 1, otherwise 0'],
+            ['Bit 3', 'Backscatter error bar; data valid 1, otherwise 0'],
+            ['Bit 2', 'cumulative LOD; data valid 1, otherwise 0'],
+            ['Bit 1', 'Spare'],
+            */
+            var sca_extinction_valid = [];
+            for (var ff = 0; ff < ds.sca_data.SCA_processing_qc_flag.length; ff++) {
+              var profBoolArray = [];
+              var currProf = ds.sca_data.SCA_processing_qc_flag[ff];
+              for (var pp = 0; pp < currProf.length; pp++) {
+                var boolArray = conversionFunction(currProf[pp], 8);
+                profBoolArray.push(boolArray[7]);
+              }
+              sca_extinction_valid.push(profBoolArray);
+            }
+            ds.sca_data['SCA_extinction_valid'] = sca_extinction_valid;
+          }
+
+
           if(ds.observation_data.hasOwnProperty('sca_mask')){
             // check if same length for mca elements and mca mask
             var nonMasked = ds.observation_data.sca_mask.filter(function(e){

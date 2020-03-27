@@ -631,7 +631,8 @@ define(['backbone.marionette',
                                 'latitude_of_DEM_intersection_obs',
                                 'altitude_of_DEM_intersection_obs',
                                 'albedo_off_nadir',
-                                'SCA_processing_qc_flag'
+                                'SCA_processing_qc_flag',
+                                'SCA_extinction_valid'
                             ],
                             defaults: {
                                 yAxis: 'rayleigh_altitude',
