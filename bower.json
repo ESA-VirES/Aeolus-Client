@@ -29,7 +29,8 @@
     "filepond": "pqina/filepond#^2.0.1",
     "w2ui": "vitmalina/w2ui#b2216cbef7e940c8efaf0b07a94ce2f01d194c39",
     "anno.js": "^0.2.0",
-    "jquery-scrollintoview": "https://github.com/litera/jquery-scrollintoview.git#v1.8"
+    "jquery-scrollintoview": "https://github.com/litera/jquery-scrollintoview.git#v1.8",
+    "msgpack-lite": "^0.1.26"
   },
   "devDependencies": {},
   "resolutions": {
