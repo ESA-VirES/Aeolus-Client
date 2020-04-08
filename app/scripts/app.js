@@ -351,7 +351,8 @@ var VECTOR_BREAKDOWN = {};
                     var allowedProducts = [];
                     for (var i = 0; i < USERPERMISSIONS.length; i++) {
                         if(USERPERMISSIONS[i].indexOf('access_user_collection')==-1){
-                            allowedProducts.push(USERPERMISSIONS[i].replace('aeolus.access_', ''));
+                            var undIdx = USERPERMISSIONS[i].indexOf('_');
+                            allowedProducts.push(USERPERMISSIONS[i].substring(undIdx+1));
                         }
                     }
 
