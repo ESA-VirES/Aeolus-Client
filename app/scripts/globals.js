@@ -944,7 +944,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             // 2d data
             'altitude',
             'satellite_range', 
-            'geoid_separation_obs',
+            //'geoid_separation_obs',
             //'geoid_separation_freq_step',
             'normalised_useful_signal',
             // end 2d data
