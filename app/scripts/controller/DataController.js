@@ -1167,7 +1167,17 @@
           // Convert rayleigh altitude into sca and ica altitudes based on the
           // sca and ica masks provided by the product
           if(ds.observation_data.hasOwnProperty('rayleigh_altitude_obs') &&
-             ds.observation_data.hasOwnProperty('sca_mask')){
+             ds.observation_data.hasOwnProperty('ica_mask') ){
+
+            ds.ica_data.ICA_rayleigh_altitude_obs = 
+              ds.observation_data.rayleigh_altitude_obs.filter(
+                function(e,i){
+                  return ds.observation_data.ica_mask[i]===1;
+            });
+          }
+
+          if(ds.observation_data.hasOwnProperty('rayleigh_altitude_obs') &&
+             ds.observation_data.hasOwnProperty('sca_mask') ){
 
             ds.sca_data.rayleigh_altitude_obs = 
               ds.observation_data.rayleigh_altitude_obs.filter(

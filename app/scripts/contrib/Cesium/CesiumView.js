@@ -1014,9 +1014,9 @@ define([
                         timeStart: 'ICA_time_obs_orig_start',
                         timeStop: 'ICA_time_obs_orig_stop',
                         xAxis:'time',
-                        yAxis: ['bins'],
+                        yAxis: ['ICA_rayleigh_altitude'],
                         combinedParameters: {
-                            bins: ['ICA_bins_end', 'ICA_bins_start'],
+                            ICA_rayleigh_altitude: ['ICA_rayleigh_altitude_obs_top', 'ICA_rayleigh_altitude_obs_bottom'],
                             time: ['ICA_time_obs_start', 'ICA_time_obs_stop'],
                         },
                         jumps: 'ica_jumps',
