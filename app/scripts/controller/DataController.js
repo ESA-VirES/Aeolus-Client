@@ -1280,6 +1280,7 @@
                         tmpArr.push(curArr[i]);
                       }
                     }
+                    resData['SCA_middle_bin_time_obs_orig'] = curArr;
                     resData['SCA_middle_bin_time_obs'] = tmpArr;
                   }
                   
@@ -1319,6 +1320,9 @@
 
             resData['MCA_time_obs_orig_start'] = resData['MCA_time_obs_orig'].slice();
             resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].map(function(e){return e+offs;});
+
+            resData['SCA_middle_bin_time_obs_orig_start'] = resData['SCA_middle_bin_time_obs_orig'].slice();
+            resData['SCA_middle_bin_time_obs_orig_stop'] = resData['SCA_middle_bin_time_obs_orig'].map(function(e){return e+offs;});
 
             var lonStep = 15;
             var latStep = 15;
