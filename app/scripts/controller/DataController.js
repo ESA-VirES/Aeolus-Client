@@ -1131,23 +1131,69 @@
 
         } else {
 
+          
+          if(ds.observation_data.hasOwnProperty('sca_mask')){
+            // check if same length for mca elements and mca mask
+            var nonMasked = ds.observation_data.sca_mask.filter(function(e){
+              return e===1;
+            });
+            if(nonMasked.length !== ds.sca_data.SCA_time_obs.length){
+              if(ds.sca_data.SCA_time_obs.length > nonMasked.length){
+                console.log('Lesser items nonmasked then in sca values; This should not happen');
+              } else {
+                // Remove first element from all observation data as it should have
+                // have been filtered out
+                for(var param in ds.observation_data){
+                  ds.observation_data[param] = ds.observation_data[param].slice(1, ds.observation_data[param].length);
+                }
+              }
+            }
+          }
+
+          if(ds.observation_data.hasOwnProperty('ica_mask')){
+            // We also need to filter the ICA location data
+            ds.ica_data.ica_latitude_of_DEM_intersection_obs = 
+              ds.observation_data.latitude_of_DEM_intersection_obs.filter(
+                function(e,i){
+                  return ds.observation_data.sca_mask[i]===1;
+            });
+            ds.ica_data.ica_longitude_of_DEM_intersection_obs = 
+              ds.observation_data.longitude_of_DEM_intersection_obs.filter(
+              function(e,i){
+                return ds.observation_data.sca_mask[i]===1;
+            });
+          }
+
           // Convert rayleigh altitude into sca and ica altitudes based on the
           // sca and ica masks provided by the product
           if(ds.observation_data.hasOwnProperty('rayleigh_altitude_obs') &&
-             ds.observation_data.hasOwnProperty('sca_mask')/* &&
-             ds.observation_data.hasOwnProperty('ica_mask') */){
-            /*ds.ica_data.ica_altitude_obs = ds.observation_data.rayleigh_altitude_obs.filter(function(e,i){
-              return ds.observation_data.ica_mask[i]===1;
-            });*/
-            ds.sca_data.rayleigh_altitude_obs = ds.observation_data.rayleigh_altitude_obs.filter(function(e,i){
-              return ds.observation_data.sca_mask[i]===1;
+             ds.observation_data.hasOwnProperty('ica_mask') ){
+
+            ds.ica_data.ICA_rayleigh_altitude_obs = 
+              ds.observation_data.rayleigh_altitude_obs.filter(
+                function(e,i){
+                  return ds.observation_data.ica_mask[i]===1;
+            });
+          }
+
+          if(ds.observation_data.hasOwnProperty('rayleigh_altitude_obs') &&
+             ds.observation_data.hasOwnProperty('sca_mask') ){
+
+            ds.sca_data.rayleigh_altitude_obs = 
+              ds.observation_data.rayleigh_altitude_obs.filter(
+                function(e,i){
+                  return ds.observation_data.sca_mask[i]===1;
             });
 
-            ds.sca_data.sca_latitude_of_DEM_intersection_obs = ds.observation_data.latitude_of_DEM_intersection_obs.filter(function(e,i){
-              return ds.observation_data.sca_mask[i]===1;
+            ds.sca_data.sca_latitude_of_DEM_intersection_obs = 
+              ds.observation_data.latitude_of_DEM_intersection_obs.filter(
+                function(e,i){
+                  return ds.observation_data.sca_mask[i]===1;
             });
-            ds.sca_data.sca_longitude_of_DEM_intersection_obs = ds.observation_data.longitude_of_DEM_intersection_obs.filter(function(e,i){
-              return ds.observation_data.sca_mask[i]===1;
+            ds.sca_data.sca_longitude_of_DEM_intersection_obs = 
+              ds.observation_data.longitude_of_DEM_intersection_obs.filter(
+                function(e,i){
+                  return ds.observation_data.sca_mask[i]===1;
             });
             delete ds.observation_data.rayleigh_altitude_obs;
 
@@ -1234,6 +1280,7 @@
                         tmpArr.push(curArr[i]);
                       }
                     }
+                    resData['SCA_middle_bin_time_obs_orig'] = curArr;
                     resData['SCA_middle_bin_time_obs'] = tmpArr;
                   }
                   
@@ -1254,49 +1301,28 @@
 
             var offs = 12.01;
             // Create new start and stop time to allow rendering
+            
             resData['SCA_time_obs_start'] = resData['SCA_time_obs'].slice();
-            //resData['SCA_time_obs_stop'] = resData['SCA_time_obs'].slice(24, resData['SCA_time_obs'].length);
             resData['SCA_time_obs_stop'] = resData['SCA_time_obs'].map(function(e){return e+offs;});
 
             resData['SCA_middle_bin_time_obs_start'] = resData['SCA_middle_bin_time_obs'].slice();
-            //resData['SCA_middle_bin_time_obs_stop'] = resData['SCA_middle_bin_time_obs'].slice(23, resData['SCA_middle_bin_time_obs'].length);
             resData['SCA_middle_bin_time_obs_stop'] = resData['SCA_middle_bin_time_obs'].map(function(e){return e+offs;});
             resData['SCA_middle_bin_jumps'] = [];
 
             resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
-            //resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].slice(24, resData['MCA_time_obs'].length);
             resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].map(function(e){return e+offs;});
 
             resData['ICA_time_obs_start'] = resData['ICA_time_obs'].slice();
-            //resData['ICA_time_obs_stop'] = resData['ICA_time_obs'].slice(24, resData['ICA_time_obs'].length);
             resData['ICA_time_obs_stop'] = resData['ICA_time_obs'].map(function(e){return e+offs;});
 
             resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
-            //resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].slice(1, resData['SCA_time_obs_orig'].length);
             resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].map(function(e){return e+offs;});
 
             resData['MCA_time_obs_orig_start'] = resData['MCA_time_obs_orig'].slice();
-            //resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].slice(1, resData['MCA_time_obs_orig'].length);
             resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].map(function(e){return e+offs;});
 
-            // Add element with additional 12ms as it should be the default
-            // time interval between observations
-            // TODO: make sure this is acceptable! As there seems to be some 
-            // minor deviations at start and end of observations
-            /*var lastValSCA =  resData['SCA_time_obs_orig'].slice(-1)[0]+12;
-            var lastValMCA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
-            var lastValICA =  resData['MCA_time_obs_orig'].slice(-1)[0]+12;
-            for (var i = 0; i < 24; i++) {
-              resData['SCA_time_obs_stop'].push(lastValSCA);
-              resData['MCA_time_obs_stop'].push(lastValMCA);
-              resData['ICA_time_obs_stop'].push(lastValICA);
-            }
-            for (var i = 0; i < 23; i++) {
-              resData['SCA_middle_bin_time_obs_stop'].push(lastValSCA);
-            }
-            resData['SCA_time_obs_orig_stop'].push(lastValSCA);
-            resData['MCA_time_obs_orig_stop'].push(lastValMCA);
-            resData['ICA_time_obs_orig_stop'].push(lastValICA);*/
+            resData['SCA_middle_bin_time_obs_orig_start'] = resData['SCA_middle_bin_time_obs_orig'].slice();
+            resData['SCA_middle_bin_time_obs_orig_stop'] = resData['SCA_middle_bin_time_obs_orig'].map(function(e){return e+offs;});
 
             var lonStep = 15;
             var latStep = 15;

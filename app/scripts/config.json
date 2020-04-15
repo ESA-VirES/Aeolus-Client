@@ -1524,7 +1524,7 @@
                 "time_freq_step": {"required":true, "uom": null, "name": "Start time of the last observation with measurements contributing to this frequency step (UTC)" },
                 "altitude": { "uom": "m", "name": "Values of altitude" },
                 "satellite_range": { "uom": "m", "name": "Values of satellite range" },
-                "geoid_separation_obs": { "uom": "m", "name": "Height of geoid above WGS84 ellipsoid" },
+                
                 "frequency_offset": {"required":true, "uom": "GHz", "name": "Frequency offset for each frequency step" },
                 "frequency_valid": {"required":true, "uom": null, "name": "True if minimum number of valid measurements per frequency step are satisfied" },
                 "ground_frequency_valid": { "uom": null, "name": "Satisfied minimum number of valid ground measurements per frequency step" },

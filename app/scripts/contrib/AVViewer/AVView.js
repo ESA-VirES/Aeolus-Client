@@ -570,6 +570,7 @@ define(['backbone.marionette',
                         mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
                         MCA_time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
                         rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
+                        ICA_rayleigh_altitude: ['ICA_rayleigh_altitude_obs_top','ICA_rayleigh_altitude_obs_bottom'],
                         SCA_time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
                         bins: ['ICA_bins_end', 'ICA_bins_start'],
                         ICA_time: ['ICA_time_obs_start', 'ICA_time_obs_stop'],
@@ -678,6 +679,9 @@ define(['backbone.marionette',
                         ICA: {
                             parameters: [
                                 'bins',
+                                'ICA_rayleigh_altitude',
+                                'ICA_rayleigh_altitude_obs_top',
+                                'ICA_rayleigh_altitude_obs_bottom',
                                 'ICA_bins_start',
                                 'ICA_bins_end',
                                 'ICA_time_obs_start',
@@ -694,7 +698,7 @@ define(['backbone.marionette',
                                 'albedo_off_nadir'
                             ],
                             defaults: {
-                                yAxis: 'bins',
+                                yAxis: 'ICA_rayleigh_altitude',
                                 colorAxis: 'ICA_backscatter'
                             }
                         }

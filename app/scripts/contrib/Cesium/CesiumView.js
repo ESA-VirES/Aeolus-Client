@@ -1009,14 +1009,14 @@ define([
                         signCross: 'signCross'
                     },
                     'ICA': {
-                        lats: 'latitude_of_DEM_intersection_obs_orig',
-                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        lats: 'ica_latitude_of_DEM_intersection_obs_orig',
+                        lons: 'ica_longitude_of_DEM_intersection_obs_orig',
                         timeStart: 'ICA_time_obs_orig_start',
                         timeStop: 'ICA_time_obs_orig_stop',
                         xAxis:'time',
-                        yAxis: ['bins'],
+                        yAxis: ['ICA_rayleigh_altitude'],
                         combinedParameters: {
-                            bins: ['ICA_bins_end', 'ICA_bins_start'],
+                            ICA_rayleigh_altitude: ['ICA_rayleigh_altitude_obs_top', 'ICA_rayleigh_altitude_obs_bottom'],
                             time: ['ICA_time_obs_start', 'ICA_time_obs_stop'],
                         },
                         jumps: 'ica_jumps',
@@ -1087,7 +1087,13 @@ define([
             };
 
             var currPar;
-            var modifier = 1;
+            var modifier = 0;
+
+            if(cov_id === 'ALD_U_N_2B' || cov_id === 'ALD_U_N_2C'){
+                modifier = 24;
+            } else if(cov_id === 'ALD_U_N_2A'){
+                modifier = 2;
+            }
 
             if(cov_id === 'AUX_MET_12'){
                 modifier = 0;
@@ -1159,7 +1165,6 @@ define([
             pStopTimes = data[currPar.timeStop];
             signCross = data[currPar.signCross];
 
-
             var height = 1000000;
             var lineInstances = [];
             var renderOutlines = defaultFor(currProd.get('outlines'), false);
@@ -1169,10 +1174,6 @@ define([
 
                 var start, end;
                 var startSlice, endSlice;
-
-                /*if(signCross){
-                    modifier = -2;
-                }*/
                 
                 if(dataJumps.length === 0){
                     this.graph.loadData(data);
@@ -1214,14 +1215,12 @@ define([
                     }
                     // If curtain slice is too small we ignore it as it can't be rendered
                     if(endSlice-startSlice<=2){
+                        console.log('Curtain slice too small, is ignored')
                         continue;
                     }
 
                     if(pStartTimes[startSlice] instanceof Date){
                         start = pStartTimes[startSlice];
-                      /*  if(start.getTime()>pStartTimes[startSlice+1].getTime()){
-                            start = pStartTimes[startSlice+1];
-                        }*/
                     }else{
                         start = new Date('2000-01-01');
                         start.setUTCMilliseconds(start.getUTCMilliseconds() + pStartTimes[startSlice]*1000);
@@ -1229,9 +1228,6 @@ define([
 
                     if(pStopTimes[endSlice] instanceof Date){
                         end = pStopTimes[endSlice-1];
-                        /*if(end.getTime()<pStopTimes[endSlice-2].getTime()){
-                            end = pStopTimes[endSlice-2];
-                        }*/
                     }else{
                         end = new Date('2000-01-01');
                         end.setUTCMilliseconds(end.getUTCMilliseconds() + pStopTimes[endSlice]*1000);
@@ -1256,8 +1252,8 @@ define([
                 var slicedLats, slicedLons, slicedTime;
 
                 if(dataJumps.length > 0){
-                    slicedLats = lats.slice(startSlice, endSlice-1);
-                    slicedLons = lons.slice(startSlice, endSlice-1);
+                    slicedLats = lats.slice(startSlice, endSlice+modifier);
+                    slicedLons = lons.slice(startSlice, endSlice+modifier);
                 } else {
                     slicedLats = lats;
                     slicedLons = lons;
