@@ -544,7 +544,7 @@
                 "SCA_LOD": {"uom": null, "name": "Particle LOD of the height bin"},
                 "SCA_SR": {"uom": null, "name": "Scattering ratio of the height bin"},
                 "SCA_middle_bin_extinction": {"required": true,"uom": "10⁻⁶*m⁻¹", "name": "Particle extinction of the height bin"},
-                "SCA_middle_bin_backscatter": {"active": true,"uom": "10⁻⁶*m⁻¹* sr⁻¹", "name": "Particle extinction of the height bin"},
+                "SCA_middle_bin_backscatter": {"active": true,"uom": "10⁻⁶*m⁻¹* sr⁻¹", "name": "Particle backscatter of the height bin"},
                 "SCA_middle_bin_LOD": {"uom": null, "name": "Particle LOD of the height bin"},
                 "SCA_middle_bin_BER": {"uom": null, "name": "Backscatter-to-extinction ratio of the middle bin"},
                 "ICA_filling_case": {"uom": null, "name": "Filling case estimated by the algorithm (case 1-7)"},
