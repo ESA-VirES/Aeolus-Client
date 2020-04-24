@@ -2513,8 +2513,8 @@ define([
 
                 if(globals.dataSettings[prodId].hasOwnProperty(sel)){
 
-                    var rangeMin = globals.dataSettings[prodId][sel].range[0];
-                    var rangeMax = globals.dataSettings[prodId][sel].range[1];
+                    var rangeMin = globals.dataSettings[prodId][sel].extent[0];
+                    var rangeMax = globals.dataSettings[prodId][sel].extent[1];
                     var uom = globals.dataSettings[prodId][sel].uom;
                     var style = globals.dataSettings[prodId][sel].colorscale;
                     var logscale = defaultFor(globals.dataSettings[prodId][sel].logarithmic, false);

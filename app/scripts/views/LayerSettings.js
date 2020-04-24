@@ -555,7 +555,6 @@
                     //Apply changes
                     this.current_model.set("parameters", options);
                     Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
-                    
                 }
             },
 
@@ -631,8 +630,8 @@
 
                 var prodId = this.current_model.get('download').id;
 
-                var range_min = globals.dataSettings[prodId][this.selected].range[0];
-                var range_max = globals.dataSettings[prodId][this.selected].range[1];
+                var range_min = globals.dataSettings[prodId][this.selected].extent[0];
+                var range_max = globals.dataSettings[prodId][this.selected].extent[1];
                 var uom = globals.dataSettings[prodId][this.selected].uom;
                 var style = globals.dataSettings[prodId][this.selected].colorscale;
 
