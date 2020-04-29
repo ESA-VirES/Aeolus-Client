@@ -1314,7 +1314,7 @@ define(['backbone.marionette',
                     },
                     sharedParameters: {
                         'frequency_offset': [
-                            'frequency_offset', 'frequency_offset_combined'
+                            'frequency_offset_combined', 'frequency_offset'
                         ],
                     },
                     availableParameters: false,
@@ -1424,7 +1424,7 @@ define(['backbone.marionette',
                     },
                     sharedParameters: {
                         'frequency_offset': [
-                            'frequency_offset', 'frequency_offset_combined'
+                            'frequency_offset_combined', 'frequency_offset'
                         ],
                     },
                     availableParameters: false,
@@ -1553,7 +1553,7 @@ define(['backbone.marionette',
                     },
                     sharedParameters: {
                         'time': [
-                            'time_nadir', 'time_off_nadir', 'time_nadir_combined', 'time_off_nadir_combined'
+                            'time_nadir_combined', 'time_off_nadir_combined', 'time_nadir', 'time_off_nadir'
                         ]
                     },
                     combinedParameters: {
