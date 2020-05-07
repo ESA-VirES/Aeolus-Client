@@ -361,8 +361,12 @@
 
 
             fetchWPS: function(start, end, params, callback){
+                var collId = this.id;
+                if(globals.publicCollections.hasOwnProperty(collId)){
+                    collId+='_public';
+                }
                 var request = this.url + '?service=wps&request=execute&version=1.0.0&identifier=getTimeData&DataInputs=collection='+
-                this.id + ';begin_time='+getISODateTimeString(start)+';end_time='+getISODateTimeString(end)+'&RawDataOutput=times';
+                collId + ';begin_time='+getISODateTimeString(start)+';end_time='+getISODateTimeString(end)+'&RawDataOutput=times';
                 var currActive = this.currActive;
                 d3.csv(request)
                     .row(function (row) {

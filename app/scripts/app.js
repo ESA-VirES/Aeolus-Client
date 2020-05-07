@@ -352,7 +352,15 @@ var VECTOR_BREAKDOWN = {};
                     for (var i = 0; i < USERPERMISSIONS.length; i++) {
                         if(USERPERMISSIONS[i].indexOf('access_user_collection')==-1){
                             var undIdx = USERPERMISSIONS[i].indexOf('_');
-                            allowedProducts.push(USERPERMISSIONS[i].substring(undIdx+1));
+                            var currId = USERPERMISSIONS[i].substring(undIdx+1);
+                            // Check if collections is public collection
+                            if(currId.indexOf('_public') !== -1){
+                                // We add it to globals reference so that
+                                // requests are adapted accordingly
+                                currId = currId.replace('_public', '');
+                                globals.publicCollections[currId] = true;
+                            }
+                            allowedProducts.push(currId);
                         }
                     }
 

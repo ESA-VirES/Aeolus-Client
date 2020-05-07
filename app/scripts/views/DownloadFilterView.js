@@ -815,7 +815,11 @@
         var collections = [];
         _.each(this.model.get("products"), function(prod){
             if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
-              collections.push(prod.get('download').id);
+              var collId = prod.get('download').id;
+              if(globals.publicCollections.hasOwnProperty(collId)){
+                collId =+'_public';
+              }
+              collections.push(collId);
             }
         },this);
 
@@ -950,7 +954,11 @@
         var collections = [];
         _.each(this.model.get("products"), function(prod){
             if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
-              collections.push(prod.get('download').id);
+              var collId = prod.get('download').id;
+              if(globals.publicCollections.hasOwnProperty(collId)){
+                collId =+'_public';
+              }
+              collections.push(collId);
             }
         },this);
 
@@ -1003,7 +1011,6 @@
         if ($('#dsd_info_cb').is(':checked')) {
           options.dsdInfo = true;
         }
-        
 
         // Custom variables
         if ($('#custom_parameter_cb').is(':checked')) {

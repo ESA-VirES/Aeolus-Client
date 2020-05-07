@@ -1011,7 +1011,12 @@
 
 
       handleL2ADataResponse: function(product, data, collectionId){
-        var ds = data[collectionId];
+        var ds;
+        if(globals.publicCollections.hasOwnProperty(collectionId)){
+          ds = data[(collectionId+'_public')];
+        } else {
+          ds= data[collectionId];
+        }
         var keys = Object.keys(ds);
         var resData = {};
         var gran = product.get('granularity');
@@ -1406,8 +1411,12 @@
       },
 
       handleL2BCDataResponse: function(product, data, collectionId){
-
-        var ds = data[collectionId];
+        var ds;
+        if(globals.publicCollections.hasOwnProperty(collectionId)){
+          ds = data[(collectionId+'_public')];
+        } else {
+          ds= data[collectionId];
+        }
         var keys = Object.keys(ds);
         var resData = {};
         var gran = product.get('granularity');
@@ -1807,7 +1816,6 @@
       },
 
       sendRequest: function(prodId){
-       
         var process = {
           collectionId: prodId,
           id: this.activeWPSproducts[prodId]
@@ -1856,7 +1864,7 @@
                     pars.splice(i, 1);
                   }
                 } else {
-                  console.log('Global settings is missing parameter: '+field);
+                  //console.log('Global settings is missing parameter: '+field);
                 }
               }
               fieldsList[collType][gran] = pars.join();
@@ -1871,7 +1879,7 @@
                   pars.splice(i, 1);
                 }
               } else {
-                console.log('Global settings is missing parameter: '+field);
+                //console.log('Global settings is missing parameter: '+field);
               }
             }
             fieldsList[collType] = pars.join();
@@ -1899,6 +1907,9 @@
         };
         
         var collections = [collectionId];
+        if(globals.publicCollections.hasOwnProperty(collectionId)){
+          collections= [(collectionId+'_public')];
+        }
         if(typeof USERVARIABLE !== 'undefined'){
             collections.push('user_collection_'+ USERVARIABLE);
         }
@@ -2029,7 +2040,13 @@
                 var tmp = new Uint8Array(this.response);
                 var data = msgpack.decode(tmp);
 
-                var ds = data[collectionId];
+
+                var ds;
+                if(globals.publicCollections.hasOwnProperty(collectionId)){
+                  ds = data[(collectionId+'_public')];
+                } else {
+                  ds= data[collectionId];
+                }
 
                 if(that.previousCollection !== collectionId){
                   that.previousCollection = collectionId;
