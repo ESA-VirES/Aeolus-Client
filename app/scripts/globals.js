@@ -4,13 +4,14 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
 
     var swarm_model = Backbone.Model.extend({data:[]});
     return {
-        version: '2.0',
+        version: '2.1',
         objects: new ObjectStore(),
         selections: new ObjectStore(),
         baseLayers: new Backbone.Collection(),
         products: new Backbone.Collection(),
         overlays: new Backbone.Collection(),
         swarm: new swarm_model(),
+        publicCollections:{},
         downloadMatrix: {
           'ALD_U_N_1B': {
             'observation': ['observation'],
