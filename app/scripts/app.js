@@ -447,6 +447,19 @@ var VECTOR_BREAKDOWN = {};
                 if(!isNaN(numberSV) && numberSV>1.4 && 
                     localStorage.getItem('dataSettings') !== null){
                     globals.dataSettings = JSON.parse(localStorage.getItem('dataSettings'));
+                    // Check if ADAM albedo is correctly loaded
+                    if(globals.dataSettings.hasOwnProperty('ADAM_albedo')){
+                        if(globals.dataSettings['ADAM_albedo'].hasOwnProperty('nadir')){
+                            if(!globals.dataSettings['ADAM_albedo']['nadir'].hasOwnProperty('extent')){
+                                globals.dataSettings['ADAM_albedo']['nadir'].extent = [0,1];
+                            }
+                        }
+                        if(globals.dataSettings['ADAM_albedo'].hasOwnProperty('offnadir')){
+                            if(!globals.dataSettings['ADAM_albedo']['offnadir'].hasOwnProperty('extent')){
+                                globals.dataSettings['ADAM_albedo']['offnadir'].extent = [0,1];
+                            }
+                        }
+                    }
                 } else {
                     // Go through products and fill global datasettings
                     globals.products.each(function(product){
