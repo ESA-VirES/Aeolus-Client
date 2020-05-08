@@ -817,7 +817,7 @@
             if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
               var collId = prod.get('download').id;
               if(globals.publicCollections.hasOwnProperty(collId)){
-                collId =+'_public';
+                collId +='_public';
               }
               collections.push(collId);
             }
@@ -956,7 +956,7 @@
             if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
               var collId = prod.get('download').id;
               if(globals.publicCollections.hasOwnProperty(collId)){
-                collId =+'_public';
+                collId +='_public';
               }
               collections.push(collId);
             }
