@@ -2070,6 +2070,7 @@
             "parameters": {
                 "nadir": {
                     "range": [0, 1],
+                    "extent": [0, 1],
                     "uom": null,
                     "name": "nadir",
                     "colorscale": "jet",
@@ -2077,6 +2078,7 @@
                 },
                 "offnadir": {
                     "range": [0, 1],
+                    "extent": [0, 1],
                     "uom": null,
                     "name": "off nadir",
                     "colorscale": "jet"
