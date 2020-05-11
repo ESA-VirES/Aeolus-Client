@@ -86,7 +86,7 @@
         $("#dsdDownload-"+this.model.get('id')).click(function(){
           var el = this;
           var di = that.model.get('datainputs');
-          di.Products = di.Products.replace(/['"]+/g, '').replace('_public', '');
+          di.Products = di.Products.replace(/['"]+/g, '');
           var options = {
             begin_time: di['Start time'],
             end_time: di['End time'],
@@ -95,8 +95,10 @@
           };
           var pid = {
             'ALD_U_N_1B': 'aeolus:level1B',
+            'ALD_U_N_1B_public': 'aeolus:level1B',
             'ALD_U_N_2A': 'aeolus:level2A',
             'ALD_U_N_2B': 'aeolus:level2B',
+            'ALD_U_N_2B_public': 'aeolus:level2B',
             'ALD_U_N_2C': 'aeolus:level2C',
             'AUX_MRC_1B': 'aeolus:level1B:AUX:MRC',
             'AUX_RRC_1B': 'aeolus:level1B:AUX:RRC',
