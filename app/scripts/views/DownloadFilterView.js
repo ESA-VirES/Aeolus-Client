@@ -86,7 +86,7 @@
         $("#dsdDownload-"+this.model.get('id')).click(function(){
           var el = this;
           var di = that.model.get('datainputs');
-          di.Products = di.Products.replace(/['"]+/g, '')
+          di.Products = di.Products.replace(/['"]+/g, '').replace('_public', '');
           var options = {
             begin_time: di['Start time'],
             end_time: di['End time'],
