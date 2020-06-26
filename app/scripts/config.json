@@ -697,9 +697,9 @@
                     "name": "mie wind result wind velocity"
                 },
                 "mie_wind_result_HLOS_error":{
-                    "uom": "m/s",
+                    "uom": "cm/s",
                     "name": "mie wind result HLOS error",
-                    "range": [0, 16],
+                    "range": [0, 1000],
                     "colorscale": "viridis"
                 },
                 "mie_wind_result_SNR":{
@@ -716,9 +716,9 @@
                     "name": "rayleigh wind result wind velocity"
                 },
                 "rayleigh_wind_result_HLOS_error": {
-                    "uom": "m/s",
+                    "uom": "cm/s",
                     "name": "rayleigh wind result HLOS error",
-                    "range": [0, 16],
+                    "range": [0, 1000],
                     "colorscale": "viridis"
                 }
             },
