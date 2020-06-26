@@ -197,14 +197,14 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     csDiscrete: true
                 },
                 'mie_wind_result_HLOS_error':{
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     nullValue: 1.7e+38,
-                    filterExtent: [0, 20]
+                    filterExtent: [0, 1000]
                 },
                 'rayleigh_wind_result_HLOS_error':{
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     nullValue: 1.7e+38,
-                    filterExtent: [0, 20]
+                    filterExtent: [0, 1000]
                 },
 
                 'mie_wind_result_scattering_ratio': {
@@ -266,12 +266,14 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     csDiscrete: true
                 },
                 'mie_wind_result_HLOS_error':{
-                    uom: 'm/s',
-                    nullValue: 1.7e+38
+                    uom: 'cm/s',
+                    nullValue: 1.7e+38,
+                    filterExtent: [0, 1000]
                 },
                 'rayleigh_wind_result_HLOS_error':{
-                    uom: 'm/s',
-                    nullValue: 1.7e+38
+                    uom: 'cm/s',
+                    nullValue: 1.7e+38,
+                    filterExtent: [0, 1000]
                 },
 
                 'mie_wind_result_scattering_ratio': {
