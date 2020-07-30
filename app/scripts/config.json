@@ -2121,6 +2121,32 @@
                 "zoomOffset": 0,
                 "attribution": " Coastlines and Countries { Data &copy; <a href=\"http://www.openstreetmap.org/copyright\" target=\"_blank\">OSM</a> & Natural Earth, Rendering &copy; <a href=\"http://eox.at\" target=\"_blank\">EOX</a> and <a href=\"https://github.com/mapserver/basemaps\" target=\"_blank\">MapServer</a> }"
             }
+        },{
+            "name": "Graticule",
+            "visible": false,
+            "view":{
+                "id": "graticules",
+                "protocol": "WMTS",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=graticules&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fpng",
+                "subdomains": "abcdef",
+                "urls": [
+                    "//a.tiles.maps.eox.at/wmts/",
+                    "//b.tiles.maps.eox.at/wmts/"
+                ],
+                "matrixSet": "WGS84",
+                "style": "default",
+                "format": "image/png",
+                "maxExtent": [-180.000000, -90.000000, 180.000000, 90.000000],
+
+                "projection": "EPSG:4326",
+                "gutter": 0,
+                "buffer": 0,
+                "units": "dd",
+                "transitionEffect": "resize",
+                "isphericalMercator": false,
+                "wrapDateLine": true,
+                "zoomOffset": 0
+            }
         }]
     },
 
