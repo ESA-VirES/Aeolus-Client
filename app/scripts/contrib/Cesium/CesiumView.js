@@ -208,6 +208,7 @@ define([
                 }
                 this.map = new Cesium.Viewer(this.el, options);
                 var initialCesiumLayer = this.map.imageryLayers.get(0);
+                this.map.scene.globe.maximumScreenSpaceError = 1.2;
             }
 
             if(localStorage.getItem('cameraPosition') !== null){
@@ -2922,9 +2923,81 @@ define([
         },
 
         onSaveImage: function(){
-            this.map.canvas.toBlob(function(blob) {
-                saveAs(blob, 'VirES_Services_Screenshot.png');
-            }, 'image/png');
+            var bodyContainer = $('<div/>');
+
+            var typeContainer = $('<div id="typeSelectionContainer"></div>')
+            var filetypeSelection = $('<select id="filetypeSelection"></select>');
+            filetypeSelection.append($('<option/>').html('png'));
+            filetypeSelection.append($('<option/>').html('jpeg'));
+            typeContainer.append(
+                $('<label for="filetypeSelection" style="margin-right:10px;">Output type</label>')
+            );
+            typeContainer.append(filetypeSelection);
+            var w = this.map.canvas.width;
+            var h = this.map.canvas.height;
+
+            var resolutionContainer = $('<div id="resolutionSelectionContainer"></div>')
+            var resolutionSelection = $('<select id="resolutionSelection"></select>');
+            resolutionSelection.append($('<option/>').html('normal ('+w+'x'+h+')').val(1));
+            resolutionSelection.append($('<option/>').html('large ('+w*2+'x'+h*2+')').val(2));
+            resolutionSelection.append($('<option/>').html('very large ('+w*3+'x'+h*3+')').val(3));
+            resolutionContainer.append(
+                $('<label for="resolutionSelection" style="margin-right:10px;">Resolution</label>')
+            );
+            resolutionContainer.append(resolutionSelection);
+
+            bodyContainer.append(typeContainer);
+            bodyContainer.append(resolutionContainer);
+
+            var okbutton = $('<button style="margin-right:5px;">Ok</button>');
+            var cancelbutton = $('<button style="margin-left:5px;">Cancel</button>');
+            var buttons = $('<div/>');
+            buttons.append(okbutton);
+            buttons.append(cancelbutton);
+
+            if (this.map){
+                var saveimagedialog = w2popup.open({
+                    body: bodyContainer,
+                    buttons: buttons,
+                    title       : w2utils.lang('Image configuration'),
+                    width       : 400,
+                    height      : 200
+                });
+
+                var map = this.map;
+
+                okbutton.click(function(){
+                    var selectedType = $('#filetypeSelection')
+                        .find(":selected").text();
+                    var selectedRes = $('#resolutionSelection')
+                        .find(":selected").val();
+                    var scale = selectedRes;
+                    map.resolutionScale = scale;
+                    var scene = map.scene;
+                    var removePreListener = scene.preUpdate.addEventListener(function() {
+                        var canvas = scene.canvas;
+                        var removePostListener = scene.postRender.addEventListener(function() {
+                            var fileName = 'VirES-Aeolus_Screenshot.';
+                            var filetype = 'image/';
+                            fileName+=selectedType;
+                            filetype+=selectedType;
+
+                            canvas.toBlob(function(blob) {
+                                saveAs(blob, fileName);
+                            }, filetype);
+                            map.resolutionScale = 1.0;
+                            removePostListener();
+                        });
+                        removePreListener();
+                    });
+                    bodyContainer.remove();
+                    saveimagedialog.close();
+                });
+                cancelbutton.click(function(){
+                    bodyContainer.remove();
+                    saveimagedialog.close();
+                });
+            }
         },
 
         onClearImage: function(){
