@@ -208,7 +208,7 @@ define([
                 }
                 this.map = new Cesium.Viewer(this.el, options);
                 var initialCesiumLayer = this.map.imageryLayers.get(0);
-                this.map.scene.globe.maximumScreenSpaceError = 1.2;
+                this.map.scene.globe.maximumScreenSpaceError = 1.3;
             }
 
             if(localStorage.getItem('cameraPosition') !== null){
@@ -240,6 +240,61 @@ define([
             this.map.scene.backgroundColor = new Cesium.Color.fromCssColorString(
                 mm.get('backgroundColor')
             );
+
+            // Create color picker
+            $(this.el).append('<div id="cesiumcolorPicker" class="btn btn-success darkbutton"></div>');
+            var colorSelect = $('#cesiumcolorPicker').append('<input id="cesiumBGColor" type="text" size="5" value="#ffffff"/>');
+
+            var picker = new CP(colorSelect[0]);
+
+            var firstChange = true;
+            var map = this.map;
+            picker.on('change', function(color) {
+                if(!firstChange){
+                    var hexCol = '#'+color;
+                    map.scene.backgroundColor = new Cesium.Color.fromCssColorString(hexCol);
+                    $('#cesiumBGColor').val(hexCol);
+                    $('#cesiumBGColor').css("background-color", hexCol);
+                    //that.settingsToApply.color = c;
+                    //that.addApply(dataSettings);
+                }else{
+                    firstChange = false;
+                }
+                /*this.source.value = '#' + color;
+                var c = CP.HEX2RGB(color);
+                c = c.map(function(c){return c/255;});
+                if(!firstChange){
+                    that.settingsToApply.color = c;
+                    that.addApply(dataSettings);
+                }else{
+                    dataSettings.color = c;
+                    firstChange = false;
+                }
+                */
+            });
+
+            function update() {
+                var currCol = $('#cesiumBGColor').val();
+                if(currCol.length === 7){
+                    picker.set(currCol).enter();
+                    map.scene.backgroundColor = new Cesium.Color.fromCssColorString(currCol);
+                    $('#cesiumBGColor').css("background-color", currCol);
+                }
+            }
+
+            picker.source.oncut = update;
+            picker.source.onpaste = update;
+            picker.source.onkeyup = update;
+            picker.source.oninput = update;
+
+            var x = document.createElement('a');
+                x.href = 'javascript:;';
+                x.innerHTML = 'Close';
+                x.addEventListener('click', function() {
+                    picker.exit();
+                }, false);
+
+            picker.self.appendChild(x);
 
             this.map.scene.globe.dynamicAtmosphereLighting = false;
             this.map.scene.globe.showGroundAtmosphere = false;
