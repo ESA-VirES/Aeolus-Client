@@ -237,15 +237,22 @@ define([
             this.map.scene.sun.show = mm.get('sun');
             this.map.scene.moon.show = mm.get('moon');
             this.map.scene.skyAtmosphere.show = mm.get('skyAtmosphere');
-            this.map.scene.backgroundColor = new Cesium.Color.fromCssColorString(
-                mm.get('backgroundColor')
-            );
+
+            // Check to see if background color was already set
+
+            var bgColor = '#fffffa';
+            if(localStorage.hasOwnProperty('cesiumBGColor')){
+                bgColor = localStorage.getItem('cesiumBGColor');
+            }
+            this.map.scene.backgroundColor = new Cesium.Color.fromCssColorString(bgColor);
 
             // Create color picker
             $(this.el).append('<div id="cesiumcolorPicker" class="btn btn-success darkbutton"></div>');
-            var colorSelect = $('#cesiumcolorPicker').append('<input id="cesiumBGColor" type="text" size="5" value="#ffffff"/>');
+            var colorSelect = $('#cesiumcolorPicker').append('<input id="cesiumBGColor" type="text" size="5" autocomplete="off"/>');
+            $('#cesiumBGColor').val(bgColor);
 
             var picker = new CP(colorSelect[0]);
+            picker.set(bgColor);
 
             var firstChange = true;
             var map = this.map;
@@ -254,23 +261,10 @@ define([
                     var hexCol = '#'+color;
                     map.scene.backgroundColor = new Cesium.Color.fromCssColorString(hexCol);
                     $('#cesiumBGColor').val(hexCol);
-                    $('#cesiumBGColor').css("background-color", hexCol);
-                    //that.settingsToApply.color = c;
-                    //that.addApply(dataSettings);
+                    localStorage.setItem('cesiumBGColor', hexCol);
                 }else{
                     firstChange = false;
                 }
-                /*this.source.value = '#' + color;
-                var c = CP.HEX2RGB(color);
-                c = c.map(function(c){return c/255;});
-                if(!firstChange){
-                    that.settingsToApply.color = c;
-                    that.addApply(dataSettings);
-                }else{
-                    dataSettings.color = c;
-                    firstChange = false;
-                }
-                */
             });
 
             function update() {
@@ -278,7 +272,7 @@ define([
                 if(currCol.length === 7){
                     picker.set(currCol).enter();
                     map.scene.backgroundColor = new Cesium.Color.fromCssColorString(currCol);
-                    $('#cesiumBGColor').css("background-color", currCol);
+                    localStorage.setItem('cesiumBGColor', hexCol);
                 }
             }
 
@@ -287,14 +281,12 @@ define([
             picker.source.onkeyup = update;
             picker.source.oninput = update;
 
-            var x = document.createElement('a');
-                x.href = 'javascript:;';
-                x.innerHTML = 'Close';
-                x.addEventListener('click', function() {
-                    picker.exit();
-                }, false);
+            var closeButton = $('<div id="colorpickercloser" class="btn btn-success darkbutton">Close</div>');
+            closeButton.click(function () {
+                picker.exit();
+            })
 
-            picker.self.appendChild(x);
+            picker.self.appendChild(closeButton[0]);
 
             this.map.scene.globe.dynamicAtmosphereLighting = false;
             this.map.scene.globe.showGroundAtmosphere = false;
