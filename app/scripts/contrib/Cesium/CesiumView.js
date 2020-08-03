@@ -2606,10 +2606,23 @@ define([
                         xAxis.tickFormat(d3.format('g'));
                     }
 
-                    var g = svgContainer.append('g')
+                    // Add white background
+                    var mainGroup = svgContainer.append('g');
+                    mainGroup.append('rect')
+                            .attr('width', 300)
+                            .attr('height', 52)
+                            .attr('y', 3)
+                            .attr('opacity', 0.7)
+                            .attr('stroke', 'none')
+                            .attr('rx', 3)
+                            .attr('ry', 3)
+                            .attr('fill', 'white');
+
+                    var g = mainGroup.append('g')
                         .attr('class', 'x axis')
                         .attr('transform', 'translate(' + [margin, 20]+')')
                         .call(xAxis);
+
 
                     // Add layer info
                     var info = product.get('name');
@@ -2642,6 +2655,7 @@ define([
                         .attr('stroke-width', '2')
                         .attr('shape-rendering', 'crispEdges')
                         .attr('stroke', '#000');
+
 
                     var svgHtml = d3.select('#svgcolorscalecontainer')
                         .attr('version', 1.1)
