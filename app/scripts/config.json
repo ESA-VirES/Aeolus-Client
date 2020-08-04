@@ -2147,6 +2147,13 @@
                 "wrapDateLine": true,
                 "zoomOffset": 0
             }
+        },{
+            "name": "CalVal Sites",
+            "visible": false,
+            "view":{
+                "protocol": "entityLayer",
+                "entityLayer": "calvalsites"
+            }
         }]
     },
 

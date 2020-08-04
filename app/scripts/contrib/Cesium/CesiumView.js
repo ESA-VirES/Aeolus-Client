@@ -5,12 +5,13 @@ define([
     'communicator',
     'app',
     'models/MapModel',
+    'hbs!tmpl/calvalsites',
     'globals',
     'papaparse',
     'cesium',
     'drawhelper',
     'FileSaver'
-], function( Marionette, Communicator, App, MapModel, globals, Papa, Cesium) {
+], function( Marionette, Communicator, App, MapModel, calvalsites, globals, Papa, Cesium) {
     'use strict';
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
@@ -43,6 +44,9 @@ define([
             this.beginTime = null;
             this.endTime = null;
             this.curtainPrimitive = null;
+            this.hoveredPrim = null;
+            this.selectedPrim = null;
+            this.calvalsites = JSON.parse(calvalsites());
 
             var renderSettings = {
                 xAxis: [
@@ -240,7 +244,7 @@ define([
 
             // Check to see if background color was already set
 
-            var bgColor = '#fffffa';
+            var bgColor = '#ffffff';
             if(localStorage.hasOwnProperty('cesiumBGColor')){
                 bgColor = localStorage.getItem('cesiumBGColor');
             }
@@ -307,7 +311,39 @@ define([
             );
             handler.setInputAction(function() {
                 //hide the selectionIndicator
-                this.map.selectionIndicator.viewModel.selectionIndicatorElement.style.visibility = 'hidden'; 
+                this.map.selectionIndicator.viewModel.selectionIndicatorElement.style.visibility = 'hidden';
+
+                // Clear possible selection
+                if(this.selectedPrim !== null) {
+                    this.selectedPrim.id.label.show = false;
+                    this.selectedPrim.id.point.outlineColor = Cesium.Color.BLACK;
+                    this.selectedPrim.id.point.outlineWidth = 1;
+                    this.selectedPrim.id.point.color = Cesium.Color.YELLOW;
+                    this.selectedPrim = null;
+                }
+
+                if(this.hoveredPrim !== null) {
+                    // mark as selected
+                    this.hoveredPrim.id.point.color = Cesium.Color.GREEN;
+                    this.hoveredPrim.id.point.outlineWidth = 1;
+                    this.hoveredPrim.id.label.show = true;
+                    this.selectedPrim = this.hoveredPrim;
+
+                    // Create bbox selection with approx 300km range
+                    var pos = this.hoveredPrim.id.position.getValue();
+                    var carto = Cesium.Ellipsoid.WGS84.cartesianToCartographic(pos);
+                    var lon = Cesium.Math.toDegrees(carto.longitude);
+                    var lat = Cesium.Math.toDegrees(carto.latitude);
+                    // 2.67 should be approx 300km (depending where on the ellipsoid)
+                    var offset = 2.67/2;
+                    var bbox = {
+                        s: lat-offset,
+                        n: lat+offset,
+                        e: lon+offset,
+                        w: lon-offset,
+                    };
+                    Communicator.mediator.trigger('selection:changed', bbox);
+                }
             }.bind(this), Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
             handler.setInputAction(function(movement) {
@@ -323,6 +359,32 @@ define([
                     $('#coordinates_label').html(
                         'Lat: ' + lat.toFixed(4) + '</br>Lon: '+lon.toFixed(4)
                     );
+                }
+                // Clear possible highlighted calval site 
+                if(this.hoveredPrim !== null){
+                    if(this.selectedPrim === null){
+                        // Only change style if it is not the selected one
+                        this.hoveredPrim.id.label.show = false;
+                        this.hoveredPrim.id.point.outlineColor = Cesium.Color.BLACK;
+                        this.hoveredPrim.id.point.outlineWidth = 1;
+                    } else if(this.hoveredPrim.id !== this.selectedPrim.id) {
+                        this.hoveredPrim.id.label.show = false;
+                        this.hoveredPrim.id.point.outlineColor = Cesium.Color.BLACK;
+                        this.hoveredPrim.id.point.outlineWidth = 1;
+                    }
+                    this.hoveredPrim = null;
+                }
+                // Check for calval sites
+                var pickedObject = this.map.scene.pick(movement.endPosition);
+
+                if (Cesium.defined(pickedObject) && pickedObject.hasOwnProperty('id')
+                    && typeof pickedObject.id !== 'undefined'
+                    && typeof pickedObject.id.label !== 'undefined') {
+                    pickedObject.id.label.show = true;
+                    this.hoveredPrim = pickedObject;
+                    pickedObject.id.point.outlineColor = Cesium.Color.GREEN;
+                    pickedObject.id.point.outlineWidth = 2;
+                    //pickedObject.id.point.color = Cesium.Color.GREEN;
                 }
             }.bind(this), Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -396,12 +458,45 @@ define([
 
             // Go through all overlays and add them to the map
             globals.overlays.each(function(overlay){
-                var layer = this.createLayer(overlay);
-                if (layer) {
-                    var imagerylayer = this.map.scene.imageryLayers.addImageryProvider(layer);
-                    imagerylayer.show = overlay.get('visible');
-                    overlay.set('ces_layer', imagerylayer);
+                var imagerylayer;
+                if(overlay.get('view').protocol === 'entityLayer'){
+                    // loading calval sites
+                    var calvalsitesDatasource = new Cesium.CustomDataSource('calvalsites');
+                    var sites = this.calvalsites.Earth_Explorer_File.Data_Block.List_of_Zones.Zone;
+                    for (var i = 0; i < sites.length; i++) {
+                        var site = sites[i];
+                        var lat = Number(site.List_of_Polygon_Pts.Polygon_Pt.Lat.__text);
+                        var lon = Number(site.List_of_Polygon_Pts.Polygon_Pt.Long.__text);
+                        calvalsitesDatasource.entities.add({
+                            id: site.Zone_Id,
+                            position : Cesium.Cartesian3.fromDegrees(lon, lat),
+                            point: {
+                                pixelSize: 10,
+                                color: Cesium.Color.YELLOW,
+                                outlineColor: Cesium.Color.BLACK,
+                                outlineWidth: 1,
+                            },
+                            label : {
+                                show: false,
+                                text : site.Zone_Id.replace(/_/g, ' '),
+                                font : '14pt monospace',
+                                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                                outlineWidth : 3,
+                                verticalOrigin : Cesium.VerticalOrigin.TOP,
+                                pixelOffset : new Cesium.Cartesian2(0, -25)
+                            }
+                        });
+                    }
+                    this.map.dataSources.add(calvalsitesDatasource);
+                    imagerylayer = calvalsitesDatasource;
+                } else {
+                    var layer = this.createLayer(overlay);
+                    if (layer) {
+                     imagerylayer = this.map.scene.imageryLayers.addImageryProvider(layer);
+                    }
                 }
+                imagerylayer.show = overlay.get('visible');
+                overlay.set('ces_layer', imagerylayer);
             }, this);
 
 
@@ -1705,7 +1800,9 @@ define([
         },
 
         removeCustomAttribution: function(view){
-            $('#'+view.id.replace(/[^A-Z0-9]/ig, '_')).remove();
+            if(view.hasOwnProperty('id')){
+                $('#'+view.id.replace(/[^A-Z0-9]/ig, '_')).remove();
+            }
         },
 
         changeLayer: function(options) {
