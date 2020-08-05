@@ -719,7 +719,8 @@ define(['backbone.marionette',
                     ],
                     combinedParameters: {
                         altitude: ['alt_start', 'alt_end'],
-                        measurements: ['meas_start', 'meas_end']
+                        measurements: ['meas_start', 'meas_end'],
+                        time: ['group_start_time', 'group_end_time'],
                     },
                     colorAxis: [
                         ['group_backscatter_variance']

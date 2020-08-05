@@ -1133,6 +1133,8 @@
           resData.group_LOD_variance = gD.group_LOD_variance;
           resData.group_LOD = gD.group_LOD;
           resData.group_SR = gD.group_SR;
+          resData.group_start_time = gD.group_start_time;
+          resData.group_end_time = gD.group_end_time;
 
         } else {
 
