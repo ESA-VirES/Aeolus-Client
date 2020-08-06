@@ -52,13 +52,45 @@
                 var contours = this.current_model.get("contours");
                 var granularity = this.current_model.get("granularity");
                 var altitude = this.current_model.get("altitude");
-                //var 
-
+                var pId = this.current_model.get("download").id;
                 var that = this;
 
-                if(granularity !== 'group'){
+
+                // Special filtering for L2A related to having group visualization
+                // also on globe
+                if(pId === 'ALD_U_N_2A'){
+                    var selected = null;
+                    _.each(keys, function(key){
+                        if(options[key].selected){
+                            selected = key;
+                        }
+                    });
+                    if (granularity === 'group') {
+                        /*if(!selected.startsWith('group')){
+                            // Need to change selected to default l2a group parameter
+                            delete options[selected].selected;
+                            options['group_backscatter'].selected = true;
+                        }*/
+                        for (var i = keys.length - 1; i >= 0; i--) {
+                            if(!keys[i].startsWith('group')){
+                                keys.splice(i,1);
+                            }
+                        }
+                    } else {
+                        for (var i = keys.length - 1; i >= 0; i--) {
+                            if(keys[i].startsWith('group')){
+                                keys.splice(i,1);
+                            }
+                        }
+                    }
+                }
+
+                // TODO: Make sure once data is loaded to only allow selection
+                // or to change selection of parameters that are available in the data
+
+                if(granularity !== 'group' || pId === 'ALD_U_N_2A'){
                     // Filter out unavailable data parameters
-                    var currdata = globals.swarm.get('data');
+                    /*var currdata = globals.swarm.get('data');
                     if(!$.isEmptyObject(currdata)){
                         for (var i = keys.length - 1; i >= 0; i--) {
                             var currProd = this.current_model.get('download').id;
@@ -68,7 +100,7 @@
                                 }
                             }
                         }
-                    }
+                    }*/
                     this.enableInputs();
                 } else {
                     this.disableInputs();
@@ -291,8 +323,37 @@
                         $("#granularity_selection").on('change', function(){
                             var granularity = $("#granularity_selection").find("option:selected").val();
                             that.model.set('granularity', granularity);
+                            var pId = that.model.get("download").id;
+                            // Switch between group and observation parameters
+                            // when switching l2a granularity
+                            if(pId === 'ALD_U_N_2A'){
+                                var options = that.model.get("parameters");
+                                var keys = _.keys(options);
+                                var selected = null;
+                                _.each(keys, function(key){
+                                    if(options[key].selected){
+                                        selected = key;
+                                    }
+                                });
+                                if(granularity === 'group'){
+                                    if(!selected.startsWith('group')){
+                                        // Need to change selected to default l2a group parameter
+                                        delete options[selected].selected;
+                                        options['group_backscatter'].selected = true;
+                                        that.model.set('parameters', options);
+                                        that.onShow();
+                                    }
+                                } else {
+                                    if(selected.startsWith('group')){
+                                        delete options[selected].selected;
+                                        options['SCA_extinction'].selected = true;
+                                        that.model.set('parameters', options);
+                                        that.onShow();
+                                    }
+                                }
+                            }
                             // If group granularity is selected we hide some things
-                            if(granularity === 'group'){
+                            if(granularity === 'group' && pId !== 'ALD_U_N_2A'){
                                 that.disableInputs();
                             } else {
                                 that.enableInputs();

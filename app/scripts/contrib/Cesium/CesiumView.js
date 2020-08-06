@@ -1073,8 +1073,9 @@ define([
             );
 
             // TODO: If group collection is selected for now we do not create
-            // curtains
-            if(currProd.get('granularity') === 'group'){
+            // curtains unless it is group granularity of L2A
+            if(currProd.get('granularity') === 'group' &&
+                currProd.get('download').id !== 'ALD_U_N_2A'){
                 if(currProd.hasOwnProperty('curtains')){
                     currProd.curtains.removeAll();
                     curtainCollection = currProd.curtains;
@@ -1164,7 +1165,21 @@ define([
                         },
                         jumps: 'ica_jumps',
                         signCross: 'signCross'
-                    }
+                    },
+                    'group': {
+                        lats: 'latitude_of_DEM_intersection_obs_orig',
+                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        timeStart: 'group_start_time',
+                        timeStop: 'group_end_time',
+                        xAxis:'time',
+                        yAxis: ['altitude'],
+                        combinedParameters: {
+                            altitude: ['alt_start', 'alt_end'],
+                            time: ['group_start_time', 'group_end_time'],
+                        },
+                        jumps: 'group_jumps',
+                        signCross: 'group_signCross'
+                    },
 
                 },
                 'ALD_U_N_2B': {
@@ -1285,7 +1300,10 @@ define([
             } else if (band.startsWith('ICA_')){
                 currPar = params[cov_id]['ICA'];
                 currPar.colorAxis = [band];
-            } else if (band.startsWith('mie_wind_result') || band.startsWith('mie_assimilation') ){
+            } else if (band.startsWith('group_')){
+                currPar = params[cov_id]['group'];
+                currPar.colorAxis = [band];
+            }else if (band.startsWith('mie_wind_result') || band.startsWith('mie_assimilation') ){
                 currPar = params[cov_id]['mie_wind_result'];
                 currPar.colorAxis = [band];
             }  else if (band.startsWith('rayleigh_wind_result') || band.startsWith('rayleigh_assimilation') ){

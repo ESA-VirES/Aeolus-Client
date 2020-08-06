@@ -175,11 +175,13 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 },
                 'group_extinction':{
                     uom: '10-6 * m^-1',
-                    nullValue: -1
+                    nullValue: -1,
+                    extent: [-3.5e-9, -2e-10],
                 },
                 'group_backscatter':{
                     uom: '10-6 * m^-1* sr^-1',
-                    nullValue: -1
+                    nullValue: -1,
+                    extent: [-3.5e-9, -2e-10],
                 },
                 'group_LOD_variance':{
                     uom: null,
