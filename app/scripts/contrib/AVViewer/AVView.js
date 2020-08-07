@@ -713,16 +713,17 @@ define(['backbone.marionette',
                     availableParameters: false
                 },
                 'ALD_U_N_2A_group':{
-                    xAxis: ['measurements'],
+                    xAxis: ['time'],
                     yAxis: [
                         ['altitude'],
                     ],
                     combinedParameters: {
                         altitude: ['alt_start', 'alt_end'],
-                        measurements: ['meas_start', 'meas_end']
+                        measurements: ['meas_start', 'meas_end'],
+                        time: ['group_start_time', 'group_end_time'],
                     },
                     colorAxis: [
-                        ['group_backscatter_variance']
+                        ['group_backscatter']
                     ],
                     additionalXTicks: [],
                     additionalYTicks: [[]],
@@ -2390,7 +2391,11 @@ define(['backbone.marionette',
                         typeof this.previousCollection === 'undefined'){
                         // If there was no collection change try to adapt settings
                         // to conserve as much of the user config as possible
-                        this.extendSettings(renderSettings);
+                        // We also need to check if there was a granularity change
+                        if(gran === this.previousGranularity ||
+                            typeof this.previousGranularity === 'undefined'){
+                            this.extendSettings(renderSettings);
+                        }
                     }
                     this.graph.renderSettings = renderSettings;
 
@@ -2618,11 +2623,13 @@ define(['backbone.marionette',
                     this.savePlotConfig(this.graph);
 
                     this.previousCollection = prodId;
+                    this.previousGranularity = gran;
                     this.previousKeys = this.currentKeys;
 
                 }else{
                     $('#nodataavailable').show();
                     this.previousCollection = false;
+                    this.previousGranularity = false;
                 }
                 this.renderFilterList();
             }

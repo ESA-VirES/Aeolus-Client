@@ -1093,8 +1093,13 @@
           var meas_end = [];
           var alt_start = [];
           var alt_end = [];
+          var lat_start = [];
+          var lat_end = [];
+          var lon_start = [];
+          var lon_end = [];
           var gD = data.ALD_U_N_2A.group_data;
           var oD = data.ALD_U_N_2A.observation_data;
+          // TODO: Get also lat lon obs data
 
           if( $.isEmptyObject(gD) || $.isEmptyObject(oD) ){
             return;
@@ -1119,8 +1124,55 @@
                 alt_start.push(currAltEnd);
                 alt_end.push(currAltStart);
               }
-              
+              if(typeof oD.latitude_of_DEM_intersection_obs[currObsStart] !== 'undefined'){
+                var currLatStart = oD.latitude_of_DEM_intersection_obs[currObsStart];
+                var currLonStart = oD.longitude_of_DEM_intersection_obs[currObsStart];
+                if(currObsStart < oD.latitude_of_DEM_intersection_obs.length-1){
+                  var currLatEnd = oD.latitude_of_DEM_intersection_obs[currObsStart+1];
+                  lat_start.push(currLatStart);
+                  lat_end.push(currLatEnd);
+                  var currLonEnd = oD.longitude_of_DEM_intersection_obs[currObsStart+1];
+                  lon_start.push(currLonStart);
+                  lon_end.push(currLonEnd);
+                } else {
+                  lat_start.push(currLatStart);
+                  lat_end.push(
+                    currLatStart + (
+                      oD.latitude_of_DEM_intersection_obs[currObsStart] -
+                      oD.latitude_of_DEM_intersection_obs[currObsStart-1]
+                    )
+                  );
+                  lon_start.push(currLonStart);
+                  lon_end.push(
+                    currLonStart + (
+                      oD.longitude_of_DEM_intersection_obs[currObsStart] -
+                      oD.longitude_of_DEM_intersection_obs[currObsStart-1]
+                    )
+                  );
+                }
+              }
            }
+
+          var group_jumpPos = [];
+          var group_signCross = [];
+          var currLats = oD.latitude_of_DEM_intersection_obs;
+          var currLons = oD.longitude_of_DEM_intersection_obs;
+          for (var i = 1; i < currLats.length; i++) {
+            var latdiff = Math.abs(
+              currLats[i-1] - currLats[i]
+            );
+            var londiff = Math.abs(
+              currLons[i-1] - currLons[i]
+            ); 
+            // TODO: slicing not working correctly for L2a
+            if (latdiff >= latStep) {
+              group_signCross.push(latdiff>160);
+              group_jumpPos.push(i);
+            }else if (londiff >= lonStep) {
+              group_signCross.push(londiff>340);
+              group_jumpPos.push(i);
+            }
+          }
 
           resData.alt_start = alt_start;
           resData.alt_end = alt_end;
@@ -1133,10 +1185,16 @@
           resData.group_LOD_variance = gD.group_LOD_variance;
           resData.group_LOD = gD.group_LOD;
           resData.group_SR = gD.group_SR;
+          resData.group_start_time = gD.group_start_time;
+          resData.group_end_time = gD.group_end_time;
+          resData.latitude_of_DEM_intersection_start = lat_start;
+          resData.latitude_of_DEM_intersection_end = lat_end;
+          resData.latitude_of_DEM_intersection_obs_orig = oD.latitude_of_DEM_intersection_obs;
+          resData.longitude_of_DEM_intersection_obs_orig = oD.longitude_of_DEM_intersection_obs;
 
+          resData.group_jumps = group_jumpPos;
+          resData.group_signCross = group_signCross;
         } else {
-
-          
           if(ds.observation_data.hasOwnProperty('sca_mask')){
             // check if same length for mca elements and mca mask
             var nonMasked = ds.observation_data.sca_mask.filter(function(e){
@@ -1889,7 +1947,7 @@
         var requestOptions = {
           l2a_group: {
             //measurement_fields: 'altitude_of_DEM_intersection_meas,mie_altitude_meas',
-            observation_fields: 'altitude_of_DEM_intersection_obs,mie_altitude_obs,rayleigh_altitude_obs'/*+'latitude_of_DEM_intersection_obs,longitude_of_DEM_intersection_obs'*/,
+            observation_fields: 'altitude_of_DEM_intersection_obs,mie_altitude_obs,rayleigh_altitude_obs,latitude_of_DEM_intersection_obs,longitude_of_DEM_intersection_obs',
             group_fields: 'group_start_obs,group_end_obs,group_start_meas_obs,group_end_meas_obs,group_start_time,group_end_time,group_height_bin_index,'+
                           'group_extinction,group_backscatter,group_backscatter_variance,group_extinction_variance,group_LOD_variance,group_LOD,group_SR'
 

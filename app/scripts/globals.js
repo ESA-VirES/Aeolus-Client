@@ -175,16 +175,30 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 },
                 'group_extinction':{
                     uom: '10-6 * m^-1',
-                    nullValue: -1
+                    nullValue: -1,
+                    extent: [-3.5e-9, -2e-10],
                 },
                 'group_backscatter':{
                     uom: '10-6 * m^-1* sr^-1',
-                    nullValue: -1
+                    nullValue: -1,
+                    extent: [-3.5e-9, -2e-10],
                 },
                 'group_LOD_variance':{
                     uom: null,
                     nullValue: -1
-                }
+                },
+                time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                group_start_time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                group_end_time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
             },
             'ALD_U_N_2B': {
                 'mie_meas_map': {
@@ -654,10 +668,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
               'group_height_bin_index',
               'group_backscatter',
               'group_backscatter_variance',
-              'group_extinction_variance'
-              /*'group_start_time',
-              'group_end_time',
-              'group_centroid_time',
+              'group_extinction_variance',
+              /*'group_centroid_time',
               'group_middle_bin_start_altitude',
               'group_middle_bin_stop_altitude',
               'group_start_obs',
