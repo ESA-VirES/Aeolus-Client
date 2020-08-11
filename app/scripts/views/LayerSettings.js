@@ -131,10 +131,7 @@
                     if(options[this.selected].description){
                         this.$("#description").text(options[this.selected].description);
                     }
-
-                    if(options[that.selected].hasOwnProperty("logarithmic")){
-                        this.addLogOption(options);
-                    }
+                    this.addLogOption(options);
 
                     this.$("#options").unbind();
                     // Add event handler for change in drop down selection
@@ -464,12 +461,8 @@
                 this.createScale();
 
 
-                if(options[this.selected].hasOwnProperty("logarithmic")){
-                    this.addLogOption(options);
-
-                }else{
-                    this.$("#logarithmic").empty();
-                }
+                this.$("#logarithmic").empty();
+                this.addLogOption(options);
 
                 options[this.selected].selected = true;
 
@@ -645,36 +638,40 @@
 
             addLogOption: function(options){
                 var that = this;
-                if(options[this.selected].hasOwnProperty("logarithmic")){
-                    var checked = "";
-                    if (options[this.selected].logarithmic)
-                        checked = "checked";
+                var prodId = this.current_model.get('download').id;
+                var logscale = defaultFor(
+                    globals.dataSettings[prodId][this.selected].logarithmic,
+                    false
+                );
 
-                    this.$("#logarithmic").empty();
-
-                    this.$("#logarithmic").append(
-                        '<form style="vertical-align: middle;">'+
-                        '<label class="valign" for="outlines" style="width: 100px;">Log. Scale</label>'+
-                        '<input class="valign" style="margin-top: -5px;" type="checkbox" name="logarithmic" value="logarithmic" ' + checked + '></input>'+
-                        '</form>'
-                    );
-
-                    this.$("#logarithmic input").change(function(evt){
-                        var options = that.current_model.get("parameters");
-                        options[that.selected].logarithmic = !options[that.selected].logarithmic;
-                        
-                        that.current_model.set("parameters", options);
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
-
-                        if(options[that.selected].hasOwnProperty("logarithmic"))
-                            that.createScale(options[that.selected].logarithmic);
-                        else
-                            that.createScale();
-                    });
+                var checked = "";
+                if (logscale) {
+                    checked = "checked";
                 }
+
+                this.$("#logarithmic").empty();
+
+                this.$("#logarithmic").append(
+                    '<form style="vertical-align: middle;">'+
+                    '<label class="valign" for="logarithmic" style="width: 120px;">Log color scale </label>'+
+                    '<input class="valign" style="margin-top: -5px;" type="checkbox" name="logarithmic" value="logarithmic" ' + checked + '></input>'+
+                    '</form>'
+                );
+
+                this.$("#logarithmic input").change(function(evt){
+                    var prodId = that.current_model.get('download').id;
+                    globals.dataSettings[prodId][that.selected].logarithmic =
+                        defaultFor(
+                            !globals.dataSettings[prodId][that.selected].logarithmic,
+                            true
+                        );
+                    Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
+                    that.createScale();
+                });
+
             },
 
-            createScale: function(logscale){
+            createScale: function(){
 
                 var superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹",
                 formatPower = function(d) { 
@@ -695,6 +692,7 @@
                 var range_max = globals.dataSettings[prodId][this.selected].extent[1];
                 var uom = globals.dataSettings[prodId][this.selected].uom;
                 var style = globals.dataSettings[prodId][this.selected].colorscale;
+                var logscale = defaultFor(globals.dataSettings[prodId][this.selected].logarithmic, false);
 
                 $("#setting_colorscale").append(
                     '<div id="gradient" style="width:'+scalewidth+'px;margin-left:'+margin+'px"></div>'
@@ -725,13 +723,7 @@
                     .scale(axisScale);
 
                 if(logscale){
-                    var numberFormat = d3.format(",f");
-                    function logFormat(d) {
-                        var x = Math.log(d) / Math.log(10) + 1e-6;
-                        return Math.abs(x - Math.floor(x)) < .3 ? numberFormat(d) : "";
-                    }
-                    xAxis.tickFormat(logFormat);
-
+                    xAxis.ticks(0, '0.0e');
                 }else{
                     var step = (range_max - range_min)/5
                     xAxis.tickValues(

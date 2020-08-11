@@ -2706,13 +2706,7 @@ define([
                         .scale(axisScale);
 
                     if(logscale){
-                        var numberFormat = d3.format(',f');
-                        function logFormat(d) {
-                            var x = Math.log(d) / Math.log(10) + 1e-6;
-                            return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
-                        }
-                         xAxis.tickFormat(logFormat);
-
+                        xAxis.ticks(0, '0.0e');
                     }else{
                         var step = (rangeMax - rangeMin)/5;
                         xAxis.tickValues(
