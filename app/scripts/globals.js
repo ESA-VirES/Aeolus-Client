@@ -4,13 +4,14 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
 
     var swarm_model = Backbone.Model.extend({data:[]});
     return {
-        version: '2.0',
+        version: '2.1',
         objects: new ObjectStore(),
         selections: new ObjectStore(),
         baseLayers: new Backbone.Collection(),
         products: new Backbone.Collection(),
         overlays: new Backbone.Collection(),
         swarm: new swarm_model(),
+        publicCollections:{},
         downloadMatrix: {
           'ALD_U_N_1B': {
             'observation': ['observation'],
@@ -174,16 +175,30 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 },
                 'group_extinction':{
                     uom: '10-6 * m^-1',
-                    nullValue: -1
+                    nullValue: -1,
+                    extent: [-3.5e-9, -2e-10],
                 },
                 'group_backscatter':{
                     uom: '10-6 * m^-1* sr^-1',
-                    nullValue: -1
+                    nullValue: -1,
+                    extent: [-3.5e-9, -2e-10],
                 },
                 'group_LOD_variance':{
                     uom: null,
                     nullValue: -1
-                }
+                },
+                time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                group_start_time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                group_end_time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
             },
             'ALD_U_N_2B': {
                 'mie_meas_map': {
@@ -196,14 +211,14 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     csDiscrete: true
                 },
                 'mie_wind_result_HLOS_error':{
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     nullValue: 1.7e+38,
-                    filterExtent: [0, 20]
+                    filterExtent: [0, 1000]
                 },
                 'rayleigh_wind_result_HLOS_error':{
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     nullValue: 1.7e+38,
-                    filterExtent: [0, 20]
+                    filterExtent: [0, 1000]
                 },
 
                 'mie_wind_result_scattering_ratio': {
@@ -265,12 +280,14 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     csDiscrete: true
                 },
                 'mie_wind_result_HLOS_error':{
-                    uom: 'm/s',
-                    nullValue: 1.7e+38
+                    uom: 'cm/s',
+                    nullValue: 1.7e+38,
+                    filterExtent: [0, 1000]
                 },
                 'rayleigh_wind_result_HLOS_error':{
-                    uom: 'm/s',
-                    nullValue: 1.7e+38
+                    uom: 'cm/s',
+                    nullValue: 1.7e+38,
+                    filterExtent: [0, 1000]
                 },
 
                 'mie_wind_result_scattering_ratio': {
@@ -653,10 +670,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
               'group_height_bin_index',
               'group_backscatter',
               'group_backscatter_variance',
-              'group_extinction_variance'
-              /*'group_start_time',
-              'group_end_time',
-              'group_centroid_time',
+              'group_extinction_variance',
+              /*'group_centroid_time',
               'group_middle_bin_start_altitude',
               'group_middle_bin_stop_altitude',
               'group_start_obs',
@@ -946,7 +961,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             // 2d data
             'altitude',
             'satellite_range', 
-            'geoid_separation_obs',
+            //'geoid_separation_obs',
             //'geoid_separation_freq_step',
             'normalised_useful_signal',
             // end 2d data

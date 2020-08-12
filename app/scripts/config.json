@@ -487,6 +487,18 @@
                     "colorscale": "viridis",
                     "uom": "sr⁻²",
                     "name": "SCA middle bin BER variance"
+                },
+                "group_backscatter": {
+                    "range": [0, 1.1e-5],
+                    "colorscale": "viridis",
+                    "uom": "10⁻⁶*m⁻¹* sr⁻¹",
+                    "name": "Group backscatter"
+                },
+                "group_backscatter_variance": {
+                    "range": [0, 1e-9],
+                    "colorscale": "viridis",
+                    "uom": "m⁻²*sr⁻²",
+                    "name": "Group backscatter variance"
                 }
             },
             "download_parameters": {
@@ -546,7 +558,7 @@
                 "SCA_LOD": {"uom": null, "name": "Particle LOD of the height bin"},
                 "SCA_SR": {"uom": null, "name": "Scattering ratio of the height bin"},
                 "SCA_middle_bin_extinction": {"required": true,"uom": "10⁻⁶*m⁻¹", "name": "Particle extinction of the height bin"},
-                "SCA_middle_bin_backscatter": {"active": true,"uom": "10⁻⁶*m⁻¹* sr⁻¹", "name": "Particle extinction of the height bin"},
+                "SCA_middle_bin_backscatter": {"active": true,"uom": "10⁻⁶*m⁻¹* sr⁻¹", "name": "Particle backscatter of the height bin"},
                 "SCA_middle_bin_LOD": {"uom": null, "name": "Particle LOD of the height bin"},
                 "SCA_middle_bin_BER": {"uom": null, "name": "Backscatter-to-extinction ratio of the middle bin"},
                 "ICA_filling_case": {"uom": null, "name": "Filling case estimated by the algorithm (case 1-7)"},
@@ -699,9 +711,9 @@
                     "name": "mie wind result wind velocity"
                 },
                 "mie_wind_result_HLOS_error":{
-                    "uom": "m/s",
+                    "uom": "cm/s",
                     "name": "mie wind result HLOS error",
-                    "range": [0, 16],
+                    "range": [0, 1000],
                     "colorscale": "viridis"
                 },
                 "mie_wind_result_SNR":{
@@ -718,9 +730,9 @@
                     "name": "rayleigh wind result wind velocity"
                 },
                 "rayleigh_wind_result_HLOS_error": {
-                    "uom": "m/s",
+                    "uom": "cm/s",
                     "name": "rayleigh wind result HLOS error",
-                    "range": [0, 16],
+                    "range": [0, 1000],
                     "colorscale": "viridis"
                 }
             },
@@ -801,13 +813,13 @@
                 "optical_prop_algo_extinction":{"uom": "1/m", "name": "Aerosol extinction as determined by the iterative Optical Properties Algorithm"},
                 "optical_prop_algo_scattering_ratio":{"uom": null, "name": "Scattering ratio as determined by the iterative Optical Properties Algorithm"},
                 "optical_prop_crosstalk_detected":{"uom": null, "name": "Switch to indicate if cross talk was detected or not by the iterative Optical Properties Algorithm"},
-                "mie_wind_result_HLOS_error":{"active":true,"uom": "m/s", "name": "Error estimate reported by the Mie processing algorithm"},
+                "mie_wind_result_HLOS_error":{"active":true,"uom": "cm/s", "name": "Error estimate reported by the Mie processing algorithm"},
                 "mie_wind_result_QC_flags_1":{"uom": null, "name": "1 byte bit packed field"},
                 "mie_wind_result_QC_flags_2":{"uom": null, "name": "1 byte bit packed field"},
                 "mie_wind_result_QC_flags_3":{"uom": null, "name": "1 byte bit packed field"},
                 "mie_wind_result_SNR":{"uom": null, "name": "SNR of the Mie spectrum"},
                 "mie_wind_result_scattering_ratio":{"active": true,"uom": null, "name": "Scattering Ratio used to estimate the extinction for this wind result"},
-                "rayleigh_wind_result_HLOS_error":{"active":true,"uom": "m/s", "name": "Scattering Ratio used to estimate the extinction for this wind result"},
+                "rayleigh_wind_result_HLOS_error":{"active":true,"uom": "cm/s", "name": "Scattering Ratio used to estimate the extinction for this wind result"},
                 "rayleigh_wind_result_QC_flags_1":{"uom": null, "name": "1 byte bit packed field"},
                 "rayleigh_wind_result_QC_flags_2":{"uom": null, "name": "1 byte bit packed field"},
                 "rayleigh_wind_result_QC_flags_3":{"uom": null, "name": "1 byte bit packed field"},
@@ -989,9 +1001,9 @@
                     "name": "mie wind result wind velocity"
                 },
                 "mie_wind_result_HLOS_error":{
-                    "uom": "m/s",
+                    "uom": "cm/s",
                     "name": "mie wind result HLOS error",
-                    "range": [0, 16],
+                    "range": [0, 1000],
                     "colorscale": "viridis"
                 },
                 "mie_wind_result_SNR":{
@@ -1032,9 +1044,9 @@
                     "name": "rayleigh wind result wind velocity"
                 },
                 "rayleigh_wind_result_HLOS_error": {
-                    "uom": "m/s",
+                    "uom": "cm/s",
                     "name": "rayleigh wind result HLOS error",
-                    "range": [0, 16],
+                    "range": [0, 1000],
                     "colorscale": "viridis"
                 },
                 "rayleigh_assimilation_background_HLOS": {
@@ -1139,13 +1151,13 @@
                 "optical_prop_algo_extinction":{"uom": "1/m", "name": "Aerosol extinction as determined by the iterative Optical Properties Algorithm"},
                 "optical_prop_algo_scattering_ratio":{"uom": null, "name": "Scattering ratio as determined by the iterative Optical Properties Algorithm"},
                 "optical_prop_crosstalk_detected":{"uom": null, "name": "Switch to indicate if cross talk was detected or not by the iterative Optical Properties Algorithm"},
-                "mie_wind_result_HLOS_error":{"active":true,"uom": "m/s", "name": "Error estimate reported by the Mie processing algorithm"},
+                "mie_wind_result_HLOS_error":{"active":true,"uom": "cm/s", "name": "Error estimate reported by the Mie processing algorithm"},
                 "mie_wind_result_QC_flags_1":{"uom": null, "name": "1 byte bit packed field"},
                 "mie_wind_result_QC_flags_2":{"uom": null, "name": "1 byte bit packed field"},
                 "mie_wind_result_QC_flags_3":{"uom": null, "name": "1 byte bit packed field"},
                 "mie_wind_result_SNR":{"uom": null, "name": "SNR of the Mie spectrum"},
                 "mie_wind_result_scattering_ratio":{"active": true,"uom": null, "name": "Scattering Ratio used to estimate the extinction for this wind result"},
-                "rayleigh_wind_result_HLOS_error":{"active":true,"uom": "m/s", "name": "Scattering Ratio used to estimate the extinction for this wind result"},
+                "rayleigh_wind_result_HLOS_error":{"active":true,"uom": "cm/s", "name": "Scattering Ratio used to estimate the extinction for this wind result"},
                 "rayleigh_wind_result_QC_flags_1":{"uom": null, "name": "1 byte bit packed field"},
                 "rayleigh_wind_result_QC_flags_2":{"uom": null, "name": "1 byte bit packed field"},
                 "rayleigh_wind_result_QC_flags_3":{"uom": null, "name": "1 byte bit packed field"},
@@ -1526,7 +1538,7 @@
                 "time_freq_step": {"required":true, "uom": null, "name": "Start time of the last observation with measurements contributing to this frequency step (UTC)" },
                 "altitude": { "uom": "m", "name": "Values of altitude" },
                 "satellite_range": { "uom": "m", "name": "Values of satellite range" },
-                "geoid_separation_obs": { "uom": "m", "name": "Height of geoid above WGS84 ellipsoid" },
+                
                 "frequency_offset": {"required":true, "uom": "GHz", "name": "Frequency offset for each frequency step" },
                 "frequency_valid": {"required":true, "uom": null, "name": "True if minimum number of valid measurements per frequency step are satisfied" },
                 "ground_frequency_valid": { "uom": null, "name": "Satisfied minimum number of valid ground measurements per frequency step" },
@@ -2072,6 +2084,7 @@
             "parameters": {
                 "nadir": {
                     "range": [0, 1],
+                    "extent": [0, 1],
                     "uom": null,
                     "name": "nadir",
                     "colorscale": "jet",
@@ -2079,6 +2092,7 @@
                 },
                 "offnadir": {
                     "range": [0, 1],
+                    "extent": [0, 1],
                     "uom": null,
                     "name": "off nadir",
                     "colorscale": "jet"
@@ -2120,6 +2134,39 @@
                 "wrapDateLine": true,
                 "zoomOffset": 0,
                 "attribution": " Coastlines and Countries { Data &copy; <a href=\"http://www.openstreetmap.org/copyright\" target=\"_blank\">OSM</a> & Natural Earth, Rendering &copy; <a href=\"http://eox.at\" target=\"_blank\">EOX</a> and <a href=\"https://github.com/mapserver/basemaps\" target=\"_blank\">MapServer</a> }"
+            }
+        },{
+            "name": "Graticule",
+            "visible": false,
+            "view":{
+                "id": "graticules",
+                "protocol": "WMTS",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=graticules&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fpng",
+                "subdomains": "abcdef",
+                "urls": [
+                    "//a.tiles.maps.eox.at/wmts/",
+                    "//b.tiles.maps.eox.at/wmts/"
+                ],
+                "matrixSet": "WGS84",
+                "style": "default",
+                "format": "image/png",
+                "maxExtent": [-180.000000, -90.000000, 180.000000, 90.000000],
+
+                "projection": "EPSG:4326",
+                "gutter": 0,
+                "buffer": 0,
+                "units": "dd",
+                "transitionEffect": "resize",
+                "isphericalMercator": false,
+                "wrapDateLine": true,
+                "zoomOffset": 0
+            }
+        },{
+            "name": "CalVal Sites",
+            "visible": false,
+            "view":{
+                "protocol": "entityLayer",
+                "entityLayer": "calvalsites"
             }
         }]
     },

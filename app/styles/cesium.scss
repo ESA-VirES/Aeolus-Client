@@ -23,9 +23,24 @@
 #kmlresetbutton{
     position: absolute;
     top: 7px;
-    right: 315px;
+    right: 337px;
     height: 32px;
     width: 110px;
+}
+
+#cesiumcolorPicker{
+  position: absolute;
+  top: 7px;
+  right: 454px;
+  height: 32px;
+  padding-left: 3px;
+  padding-right: 3px;
+  padding-top: 2px;
+  padding-bottom: 0px;
+}
+
+#colorpickercloser {
+  width: calc(11.5em + 3px);
 }
 
 .kmlinputfile {

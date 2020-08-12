@@ -86,7 +86,7 @@
         $("#dsdDownload-"+this.model.get('id')).click(function(){
           var el = this;
           var di = that.model.get('datainputs');
-          di.Products = di.Products.replace(/['"]+/g, '')
+          di.Products = di.Products.replace(/['"]+/g, '');
           var options = {
             begin_time: di['Start time'],
             end_time: di['End time'],
@@ -95,8 +95,10 @@
           };
           var pid = {
             'ALD_U_N_1B': 'aeolus:level1B',
+            'ALD_U_N_1B_public': 'aeolus:level1B',
             'ALD_U_N_2A': 'aeolus:level2A',
             'ALD_U_N_2B': 'aeolus:level2B',
+            'ALD_U_N_2B_public': 'aeolus:level2B',
             'ALD_U_N_2C': 'aeolus:level2C',
             'AUX_MRC_1B': 'aeolus:level1B:AUX:MRC',
             'AUX_RRC_1B': 'aeolus:level1B:AUX:RRC',
@@ -815,7 +817,11 @@
         var collections = [];
         _.each(this.model.get("products"), function(prod){
             if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
-              collections.push(prod.get('download').id);
+              var collId = prod.get('download').id;
+              if(globals.publicCollections.hasOwnProperty(collId)){
+                collId +='_public';
+              }
+              collections.push(collId);
             }
         },this);
 
@@ -950,7 +956,11 @@
         var collections = [];
         _.each(this.model.get("products"), function(prod){
             if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
-              collections.push(prod.get('download').id);
+              var collId = prod.get('download').id;
+              if(globals.publicCollections.hasOwnProperty(collId)){
+                collId +='_public';
+              }
+              collections.push(collId);
             }
         },this);
 
@@ -1003,7 +1013,6 @@
         if ($('#dsd_info_cb').is(':checked')) {
           options.dsdInfo = true;
         }
-        
 
         // Custom variables
         if ($('#custom_parameter_cb').is(':checked')) {

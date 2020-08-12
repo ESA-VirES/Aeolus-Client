@@ -52,13 +52,45 @@
                 var contours = this.current_model.get("contours");
                 var granularity = this.current_model.get("granularity");
                 var altitude = this.current_model.get("altitude");
-                //var 
-
+                var pId = this.current_model.get("download").id;
                 var that = this;
 
-                if(granularity !== 'group'){
+
+                // Special filtering for L2A related to having group visualization
+                // also on globe
+                if(pId === 'ALD_U_N_2A'){
+                    var selected = null;
+                    _.each(keys, function(key){
+                        if(options[key].selected){
+                            selected = key;
+                        }
+                    });
+                    if (granularity === 'group') {
+                        /*if(!selected.startsWith('group')){
+                            // Need to change selected to default l2a group parameter
+                            delete options[selected].selected;
+                            options['group_backscatter'].selected = true;
+                        }*/
+                        for (var i = keys.length - 1; i >= 0; i--) {
+                            if(!keys[i].startsWith('group')){
+                                keys.splice(i,1);
+                            }
+                        }
+                    } else {
+                        for (var i = keys.length - 1; i >= 0; i--) {
+                            if(keys[i].startsWith('group')){
+                                keys.splice(i,1);
+                            }
+                        }
+                    }
+                }
+
+                // TODO: Make sure once data is loaded to only allow selection
+                // or to change selection of parameters that are available in the data
+
+                if(granularity !== 'group' || pId === 'ALD_U_N_2A'){
                     // Filter out unavailable data parameters
-                    var currdata = globals.swarm.get('data');
+                    /*var currdata = globals.swarm.get('data');
                     if(!$.isEmptyObject(currdata)){
                         for (var i = keys.length - 1; i >= 0; i--) {
                             var currProd = this.current_model.get('download').id;
@@ -68,7 +100,7 @@
                                 }
                             }
                         }
-                    }
+                    }*/
                     this.enableInputs();
                 } else {
                     this.disableInputs();
@@ -99,10 +131,7 @@
                     if(options[this.selected].description){
                         this.$("#description").text(options[this.selected].description);
                     }
-
-                    if(options[that.selected].hasOwnProperty("logarithmic")){
-                        this.addLogOption(options);
-                    }
+                    this.addLogOption(options);
 
                     this.$("#options").unbind();
                     // Add event handler for change in drop down selection
@@ -291,8 +320,37 @@
                         $("#granularity_selection").on('change', function(){
                             var granularity = $("#granularity_selection").find("option:selected").val();
                             that.model.set('granularity', granularity);
+                            var pId = that.model.get("download").id;
+                            // Switch between group and observation parameters
+                            // when switching l2a granularity
+                            if(pId === 'ALD_U_N_2A'){
+                                var options = that.model.get("parameters");
+                                var keys = _.keys(options);
+                                var selected = null;
+                                _.each(keys, function(key){
+                                    if(options[key].selected){
+                                        selected = key;
+                                    }
+                                });
+                                if(granularity === 'group'){
+                                    if(!selected.startsWith('group')){
+                                        // Need to change selected to default l2a group parameter
+                                        delete options[selected].selected;
+                                        options['group_backscatter'].selected = true;
+                                        that.model.set('parameters', options);
+                                        that.onShow();
+                                    }
+                                } else {
+                                    if(selected.startsWith('group')){
+                                        delete options[selected].selected;
+                                        options['SCA_extinction'].selected = true;
+                                        that.model.set('parameters', options);
+                                        that.onShow();
+                                    }
+                                }
+                            }
                             // If group granularity is selected we hide some things
-                            if(granularity === 'group'){
+                            if(granularity === 'group' && pId !== 'ALD_U_N_2A'){
                                 that.disableInputs();
                             } else {
                                 that.enableInputs();
@@ -403,12 +461,8 @@
                 this.createScale();
 
 
-                if(options[this.selected].hasOwnProperty("logarithmic")){
-                    this.addLogOption(options);
-
-                }else{
-                    this.$("#logarithmic").empty();
-                }
+                this.$("#logarithmic").empty();
+                this.addLogOption(options);
 
                 options[this.selected].selected = true;
 
@@ -555,7 +609,6 @@
                     //Apply changes
                     this.current_model.set("parameters", options);
                     Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("download").id);
-                    
                 }
             },
 
@@ -585,36 +638,70 @@
 
             addLogOption: function(options){
                 var that = this;
-                if(options[this.selected].hasOwnProperty("logarithmic")){
-                    var checked = "";
-                    if (options[this.selected].logarithmic)
-                        checked = "checked";
+                var prodId = this.current_model.get('download').id;
+                var logscale = defaultFor(
+                    globals.dataSettings[prodId][this.selected].logarithmic,
+                    false
+                );
 
-                    this.$("#logarithmic").empty();
-
-                    this.$("#logarithmic").append(
-                        '<form style="vertical-align: middle;">'+
-                        '<label class="valign" for="outlines" style="width: 100px;">Log. Scale</label>'+
-                        '<input class="valign" style="margin-top: -5px;" type="checkbox" name="logarithmic" value="logarithmic" ' + checked + '></input>'+
-                        '</form>'
-                    );
-
-                    this.$("#logarithmic input").change(function(evt){
-                        var options = that.current_model.get("parameters");
-                        options[that.selected].logarithmic = !options[that.selected].logarithmic;
-                        
-                        that.current_model.set("parameters", options);
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
-
-                        if(options[that.selected].hasOwnProperty("logarithmic"))
-                            that.createScale(options[that.selected].logarithmic);
-                        else
-                            that.createScale();
-                    });
+                var checked = "";
+                if (logscale) {
+                    checked = "checked";
                 }
+
+                this.$("#logarithmic").empty();
+
+                this.$("#logarithmic").append(
+                    '<form style="vertical-align: middle;">'+
+                    '<label class="valign" for="logarithmic" style="width: 120px;">Log. colorscale </label>'+
+                    '<input class="valign" style="margin-top: -5px;" type="checkbox" name="logarithmic" value="logarithmic" ' + checked + '></input>'+
+                    '</form>'
+                );
+
+                this.$("#logarithmic input").change(function(evt){
+                    var prodId = that.current_model.get('download').id;
+                    globals.dataSettings[prodId][that.selected].logarithmic =
+                        defaultFor(
+                            !globals.dataSettings[prodId][that.selected].logarithmic,
+                            true
+                        );
+                    var currPars = globals.dataSettings[prodId][that.selected];
+                    if (currPars.logarithmic) {
+                        // If logarithmic scale was activated we need to make 
+                        // sure extent does not contain 0
+                        if(currPars.hasOwnProperty('extent')){
+                            var ext = currPars.extent;
+                            if(ext[0]<=0 && ext[1]>0) {
+                                // Try to get data of this parameter and
+                                // calculate extent
+                                var data = globals.swarm.get('data');
+                                if(Object.keys(data).length > 0){
+                                    if(data.hasOwnProperty(that.selected)) {
+                                        var tmpDomain = d3.extent(
+                                            data[that.selected].filter(function(val) {
+                                                return val>0.0;
+                                            })
+                                        );
+                                        currPars.extent[0] = tmpDomain[0];
+                                    }
+                                } else {
+                                    currPars.extent = [1e-10, 100];
+                                }
+
+                                var options = that.current_model.get("parameters");
+                                options[that.selected].range = currPars.extent;
+                                that.current_model.set("parameters", options);
+                            }
+                        }
+                    }
+                    Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
+                    //that.renderView();
+                    that.onShow();
+                });
+
             },
 
-            createScale: function(logscale){
+            createScale: function(){
 
                 var superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹",
                 formatPower = function(d) { 
@@ -631,10 +718,11 @@
 
                 var prodId = this.current_model.get('download').id;
 
-                var range_min = globals.dataSettings[prodId][this.selected].range[0];
-                var range_max = globals.dataSettings[prodId][this.selected].range[1];
+                var range_min = globals.dataSettings[prodId][this.selected].extent[0];
+                var range_max = globals.dataSettings[prodId][this.selected].extent[1];
                 var uom = globals.dataSettings[prodId][this.selected].uom;
                 var style = globals.dataSettings[prodId][this.selected].colorscale;
+                var logscale = defaultFor(globals.dataSettings[prodId][this.selected].logarithmic, false);
 
                 $("#setting_colorscale").append(
                     '<div id="gradient" style="width:'+scalewidth+'px;margin-left:'+margin+'px"></div>'
@@ -665,13 +753,7 @@
                     .scale(axisScale);
 
                 if(logscale){
-                    var numberFormat = d3.format(",f");
-                    function logFormat(d) {
-                        var x = Math.log(d) / Math.log(10) + 1e-6;
-                        return Math.abs(x - Math.floor(x)) < .3 ? numberFormat(d) : "";
-                    }
-                    xAxis.tickFormat(logFormat);
-
+                    xAxis.ticks(0, '0.0e');
                 }else{
                     var step = (range_max - range_min)/5
                     xAxis.tickValues(

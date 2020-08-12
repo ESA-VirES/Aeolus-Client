@@ -186,7 +186,8 @@
                   extent: defaultFor(parInfo.extent, null),
                   filterExtent: defaultFor(parInfo.filterExtent, null),
                   colorscaleOptions: this.colorscaletypes,
-                  active: defaultFor(parInfo.active, false)
+                  active: defaultFor(parInfo.active, false),
+                  logarithmic: defaultFor(parInfo.logarithmic, false)
                 };
                 if(parameterList[key].hasOwnProperty('required')){
                   parOptions.required = true;
@@ -212,6 +213,20 @@
               } else {
                 that.currentChanges[paramId]={};
                 that.currentChanges[paramId].colorscale = selectedCS;
+              }
+            }
+            that.addApplyChanges();
+          });
+          // Add listerner to logarithmic colorscale change
+          $('.logarithmicInputCB').change(function(){
+            var paramId = $(this).attr('id').substr(2);
+            var selected = $(this).is(":checked");
+            if(globals.dataSettings[currentId].hasOwnProperty(paramId)){
+              if(that.currentChanges.hasOwnProperty(paramId)){
+                  that.currentChanges[paramId].logarithmic = selected;
+              } else {
+                that.currentChanges[paramId]={};
+                that.currentChanges[paramId].logarithmic = selected;
               }
             }
             that.addApplyChanges();

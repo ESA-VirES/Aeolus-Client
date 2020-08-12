@@ -5,12 +5,13 @@ define([
     'communicator',
     'app',
     'models/MapModel',
+    'hbs!tmpl/calvalsites',
     'globals',
     'papaparse',
     'cesium',
     'drawhelper',
     'FileSaver'
-], function( Marionette, Communicator, App, MapModel, globals, Papa, Cesium) {
+], function( Marionette, Communicator, App, MapModel, calvalsites, globals, Papa, Cesium) {
     'use strict';
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
@@ -43,6 +44,9 @@ define([
             this.beginTime = null;
             this.endTime = null;
             this.curtainPrimitive = null;
+            this.hoveredPrim = null;
+            this.selectedPrim = null;
+            this.calvalsites = JSON.parse(calvalsites());
 
             var renderSettings = {
                 xAxis: [
@@ -208,6 +212,7 @@ define([
                 }
                 this.map = new Cesium.Viewer(this.el, options);
                 var initialCesiumLayer = this.map.imageryLayers.get(0);
+                this.map.scene.globe.maximumScreenSpaceError = 1.3;
             }
 
             if(localStorage.getItem('cameraPosition') !== null){
@@ -236,9 +241,56 @@ define([
             this.map.scene.sun.show = mm.get('sun');
             this.map.scene.moon.show = mm.get('moon');
             this.map.scene.skyAtmosphere.show = mm.get('skyAtmosphere');
-            this.map.scene.backgroundColor = new Cesium.Color.fromCssColorString(
-                mm.get('backgroundColor')
-            );
+
+            // Check to see if background color was already set
+
+            var bgColor = '#ffffff';
+            if(localStorage.hasOwnProperty('cesiumBGColor')){
+                bgColor = localStorage.getItem('cesiumBGColor');
+            }
+            this.map.scene.backgroundColor = new Cesium.Color.fromCssColorString(bgColor);
+
+            // Create color picker
+            $(this.el).append('<div id="cesiumcolorPicker" class="btn btn-success darkbutton"></div>');
+            var colorSelect = $('#cesiumcolorPicker').append('<input id="cesiumBGColor" type="text" size="5" autocomplete="off"/>');
+            $('#cesiumBGColor').val(bgColor);
+
+            var picker = new CP(colorSelect[0]);
+            picker.set(bgColor);
+
+            var firstChange = true;
+            var map = this.map;
+            picker.on('change', function(color) {
+                if(!firstChange){
+                    var hexCol = '#'+color;
+                    map.scene.backgroundColor = new Cesium.Color.fromCssColorString(hexCol);
+                    $('#cesiumBGColor').val(hexCol);
+                    localStorage.setItem('cesiumBGColor', hexCol);
+                }else{
+                    firstChange = false;
+                }
+            });
+
+            function update() {
+                var currCol = $('#cesiumBGColor').val();
+                if(currCol.length === 7){
+                    picker.set(currCol).enter();
+                    map.scene.backgroundColor = new Cesium.Color.fromCssColorString(currCol);
+                    localStorage.setItem('cesiumBGColor', hexCol);
+                }
+            }
+
+            picker.source.oncut = update;
+            picker.source.onpaste = update;
+            picker.source.onkeyup = update;
+            picker.source.oninput = update;
+
+            var closeButton = $('<div id="colorpickercloser" class="btn btn-success darkbutton">Close</div>');
+            closeButton.click(function () {
+                picker.exit();
+            })
+
+            picker.self.appendChild(closeButton[0]);
 
             this.map.scene.globe.dynamicAtmosphereLighting = false;
             this.map.scene.globe.showGroundAtmosphere = false;
@@ -259,7 +311,39 @@ define([
             );
             handler.setInputAction(function() {
                 //hide the selectionIndicator
-                this.map.selectionIndicator.viewModel.selectionIndicatorElement.style.visibility = 'hidden'; 
+                this.map.selectionIndicator.viewModel.selectionIndicatorElement.style.visibility = 'hidden';
+
+                // Clear possible selection
+                if(this.selectedPrim !== null) {
+                    this.selectedPrim.id.label.show = false;
+                    this.selectedPrim.id.point.outlineColor = Cesium.Color.BLACK;
+                    this.selectedPrim.id.point.outlineWidth = 1;
+                    this.selectedPrim.id.point.color = Cesium.Color.YELLOW;
+                    this.selectedPrim = null;
+                }
+
+                if(this.hoveredPrim !== null) {
+                    // mark as selected
+                    this.hoveredPrim.id.point.color = Cesium.Color.GREEN;
+                    this.hoveredPrim.id.point.outlineWidth = 1;
+                    this.hoveredPrim.id.label.show = true;
+                    this.selectedPrim = this.hoveredPrim;
+
+                    // Create bbox selection with approx 300km range
+                    var pos = this.hoveredPrim.id.position.getValue();
+                    var carto = Cesium.Ellipsoid.WGS84.cartesianToCartographic(pos);
+                    var lon = Cesium.Math.toDegrees(carto.longitude);
+                    var lat = Cesium.Math.toDegrees(carto.latitude);
+                    // 2.67 should be approx 300km (depending where on the ellipsoid)
+                    var offset = 2.67/2;
+                    var bbox = {
+                        s: lat-offset,
+                        n: lat+offset,
+                        e: lon+offset,
+                        w: lon-offset,
+                    };
+                    Communicator.mediator.trigger('selection:changed', bbox);
+                }
             }.bind(this), Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
             handler.setInputAction(function(movement) {
@@ -275,6 +359,32 @@ define([
                     $('#coordinates_label').html(
                         'Lat: ' + lat.toFixed(4) + '</br>Lon: '+lon.toFixed(4)
                     );
+                }
+                // Clear possible highlighted calval site 
+                if(this.hoveredPrim !== null){
+                    if(this.selectedPrim === null){
+                        // Only change style if it is not the selected one
+                        this.hoveredPrim.id.label.show = false;
+                        this.hoveredPrim.id.point.outlineColor = Cesium.Color.BLACK;
+                        this.hoveredPrim.id.point.outlineWidth = 1;
+                    } else if(this.hoveredPrim.id !== this.selectedPrim.id) {
+                        this.hoveredPrim.id.label.show = false;
+                        this.hoveredPrim.id.point.outlineColor = Cesium.Color.BLACK;
+                        this.hoveredPrim.id.point.outlineWidth = 1;
+                    }
+                    this.hoveredPrim = null;
+                }
+                // Check for calval sites
+                var pickedObject = this.map.scene.pick(movement.endPosition);
+
+                if (Cesium.defined(pickedObject) && pickedObject.hasOwnProperty('id')
+                    && typeof pickedObject.id !== 'undefined'
+                    && typeof pickedObject.id.label !== 'undefined') {
+                    pickedObject.id.label.show = true;
+                    this.hoveredPrim = pickedObject;
+                    pickedObject.id.point.outlineColor = Cesium.Color.GREEN;
+                    pickedObject.id.point.outlineWidth = 2;
+                    //pickedObject.id.point.color = Cesium.Color.GREEN;
                 }
             }.bind(this), Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -348,12 +458,45 @@ define([
 
             // Go through all overlays and add them to the map
             globals.overlays.each(function(overlay){
-                var layer = this.createLayer(overlay);
-                if (layer) {
-                    var imagerylayer = this.map.scene.imageryLayers.addImageryProvider(layer);
-                    imagerylayer.show = overlay.get('visible');
-                    overlay.set('ces_layer', imagerylayer);
+                var imagerylayer;
+                if(overlay.get('view').protocol === 'entityLayer'){
+                    // loading calval sites
+                    var calvalsitesDatasource = new Cesium.CustomDataSource('calvalsites');
+                    var sites = this.calvalsites.Earth_Explorer_File.Data_Block.List_of_Zones.Zone;
+                    for (var i = 0; i < sites.length; i++) {
+                        var site = sites[i];
+                        var lat = Number(site.List_of_Polygon_Pts.Polygon_Pt.Lat.__text);
+                        var lon = Number(site.List_of_Polygon_Pts.Polygon_Pt.Long.__text);
+                        calvalsitesDatasource.entities.add({
+                            id: site.Zone_Id,
+                            position : Cesium.Cartesian3.fromDegrees(lon, lat),
+                            point: {
+                                pixelSize: 10,
+                                color: Cesium.Color.YELLOW,
+                                outlineColor: Cesium.Color.BLACK,
+                                outlineWidth: 1,
+                            },
+                            label : {
+                                show: false,
+                                text : site.Zone_Id.replace(/_/g, ' '),
+                                font : '14pt monospace',
+                                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                                outlineWidth : 3,
+                                verticalOrigin : Cesium.VerticalOrigin.TOP,
+                                pixelOffset : new Cesium.Cartesian2(0, -25)
+                            }
+                        });
+                    }
+                    this.map.dataSources.add(calvalsitesDatasource);
+                    imagerylayer = calvalsitesDatasource;
+                } else {
+                    var layer = this.createLayer(overlay);
+                    if (layer) {
+                     imagerylayer = this.map.scene.imageryLayers.addImageryProvider(layer);
+                    }
                 }
+                imagerylayer.show = overlay.get('visible');
+                overlay.set('ces_layer', imagerylayer);
             }, this);
 
 
@@ -930,8 +1073,9 @@ define([
             );
 
             // TODO: If group collection is selected for now we do not create
-            // curtains
-            if(currProd.get('granularity') === 'group'){
+            // curtains unless it is group granularity of L2A
+            if(currProd.get('granularity') === 'group' &&
+                currProd.get('download').id !== 'ALD_U_N_2A'){
                 if(currProd.hasOwnProperty('curtains')){
                     currProd.curtains.removeAll();
                     curtainCollection = currProd.curtains;
@@ -1014,14 +1158,28 @@ define([
                         timeStart: 'ICA_time_obs_orig_start',
                         timeStop: 'ICA_time_obs_orig_stop',
                         xAxis:'time',
-                        yAxis: ['bins'],
+                        yAxis: ['ICA_rayleigh_altitude'],
                         combinedParameters: {
-                            bins: ['ICA_bins_end', 'ICA_bins_start'],
+                            ICA_rayleigh_altitude: ['ICA_rayleigh_altitude_obs_top', 'ICA_rayleigh_altitude_obs_bottom'],
                             time: ['ICA_time_obs_start', 'ICA_time_obs_stop'],
                         },
                         jumps: 'ica_jumps',
                         signCross: 'signCross'
-                    }
+                    },
+                    'group': {
+                        lats: 'latitude_of_DEM_intersection_obs_orig',
+                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        timeStart: 'group_start_time',
+                        timeStop: 'group_end_time',
+                        xAxis:'time',
+                        yAxis: ['altitude'],
+                        combinedParameters: {
+                            altitude: ['alt_start', 'alt_end'],
+                            time: ['group_start_time', 'group_end_time'],
+                        },
+                        jumps: 'group_jumps',
+                        signCross: 'group_signCross'
+                    },
 
                 },
                 'ALD_U_N_2B': {
@@ -1142,7 +1300,10 @@ define([
             } else if (band.startsWith('ICA_')){
                 currPar = params[cov_id]['ICA'];
                 currPar.colorAxis = [band];
-            } else if (band.startsWith('mie_wind_result') || band.startsWith('mie_assimilation') ){
+            } else if (band.startsWith('group_')){
+                currPar = params[cov_id]['group'];
+                currPar.colorAxis = [band];
+            }else if (band.startsWith('mie_wind_result') || band.startsWith('mie_assimilation') ){
                 currPar = params[cov_id]['mie_wind_result'];
                 currPar.colorAxis = [band];
             }  else if (band.startsWith('rayleigh_wind_result') || band.startsWith('rayleigh_assimilation') ){
@@ -1657,7 +1818,9 @@ define([
         },
 
         removeCustomAttribution: function(view){
-            $('#'+view.id.replace(/[^A-Z0-9]/ig, '_')).remove();
+            if(view.hasOwnProperty('id')){
+                $('#'+view.id.replace(/[^A-Z0-9]/ig, '_')).remove();
+            }
         },
 
         changeLayer: function(options) {
@@ -2513,8 +2676,8 @@ define([
 
                 if(globals.dataSettings[prodId].hasOwnProperty(sel)){
 
-                    var rangeMin = globals.dataSettings[prodId][sel].range[0];
-                    var rangeMax = globals.dataSettings[prodId][sel].range[1];
+                    var rangeMin = globals.dataSettings[prodId][sel].extent[0];
+                    var rangeMax = globals.dataSettings[prodId][sel].extent[1];
                     var uom = globals.dataSettings[prodId][sel].uom;
                     var style = globals.dataSettings[prodId][sel].colorscale;
                     var logscale = defaultFor(globals.dataSettings[prodId][sel].logarithmic, false);
@@ -2543,13 +2706,7 @@ define([
                         .scale(axisScale);
 
                     if(logscale){
-                        var numberFormat = d3.format(',f');
-                        function logFormat(d) {
-                            var x = Math.log(d) / Math.log(10) + 1e-6;
-                            return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
-                        }
-                         xAxis.tickFormat(logFormat);
-
+                        xAxis.ticks(0, '0.0e');
                     }else{
                         var step = (rangeMax - rangeMin)/5;
                         xAxis.tickValues(
@@ -2558,10 +2715,23 @@ define([
                         xAxis.tickFormat(d3.format('g'));
                     }
 
-                    var g = svgContainer.append('g')
+                    // Add white background
+                    var mainGroup = svgContainer.append('g');
+                    mainGroup.append('rect')
+                            .attr('width', 300)
+                            .attr('height', 52)
+                            .attr('y', 3)
+                            .attr('opacity', 0.7)
+                            .attr('stroke', 'none')
+                            .attr('rx', 3)
+                            .attr('ry', 3)
+                            .attr('fill', 'white');
+
+                    var g = mainGroup.append('g')
                         .attr('class', 'x axis')
                         .attr('transform', 'translate(' + [margin, 20]+')')
                         .call(xAxis);
+
 
                     // Add layer info
                     var info = product.get('name');
@@ -2594,6 +2764,7 @@ define([
                         .attr('stroke-width', '2')
                         .attr('shape-rendering', 'crispEdges')
                         .attr('stroke', '#000');
+
 
                     var svgHtml = d3.select('#svgcolorscalecontainer')
                         .attr('version', 1.1)
@@ -2922,9 +3093,81 @@ define([
         },
 
         onSaveImage: function(){
-            this.map.canvas.toBlob(function(blob) {
-                saveAs(blob, 'VirES_Services_Screenshot.png');
-            }, 'image/png');
+            var bodyContainer = $('<div/>');
+
+            var typeContainer = $('<div id="typeSelectionContainer"></div>')
+            var filetypeSelection = $('<select id="filetypeSelection"></select>');
+            filetypeSelection.append($('<option/>').html('png'));
+            filetypeSelection.append($('<option/>').html('jpeg'));
+            typeContainer.append(
+                $('<label for="filetypeSelection" style="margin-right:10px;">Output type</label>')
+            );
+            typeContainer.append(filetypeSelection);
+            var w = this.map.canvas.width;
+            var h = this.map.canvas.height;
+
+            var resolutionContainer = $('<div id="resolutionSelectionContainer"></div>')
+            var resolutionSelection = $('<select id="resolutionSelection"></select>');
+            resolutionSelection.append($('<option/>').html('normal ('+w+'x'+h+')').val(1));
+            resolutionSelection.append($('<option/>').html('large ('+w*2+'x'+h*2+')').val(2));
+            resolutionSelection.append($('<option/>').html('very large ('+w*3+'x'+h*3+')').val(3));
+            resolutionContainer.append(
+                $('<label for="resolutionSelection" style="margin-right:10px;">Resolution</label>')
+            );
+            resolutionContainer.append(resolutionSelection);
+
+            bodyContainer.append(typeContainer);
+            bodyContainer.append(resolutionContainer);
+
+            var okbutton = $('<button style="margin-right:5px;">Ok</button>');
+            var cancelbutton = $('<button style="margin-left:5px;">Cancel</button>');
+            var buttons = $('<div/>');
+            buttons.append(okbutton);
+            buttons.append(cancelbutton);
+
+            if (this.map){
+                var saveimagedialog = w2popup.open({
+                    body: bodyContainer,
+                    buttons: buttons,
+                    title       : w2utils.lang('Image configuration'),
+                    width       : 400,
+                    height      : 200
+                });
+
+                var map = this.map;
+
+                okbutton.click(function(){
+                    var selectedType = $('#filetypeSelection')
+                        .find(":selected").text();
+                    var selectedRes = $('#resolutionSelection')
+                        .find(":selected").val();
+                    var scale = selectedRes;
+                    map.resolutionScale = scale;
+                    var scene = map.scene;
+                    var removePreListener = scene.preUpdate.addEventListener(function() {
+                        var canvas = scene.canvas;
+                        var removePostListener = scene.postRender.addEventListener(function() {
+                            var fileName = 'VirES-Aeolus_Screenshot.';
+                            var filetype = 'image/';
+                            fileName+=selectedType;
+                            filetype+=selectedType;
+
+                            canvas.toBlob(function(blob) {
+                                saveAs(blob, fileName);
+                            }, filetype);
+                            map.resolutionScale = 1.0;
+                            removePostListener();
+                        });
+                        removePreListener();
+                    });
+                    bodyContainer.remove();
+                    saveimagedialog.close();
+                });
+                cancelbutton.click(function(){
+                    bodyContainer.remove();
+                    saveimagedialog.close();
+                });
+            }
         },
 
         onClearImage: function(){
