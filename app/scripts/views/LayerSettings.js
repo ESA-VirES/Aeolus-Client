@@ -665,8 +665,38 @@
                             !globals.dataSettings[prodId][that.selected].logarithmic,
                             true
                         );
+                    var currPars = globals.dataSettings[prodId][that.selected];
+                    if (currPars.logarithmic) {
+                        // If logarithmic scale was activated we need to make 
+                        // sure extent does not contain 0
+                        if(currPars.hasOwnProperty('extent')){
+                            var ext = currPars.extent;
+                            if(ext[0]<=0 && ext[1]>0) {
+                                // Try to get data of this parameter and
+                                // calculate extent
+                                var data = globals.swarm.get('data');
+                                if(Object.keys(data).length > 0){
+                                    if(data.hasOwnProperty(that.selected)) {
+                                        var tmpDomain = d3.extent(
+                                            data[that.selected].filter(function(val) {
+                                                return val>0.0;
+                                            })
+                                        );
+                                        currPars.extent[0] = tmpDomain[0];
+                                    }
+                                } else {
+                                    currPars.extent = [1e-10, 100];
+                                }
+
+                                var options = that.current_model.get("parameters");
+                                options[that.selected].range = currPars.extent;
+                                that.current_model.set("parameters", options);
+                            }
+                        }
+                    }
                     Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
-                    that.createScale();
+                    //that.renderView();
+                    that.onShow();
                 });
 
             },
