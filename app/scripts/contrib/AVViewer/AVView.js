@@ -80,6 +80,10 @@ define(['backbone.marionette',
             var colax = JSON.parse(localStorage.getItem('colorAxisSelection'));
             var colax2 = JSON.parse(localStorage.getItem('colorAxis2Selection'));
             var groups = JSON.parse(localStorage.getItem('groupSelected'));
+            var yAxisLocked = JSON.parse(localStorage.getItem('yAxisLocked'));
+            var y2AxisLocked = JSON.parse(localStorage.getItem('y2AxisLocked'));
+            var yAxisExtent = JSON.parse(localStorage.getItem('yAxisExtent'));
+            var y2AxisExtent = JSON.parse(localStorage.getItem('y2AxisExtent'));
 
             var revY = null;
             var revY2 = null;
@@ -207,6 +211,10 @@ define(['backbone.marionette',
             if (revY2 !== null) {
                 currSets.reversedY2Axis = revY2;
             }
+            currSets.yAxisLocked = yAxisLocked;
+            currSets.y2AxisLocked = y2AxisLocked;
+            currSets.yAxisExtent = yAxisExtent;
+            currSets.y2AxisExtent = y2AxisExtent;
 
             // Apply custom subticks in the size of the amount of plots
             // subticks are not saved at the moment
@@ -415,6 +423,14 @@ define(['backbone.marionette',
                     yAxis: [['rayleigh_altitude'], ['mie_altitude']],
                     y2Axis: [[], []],
                     groups: ['rayleigh', 'mie'],
+                    colorAxis: [['rayleigh_HLOS_wind_speed'], ['mie_HLOS_wind_speed']],
+                    yAxisLocked: [false, false],
+                    yAxisExtent: [null, null],
+                    colorAxis2: [[], []],
+                    y2AxisLocked: [false, false],
+                    y2AxisExtent: [null, null],
+                    additionalXTicks: [],
+                    additionalYTicks: [[],[]],
                     combinedParameters: {
                         rayleigh_altitude: ['rayleigh_altitude_start', 'rayleigh_altitude_end'],
                         latitude_of_DEM_intersection: ['latitude_of_DEM_intersection_start', 'latitude_of_DEM_intersection_end'],
@@ -426,8 +442,6 @@ define(['backbone.marionette',
                         mie_range: ['mie_range_start', 'mie_range_end'],
                         range_bin_number: ['range_bin_number_start', 'range_bin_number_end']
                     },
-                    colorAxis: [['rayleigh_HLOS_wind_speed'], ['mie_HLOS_wind_speed']],
-                    colorAxis2: [[], []],
                     renderGroups: {
                         mie: {
                             parameters: [
@@ -556,8 +570,6 @@ define(['backbone.marionette',
                         'laser_frequency': ['laser_frequency'],
                         'albedo_off_nadir': ['albedo_off_nadir'],
                     },
-                    additionalXTicks: [],
-                    additionalYTicks: [[],[]],
                     availableParameters: false
                 },
                 //sca extintction, mca extinction and sca backscatter.
@@ -565,6 +577,14 @@ define(['backbone.marionette',
                     xAxis: 'time',
                     yAxis: [['rayleigh_altitude'], ['rayleigh_altitude'], ['mie_altitude']],
                     y2Axis: [[], [], []],
+                    additionalXTicks: [],
+                    additionalYTicks: [[],[], []],
+                    yAxisLocked: [false, false, false],
+                    yAxisExtent: [null, null, null],
+                    colorAxis: [['SCA_extinction'], ['SCA_backscatter'], ['MCA_extinction']],
+                    colorAxis2: [[], [], []],
+                    y2AxisLocked: [false, false, false],
+                    y2AxisExtent: [null, null, null],
                     groups: ['SCA', 'SCA', 'MCA'],
                     combinedParameters: {
                         mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
@@ -577,8 +597,6 @@ define(['backbone.marionette',
                         SCA_middle_bin_altitude: ['SCA_middle_bin_altitude_obs_top', 'SCA_middle_bin_altitude_obs_bottom'],
                         SCA_middle_bin_time: ['SCA_middle_bin_time_obs_start', 'SCA_middle_bin_time_obs_stop']
                     },
-                    colorAxis: [['SCA_extinction'], ['SCA_backscatter'], ['MCA_extinction']],
-                    colorAxis2: [[], [], []],
                     renderGroups: {
                         MCA: {
                             parameters: [
@@ -708,8 +726,6 @@ define(['backbone.marionette',
                             'MCA_time', 'SCA_time', 'ICA_time', 'SCA_middle_bin_time'
                         ]
                     },
-                    additionalXTicks: [],
-                    additionalYTicks: [[],[], []],
                     availableParameters: false
                 },
                 'ALD_U_N_2A_group':{
@@ -727,8 +743,12 @@ define(['backbone.marionette',
                     ],
                     additionalXTicks: [],
                     additionalYTicks: [[]],
+                    yAxisLocked: [false],
+                    yAxisExtent: [null],
                     y2Axis: [[]],
                     colorAxis2: [[]],
+                    y2AxisLocked: [false],
+                    y2AxisExtent: [null],
                     groups: false,
                     renderGroups: false,
                     sharedParameters: false,
@@ -738,6 +758,14 @@ define(['backbone.marionette',
                     xAxis: 'time',
                     yAxis: [['rayleigh_altitude'], ['mie_altitude']],
                     y2Axis: [[], []],
+                    additionalXTicks: [],
+                    additionalYTicks: [[],[]],
+                    yAxisLocked: [false, false],
+                    yAxisExtent: [null, null],
+                    colorAxis: [['rayleigh_wind_result_wind_velocity'], ['mie_wind_result_wind_velocity']],
+                    colorAxis2: [[], []],
+                    y2AxisLocked: [false, false],
+                    y2AxisExtent: [null, null],
                     groups: ['rayleigh', 'mie'],
                     combinedParameters: {
                         mie_altitude: ['mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'],
@@ -757,8 +785,6 @@ define(['backbone.marionette',
                         ],
                         rayleigh_wind_result_COG_range: ['rayleigh_wind_result_COG_range_start', 'rayleigh_wind_result_COG_range_end']
                     },
-                    colorAxis: [['rayleigh_wind_result_wind_velocity'], ['mie_wind_result_wind_velocity']],
-                    colorAxis2: [[], []],
                     renderGroups: {
                         mie: {
                             parameters: [
@@ -900,8 +926,6 @@ define(['backbone.marionette',
                             'rayleigh_wind_result_lon_of_DEM_intersection'
                         ]
                     },
-                    additionalXTicks: [],
-                    additionalYTicks: [[],[]],
                     availableParameters: false
                 },
                 'ALD_U_N_2B_group': {
@@ -923,8 +947,12 @@ define(['backbone.marionette',
                     reversedY2Axis: [false],
                     additionalXTicks: [],
                     additionalYTicks: [[]],
+                    yAxisLocked: [false],
+                    yAxisExtent: [null],
                     y2Axis: [[]],
                     colorAxis2: [[]],
+                    y2AxisLocked: [false],
+                    y2AxisExtent: [null],
                     renderGroups: {
                         mie: {
                             parameters: [
@@ -968,6 +996,15 @@ define(['backbone.marionette',
                     xAxis: 'time',
                     yAxis: [['rayleigh_altitude'], ['mie_altitude']],
                     y2Axis: [[], []],
+                    colorAxis: [['rayleigh_wind_result_wind_velocity'], ['mie_wind_result_wind_velocity']],
+                    additionalXTicks: [],
+                    additionalYTicks: [[],[]],
+                    yAxisLocked: [false, false],
+                    yAxisExtent: [null, null],
+                    colorAxis2: [[], []],
+                    y2AxisLocked: [false, false],
+                    y2AxisExtent: [null, null],
+                    availableParameters: false,
                     groups: ['rayleigh', 'mie'],
                     combinedParameters: {
                         mie_altitude: ['mie_wind_result_bottom_altitude', 'mie_wind_result_top_altitude'],
@@ -987,8 +1024,6 @@ define(['backbone.marionette',
                         ],
                         rayleigh_wind_result_COG_range: ['rayleigh_wind_result_COG_range_start', 'rayleigh_wind_result_COG_range_end']
                     },
-                    colorAxis: [['rayleigh_wind_result_wind_velocity'], ['mie_wind_result_wind_velocity']],
-                    colorAxis2: [[], []],
                     renderGroups: {
                         mie: {
                             parameters: [
@@ -1168,9 +1203,6 @@ define(['backbone.marionette',
                             'rayleigh_wind_result_lon_of_DEM_intersection'
                         ]
                     },
-                    additionalXTicks: [],
-                    additionalYTicks: [[],[]],
-                    availableParameters: false
                 },
                 'ALD_U_N_2C_group': {
                     xAxis: ['measurements'],
@@ -1191,8 +1223,12 @@ define(['backbone.marionette',
                     reversedY2Axis: [false],
                     additionalXTicks: [],
                     additionalYTicks: [[]],
+                    yAxisLocked: [false],
+                    yAxisExtent: [null],
                     y2Axis: [[]],
                     colorAxis2: [[]],
+                    y2AxisLocked: [false],
+                    y2AxisExtent: [null],
                     renderGroups: {
                         mie: {
                             parameters: [
@@ -1237,9 +1273,13 @@ define(['backbone.marionette',
                     yAxis: [['measurement_response'], ['measurement_error_mie_response']],
                     additionalXTicks: [],
                     additionalYTicks: [[],[]],
+                    yAxisLocked: [false, false],
+                    yAxisExtent: [null, null],
                     colorAxis: [ [null], [null] ],
                     y2Axis: [[], []],
                     colorAxis2: [[], []],
+                    y2AxisLocked: [false, false],
+                    y2AxisExtent: [null, null],
                     combinedParameters: {
                         'altitude': ['altitude_start', 'altitude_end'],
                         'satellite_range': ['satellite_range_start', 'satellite_range_end'],
@@ -1325,9 +1365,13 @@ define(['backbone.marionette',
                     yAxis: [['measurement_response'], ['measurement_error_rayleigh_response']],
                     additionalXTicks: [],
                     additionalYTicks: [[],[]],
+                    yAxisLocked: [false, false],
+                    yAxisExtent: [null, null],
                     colorAxis: [ [null], [null] ],
                     y2Axis: [[], []],
                     colorAxis2: [[], []],
+                    y2AxisLocked: [false, false],
+                    y2AxisExtent: [null, null],
                     combinedParameters: {
                         'altitude': ['altitude_start', 'altitude_end'],
                         'satellite_range': ['satellite_range_start', 'satellite_range_end'],
@@ -1435,12 +1479,16 @@ define(['backbone.marionette',
                     yAxis: [['rayleigh_channel_A_response', 'rayleigh_channel_B_response']],
                     additionalXTicks: [],
                     additionalYTicks: [[]],
+                    yAxisLocked: [false],
+                    yAxisExtent: [null],
                     groups: false,
                     renderGroups: false,
                     sharedParameters: false,
                     colorAxis: [ [null, null] ],
                     y2Axis: [[]],
                     colorAxis2: [[]],
+                    y2AxisLocked: [false],
+                    y2AxisExtent: [null],
                     combinedParameters: {},
                     availableParameters: false,
                 },
@@ -1449,9 +1497,13 @@ define(['backbone.marionette',
                     yAxis: [['mie_ground_correction_velocity', 'rayleigh_ground_correction_velocity']],
                     additionalXTicks: [],
                     additionalYTicks: [[]],
+                    yAxisLocked: [false],
+                    yAxisExtent: [null],
                     colorAxis: [ [null, null] ],
                     y2Axis: [[]],
                     colorAxis2: [[]],
+                    y2AxisLocked: [false],
+                    y2AxisExtent: [null],
                     combinedParameters: {},
                     groups: false,
                     renderGroups: false,
@@ -1467,8 +1519,12 @@ define(['backbone.marionette',
                     yAxis: [['surface_wind_component_u_nadir'], ['surface_wind_component_u_off_nadir']],
                     additionalXTicks: [],
                     additionalYTicks: [[],[]],
+                    yAxisLocked: [false, false],
+                    yAxisExtent: [null, null],
                     colorAxis: [ [null], [null] ],
                     y2Axis: [[],[]],
+                    y2AxisLocked: [false, false],
+                    y2AxisExtent: [null, null],
                     colorAxis2: [[],[]],
                     groups: ['surface_nadir', 'surface_off_nadir'],
                     renderGroups: {
@@ -1617,8 +1673,9 @@ define(['backbone.marionette',
                     enableSubYAxis: ['mie_altitude','rayleigh_altitude'],
                     colorAxisTickFormat: 'customExp',
                     defaultAxisTickFormat: 'customExp',
-                    replaceUnderscore: true
-                    //debug: true
+                    replaceUnderscore: true,
+                    allowLockingAxisScale: true,
+                    //debug: true,
                 });
 
 
@@ -1726,6 +1783,35 @@ define(['backbone.marionette',
                 });
 
                 this.graph.on('axisExtentChanged', function () {
+
+                    var globeNeedsUpdate = false;
+
+                    localStorage.setItem(
+                        'yAxisExtent', JSON.stringify(this.renderSettings.yAxisExtent)
+                    );
+                    localStorage.setItem(
+                        'y2AxisExtent', JSON.stringify(this.renderSettings.y2AxisExtent)
+                    );
+                    localStorage.setItem(
+                        'yAxisLocked', JSON.stringify(this.renderSettings.yAxisLocked)
+                    );
+                    localStorage.setItem(
+                        'y2AxisLocked', JSON.stringify(this.renderSettings.y2AxisLocked)
+                    );
+
+                    /*
+                    for (var i = 0; i < this.renderSettings.yAxisLocked.length; i++) {
+                        if(this.renderSettings.yAxisLocked[i]){
+                            globeNeedsUpdate = true;
+                        }
+                    }
+                    for (var i = 0; i < this.renderSettings.y2AxisLocked.length; i++) {
+                        if(this.renderSettings.y2AxisLocked[i]){
+                            globeNeedsUpdate = true;
+                        }
+                    }
+                    */
+
                     // Save parameter style changes
                     localStorage.setItem(
                         'dataSettings',
@@ -1749,9 +1835,13 @@ define(['backbone.marionette',
                     currProd.set('parameters', parOpts);
                     // Trigger layer parameters changed to make sure globe
                     // view is updated acordingly
-                    Communicator.mediator.trigger(
-                        'layer:parameters:changed', prodId
-                    );
+                    // Only do this for relevant changes, i.e. if the changes
+                    // affect the currently visualized parameter on globe
+                    if(globeNeedsUpdate){
+                        Communicator.mediator.trigger(
+                            'layer:parameters:changed', prodId
+                        );
+                    }
                 });
             }
 
@@ -2397,7 +2487,7 @@ define(['backbone.marionette',
                             this.extendSettings(renderSettings);
                         }
                     }
-                    this.graph.renderSettings = renderSettings;
+                    this.graph.setRenderSettings(renderSettings);
 
                     if(cP === 'ALD_U_N_1B' || cP === 'ALD_U_N_2A'){
 
