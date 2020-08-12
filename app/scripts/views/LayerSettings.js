@@ -653,7 +653,7 @@
 
                 this.$("#logarithmic").append(
                     '<form style="vertical-align: middle;">'+
-                    '<label class="valign" for="logarithmic" style="width: 120px;">Log color scale </label>'+
+                    '<label class="valign" for="logarithmic" style="width: 120px;">Log. colorscale </label>'+
                     '<input class="valign" style="margin-top: -5px;" type="checkbox" name="logarithmic" value="logarithmic" ' + checked + '></input>'+
                     '</form>'
                 );
