@@ -339,7 +339,6 @@
                 'SCA_extinction_variance', 'SCA_backscatter_variance','SCA_LOD_variance',
                 'mie_altitude_obs','MCA_LOD',
                 'SCA_processing_qc_flag', 'SCA_middle_bin_processing_qc_flag',
-                'SCA_extinction_valid',
                 // L2B, L2C
                 'mie_wind_result_SNR', 'mie_wind_result_HLOS_error',
                 'mie_wind_result_COG_range',
@@ -382,13 +381,11 @@
                     'SCA_QC_flag',
                     'mie_wind_result_validity_flag',
                     'rayleigh_wind_result_validity_flag',
-                    'SCA_extinction_valid'
                 ],
                 enabled: [
                     false,
                     true,
                     true,
-                    true
                 ]
             },
             maskParameter: {

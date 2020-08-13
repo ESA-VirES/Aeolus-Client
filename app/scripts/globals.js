@@ -85,7 +85,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 'SCA_extinction': {
                     uom: '10-6 * m^-1',
                     colorscale: 'viridis',
-                    extent: [0, 250]
+                    extent: [0, 250],
+                    maskParameter: 'SCA_extinction_valid',
                 },
                 'SCA_extinction_variance': {
                     uom: 'm^-2',

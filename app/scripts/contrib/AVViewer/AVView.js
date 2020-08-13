@@ -1678,9 +1678,23 @@ define(['backbone.marionette',
                     defaultAxisTickFormat: 'customExp',
                     replaceUnderscore: true,
                     allowLockingAxisScale: true,
+                    enableMaskParameters: true,
                     //debug: true,
                 });
 
+                // Save applied settings
+                localStorage.setItem(
+                    'yAxisExtent', JSON.stringify(settings.yAxisExtent)
+                );
+                localStorage.setItem(
+                    'y2AxisExtent', JSON.stringify(settings.y2AxisExtent)
+                );
+                localStorage.setItem(
+                    'yAxisLocked', JSON.stringify(settings.yAxisLocked)
+                );
+                localStorage.setItem(
+                    'y2AxisLocked', JSON.stringify(settings.y2AxisLocked)
+                );
 
                 for(var cskey in additionalColorscales){
                     this.graph.addColorScale(
