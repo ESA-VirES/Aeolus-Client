@@ -81,6 +81,21 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     filterExtent: [-20, 20]
                 }
             },
+/*
+maskParameter: 'SCA_mie_SNR_valid',
+maskParameter: 'SCA_rayleigh_SNR_valid',
+maskParameter: 'SCA_extinction_error_bar_valid',
+maskParameter: 'SCA_backscatter_error_bar_valid',
+maskParameter: 'SCA_cumulative_LOD_valid',
+*/
+/*
+SCA_middle_bin_BER_valid
+SCA_middle_bin_mie_SNR_valid
+SCA_middle_bin_rayleigh_SNR_valid
+SCA_middle_bin_extinction_error_bar_valid
+SCA_middle_bin_backscatter_error_bar_valid
+SCA_middle_bin_cumulative_LOD_valid
+*/
             'ALD_U_N_2A': {
                 'SCA_extinction': {
                     uom: '10-6 * m^-1',
@@ -97,7 +112,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     uom: '10-6 * m^-1* sr^-1',
                     colorscale: 'viridis',
                     extent: [0, 15],
-                    filterExtent: [-1,1]
+                    filterExtent: [-1,1],
+                    maskParameter: 'SCA_backscatter_valid',
                 },
                 'SCA_backscatter_variance': {
                     uom: 'm^-2*sr^-2',
@@ -131,6 +147,20 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
                 },
+                'SCA_middle_bin_extinction': {
+                    maskParameter: 'SCA_middle_bin_extinction_valid',
+                },
+                'SCA_middle_bin_backscatter': {
+                    maskParameter: 'SCA_middle_bin_backscatter_valid',
+                },
+                /*
+                'SCA_middle_bin_extinction_variance',
+                'SCA_middle_bin_backscatter_variance',
+                'SCA_middle_bin_LOD_variance',
+                'SCA_middle_bin_BER_variance',
+                'SCA_middle_bin_LOD',
+                'SCA_middle_bin_BER',
+                */
                 'MCA_extinction': {
                     uom: '10-6 * m^-1',
                     colorscale: 'viridis',

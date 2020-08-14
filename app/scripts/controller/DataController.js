@@ -1277,17 +1277,75 @@
             ['Bit 2', 'cumulative LOD; data valid 1, otherwise 0'],
             ['Bit 1', 'Spare'],
             */
-            var sca_extinction_valid = [];
+            var validityArray = [[],[],[],[],[],[],[],[]];
+
             for (var ff = 0; ff < ds.sca_data.SCA_processing_qc_flag.length; ff++) {
-              var profBoolArray = [];
+              var profBoolArray = [[],[],[],[],[],[],[],[]];
               var currProf = ds.sca_data.SCA_processing_qc_flag[ff];
               for (var pp = 0; pp < currProf.length; pp++) {
                 var boolArray = conversionFunction(currProf[pp], 8);
-                profBoolArray.push(boolArray[7]);
+
+                for (var bt = 0; bt < boolArray.length; bt++) {
+                  profBoolArray[bt].push(boolArray[bt]);
+                }
               }
-              sca_extinction_valid.push(profBoolArray);
+              for (var ba = 0; ba < profBoolArray.length; ba++) {
+                validityArray[ba].push(profBoolArray[ba]);
+              }
             }
-            ds.sca_data['SCA_extinction_valid'] = sca_extinction_valid;
+
+            ds.sca_data['SCA_extinction_valid'] = validityArray[7];
+            ds.sca_data['SCA_backscatter_valid'] = validityArray[6];
+            ds.sca_data['SCA_mie_SNR_valid'] = validityArray[5];
+            /*
+            ds.sca_data['SCA_rayleigh_SNR_valid'] = validityArray[4];
+            ds.sca_data['SCA_extinction_error_bar_valid'] = validityArray[3];
+            ds.sca_data['SCA_backscatter_error_bar_valid'] = validityArray[2];
+            ds.sca_data['SCA_cumulative_LOD_valid'] = validityArray[1];
+            */
+            // Spare bit
+          }
+
+          // Same for middle bin bit significance a little different
+          if(ds.sca_data.hasOwnProperty('SCA_middle_bin_processing_qc_flag')){
+            // Split up bits into separate components
+            /*
+           Bit 1: Extinction; data valid 1, otherwise 0
+            Bit 2: Backscatter; data valid 1, otherwise 0
+            Bit 3: BER; data valid 1, otherwise 0
+            Bit 4: Mie SNR; data valid 1, otherwise 0
+            Bit 5: Rayleigh SNR; data valid 1, otherwise 0
+            Bit 6: Extinction error bar; data valid 1, otherwise 0
+            Bit 7: Backscatter error bar; data valid 1, otherwise 0
+            Bit 8: Cumulative LOD; data valid 1, otherwise 0
+            */
+            var validityArray = [[],[],[],[],[],[],[],[]];
+
+            for (var ff = 0; ff < ds.sca_data.SCA_middle_bin_processing_qc_flag.length; ff++) {
+              var profBoolArray = [[],[],[],[],[],[],[],[]];
+              var currProf = ds.sca_data.SCA_middle_bin_processing_qc_flag[ff];
+              for (var pp = 0; pp < currProf.length; pp++) {
+                var boolArray = conversionFunction(currProf[pp], 8);
+
+                for (var bt = 0; bt < boolArray.length; bt++) {
+                  profBoolArray[bt].push(boolArray[bt]);
+                }
+              }
+              for (var ba = 0; ba < profBoolArray.length; ba++) {
+                validityArray[ba].push(profBoolArray[ba]);
+              }
+            }
+
+            ds.sca_data['SCA_middle_bin_extinction_valid'] = validityArray[7];
+            ds.sca_data['SCA_middle_bin_backscatter_valid'] = validityArray[6];
+            /*
+            ds.sca_data['SCA_middle_bin_BER_valid'] = validityArray[5];
+            ds.sca_data['SCA_middle_bin_mie_SNR_valid'] = validityArray[4];
+            ds.sca_data['SCA_middle_bin_rayleigh_SNR_valid'] = validityArray[3];
+            ds.sca_data['SCA_middle_bin_extinction_error_bar_valid'] = validityArray[2];
+            ds.sca_data['SCA_middle_bin_backscatter_error_bar_valid'] = validityArray[1];
+            ds.sca_data['SCA_middle_bin_cumulative_LOD_valid'] = validityArray[0];
+            */
           }
 
 
