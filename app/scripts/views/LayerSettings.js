@@ -282,7 +282,7 @@
                     }
 
                     if(altitudeExtentSet!==null){
-
+                        /*
                         var checked = "";
                         if (altitudeExtentSet)
                             checked = "checked";
@@ -302,7 +302,11 @@
                             that.current_model.set("altitudeExtentSet", altitudeExtentSet);
                             //Communicator.mediator.trigger("layer:outlines:changed", that.current_model.get("views")[0].id, outlines);
                         });
-
+                        */
+                        // TODO: I think we need a set extent for the vertical
+                        // curtains as different curtains sections have different
+                        // altitude ranges which creates issues, so for now we 
+                        // will not allow activating/deactivating the extent
                         this.$("#altitudeExtent").append(
                             '<form style="vertical-align: middle;">'+
                             '<label for="minAltitude" style="width: 120px;">Altitude extent</label>'+
@@ -626,6 +630,12 @@
                 var range_max = parseFloat($("#range_max").val());
                 error = error || this.checkValue(range_max,$("#range_max"));
 
+                var minAltitude = parseFloat($("#minAltitude").val());
+                error = error || this.checkValue(minAltitude,$("#minAltitude"));
+                
+                var maxAltitude = parseFloat($("#maxAltitude").val());
+                error = error || this.checkValue(maxAltitude,$("#maxAltitude"));
+
                 var prodId = this.current_model.get('download').id;
 
                 // Set parameters and redraw color scale
@@ -635,6 +645,7 @@
                     if(globals.dataSettings[prodId].hasOwnProperty(this.selected)){
                         globals.dataSettings[prodId][this.selected].extent = [range_min, range_max];
                     }
+                    options[this.selected].altitudeExtent = [minAltitude, maxAltitude];
 
                     if(options[this.selected].hasOwnProperty("logarithmic"))
                         this.createScale(options[this.selected].logarithmic);

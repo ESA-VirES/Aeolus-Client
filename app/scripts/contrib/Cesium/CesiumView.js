@@ -815,8 +815,8 @@ define([
             );
             var prodId = currProd.get('download').id;
 
-            var altitudeExtentSet = currProd.get("altitudeExtentSet");
-            var altitudeExtent = currProd.get("altitudeExtent");
+            var altitudeExtentSet = currProd.get('altitudeExtentSet');
+            var altitudeExtent = currProd.get('altitudeExtent');
 
             var curtainCollection;
 
@@ -887,6 +887,8 @@ define([
                     function(it){ return it*1000; }
                 )];
                 this.graph.renderSettings.yAxisLocked = [true];
+            } else {
+                this.graph.renderSettings.yAxisLocked = [false];
             }
 
 
@@ -1082,6 +1084,9 @@ define([
             var currProd = globals.products.find(
                 function(p){return p.get('download').id === cov_id;}
             );
+
+            var altitudeExtentSet = currProd.get('altitudeExtentSet');
+            var altitudeExtent = currProd.get('altitudeExtent');
 
             // TODO: If group collection is selected for now we do not create
             // curtains unless it is group granularity of L2A
@@ -1328,6 +1333,17 @@ define([
             this.graph.renderSettings.colorAxis = [currPar.colorAxis];
             this.graph.renderSettings.yAxis = [currPar.yAxis];
             this.graph.renderSettings.xAxis =currPar.xAxis;
+
+            if(altitudeExtentSet) {
+                this.graph.renderSettings.yAxisExtent = [altitudeExtent.map(
+                    function(it){ return it*1000; }
+                )];
+                this.graph.renderSettings.yAxisLocked = [true];
+            } else {
+                this.graph.renderSettings.yAxisLocked = [false];
+            }
+
+
             dataJumps = data[currPar.jumps];
             lats = data[currPar.lats];
             lons = data[currPar.lons];

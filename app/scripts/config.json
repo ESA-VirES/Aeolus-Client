@@ -340,6 +340,7 @@
             "name": "L2A",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
+            "altitudeExtentSet": true,
             "views": [{
                 "id": "ALD_U_N_2A",
                 "protocol": "WPS",
@@ -689,6 +690,7 @@
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "visible": true,
+            "altitudeExtentSet": true,
             "views": [{
                 "id": "ALD_U_N_2B",
                 "protocol": "WPS",
@@ -979,6 +981,7 @@
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "visible": false,
+            "altitudeExtentSet": true,
             "views": [{
                 "id": "ALD_U_N_2C",
                 "protocol": "WPS",
