@@ -649,7 +649,15 @@ define(['backbone.marionette',
                                 'longitude_of_DEM_intersection_obs',
                                 'latitude_of_DEM_intersection_obs',
                                 'altitude_of_DEM_intersection_obs',
-                                'albedo_off_nadir'
+                                'albedo_off_nadir',
+                                'SCA_processing_qc_flag',
+                                'SCA_extinction_valid',
+                                'SCA_backscatter_valid',
+                                'SCA_mie_SNR_valid',
+                                'SCA_rayleigh_SNR_valid',
+                                'SCA_extinction_error_bar_valid',
+                                'SCA_backscatter_error_bar_valid',
+                                'SCA_cumulative_LOD_valid',
                             ],
                             defaults: {
                                 yAxis: 'rayleigh_altitude',
@@ -682,7 +690,16 @@ define(['backbone.marionette',
                                 'longitude_of_DEM_intersection_obs',
                                 'latitude_of_DEM_intersection_obs',
                                 'altitude_of_DEM_intersection_obs',
-                                'albedo_off_nadir'
+                                'albedo_off_nadir',
+                                'SCA_middle_bin_processing_qc_flag',
+                                'SCA_middle_bin_extinction_valid',
+                                'SCA_middle_bin_backscatter_valid',
+                                'SCA_middle_bin_BER_valid',
+                                'SCA_middle_bin_mie_SNR_valid',
+                                'SCA_middle_bin_rayleigh_SNR_valid',
+                                'SCA_middle_bin_extinction_error_bar_valid',
+                                'SCA_middle_bin_backscatter_error_bar_valid',
+                                'SCA_middle_bin_cumulative_LOD_valid',
                             ],
                             defaults: {
                                 yAxis: 'SCA_middle_bin_altitude',
@@ -1675,9 +1692,23 @@ define(['backbone.marionette',
                     defaultAxisTickFormat: 'customExp',
                     replaceUnderscore: true,
                     allowLockingAxisScale: true,
+                    enableMaskParameters: true,
                     //debug: true,
                 });
 
+                // Save applied settings
+                localStorage.setItem(
+                    'yAxisExtent', JSON.stringify(settings.yAxisExtent)
+                );
+                localStorage.setItem(
+                    'y2AxisExtent', JSON.stringify(settings.y2AxisExtent)
+                );
+                localStorage.setItem(
+                    'yAxisLocked', JSON.stringify(settings.yAxisLocked)
+                );
+                localStorage.setItem(
+                    'y2AxisLocked', JSON.stringify(settings.y2AxisLocked)
+                );
 
                 for(var cskey in additionalColorscales){
                     this.graph.addColorScale(

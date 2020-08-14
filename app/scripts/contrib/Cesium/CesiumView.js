@@ -88,7 +88,8 @@ define([
                 fixedWidth: (2048*2),
                 fixedHeigt: 256,
                 defaultAlpha: 1.0,
-                disableAntiAlias: true
+                disableAntiAlias: true,
+                enableMaskParameters: true,
             });
 
             for(var cskey in additionalColorscales){
