@@ -409,7 +409,9 @@ var VECTOR_BREAKDOWN = {};
                         tileSize: (product.tileSize) ? product.tileSize : 256,
                         validity: product.validity,
                         showColorscale: defaultFor(product.showColorscale, true),
-                        altitude: defaultFor(product.altitude, null)
+                        altitude: defaultFor(product.altitude, null),
+                        altitudeExtentSet: defaultFor(product.altitudeExtentSet, null),
+                        altitudeExtent: defaultFor(product.altitudeExtent, [0, 25]),
                     });
 
                     if(product.hasOwnProperty('granularity_options')){

@@ -133,6 +133,7 @@
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "visible": false,
+            "altitudeExtentSet": true,
             "views": [{
                 "id": "ALD_U_N_1B",
                 "protocol": "WPS",
