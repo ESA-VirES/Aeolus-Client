@@ -645,7 +645,7 @@
                     if(globals.dataSettings[prodId].hasOwnProperty(this.selected)){
                         globals.dataSettings[prodId][this.selected].extent = [range_min, range_max];
                     }
-                    options[this.selected].altitudeExtent = [minAltitude, maxAltitude];
+                    this.current_model.set("altitudeExtent", [minAltitude, maxAltitude]);
 
                     if(options[this.selected].hasOwnProperty("logarithmic"))
                         this.createScale(options[this.selected].logarithmic);
