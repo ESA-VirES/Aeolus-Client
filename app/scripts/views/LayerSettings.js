@@ -52,6 +52,8 @@
                 var contours = this.current_model.get("contours");
                 var granularity = this.current_model.get("granularity");
                 var altitude = this.current_model.get("altitude");
+                var altitudeExtentSet = this.current_model.get("altitudeExtentSet");
+                var altitudeExtent = this.current_model.get("altitudeExtent");
                 var pId = this.current_model.get("download").id;
                 var that = this;
 
@@ -277,6 +279,48 @@
                         );
                         // Register necessary key events
                         this.registerKeyEvents(this.$("#heightvalue"));
+                    }
+
+                    if(altitudeExtentSet!==null){
+                        /*
+                        var checked = "";
+                        if (altitudeExtentSet)
+                            checked = "checked";
+
+                        $("#altitudeExtentSetCB").unbind();
+                        this.$("#altitudeExtent").empty();
+
+                        this.$("#altitudeExtent").append(
+                            '<form style="vertical-align: middle;">'+
+                            '<label class="valign" for="altitudeExtentSetCB" style="width: 120px;">Use altitude extent</label>'+
+                            '<input class="valign" id="altitudeExtentSetCB" style="margin-top: -5px;" type="checkbox" name="altitudeExtentSetCB" value="altitudeExtentSetCB" ' + checked + '></input>'+
+                            '</form>'
+                        );
+
+                        this.$("#altitudeExtentSetCB").change(function(evt){
+                            var altitudeExtentSet = !that.current_model.get("altitudeExtentSet");
+                            that.current_model.set("altitudeExtentSet", altitudeExtentSet);
+                            //Communicator.mediator.trigger("layer:outlines:changed", that.current_model.get("views")[0].id, outlines);
+                        });
+                        */
+                        // TODO: I think we need a set extent for the vertical
+                        // curtains as different curtains sections have different
+                        // altitude ranges which creates issues, so for now we 
+                        // will not allow activating/deactivating the extent
+                        this.$("#altitudeExtent").append(
+                            '<form style="vertical-align: middle;">'+
+                            '<label for="minAltitude" style="width: 120px;">Altitude extent</label>'+
+                            '<input id="minAltitude" type="text" style="width:40px;"/>'+
+                            '<input id="maxAltitude" type="text" style="width:40px; margin-left:8px"/>'+
+                            '</form>'
+                        );
+                        this.$("#minAltitude").val(altitudeExtent[0]);
+                        this.$("#maxAltitude").val(altitudeExtent[1]);
+                        // Register necessary key events
+                        this.registerKeyEvents(this.$("#minAltitude"));
+                        this.registerKeyEvents(this.$("#maxAltitude"));
+
+
                     }
                 }
                 if(this.selected == "Fieldlines"){
@@ -586,6 +630,12 @@
                 var range_max = parseFloat($("#range_max").val());
                 error = error || this.checkValue(range_max,$("#range_max"));
 
+                var minAltitude = parseFloat($("#minAltitude").val());
+                error = error || this.checkValue(minAltitude,$("#minAltitude"));
+                
+                var maxAltitude = parseFloat($("#maxAltitude").val());
+                error = error || this.checkValue(maxAltitude,$("#maxAltitude"));
+
                 var prodId = this.current_model.get('download').id;
 
                 // Set parameters and redraw color scale
@@ -595,6 +645,7 @@
                     if(globals.dataSettings[prodId].hasOwnProperty(this.selected)){
                         globals.dataSettings[prodId][this.selected].extent = [range_min, range_max];
                     }
+                    this.current_model.set("altitudeExtent", [minAltitude, maxAltitude]);
 
                     if(options[this.selected].hasOwnProperty("logarithmic"))
                         this.createScale(options[this.selected].logarithmic);
