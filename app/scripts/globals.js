@@ -79,7 +79,20 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     colorscale: 'viridis',
                     extent: [-20,20],
                     filterExtent: [-20, 20]
-                }
+                },
+                "mie_HLOS_wind_speed_normalised": {
+                    "range": [-20, 20],
+                    "uom":"m/s",
+                    "colorscale": "rdylbu",
+                    "name": "Mie HLOS wind speed normalised"
+                },
+                "rayleigh_HLOS_wind_speed_normalised": {
+                    "selected": true,
+                    "range": [-40, 40],
+                    "uom":"m/s",
+                    "colorscale": "rdylbu",
+                    "name": "Rayleigh HLOS wind speed normalised"
+                },
             },
 /*
 maskParameter: 'SCA_mie_SNR_valid',

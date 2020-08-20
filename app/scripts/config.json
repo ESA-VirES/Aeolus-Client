@@ -163,6 +163,18 @@
                     "colorscale": "rdylbu",
                     "name": "Rayleigh HLOS wind speed"
                 },
+                "mie_HLOS_wind_speed_normalised": {
+                    "range": [-20, 20],
+                    "uom":"m/s",
+                    "colorscale": "rdylbu",
+                    "name": "Mie HLOS wind speed normalised"
+                },
+                "rayleigh_HLOS_wind_speed_normalised": {
+                    "range": [-40, 40],
+                    "uom":"m/s",
+                    "colorscale": "rdylbu",
+                    "name": "Rayleigh HLOS wind speed normalised"
+                },
                 "mie_signal_intensity": {
                     "range": [0, 13000],
                     "uom":"ACCD counts",
