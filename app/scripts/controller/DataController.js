@@ -579,7 +579,14 @@
                     {'name': 'clear', value: 2},
                   ],
                   selected: 2
-              }
+              },
+              'orbit_pass': {
+                options: [
+                    {'name': 'ascending', value:'ascending'},
+                    {'name': 'descending', value:'descending'},
+                ],
+                selected: -1
+              },
           }
         };
 
@@ -2496,6 +2503,21 @@
                     'rayleigh_HBE_ground_velocity', 'mie_range',
                     'rayleigh_channel_A_SNR', 'rayleigh_signal_intensity_normalised',*/
 
+                  // Check for argument_of_latitude_of_dem_intersection and
+                  // create a new parameter for satellite direction
+                  if(ds.hasOwnProperty('argument_of_latitude_of_dem_intersection')) {
+                    var orbit_pass = [];
+                    for (var i = 0; i < ds.argument_of_latitude_of_dem_intersection.length; i++) {
+                      var deg = ds.argument_of_latitude_of_dem_intersection[i];
+                      if(deg >= 90 && deg < 270){
+                        orbit_pass.push('descending');
+                      } else {
+                        orbit_pass.push('ascending');
+                      }
+                    }
+                    ds.orbit_pass = orbit_pass;
+                  }
+
                   var mieVars = [
                     'time',
                     'mie_ground_velocity',
@@ -2518,6 +2540,8 @@
                     'altitude_of_DEM_intersection',
                     'longitude_of_DEM_intersection', 
                     'latitude_of_DEM_intersection', 
+                    'argument_of_latitude_of_dem_intersection',
+                    'orbit_pass',
                     'laser_frequency',
                     'average_laser_energy',
                     'AOCS_roll_angle',
