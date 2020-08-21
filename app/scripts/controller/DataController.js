@@ -14,11 +14,15 @@
     'hbs!tmpl/wps_dataRequest',
     'app',
     'papaparse',
+    'expr-eval',
     'tutorial',
     'graphly'
   ],
 
-  function( Backbone, Communicator, globals, msgpack, wps_dataRequestTmpl, App, Papa, tutorial) {
+  function( 
+    Backbone, Communicator, globals, msgpack, wps_dataRequestTmpl, App,
+    Papa, exprEval, tutorial
+  ) {
 
     var DataController = Backbone.Marionette.Controller.extend({
 
@@ -32,6 +36,7 @@
         this.previousCollection = '';
         this.firstLoad = true;
         this.xhr = null;
+        this.parser = new exprEval.Parser();
 
         var filterSettings = {
             parameterMatrix: {
@@ -953,6 +958,23 @@
             pars[keys[0]].selected = true;
           }
           product.set('parameters', pars);
+
+          // Go through data and check if we need to apply modifiers
+          console.log(globals.dataSettings[collId]);
+          var currSetts = globals.dataSettings[collId];
+          var currData = resData[this.collectionId];
+          for(var setKey in currSetts){
+            if(currSetts[setKey].hasOwnProperty('modifier')){
+              if(currData.hasOwnProperty(setKey)){
+                var expr = this.parser.parse(currSetts[setKey].modifier);
+                currData[setKey+'_notModified'] = [];
+                for (var i = 0; i < currData[setKey].length; i++) {
+                  currData[setKey+'_notModified'].push(currData[setKey][i]);
+                  currData[setKey][i] = expr.evaluate({ x: currData[setKey][i] });
+                }
+              }
+            }
+          }
 
           globals.filterManager.dataSettings = globals.dataSettings[collId];
           globals.filterManager.loadData(resData[this.collectionId]);

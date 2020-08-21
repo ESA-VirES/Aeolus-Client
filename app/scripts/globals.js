@@ -64,7 +64,9 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     uom: 'm/s',
                     colorscale: 'viridis',
                     extent: [-40,40],
-                    filterExtent: [-40, 40]
+                    filterExtent: [-40, 40],
+                    modifier: 'x*100',
+                    modifiedUOM: 'cm/s'
                 },
                 'time_start': {
                     scaleFormat: 'time',
