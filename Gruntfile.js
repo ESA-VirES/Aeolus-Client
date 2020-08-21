@@ -377,6 +377,7 @@ module.exports = function (grunt) {
                         'bower_components/filepond/dist/filepond.js',
                         'bower_components/anno.js/anno.js',
                         'bower_components/jquery-scrollintoview/jquery.scrollintoview.min.js',
+                        'bower_components/expr-eval/index.js',
                         'scripts/vendor/**',
                     ]
                 },{
