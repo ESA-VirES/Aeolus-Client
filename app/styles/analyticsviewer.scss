@@ -64,6 +64,9 @@
     box-sizing: content-box; 
 }
 
+.editButton.remove, .editButton.add {
+    margin-top: 0px !important;
+}
 .editButton.remove:before {
     margin-left: -3px;
     margin-top: 0px;
@@ -72,7 +75,7 @@
 }
 
 .filterContainer input{
-    margin-top: 3px!important;
+    margin-top: 0px!important;
 }
 
 
@@ -392,7 +395,7 @@
 /*Breaking of long filter words*/
 .choiceParameterContainer label{
     word-break: break-word;
-    width: 150px!important;
+    width: 140px!important;
     padding-left: 15px;
 }
 

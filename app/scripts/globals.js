@@ -79,7 +79,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     colorscale: 'viridis',
                     extent: [-20,20],
                     filterExtent: [-20, 20]
-                }
+                },
             },
 /*
 maskParameter: 'SCA_mie_SNR_valid',
@@ -285,6 +285,11 @@ SCA_middle_bin_cumulative_LOD_valid
                     colorscale: 'viridis',
                     extent: [-20,20]
                 },
+                'rayleigh_wind_result_wind_velocity_normalised': {
+                    uom: 'm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20]
+                },
                 'mie_wind_result_start_time': {
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
@@ -297,7 +302,12 @@ SCA_middle_bin_cumulative_LOD_valid
                     uom: 'm/s',
                     colorscale: 'viridis',
                     extent: [-20,20]
-                }
+                },
+                'mie_wind_result_wind_velocity_normalised': {
+                    uom: 'm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20]
+                },
             },
 
             'ALD_U_N_2C': {
@@ -354,6 +364,11 @@ SCA_middle_bin_cumulative_LOD_valid
                     colorscale: 'viridis',
                     extent: [-20,20]
                 },
+                'rayleigh_wind_result_wind_velocity_normalised': {
+                    uom: 'm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20]
+                },
                 'mie_wind_result_start_time': {
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
@@ -366,7 +381,12 @@ SCA_middle_bin_cumulative_LOD_valid
                     uom: 'm/s',
                     colorscale: 'viridis',
                     extent: [-20,20]
-                }
+                },
+                'mie_wind_result_wind_velocity_normalised': {
+                    uom: 'm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20]
+                },
             },
 
             'AUX_MRC_1B': {
@@ -547,6 +567,7 @@ SCA_middle_bin_cumulative_LOD_valid
               'longitude_of_DEM_intersection',
               'latitude_of_DEM_intersection',
               'altitude_of_DEM_intersection',
+              'argument_of_latitude_of_dem_intersection',
               'mie_longitude',
               'mie_latitude',
               'rayleigh_longitude',
@@ -596,6 +617,7 @@ SCA_middle_bin_cumulative_LOD_valid
               'longitude_of_DEM_intersection',
               'latitude_of_DEM_intersection',
               'altitude_of_DEM_intersection',
+              'argument_of_latitude_of_dem_intersection',
               'mie_longitude',
               'mie_latitude',
               'rayleigh_longitude',
@@ -763,6 +785,7 @@ SCA_middle_bin_cumulative_LOD_valid
                 'mie_wind_result_stop_longitude',
                 'mie_wind_result_lat_of_DEM_intersection',
                 'mie_wind_result_lon_of_DEM_intersection',
+                'mie_wind_result_arg_of_lat_of_DEM_intersection',
                 'mie_wind_result_geoid_separation',
                 'mie_wind_result_alt_of_DEM_intersection',
                 'mie_wind_result_HLOS_error',
@@ -798,6 +821,7 @@ SCA_middle_bin_cumulative_LOD_valid
                 'rayleigh_wind_result_stop_longitude',
                 'rayleigh_wind_result_lat_of_DEM_intersection',
                 'rayleigh_wind_result_lon_of_DEM_intersection',
+                'rayleigh_wind_result_arg_of_lat_of_DEM_intersection',
                 'rayleigh_wind_result_geoid_separation',
                 'rayleigh_wind_result_alt_of_DEM_intersection',
                 'rayleigh_wind_result_HLOS_error',
@@ -845,6 +869,7 @@ SCA_middle_bin_cumulative_LOD_valid
                 'mie_wind_result_stop_longitude',
                 'mie_wind_result_lat_of_DEM_intersection',
                 'mie_wind_result_lon_of_DEM_intersection',
+                'mie_wind_result_arg_of_lat_of_DEM_intersection',
                 'mie_wind_result_geoid_separation',
                 'mie_wind_result_alt_of_DEM_intersection',
                 'mie_wind_result_HLOS_error',
@@ -904,6 +929,7 @@ SCA_middle_bin_cumulative_LOD_valid
                 'rayleigh_wind_result_stop_longitude',
                 'rayleigh_wind_result_lat_of_DEM_intersection',
                 'rayleigh_wind_result_lon_of_DEM_intersection',
+                'rayleigh_wind_result_arg_of_lat_of_DEM_intersection',
                 'rayleigh_wind_result_geoid_separation',
                 'rayleigh_wind_result_alt_of_DEM_intersection',
                 'rayleigh_wind_result_HLOS_error',
