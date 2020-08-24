@@ -232,6 +232,7 @@
                   'mie_wind_result_stop_longitude',
                   'mie_wind_result_lat_of_DEM_intersection',
                   'mie_wind_result_lon_of_DEM_intersection',
+                  'mie_wind_result_arg_of_lat_of_DEM_intersection',
                   'mie_wind_result_geoid_separation',
                   'mie_wind_result_alt_of_DEM_intersection',
                   'mie_wind_result_HLOS_error',
@@ -265,7 +266,8 @@
                   'mie_assimilation_analysis_v_wind_velocity',
                   'mie_assimilation_analysis_horizontal_wind_velocity',
                   'mie_assimilation_analysis_wind_direction',
-                  'mie_wind_result_albedo_off_nadir'
+                  'mie_wind_result_albedo_off_nadir',
+                  'mie_orbit_pass',
                 ],
                 [
                   'rayleigh_wind_result_id',
@@ -287,6 +289,7 @@
                   'rayleigh_wind_result_stop_longitude',
                   'rayleigh_wind_result_lat_of_DEM_intersection',
                   'rayleigh_wind_result_lon_of_DEM_intersection',
+                  'rayleigh_wind_result_arg_of_lat_of_DEM_intersection',
                   'rayleigh_wind_result_geoid_separation',
                   'rayleigh_wind_result_alt_of_DEM_intersection',
                   'rayleigh_wind_result_HLOS_error',
@@ -323,6 +326,7 @@
                   'rayleigh_assimilation_analysis_horizontal_wind_velocity',
                   'rayleigh_assimilation_analysis_wind_direction',
                   'rayleigh_wind_result_albedo_off_nadir',
+                  'rayleigh_orbit_pass',
                 ],
                 // TODO: Add some way to ignore fata keys in analytics, for now
                 // we can separete it here to be ignored by other filters
@@ -581,6 +585,20 @@
                   selected: 2
               },
               'orbit_pass': {
+                options: [
+                    {'name': 'ascending', value:'ascending'},
+                    {'name': 'descending', value:'descending'},
+                ],
+                selected: -1
+              },
+              'mie_orbit_pass': {
+                options: [
+                    {'name': 'ascending', value:'ascending'},
+                    {'name': 'descending', value:'descending'},
+                ],
+                selected: -1
+              },
+              'rayleigh_orbit_pass': {
                 options: [
                     {'name': 'ascending', value:'ascending'},
                     {'name': 'descending', value:'descending'},
@@ -1890,8 +1908,7 @@
               ds.hasOwnProperty('mie_wind_data') && 
               ds.mie_wind_data.hasOwnProperty('mie_wind_result_bottom_altitude') && 
               ds.mie_wind_data.mie_wind_result_bottom_altitude.length > 0
-            )
-            {
+            ){
               var mie_alt_min = d3.min(ds.mie_wind_data.mie_wind_result_bottom_altitude);
               var mie_alt_max = d3.max(ds.mie_wind_data.mie_wind_result_top_altitude);
               var ray_alt_min = d3.min(ds.rayleigh_wind_data.rayleigh_wind_result_bottom_altitude);
@@ -1903,7 +1920,57 @@
                 ray_min: ray_alt_min,
                 ray_max: ray_alt_max
               }
+          }
+
+          // Check for argument_of_latitude_of_dem_intersection and
+          // create a new parameter for satellite direction
+          
+          if(ds.mie_wind_data.hasOwnProperty('mie_wind_result_arg_of_lat_of_DEM_intersection')) {
+            if(ds.mie_wind_data.hasOwnProperty('mie_wind_result_wind_velocity')){
+              var orbit_pass = [];
+              var mie_HLOS_wind_speed_normalised = [];
+              for (var i = 0; i < ds.mie_wind_data.mie_wind_result_arg_of_lat_of_DEM_intersection.length; i++) {
+                var deg = ds.mie_wind_data.mie_wind_result_arg_of_lat_of_DEM_intersection[i]*1E-6;
+                if(deg >= 90 && deg < 270){
+                  orbit_pass.push('descending');
+                  mie_HLOS_wind_speed_normalised.push(
+                    ds.mie_wind_data.mie_wind_result_wind_velocity[i] * -1
+                  );
+                } else {
+                  orbit_pass.push('ascending');
+                  mie_HLOS_wind_speed_normalised.push(
+                    ds.mie_wind_data.mie_wind_result_wind_velocity[i]
+                  );
+                }
+              }
+              ds.mie_wind_data.mie_orbit_pass = orbit_pass;
+              ds.mie_wind_data.mie_wind_result_wind_velocity_normalised = mie_HLOS_wind_speed_normalised;
             }
+          }
+
+          if(ds.rayleigh_wind_data.hasOwnProperty('rayleigh_wind_result_arg_of_lat_of_DEM_intersection')) {
+            if(ds.rayleigh_wind_data.hasOwnProperty('rayleigh_wind_result_wind_velocity')){
+              var orbit_pass = [];
+              var rayleigh_HLOS_wind_speed_normalised = [];
+              for (var i = 0; i < ds.rayleigh_wind_data.rayleigh_wind_result_arg_of_lat_of_DEM_intersection.length; i++) {
+                var deg = ds.rayleigh_wind_data.rayleigh_wind_result_arg_of_lat_of_DEM_intersection[i]*1E-6;
+                if(deg >= 90 && deg < 270){
+                  orbit_pass.push('descending');
+                  rayleigh_HLOS_wind_speed_normalised.push(
+                    ds.rayleigh_wind_data.rayleigh_wind_result_wind_velocity[i] * -1
+                  );
+                } else {
+                  orbit_pass.push('ascending');
+                  rayleigh_HLOS_wind_speed_normalised.push(
+                    ds.rayleigh_wind_data.rayleigh_wind_result_wind_velocity[i]
+                  );
+                }
+              }
+              ds.rayleigh_wind_data.rayleigh_orbit_pass = orbit_pass;
+              ds.rayleigh_wind_data.rayleigh_wind_result_wind_velocity_normalised = rayleigh_HLOS_wind_speed_normalised;
+            }
+          }
+
 
           for (var k = 0; k < keys.length; k++) {
 
@@ -2506,37 +2573,16 @@
                   // Check for argument_of_latitude_of_dem_intersection and
                   // create a new parameter for satellite direction
                   if(ds.hasOwnProperty('argument_of_latitude_of_dem_intersection')) {
-                    if(ds.hasOwnProperty('mie_HLOS_wind_speed')
-                      && ds.hasOwnProperty('rayleigh_HLOS_wind_speed')){
-                      var orbit_pass = [];
-                      var mie_HLOS_wind_speed_normalised = [];
-                      var rayleigh_HLOS_wind_speed_normalised = [];
-                      for (var i = 0; i < ds.argument_of_latitude_of_dem_intersection.length; i++) {
-                        var deg = ds.argument_of_latitude_of_dem_intersection[i];
-                        var mieProf = [];
-                        var rayProf = [];
-                        if(deg >= 90 && deg < 270){
-                          orbit_pass.push('descending');
-                          // Go through profile
-                          for (var pf = 0; pf < 24; pf++) {
-                            mieProf.push(ds.mie_HLOS_wind_speed[i][pf] * -1);
-                            rayProf.push(ds.rayleigh_HLOS_wind_speed[i][pf] * -1);
-                          }
-                        } else {
-                          orbit_pass.push('ascending');
-                          // Go through profile
-                          for (var pf = 0; pf < 24; pf++) {
-                            mieProf.push(ds.mie_HLOS_wind_speed[i][pf]);
-                            rayProf.push(ds.rayleigh_HLOS_wind_speed[i][pf]);
-                          }
-                        }
-                        mie_HLOS_wind_speed_normalised.push(mieProf);
-                        rayleigh_HLOS_wind_speed_normalised.push(rayProf);
+                    var orbit_pass = [];
+                    for (var i = 0; i < ds.argument_of_latitude_of_dem_intersection.length; i++) {
+                      var deg = ds.argument_of_latitude_of_dem_intersection[i];
+                      if(deg >= 90 && deg < 270){
+                        orbit_pass.push('descending');
+                      } else {
+                        orbit_pass.push('ascending');
                       }
-                      ds.orbit_pass = orbit_pass;
-                      ds.mie_HLOS_wind_speed_normalised = mie_HLOS_wind_speed_normalised;
-                      ds.rayleigh_HLOS_wind_speed_normalised = rayleigh_HLOS_wind_speed_normalised;
                     }
+                    ds.orbit_pass = orbit_pass;
                   }
 
                   var mieVars = [
@@ -2553,7 +2599,6 @@
                     'mie_error_quantifier',
                     'mie_HBE_ground_velocity',
                     'mie_HLOS_wind_speed',
-                    'mie_HLOS_wind_speed_normalised',
                     'mie_longitude',
                     'mie_signal_intensity',
                     'mie_SNR',
@@ -2586,7 +2631,6 @@
                     'time',
                     'rayleigh_ground_velocity',
                     'rayleigh_HLOS_wind_speed',
-                    'rayleigh_HLOS_wind_speed_normalised',
                     'rayleigh_error_quantifier',
                     'rayleigh_range',
                     'rayleigh_signal_channel_A_intensity',

@@ -163,18 +163,6 @@
                     "colorscale": "rdylbu",
                     "name": "Rayleigh HLOS wind speed"
                 },
-                "mie_HLOS_wind_speed_normalised": {
-                    "range": [-20, 20],
-                    "uom":"m/s",
-                    "colorscale": "rdylbu",
-                    "name": "Mie HLOS wind speed normalised"
-                },
-                "rayleigh_HLOS_wind_speed_normalised": {
-                    "range": [-40, 40],
-                    "uom":"m/s",
-                    "colorscale": "rdylbu",
-                    "name": "Rayleigh HLOS wind speed normalised"
-                },
                 "mie_signal_intensity": {
                     "range": [0, 13000],
                     "uom":"ACCD counts",
@@ -750,6 +738,18 @@
                     "name": "rayleigh wind result HLOS error",
                     "range": [0, 1000],
                     "colorscale": "viridis"
+                },
+                "mie_wind_result_wind_velocity_normalised": {
+                    "range": [-20, 20],
+                    "uom":"m/s",
+                    "colorscale": "rdylbu",
+                    "name": "mie HLOS wind speed normalised by pass direction"
+                },
+                "rayleigh_wind_result_wind_velocity_normalised": {
+                    "range": [-40, 40],
+                    "uom":"m/s",
+                    "colorscale": "rdylbu",
+                    "name": "rayleigh wind result wind velocity normalised by pass direction"
                 }
             },
             "download_parameters": {
@@ -796,6 +796,7 @@
                 "mie_wind_result_geoid_separation":{"uom": "m", "name": "Height of geoid above WGS84 ellipsoid for each wind result"},
                 "mie_profile_geoid_separation":{"uom": "m", "name": "New parameter - Height of geoid above WGS84 ellipsoid for each profile"},
                 "mie_wind_result_alt_of_DEM_intersection":{"uom": "m", "name": "Altitude of DEM intersection for the CoG of the current accumulation"},
+                "mie_wind_result_arg_of_lat_of_DEM_intersection":{"active": true,"uom": "10⁻⁶deg", "name": "Argument of latitude of DEM intersection for the CoG of the current accumulation"},
                 "mie_profile_alt_of_DEM_intersection":{"uom": "m", "name": "New parameter - Altitude of DEM intersection for each profile"},
                 "rayleigh_wind_result_id":{"uom": null, "name": "An unique id for this wind for this channel in this L2B  file"},
                 "rayleigh_wind_profile_wind_result_id":{"uom": null, "name": "A list of 24 wind id values referring to at most 24 individual wind results that are assigned to this profile"},
@@ -822,6 +823,7 @@
                 "rayleigh_wind_result_geoid_separation":{"uom": "m", "name": "Height of geoid above WGS84 ellipsoid"},
                 "rayleigh_profile_geoid_separation":{"uom": "m", "name": "New parameter - Height of geoid above WGS84 ellipsoid for each profile"},
                 "rayleigh_wind_result_alt_of_DEM_intersection":{"uom": "m", "name": "Altitude of DEM intersection for the CoG of the current accumulation"},
+                "rayleigh_wind_result_arg_of_lat_of_DEM_intersection":{"active": true,"uom": "10⁻⁶deg", "name": "Argument of latitude of DEM intersection for the CoG of the current accumulation"},
                 "rayleigh_profile_alt_of_DEM_intersection":{"uom": "m", "name": "New parameter -Altitude of DEM intersection of the current profile"},
                 "l1B_measurement_time":{"uom": null, "name": "Start date and time of measurement [UTC]"},
                 "mie_bin_classification":{"uom": null, "name": "Classification of L1B measurement bin into clear/cloudy bin"},
