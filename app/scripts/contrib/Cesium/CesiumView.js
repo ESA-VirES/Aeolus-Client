@@ -1344,7 +1344,7 @@ define([
 
             if(altitudeExtentSet) {
                 this.graph.renderSettings.yAxisExtent = [altitudeExtent.map(
-                    function(it){ return it*1000; }
+                    function(it){ return it; }
                 )];
                 this.graph.renderSettings.yAxisLocked = [true];
             } else {

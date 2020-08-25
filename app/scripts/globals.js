@@ -294,6 +294,14 @@ SCA_middle_bin_cumulative_LOD_valid
                     modifier: 'x/100',
                     modifiedUOM: 'm/s'
                 },
+                rayleigh_wind_result_bottom_altitude: {
+                    modifier: 'x/1000',
+                    modifiedUOM: 'km'
+                },
+                rayleigh_wind_result_top_altitude: {
+                    modifier: 'x/1000',
+                    modifiedUOM: 'km/s'
+                },
                 'mie_wind_result_start_time': {
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
@@ -315,6 +323,14 @@ SCA_middle_bin_cumulative_LOD_valid
                     extent: [-20,20],
                     modifier: 'x/100',
                     modifiedUOM: 'm/s'
+                },
+                mie_wind_result_bottom_altitude: {
+                    modifier: 'x/1000',
+                    modifiedUOM: 'km'
+                },
+                mie_wind_result_top_altitude: {
+                    modifier: 'x/1000',
+                    modifiedUOM: 'km/s'
                 },
             },
 
@@ -380,6 +396,22 @@ SCA_middle_bin_cumulative_LOD_valid
                     extent: [-20,20],
                     modifier: 'x/100',
                     modifiedUOM: 'm/s'
+                },
+                rayleigh_wind_result_bottom_altitude: {
+                    modifier: 'x/1000',
+                    modifiedUOM: 'km'
+                },
+                rayleigh_wind_result_top_altitude: {
+                    modifier: 'x/1000',
+                    modifiedUOM: 'km/s'
+                },
+                mie_wind_result_bottom_altitude: {
+                    modifier: 'x/1000',
+                    modifiedUOM: 'km'
+                },
+                mie_wind_result_top_altitude: {
+                    modifier: 'x/1000',
+                    modifiedUOM: 'km/s'
                 },
                 'mie_wind_result_start_time': {
                     scaleFormat: 'time',

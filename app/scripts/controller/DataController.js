@@ -991,9 +991,9 @@
             if(currSetts[setKey].hasOwnProperty('modifier')){
               if(currData.hasOwnProperty(setKey)){
                 var expr = this.parser.parse(currSetts[setKey].modifier);
-                currData[setKey+'_notModified'] = [];
+                //currData[setKey+'_notModified'] = [];
                 for (var i = 0; i < currData[setKey].length; i++) {
-                  currData[setKey+'_notModified'].push(currData[setKey][i]);
+                  //currData[setKey+'_notModified'].push(currData[setKey][i]);
                   currData[setKey][i] = expr.evaluate({ x: currData[setKey][i] });
                 }
               }
