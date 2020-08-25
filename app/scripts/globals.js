@@ -65,8 +65,6 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     colorscale: 'viridis',
                     extent: [-40,40],
                     filterExtent: [-40, 40],
-                    modifier: 'x*100',
-                    modifiedUOM: 'cm/s'
                 },
                 'time_start': {
                     scaleFormat: 'time',
@@ -283,14 +281,18 @@ SCA_middle_bin_cumulative_LOD_valid
                     timeFormat: 'MJD2000_S'
                 },
                 'rayleigh_wind_result_wind_velocity': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x/100',
+                    modifiedUOM: 'm/s'
                 },
                 'rayleigh_wind_result_wind_velocity_normalised': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x/100',
+                    modifiedUOM: 'm/s'
                 },
                 'mie_wind_result_start_time': {
                     scaleFormat: 'time',
@@ -301,14 +303,18 @@ SCA_middle_bin_cumulative_LOD_valid
                     timeFormat: 'MJD2000_S'
                 },
                 'mie_wind_result_wind_velocity': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x/100',
+                    modifiedUOM: 'm/s'
                 },
                 'mie_wind_result_wind_velocity_normalised': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x/100',
+                    modifiedUOM: 'm/s'
                 },
             },
 
@@ -362,14 +368,18 @@ SCA_middle_bin_cumulative_LOD_valid
                     timeFormat: 'MJD2000_S'
                 },
                 'rayleigh_wind_result_wind_velocity': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x/100',
+                    modifiedUOM: 'm/s'
                 },
                 'rayleigh_wind_result_wind_velocity_normalised': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x/100',
+                    modifiedUOM: 'm/s'
                 },
                 'mie_wind_result_start_time': {
                     scaleFormat: 'time',
@@ -380,14 +390,18 @@ SCA_middle_bin_cumulative_LOD_valid
                     timeFormat: 'MJD2000_S'
                 },
                 'mie_wind_result_wind_velocity': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x/100',
+                    modifiedUOM: 'm/s'
                 },
                 'mie_wind_result_wind_velocity_normalised': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x/100',
+                    modifiedUOM: 'm/s'
                 },
             },
 

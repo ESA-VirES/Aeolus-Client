@@ -985,7 +985,6 @@
           product.set('parameters', pars);
 
           // Go through data and check if we need to apply modifiers
-          console.log(globals.dataSettings[collId]);
           var currSetts = globals.dataSettings[collId];
           var currData = resData[this.collectionId];
           for(var setKey in currSetts){
@@ -1994,24 +1993,14 @@
           }
 
 
+          var currSetts = globals.dataSettings[collectionId];
           for (var k = 0; k < keys.length; k++) {
 
             var subK = Object.keys(ds[keys[k]]);
 
             for (var l = 0; l < subK.length; l++) {
-              
-              if(subK[l] === 'mie_wind_result_wind_velocity' ||
-                 subK[l] === 'rayleigh_wind_result_wind_velocity'){
-                // Convert from cm/s to m/s
-                resData[subK[l]]= ds[keys[k]][subK[l]].map(
-                  function(x) { return x / 100; }
-                );
-            //  } else if(
-            //     subK[l] === 'mie_wind_result_COG_range' ||
-            //     subK[l] === 'rayleigh_wind_result_COG_range'){
-            //    // Convert from m to km
-            //    resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 1000; });
-              } else if(startEndVarsBins.indexOf(subK[l]) !== -1){
+
+              if(startEndVarsBins.indexOf(subK[l]) !== -1){
                 resData[subK[l]+'_start'] = ds[keys[k]][subK[l]];
                 resData[subK[l]+'_end'] = ds[keys[k]][subK[l]].map(
                   function(x) { return x+1; }
@@ -2030,6 +2019,16 @@
               } else {
                 resData[subK[l]] = ds[keys[k]][subK[l]];
               }
+
+              // Check for modifiers that need to be applied
+              if(currSetts.hasOwnProperty(subK[l])){
+                if(currSetts[subK[l]].hasOwnProperty('modifier')){
+                  var expr = this.parser.parse(currSetts[subK[l]].modifier);
+                  var exprFn = expr.toJSFunction('x');
+                  resData[subK[l]] = ds[keys[k]][subK[l]].map(exprFn);
+                }
+              }
+
             }
           }
           var lonStep = 15;

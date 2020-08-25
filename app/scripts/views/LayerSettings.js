@@ -772,6 +772,7 @@
                 var range_min = globals.dataSettings[prodId][this.selected].extent[0];
                 var range_max = globals.dataSettings[prodId][this.selected].extent[1];
                 var uom = globals.dataSettings[prodId][this.selected].uom;
+                var modifiedUOM = globals.dataSettings[prodId][this.selected].modifiedUOM;
                 var style = globals.dataSettings[prodId][this.selected].colorscale;
                 var logscale = defaultFor(globals.dataSettings[prodId][this.selected].logarithmic, false);
 
@@ -818,7 +819,20 @@
                     .attr("transform", "translate(" + [margin, 3]+")")
                     .call(xAxis);
 
-                if(uom){
+                if(modifiedUOM){
+                    var textEl = g.append("text")
+                        .style("text-anchor", "middle")
+                        .style("font-size", "1.1em")
+                        .attr("transform", "translate(" + [scalewidth/2, 35]+")");
+
+                    textEl.append("tspan")
+                            .text(modifiedUOM);
+
+                    textEl.append("tspan")
+                        .style("font-size", "0.7em")
+                        .text(' (modified)');
+
+                } else if(uom){
                     g.append("text")
                         .style("text-anchor", "middle")
                         .style("font-size", "1.1em")

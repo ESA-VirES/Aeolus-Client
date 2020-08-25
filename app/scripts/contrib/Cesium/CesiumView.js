@@ -2714,6 +2714,7 @@ define([
                     var rangeMin = globals.dataSettings[prodId][sel].extent[0];
                     var rangeMax = globals.dataSettings[prodId][sel].extent[1];
                     var uom = globals.dataSettings[prodId][sel].uom;
+                    var modifiedUOM = globals.dataSettings[prodId][sel].modifiedUOM;
                     var style = globals.dataSettings[prodId][sel].colorscale;
                     var logscale = defaultFor(globals.dataSettings[prodId][sel].logarithmic, false);
                     var axisScale;
@@ -2771,15 +2772,21 @@ define([
                     // Add layer info
                     var info = product.get('name');
                     info += ' - ' + sel.replace(/_/g, ' ');
-                    if(uom){
-                        info += ' ['+uom+']';
-                    }
 
-                     g.append('text')
-                        .style('text-anchor', 'middle')
-                        .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
-                        .attr('font-weight', 'bold')
-                        .text(info);
+                    if(modifiedUOM) {
+                        g.append('text')
+                            .style('text-anchor', 'middle')
+                            .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
+                            .text(info+' ['+modifiedUOM+']');
+
+                    } else if(uom) {
+                        info += ' ['+uom+']';
+                        g.append('text')
+                            .style('text-anchor', 'middle')
+                            .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
+                            .attr('font-weight', 'bold')
+                            .text(info);
+                    }
 
                     svgContainer.selectAll('text')
                         .attr('stroke', 'none')
