@@ -700,7 +700,7 @@
         var fil_div = this.$el.find("#filters");
         fil_div.empty();
         //fil_div.append("<div>Filters</div>");
-
+        var modifiedUOM = false;
         _.each(_.keys(filters), function(key){
 
           // TODO: For now we only handle min max filters
@@ -733,6 +733,18 @@
             }
 
             var name = key.replace(/_/g, " ");
+            var dowPars = currProd.get('download_parameters');
+            // Add possible uom info
+            if(dowPars.hasOwnProperty(key)
+              && dowPars[key].hasOwnProperty('uom')
+              && dowPars[key].uom !== null){
+              name += ' ['+dowPars[key].uom+']';
+            }
+            // Check if modifier is used in parameter add * for information
+            if(currSetts.hasOwnProperty(key) && currSetts[key].hasOwnProperty('modifiedUOM')){
+              name += ' *';
+              modifiedUOM = true;
+            }
             var $html = $(FilterTmpl({
                 id: key,
                 name: name,
@@ -742,7 +754,9 @@
             fil_div.append($html);
           }
         }, this);
-
+        if(modifiedUOM){
+          fil_div.append('<div style="font-size:0.8em">* filter extent modified to original unit of measurement of product</div>')
+        }
       },
 
       round: function(val){
