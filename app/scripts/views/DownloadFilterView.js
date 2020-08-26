@@ -725,7 +725,7 @@
             var currSetts = globals.dataSettings[currProd.get('download').id];
 
             if(currSetts.hasOwnProperty(key) && currSetts[key].hasOwnProperty('modifier')){
-              var inverse = currSetts[key].modifier.replace(/\//g, '*');
+              var inverse = currSetts[key].modifier.replace(/\*/g, '/');
               console.log(inverse);
               var expr = this.parser.parse(inverse);
               var exprFn = expr.toJSFunction('x');

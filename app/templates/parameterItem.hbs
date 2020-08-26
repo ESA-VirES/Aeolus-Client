@@ -44,6 +44,23 @@
                         <input id="cs{{key}}" class="logarithmicInputCB" type="checkbox" name="logarithmic" value="logarithmic" {{#if logarithmic}}checked=true {{/if}}'></input>
                 </span>
             </div>
+            <div class="input-group" id="modifiergroup" style="margin:7px;width:100%;">
+                <span class="form-control">
+                    <div>
+                        Parameter multiplier: 
+                        <span style="float:right;">
+                            <textarea class="modifier" rows="1" cols="15" style="resize:none;">{{modifier}}</textarea>
+                        </span>
+                        <span style="float:right; margin-right:3px; margin-top:2px;">1E</span>
+                    </div>
+                    <div style="margin-top:10px">
+                        New unit of measurement:
+                        <span style="float:right;">
+                            <textarea class="modifiedUOM" rows="1" cols="15" style="resize:none;">{{modifiedUOM}}</textarea>
+                        </span>
+                    </div>
+                </span>
+            </div>
           </div>
     </span>
 </div>

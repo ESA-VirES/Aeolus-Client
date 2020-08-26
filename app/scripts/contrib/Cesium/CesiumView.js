@@ -900,7 +900,7 @@ define([
                 // Check to see if we need to apply modifier to altitude
                 var currPar = this.graph.renderSettings;
                 var currSetts = globals.dataSettings[cov_id];
-                var par = currPar.combinedParameters[currPar.yAxis][0];
+                var par = currPar.yAxis[0][0];
                 if(currSetts.hasOwnProperty(par)){
                     // Check for modifiers that need to be applied
                     if(currSetts[par].hasOwnProperty('modifier')){

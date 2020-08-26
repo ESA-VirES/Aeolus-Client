@@ -2220,7 +2220,7 @@ define(['backbone.marionette',
                   // Check if we have global dataSettings information to use
                   if(globals.dataSettings[prodId].hasOwnProperty(key)){
                     if(globals.dataSettings[prodId][key].hasOwnProperty('modifiedUOM')){
-                        aUOM[key].uom = globals.dataSettings[prodId][key].modifiedUOM;
+                        aUOM[key].modifiedUOM = globals.dataSettings[prodId][key].modifiedUOM;
                     }
                   }
                   if(this.currentKeys && this.currentKeys.indexOf(key) === -1 && 

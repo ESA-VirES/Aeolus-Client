@@ -984,22 +984,6 @@
           }
           product.set('parameters', pars);
 
-          // Go through data and check if we need to apply modifiers
-          var currSetts = globals.dataSettings[collId];
-          var currData = resData[this.collectionId];
-          for(var setKey in currSetts){
-            if(currSetts[setKey].hasOwnProperty('modifier')){
-              if(currData.hasOwnProperty(setKey)){
-                var expr = this.parser.parse(currSetts[setKey].modifier);
-                //currData[setKey+'_notModified'] = [];
-                for (var i = 0; i < currData[setKey].length; i++) {
-                  //currData[setKey+'_notModified'].push(currData[setKey][i]);
-                  currData[setKey][i] = expr.evaluate({ x: currData[setKey][i] });
-                }
-              }
-            }
-          }
-
           globals.filterManager.dataSettings = globals.dataSettings[collId];
           globals.filterManager.loadData(resData[this.collectionId]);
           globals.filterManager._initData();
@@ -2686,6 +2670,23 @@
                     for (var i = 0; i < rayleighDiffVars.length; i++) {
                       rayleighVars.push(rayleighDiffVars[i]+'_user');
                       rayleighVars.push(rayleighDiffVars[i]+'_diff');
+                    }
+                  }
+
+                  // Go through data and check if we need to apply modifiers
+                  var currSetts = globals.dataSettings[collectionId];
+                  var currData = ds;
+                  for(var setKey in currSetts){
+                    if(currSetts[setKey].hasOwnProperty('modifier')){
+                      if(currData.hasOwnProperty(setKey)){
+                        var expr = that.parser.parse(currSetts[setKey].modifier);
+                        var exprFn = expr.toJSFunction('x');
+                        var convertedData = [];
+                        for (var pf = 0; pf < currData[setKey].length; pf++) {
+                          convertedData.push(currData[setKey][pf].map(exprFn));
+                        }
+                        currData[setKey] = convertedData;
+                      }
                     }
                   }
 

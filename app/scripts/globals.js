@@ -80,6 +80,15 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     extent: [-20,20],
                     filterExtent: [-20, 20]
                 },
+                mie_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                rayleigh_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                
             },
 /*
 maskParameter: 'SCA_mie_SNR_valid',
@@ -284,22 +293,22 @@ SCA_middle_bin_cumulative_LOD_valid
                     uom: 'cm/s',
                     colorscale: 'viridis',
                     extent: [-20,20],
-                    modifier: 'x/100',
+                    modifier: 'x*1E-2',
                     modifiedUOM: 'm/s'
                 },
                 'rayleigh_wind_result_wind_velocity_normalised': {
                     uom: 'cm/s',
                     colorscale: 'viridis',
                     extent: [-20,20],
-                    modifier: 'x/100',
+                    modifier: 'x*1E-2',
                     modifiedUOM: 'm/s'
                 },
                 rayleigh_wind_result_bottom_altitude: {
-                    modifier: 'x/1000',
+                    modifier: 'x*1E-3',
                     modifiedUOM: 'km'
                 },
                 rayleigh_wind_result_top_altitude: {
-                    modifier: 'x/1000',
+                    modifier: 'x*1E-3',
                     modifiedUOM: 'km'
                 },
                 'mie_wind_result_start_time': {
@@ -314,22 +323,22 @@ SCA_middle_bin_cumulative_LOD_valid
                     uom: 'cm/s',
                     colorscale: 'viridis',
                     extent: [-20,20],
-                    modifier: 'x/100',
+                    modifier: 'x*1E-2',
                     modifiedUOM: 'm/s'
                 },
                 'mie_wind_result_wind_velocity_normalised': {
                     uom: 'cm/s',
                     colorscale: 'viridis',
                     extent: [-20,20],
-                    modifier: 'x/100',
+                    modifier: 'x*1E-2',
                     modifiedUOM: 'm/s'
                 },
                 mie_wind_result_bottom_altitude: {
-                    modifier: 'x/1000',
+                    modifier: 'x*1E-3',
                     modifiedUOM: 'km'
                 },
                 mie_wind_result_top_altitude: {
-                    modifier: 'x/1000',
+                    modifier: 'x*1E-3',
                     modifiedUOM: 'km'
                 },
             },
@@ -387,30 +396,30 @@ SCA_middle_bin_cumulative_LOD_valid
                     uom: 'cm/s',
                     colorscale: 'viridis',
                     extent: [-20,20],
-                    modifier: 'x/100',
+                    modifier: 'x*1E-2',
                     modifiedUOM: 'm/s'
                 },
                 'rayleigh_wind_result_wind_velocity_normalised': {
                     uom: 'cm/s',
                     colorscale: 'viridis',
                     extent: [-20,20],
-                    modifier: 'x/100',
+                    modifier: 'x*1E-2',
                     modifiedUOM: 'm/s'
                 },
                 rayleigh_wind_result_bottom_altitude: {
-                    modifier: 'x/1000',
+                    modifier: 'x*1E-3',
                     modifiedUOM: 'km'
                 },
                 rayleigh_wind_result_top_altitude: {
-                    modifier: 'x/1000',
+                    modifier: 'x*1E-3',
                     modifiedUOM: 'km'
                 },
                 mie_wind_result_bottom_altitude: {
-                    modifier: 'x/1000',
+                    modifier: 'x*1E-3',
                     modifiedUOM: 'km'
                 },
                 mie_wind_result_top_altitude: {
-                    modifier: 'x/1000',
+                    modifier: 'x*1E-3',
                     modifiedUOM: 'km'
                 },
                 'mie_wind_result_start_time': {
@@ -425,14 +434,14 @@ SCA_middle_bin_cumulative_LOD_valid
                     uom: 'cm/s',
                     colorscale: 'viridis',
                     extent: [-20,20],
-                    modifier: 'x/100',
+                    modifier: 'x*1E-2',
                     modifiedUOM: 'm/s'
                 },
                 'mie_wind_result_wind_velocity_normalised': {
                     uom: 'cm/s',
                     colorscale: 'viridis',
                     extent: [-20,20],
-                    modifier: 'x/100',
+                    modifier: 'x*1E-2',
                     modifiedUOM: 'm/s'
                 },
             },
