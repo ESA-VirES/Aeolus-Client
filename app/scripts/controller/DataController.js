@@ -2034,7 +2034,7 @@
           var lonStep = 15;
           var latStep = 15;
 
-          var mieSignCross = []; 
+          var mieSignCross = [];
           var mieJumpPositions = [];
           if(ds.hasOwnProperty('mie_wind_data') && 
              ds.mie_wind_data.hasOwnProperty('mie_wind_result_lat_of_DEM_intersection') &&

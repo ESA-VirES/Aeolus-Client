@@ -2180,18 +2180,6 @@ define(['backbone.marionette',
 
             filCon.find('.w2ui-field').remove();
 
-            var aUOM = {};
-            // Clone object
-            _.each(globals.swarm.get('uom_set'), function(obj, key){
-                aUOM[key] = obj;
-            });
-
-            // Remove currently visible filters from list
-            for (var i = 0; i < this.selectedFilterList.length; i++) {
-              if(aUOM.hasOwnProperty(this.selectedFilterList[i])){
-                delete aUOM[this.selectedFilterList[i]];
-              }
-            }
 
             var groupKeys = [];
             // Iterate over grouped items and see if their components are available
@@ -2211,19 +2199,37 @@ define(['backbone.marionette',
                 }
             }
 
-            // Show only filters for currently available data 
-            for (var key in aUOM) {
-              // Check if we have global dataSettings information to use
-              if(typeof prodId !== 'undefined' && globals.dataSettings[prodId].hasOwnProperty(key)){
-                if(globals.dataSettings[prodId][key].hasOwnProperty('modifiedUOM')){
-                    aUOM[key].uom = globals.dataSettings[prodId][key].modifiedUOM;
+            // Get current datasettings
+            var aUOM = {};
+
+            if(typeof prodId !== 'undefined'){
+                // Clone object
+                _.each(currProd.get('download_parameters'), function(obj, key){
+                    aUOM[key] = obj;
+                });
+
+                // Remove currently visible filters from list
+                for (var i = 0; i < this.selectedFilterList.length; i++) {
+                  if(aUOM.hasOwnProperty(this.selectedFilterList[i])){
+                    delete aUOM[this.selectedFilterList[i]];
+                  }
                 }
-              }
-              if(this.currentKeys && this.currentKeys.indexOf(key) === -1 && 
-                  groupKeys.indexOf(key) === -1){
-                delete aUOM[key];
-              }
+
+                // Show only filters for currently available data 
+                for (var key in aUOM) {
+                  // Check if we have global dataSettings information to use
+                  if(globals.dataSettings[prodId].hasOwnProperty(key)){
+                    if(globals.dataSettings[prodId][key].hasOwnProperty('modifiedUOM')){
+                        aUOM[key].uom = globals.dataSettings[prodId][key].modifiedUOM;
+                    }
+                  }
+                  if(this.currentKeys && this.currentKeys.indexOf(key) === -1 && 
+                      groupKeys.indexOf(key) === -1){
+                    delete aUOM[key];
+                  }
+                }
             }
+
 
 
             $('#filterSelectDrop').append(
