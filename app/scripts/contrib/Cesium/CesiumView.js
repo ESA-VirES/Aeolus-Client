@@ -9,9 +9,11 @@ define([
     'globals',
     'papaparse',
     'cesium',
+    'expr-eval',
     'drawhelper',
     'FileSaver'
-], function( Marionette, Communicator, App, MapModel, calvalsites, globals, Papa, Cesium) {
+], function( Marionette, Communicator, App, MapModel, calvalsites, globals,
+    Papa, Cesium, exprEval) {
     'use strict';
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
@@ -47,6 +49,7 @@ define([
             this.hoveredPrim = null;
             this.selectedPrim = null;
             this.calvalsites = JSON.parse(calvalsites());
+            this.parser = new exprEval.Parser();
 
             var renderSettings = {
                 xAxis: [
@@ -1343,9 +1346,22 @@ define([
             this.graph.renderSettings.xAxis =currPar.xAxis;
 
             if(altitudeExtentSet) {
-                this.graph.renderSettings.yAxisExtent = [altitudeExtent.map(
-                    function(it){ return it; }
-                )];
+                var altExtent = altitudeExtent.map(
+                    function(it){ return it*1000; }
+                );
+                // Check to see if we need to apply modifier to altitude
+                var currSetts = globals.dataSettings[cov_id];
+                var par = currPar.combinedParameters[currPar.yAxis][0];
+                if(currSetts.hasOwnProperty(par)){
+                    // Check for modifiers that need to be applied
+                    if(currSetts[par].hasOwnProperty('modifier')){
+                        var expr = this.parser.parse(currSetts[par].modifier);
+                        var exprFn = expr.toJSFunction('x');
+                        altExtent = altExtent.map(exprFn);
+                    }
+                }
+
+                this.graph.renderSettings.yAxisExtent = [altExtent];
                 this.graph.renderSettings.yAxisLocked = [true];
             } else {
                 this.graph.renderSettings.yAxisLocked = [false];
