@@ -2082,7 +2082,10 @@ define(['backbone.marionette',
             var currProd = globals.products.find(
                 function(p){return p.get('visible');}
             );
-            var prodId = currProd.get('download').id;
+            var prodId;
+            if(currProd){
+                prodId = currProd.get('download').id;
+            }
 
             var that = this;
             this.$el.find("#filterSelectDrop").empty();
@@ -2211,7 +2214,7 @@ define(['backbone.marionette',
             // Show only filters for currently available data 
             for (var key in aUOM) {
               // Check if we have global dataSettings information to use
-              if(globals.dataSettings[prodId].hasOwnProperty(key)){
+              if(typeof prodId !== 'undefined' && globals.dataSettings[prodId].hasOwnProperty(key)){
                 if(globals.dataSettings[prodId][key].hasOwnProperty('modifiedUOM')){
                     aUOM[key].uom = globals.dataSettings[prodId][key].modifiedUOM;
                 }
