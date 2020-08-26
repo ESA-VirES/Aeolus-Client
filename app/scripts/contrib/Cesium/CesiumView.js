@@ -894,9 +894,23 @@ define([
             }
 
             if(altitudeExtentSet) {
-                this.graph.renderSettings.yAxisExtent = [altitudeExtent.map(
+                var altExtent = altitudeExtent.map(
                     function(it){ return it*1000; }
-                )];
+                );
+                // Check to see if we need to apply modifier to altitude
+                var currPar = this.graph.renderSettings;
+                var currSetts = globals.dataSettings[cov_id];
+                var par = currPar.combinedParameters[currPar.yAxis][0];
+                if(currSetts.hasOwnProperty(par)){
+                    // Check for modifiers that need to be applied
+                    if(currSetts[par].hasOwnProperty('modifier')){
+                        var expr = this.parser.parse(currSetts[par].modifier);
+                        var exprFn = expr.toJSFunction('x');
+                        altExtent = altExtent.map(exprFn);
+                    }
+                }
+
+                this.graph.renderSettings.yAxisExtent = [altExtent];
                 this.graph.renderSettings.yAxisLocked = [true];
             } else {
                 this.graph.renderSettings.yAxisLocked = [false];
