@@ -2079,6 +2079,11 @@ define(['backbone.marionette',
 
         renderFilterList: function renderFilterList() {
 
+            var currProd = globals.products.find(
+                function(p){return p.get('visible');}
+            );
+            var prodId = currProd.get('download').id;
+
             var that = this;
             this.$el.find("#filterSelectDrop").empty();
             var filCon = this.$el.find("#filterSelectDrop");
@@ -2205,6 +2210,12 @@ define(['backbone.marionette',
 
             // Show only filters for currently available data 
             for (var key in aUOM) {
+              // Check if we have global dataSettings information to use
+              if(globals.dataSettings[prodId].hasOwnProperty(key)){
+                if(globals.dataSettings[prodId][key].hasOwnProperty('modifiedUOM')){
+                    aUOM[key].uom = globals.dataSettings[prodId][key].modifiedUOM;
+                }
+              }
               if(this.currentKeys && this.currentKeys.indexOf(key) === -1 && 
                   groupKeys.indexOf(key) === -1){
                 delete aUOM[key];
@@ -2228,8 +2239,10 @@ define(['backbone.marionette',
               items: _.keys(aUOM).sort(),
               renderDrop: function (item, options) {
                 var html = '<b>'+(item.id.replace(/_/g, ' '))+'</b>';
-                if(aUOM[item.id].uom != null){
-                  html += ' ['+aUOM[item.id].uom+']';
+                if(aUOM[item.id].modifiedUOM != null){
+                    html += ' ['+aUOM[item.id].modifiedUOM+']';
+                } else if(aUOM[item.id].uom != null){
+                    html += ' ['+aUOM[item.id].uom+']';
                 }
                 if(aUOM[item.id].name != null){
                   html+= ': '+aUOM[item.id].name;
