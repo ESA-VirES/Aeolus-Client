@@ -239,6 +239,14 @@ SCA_middle_bin_cumulative_LOD_valid
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
                 },
+                mie_altitude_obs: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                rayleigh_altitude_obs: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
             },
             'ALD_U_N_2B': {
                 'mie_meas_map': {

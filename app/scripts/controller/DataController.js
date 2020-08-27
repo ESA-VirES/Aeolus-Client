@@ -1108,6 +1108,28 @@
         var resData = {};
         var gran = product.get('granularity');
 
+        // Go throug dataset and check if some conversion is needed
+        // Check for modifiers that need to be applied
+        var currSetts = globals.dataSettings[collectionId];
+        var currData = ds;
+        for (var group in ds){
+          for (var key in ds[group]){
+            if(currSetts.hasOwnProperty(key)){
+              if(currSetts[key].hasOwnProperty('modifier')){
+                var expr = this.parser.parse(currSetts[key].modifier);
+                var exprFn = expr.toJSFunction('x');
+                if(ds[group][key].length>0){
+                  if(Array.isArray(ds[group][key][0])){
+                    ds[group][key] = ds[group][key].map(function(arr){return arr.map(exprFn);});
+                  } else {
+                    ds[group][key] = ds[group][key].map(exprFn);
+                  }
+                }
+              }
+            }
+          }
+        }
+
         if(typeof USERVARIABLE !== 'undefined'){
           var userCollId = 'user_collection_'+ USERVARIABLE;
           var dataGranularity = gran + '_data';
@@ -1259,6 +1281,13 @@
               group_signCross.push(londiff>340);
               group_jumpPos.push(i);
             }
+          }
+
+          // We generate a new parameter here we need to copy over the
+          // related datasettings of original parameter
+          if(globals.dataSettings[collectionId].hasOwnProperty('mie_altitude_obs')){
+            globals.dataSettings[collectionId].altitude_obs = 
+              globals.dataSettings[collectionId]['mie_altitude_obs']
           }
 
           resData.alt_start = alt_start;
@@ -1415,6 +1444,13 @@
           // sca and ica masks provided by the product
           if(ds.observation_data.hasOwnProperty('rayleigh_altitude_obs') &&
              ds.observation_data.hasOwnProperty('ica_mask') ){
+
+            // We generate a new parameter here we need to copy over the
+            // related datasettings of original parameter
+            if(globals.dataSettings[collectionId].hasOwnProperty('rayleigh_altitude_obs')){
+              globals.dataSettings[collectionId].ICA_rayleigh_altitude_obs = 
+                globals.dataSettings[collectionId]['rayleigh_altitude_obs']
+            }
 
             ds.ica_data.ICA_rayleigh_altitude_obs = 
               ds.observation_data.rayleigh_altitude_obs.filter(

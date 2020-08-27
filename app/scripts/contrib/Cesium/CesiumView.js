@@ -1365,7 +1365,18 @@ define([
                 );
                 // Check to see if we need to apply modifier to altitude
                 var currSetts = globals.dataSettings[cov_id];
-                var par = currPar.combinedParameters[currPar.yAxis][0];
+                var par = currPar.yAxis;
+                // Check to see if we are using the modified _obs altitudes
+                if(currSetts.hasOwnProperty(par+'_obs')){
+                    par += '_obs';
+                }
+                // Check if parameter not available in config if not check for
+                // combined parameters
+                if(!currSetts.hasOwnProperty(par)){
+                    if(currPar.combinedParameters.hasOwnProperty(par)){
+                        par = currPar.combinedParameters[par][0];
+                    }
+                }
                 if(currSetts.hasOwnProperty(par)){
                     // Check for modifiers that need to be applied
                     if(currSetts[par].hasOwnProperty('modifier')){
@@ -1380,7 +1391,6 @@ define([
             } else {
                 this.graph.renderSettings.yAxisLocked = [false];
             }
-
 
             dataJumps = data[currPar.jumps];
             lats = data[currPar.lats];
