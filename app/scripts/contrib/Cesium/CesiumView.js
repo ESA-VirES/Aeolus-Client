@@ -121,7 +121,7 @@ define([
                     for (var i = idKeys.length - 1; i >= 0; i--) {
                         //this.graph.loadData(data[idKeys[i]]);
                         if(idKeys[i] === 'ALD_U_N_1B'){
-                            that.createCurtains(data[idKeys[i]], idKeys[i]);
+                            that.createCurtains(data[idKeys[i]], idKeys[i], false);
                         } else if (idKeys[i].includes('ALD_U_N_2')){
                             that.createL2Curtains(data[idKeys[i]], idKeys[i], false);
                         } else {
@@ -811,7 +811,8 @@ define([
         },*/
 
 
-        createCurtains: function(data, cov_id){
+        createCurtains: function(data, cov_id, createWallPrimitives){
+            createWallPrimitives = defaultFor(createWallPrimitives, true);
 
             var currProd = globals.products.find(
                 function(p){return p.get('download').id === cov_id;}
@@ -824,7 +825,9 @@ define([
             var curtainCollection;
 
             if(currProd.hasOwnProperty('curtains')){
-                currProd.curtains.removeAll();
+                if(createWallPrimitives) {
+                    currProd.curtains.removeAll();
+                }
                 curtainCollection = currProd.curtains;
             }else{
                 curtainCollection = new Cesium.PrimitiveCollection();
@@ -977,128 +980,140 @@ define([
                 this.graph.loadData(dataSlice);
 
 
-                /*var newmat = new Cesium.Material.fromType('Image', {
-                    image : this.graph.getCanvasImage(),
-                    color: new Cesium.Color(1, 1, 1, alpha),
-                });*/
+                var imageTexture = this.graph.getCanvasImage();
 
-                var newmat = new Cesium.Material({
-                    fabric : {
-                        type : 'Image',
-                        uniforms : {
-                            image : this.graph.getCanvasImage()
+                if(createWallPrimitives){
+                    var newmat = new Cesium.Material({
+                        fabric : {
+                            type : 'Image',
+                            uniforms : {
+                                image : imageTexture
+                            }
+                        },
+                        minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
+                        magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST
+                    });
+                    
+                    var slicedPosData = data.positions.slice(start, end);
+
+                    if(renderOutlines){
+                        var slicedPosDataWithHeight = [];
+                        for (var p = 0; p < slicedPosData.length; p+=2) {
+                            slicedPosDataWithHeight.push(slicedPosData[p]);
+                            slicedPosDataWithHeight.push(slicedPosData[p+1]);
+                            slicedPosDataWithHeight.push(height);
                         }
-                    },
-                    minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
-                    magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST
-                });
-                
-                var slicedPosData = data.positions.slice(start, end);
 
-                if(renderOutlines){
-                    var slicedPosDataWithHeight = [];
-                    for (var p = 0; p < slicedPosData.length; p+=2) {
-                        slicedPosDataWithHeight.push(slicedPosData[p]);
-                        slicedPosDataWithHeight.push(slicedPosData[p+1]);
-                        slicedPosDataWithHeight.push(height);
+
+                        lineInstances.push(
+                            new Cesium.GeometryInstance({
+                                geometry : new Cesium.PolylineGeometry({
+                                    positions : 
+                                    Cesium.Cartesian3.fromDegreesArrayHeights(
+                                        slicedPosDataWithHeight
+                                    ),
+                                    width : 10.0
+                                })
+                            })
+                        );
+
+                        lineInstances.push(
+                            new Cesium.GeometryInstance({
+                                geometry : new Cesium.PolylineGeometry({
+                                    positions : 
+                                    Cesium.Cartesian3.fromDegreesArray(
+                                        slicedPosData
+                                    ),
+                                    width : 10.0
+                                })
+                            })
+                        );
                     }
 
-
-                    lineInstances.push(
-                        new Cesium.GeometryInstance({
-                            geometry : new Cesium.PolylineGeometry({
-                                positions : 
-                                Cesium.Cartesian3.fromDegreesArrayHeights(
-                                    slicedPosDataWithHeight
-                                ),
-                                width : 10.0
-                            })
-                        })
-                    );
-
-                    lineInstances.push(
-                        new Cesium.GeometryInstance({
-                            geometry : new Cesium.PolylineGeometry({
-                                positions : 
-                                Cesium.Cartesian3.fromDegreesArray(
-                                    slicedPosData
-                                ),
-                                width : 10.0
-                            })
-                        })
-                    );
-                }
-
-                var maxHeights = [];
-                var carPos = Cesium.Cartesian3.fromDegreesArray(slicedPosData);
-                for (var j = 0; j <carPos.length; j++) {
-                    maxHeights.push(height);
-                }
-                var wall = new Cesium.WallGeometry({
-                    positions : carPos,
-                    maximumHeights : maxHeights,
-                });
-                var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
-
-                if(wallGeometry){
-                    var instance = new Cesium.GeometryInstance({
-                      geometry : wallGeometry
+                    var maxHeights = [];
+                    var carPos = Cesium.Cartesian3.fromDegreesArray(slicedPosData);
+                    for (var j = 0; j <carPos.length; j++) {
+                        maxHeights.push(height);
+                    }
+                    var wall = new Cesium.WallGeometry({
+                        positions : carPos,
+                        maximumHeights : maxHeights,
                     });
+                    var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
 
-                    var sliceAppearance = new Cesium.MaterialAppearance({
-                        translucent : true,
-                        flat: true,
-                        faceForward: true,
-                        material : newmat
-                    });
+                    if(wallGeometry){
+                        var instance = new Cesium.GeometryInstance({
+                          geometry : wallGeometry
+                        });
 
-                    // Check the normal vector, in some cases we need to flip the
-                    // direction of the texture to be applied
-                    if(wallGeometry.attributes.normal.values[0]>0 &&
-                        wallGeometry.attributes.normal.values[1]<0 &&
-                        wallGeometry.attributes.normal.values[2]>0){
-                        newmat.uniforms.repeat.x = 1;
-                    } else if (wallGeometry.attributes.normal.values[0]<0 &&
-                        wallGeometry.attributes.normal.values[1]>0 &&
-                        wallGeometry.attributes.normal.values[2]<0){
-                        newmat.uniforms.repeat.x = -1;
-                    } else if (wallGeometry.attributes.normal.values[0]>0 &&
-                        wallGeometry.attributes.normal.values[1]>0 &&
-                        wallGeometry.attributes.normal.values[2]<0){
-                        newmat.uniforms.repeat.x = -1;
-                    } else if (wallGeometry.attributes.normal.values[0]>0 &&
-                        wallGeometry.attributes.normal.values[1]<0 &&
-                        wallGeometry.attributes.normal.values[2]<0){
-                        newmat.uniforms.repeat.x = -1;
-                    } else if (wallGeometry.attributes.normal.values[0]<0 &&
-                        wallGeometry.attributes.normal.values[1]<0 &&
-                        wallGeometry.attributes.normal.values[2]<0){
-                        newmat.uniforms.repeat.x = -1;
+                        var sliceAppearance = new Cesium.MaterialAppearance({
+                            translucent : true,
+                            flat: true,
+                            faceForward: true,
+                            material : newmat
+                        });
+
+                        // Check the normal vector, in some cases we need to flip the
+                        // direction of the texture to be applied
+                        if(wallGeometry.attributes.normal.values[0]>0 &&
+                            wallGeometry.attributes.normal.values[1]<0 &&
+                            wallGeometry.attributes.normal.values[2]>0){
+                            newmat.uniforms.repeat.x = 1;
+                        } else if (wallGeometry.attributes.normal.values[0]<0 &&
+                            wallGeometry.attributes.normal.values[1]>0 &&
+                            wallGeometry.attributes.normal.values[2]<0){
+                            newmat.uniforms.repeat.x = -1;
+                        } else if (wallGeometry.attributes.normal.values[0]>0 &&
+                            wallGeometry.attributes.normal.values[1]>0 &&
+                            wallGeometry.attributes.normal.values[2]<0){
+                            newmat.uniforms.repeat.x = -1;
+                        } else if (wallGeometry.attributes.normal.values[0]>0 &&
+                            wallGeometry.attributes.normal.values[1]<0 &&
+                            wallGeometry.attributes.normal.values[2]<0){
+                            newmat.uniforms.repeat.x = -1;
+                        } else if (wallGeometry.attributes.normal.values[0]<0 &&
+                            wallGeometry.attributes.normal.values[1]<0 &&
+                            wallGeometry.attributes.normal.values[2]<0){
+                            newmat.uniforms.repeat.x = -1;
+                        }
+
+                        //instances.push(instance);
+                        var prim = new Cesium.Primitive({
+                          geometryInstances : instance,
+                          appearance : sliceAppearance,
+                          releaseGeometryInstances: false,
+                          asynchronous: false
+                        });
+
+                        curtainCollection.add(prim);
                     }
 
-                    //instances.push(instance);
-                    var prim = new Cesium.Primitive({
-                      geometryInstances : instance,
-                      appearance : sliceAppearance,
-                      releaseGeometryInstances: false,
-                      asynchronous: false
-                    });
+                    if(renderOutlines){
+                        var linesPrim = new Cesium.Primitive({
+                            geometryInstances: lineInstances,
+                            appearance: new Cesium.PolylineMaterialAppearance({
+                                material : new Cesium.Material.fromType('PolylineArrow', {
+                                    color: new Cesium.Color(0.53, 0.02, 0.65, 1)
+                                })
+                            })
+                        });
+                        curtainCollection.add(linesPrim);
+                    }
 
-                    curtainCollection.add(prim);
+                } else {
+                    // Just update the textures instead of recreating all primitives
+                    if(currProd.hasOwnProperty('curtains')){
+                        var curtainIdx = i;
+                        if(defaultFor(currProd.get('outlines'), false)){
+                            curtainIdx = curtainIdx*2;
+                        }
+                        var currPrim = currProd.curtains.get(curtainIdx);
+                        if(typeof currPrim !== 'undefined'){
+                            //currPrim.appearance.material._textures.image.copyFrom(this.graph.getCanvas())
+                            currPrim.appearance.material.uniforms.image = imageTexture;
+                        }
+                    }
                 }
-                
-            }
-
-            if(renderOutlines){
-                var linesPrim = new Cesium.Primitive({
-                    geometryInstances: lineInstances,
-                    appearance: new Cesium.PolylineMaterialAppearance({
-                        material : new Cesium.Material.fromType('PolylineArrow', {
-                            color: new Cesium.Color(0.53, 0.02, 0.65, 1)
-                        })
-                    })
-                });
-                curtainCollection.add(linesPrim);
             }
         },
 
@@ -1706,7 +1721,7 @@ define([
               releaseGeometryInstances: false,
               asynchronous: false
             });
-            
+
             curtainCollection.add(prim);
 
             if(renderOutlines){
