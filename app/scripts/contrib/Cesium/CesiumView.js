@@ -1370,9 +1370,8 @@ define([
                 if(currSetts.hasOwnProperty(par+'_obs')){
                     par += '_obs';
                 }
-                // Check if parameter not available in config if not check for
-                // combined parameters
-                if(!currSetts.hasOwnProperty(par)){
+                // For L2B and L2C we use the combined parameter as reference
+                if(cov_id === 'ALD_U_N_2B' || cov_id === 'ALD_U_N_2C'){
                     if(currPar.combinedParameters.hasOwnProperty(par)){
                         par = currPar.combinedParameters[par][0];
                     }
