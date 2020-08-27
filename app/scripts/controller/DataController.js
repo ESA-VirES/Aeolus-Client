@@ -14,11 +14,15 @@
     'hbs!tmpl/wps_dataRequest',
     'app',
     'papaparse',
+    'expr-eval',
     'tutorial',
     'graphly'
   ],
 
-  function( Backbone, Communicator, globals, msgpack, wps_dataRequestTmpl, App, Papa, tutorial) {
+  function( 
+    Backbone, Communicator, globals, msgpack, wps_dataRequestTmpl, App,
+    Papa, exprEval, tutorial
+  ) {
 
     var DataController = Backbone.Marionette.Controller.extend({
 
@@ -32,6 +36,7 @@
         this.previousCollection = '';
         this.firstLoad = true;
         this.xhr = null;
+        this.parser = new exprEval.Parser();
 
         var filterSettings = {
             parameterMatrix: {
@@ -1103,6 +1108,28 @@
         var resData = {};
         var gran = product.get('granularity');
 
+        // Go throug dataset and check if some conversion is needed
+        // Check for modifiers that need to be applied
+        var currSetts = globals.dataSettings[collectionId];
+        var currData = ds;
+        for (var group in ds){
+          for (var key in ds[group]){
+            if(currSetts.hasOwnProperty(key)){
+              if(currSetts[key].hasOwnProperty('modifier')){
+                var expr = this.parser.parse(currSetts[key].modifier);
+                var exprFn = expr.toJSFunction('x');
+                if(ds[group][key].length>0){
+                  if(Array.isArray(ds[group][key][0])){
+                    ds[group][key] = ds[group][key].map(function(arr){return arr.map(exprFn);});
+                  } else {
+                    ds[group][key] = ds[group][key].map(exprFn);
+                  }
+                }
+              }
+            }
+          }
+        }
+
         if(typeof USERVARIABLE !== 'undefined'){
           var userCollId = 'user_collection_'+ USERVARIABLE;
           var dataGranularity = gran + '_data';
@@ -1254,6 +1281,13 @@
               group_signCross.push(londiff>340);
               group_jumpPos.push(i);
             }
+          }
+
+          // We generate a new parameter here we need to copy over the
+          // related datasettings of original parameter
+          if(globals.dataSettings[collectionId].hasOwnProperty('mie_altitude_obs')){
+            globals.dataSettings[collectionId].altitude_obs = 
+              globals.dataSettings[collectionId]['mie_altitude_obs']
           }
 
           resData.alt_start = alt_start;
@@ -1410,6 +1444,13 @@
           // sca and ica masks provided by the product
           if(ds.observation_data.hasOwnProperty('rayleigh_altitude_obs') &&
              ds.observation_data.hasOwnProperty('ica_mask') ){
+
+            // We generate a new parameter here we need to copy over the
+            // related datasettings of original parameter
+            if(globals.dataSettings[collectionId].hasOwnProperty('rayleigh_altitude_obs')){
+              globals.dataSettings[collectionId].ICA_rayleigh_altitude_obs = 
+                globals.dataSettings[collectionId]['rayleigh_altitude_obs']
+            }
 
             ds.ica_data.ICA_rayleigh_altitude_obs = 
               ds.observation_data.rayleigh_altitude_obs.filter(
@@ -1972,24 +2013,14 @@
           }
 
 
+          var currSetts = globals.dataSettings[collectionId];
           for (var k = 0; k < keys.length; k++) {
 
             var subK = Object.keys(ds[keys[k]]);
 
             for (var l = 0; l < subK.length; l++) {
-              
-              if(subK[l] === 'mie_wind_result_wind_velocity' ||
-                 subK[l] === 'rayleigh_wind_result_wind_velocity'){
-                // Convert from cm/s to m/s
-                resData[subK[l]]= ds[keys[k]][subK[l]].map(
-                  function(x) { return x / 100; }
-                );
-            //  } else if(
-            //     subK[l] === 'mie_wind_result_COG_range' ||
-            //     subK[l] === 'rayleigh_wind_result_COG_range'){
-            //    // Convert from m to km
-            //    resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 1000; });
-              } else if(startEndVarsBins.indexOf(subK[l]) !== -1){
+
+              if(startEndVarsBins.indexOf(subK[l]) !== -1){
                 resData[subK[l]+'_start'] = ds[keys[k]][subK[l]];
                 resData[subK[l]+'_end'] = ds[keys[k]][subK[l]].map(
                   function(x) { return x+1; }
@@ -2008,12 +2039,22 @@
               } else {
                 resData[subK[l]] = ds[keys[k]][subK[l]];
               }
+
+              // Check for modifiers that need to be applied
+              if(currSetts.hasOwnProperty(subK[l])){
+                if(currSetts[subK[l]].hasOwnProperty('modifier')){
+                  var expr = this.parser.parse(currSetts[subK[l]].modifier);
+                  var exprFn = expr.toJSFunction('x');
+                  resData[subK[l]] = ds[keys[k]][subK[l]].map(exprFn);
+                }
+              }
+
             }
           }
           var lonStep = 15;
           var latStep = 15;
 
-          var mieSignCross = []; 
+          var mieSignCross = [];
           var mieJumpPositions = [];
           if(ds.hasOwnProperty('mie_wind_data') && 
              ds.mie_wind_data.hasOwnProperty('mie_wind_result_lat_of_DEM_intersection') &&
@@ -2665,6 +2706,23 @@
                     for (var i = 0; i < rayleighDiffVars.length; i++) {
                       rayleighVars.push(rayleighDiffVars[i]+'_user');
                       rayleighVars.push(rayleighDiffVars[i]+'_diff');
+                    }
+                  }
+
+                  // Go through data and check if we need to apply modifiers
+                  var currSetts = globals.dataSettings[collectionId];
+                  var currData = ds;
+                  for(var setKey in currSetts){
+                    if(currSetts[setKey].hasOwnProperty('modifier')){
+                      if(currData.hasOwnProperty(setKey)){
+                        var expr = that.parser.parse(currSetts[setKey].modifier);
+                        var exprFn = expr.toJSFunction('x');
+                        var convertedData = [];
+                        for (var pf = 0; pf < currData[setKey].length; pf++) {
+                          convertedData.push(currData[setKey][pf].map(exprFn));
+                        }
+                        currData[setKey] = convertedData;
+                      }
                     }
                   }
 

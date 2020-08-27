@@ -9,9 +9,11 @@ define([
     'globals',
     'papaparse',
     'cesium',
+    'expr-eval',
     'drawhelper',
     'FileSaver'
-], function( Marionette, Communicator, App, MapModel, calvalsites, globals, Papa, Cesium) {
+], function( Marionette, Communicator, App, MapModel, calvalsites, globals,
+    Papa, Cesium, exprEval) {
     'use strict';
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
@@ -47,6 +49,7 @@ define([
             this.hoveredPrim = null;
             this.selectedPrim = null;
             this.calvalsites = JSON.parse(calvalsites());
+            this.parser = new exprEval.Parser();
 
             var renderSettings = {
                 xAxis: [
@@ -891,9 +894,23 @@ define([
             }
 
             if(altitudeExtentSet) {
-                this.graph.renderSettings.yAxisExtent = [altitudeExtent.map(
+                var altExtent = altitudeExtent.map(
                     function(it){ return it*1000; }
-                )];
+                );
+                // Check to see if we need to apply modifier to altitude
+                var currPar = this.graph.renderSettings;
+                var currSetts = globals.dataSettings[cov_id];
+                var par = currPar.yAxis[0][0];
+                if(currSetts.hasOwnProperty(par)){
+                    // Check for modifiers that need to be applied
+                    if(currSetts[par].hasOwnProperty('modifier')){
+                        var expr = this.parser.parse(currSetts[par].modifier);
+                        var exprFn = expr.toJSFunction('x');
+                        altExtent = altExtent.map(exprFn);
+                    }
+                }
+
+                this.graph.renderSettings.yAxisExtent = [altExtent];
                 this.graph.renderSettings.yAxisLocked = [true];
             } else {
                 this.graph.renderSettings.yAxisLocked = [false];
@@ -1343,14 +1360,37 @@ define([
             this.graph.renderSettings.xAxis =currPar.xAxis;
 
             if(altitudeExtentSet) {
-                this.graph.renderSettings.yAxisExtent = [altitudeExtent.map(
+                var altExtent = altitudeExtent.map(
                     function(it){ return it*1000; }
-                )];
+                );
+                // Check to see if we need to apply modifier to altitude
+                var currSetts = globals.dataSettings[cov_id];
+                var par = currPar.yAxis;
+                // Check to see if we are using the modified _obs altitudes
+                if(currSetts.hasOwnProperty(par+'_obs')){
+                    par += '_obs';
+                }
+                // Check if parameter not available in config if not check for
+                // combined parameters
+                if(!currSetts.hasOwnProperty(par)){
+                    if(currPar.combinedParameters.hasOwnProperty(par)){
+                        par = currPar.combinedParameters[par][0];
+                    }
+                }
+                if(currSetts.hasOwnProperty(par)){
+                    // Check for modifiers that need to be applied
+                    if(currSetts[par].hasOwnProperty('modifier')){
+                        var expr = this.parser.parse(currSetts[par].modifier);
+                        var exprFn = expr.toJSFunction('x');
+                        altExtent = altExtent.map(exprFn);
+                    }
+                }
+
+                this.graph.renderSettings.yAxisExtent = [altExtent];
                 this.graph.renderSettings.yAxisLocked = [true];
             } else {
                 this.graph.renderSettings.yAxisLocked = [false];
             }
-
 
             dataJumps = data[currPar.jumps];
             lats = data[currPar.lats];
@@ -2714,6 +2754,7 @@ define([
                     var rangeMin = globals.dataSettings[prodId][sel].extent[0];
                     var rangeMax = globals.dataSettings[prodId][sel].extent[1];
                     var uom = globals.dataSettings[prodId][sel].uom;
+                    var modifiedUOM = globals.dataSettings[prodId][sel].modifiedUOM;
                     var style = globals.dataSettings[prodId][sel].colorscale;
                     var logscale = defaultFor(globals.dataSettings[prodId][sel].logarithmic, false);
                     var axisScale;
@@ -2771,15 +2812,21 @@ define([
                     // Add layer info
                     var info = product.get('name');
                     info += ' - ' + sel.replace(/_/g, ' ');
-                    if(uom){
-                        info += ' ['+uom+']';
-                    }
 
-                     g.append('text')
-                        .style('text-anchor', 'middle')
-                        .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
-                        .attr('font-weight', 'bold')
-                        .text(info);
+                    if(modifiedUOM) {
+                        g.append('text')
+                            .style('text-anchor', 'middle')
+                            .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
+                            .text(info+' ['+modifiedUOM+']');
+
+                    } else if(uom) {
+                        info += ' ['+uom+']';
+                        g.append('text')
+                            .style('text-anchor', 'middle')
+                            .attr('transform', 'translate(' + [scalewidth/2, 30]+')')
+                            .attr('font-weight', 'bold')
+                            .text(info);
+                    }
 
                     svgContainer.selectAll('text')
                         .attr('stroke', 'none')

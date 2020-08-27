@@ -64,7 +64,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     uom: 'm/s',
                     colorscale: 'viridis',
                     extent: [-40,40],
-                    filterExtent: [-40, 40]
+                    filterExtent: [-40, 40],
                 },
                 'time_start': {
                     scaleFormat: 'time',
@@ -80,6 +80,15 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     extent: [-20,20],
                     filterExtent: [-20, 20]
                 },
+                mie_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                rayleigh_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                
             },
 /*
 maskParameter: 'SCA_mie_SNR_valid',
@@ -230,6 +239,14 @@ SCA_middle_bin_cumulative_LOD_valid
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
                 },
+                mie_altitude_obs: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                rayleigh_altitude_obs: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
             },
             'ALD_U_N_2B': {
                 'mie_meas_map': {
@@ -281,14 +298,26 @@ SCA_middle_bin_cumulative_LOD_valid
                     timeFormat: 'MJD2000_S'
                 },
                 'rayleigh_wind_result_wind_velocity': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
                 },
                 'rayleigh_wind_result_wind_velocity_normalised': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
+                },
+                rayleigh_wind_result_bottom_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                rayleigh_wind_result_top_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
                 },
                 'mie_wind_result_start_time': {
                     scaleFormat: 'time',
@@ -299,14 +328,26 @@ SCA_middle_bin_cumulative_LOD_valid
                     timeFormat: 'MJD2000_S'
                 },
                 'mie_wind_result_wind_velocity': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
                 },
                 'mie_wind_result_wind_velocity_normalised': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
+                },
+                mie_wind_result_bottom_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                mie_wind_result_top_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
                 },
             },
 
@@ -360,14 +401,34 @@ SCA_middle_bin_cumulative_LOD_valid
                     timeFormat: 'MJD2000_S'
                 },
                 'rayleigh_wind_result_wind_velocity': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
                 },
                 'rayleigh_wind_result_wind_velocity_normalised': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
+                },
+                rayleigh_wind_result_bottom_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                rayleigh_wind_result_top_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                mie_wind_result_bottom_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                mie_wind_result_top_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
                 },
                 'mie_wind_result_start_time': {
                     scaleFormat: 'time',
@@ -378,14 +439,18 @@ SCA_middle_bin_cumulative_LOD_valid
                     timeFormat: 'MJD2000_S'
                 },
                 'mie_wind_result_wind_velocity': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
                 },
                 'mie_wind_result_wind_velocity_normalised': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
                 },
             },
 

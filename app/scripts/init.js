@@ -70,7 +70,7 @@
             },
             cesium: {
                 exports: 'Cesium'
-            }
+            },
         },
 
         paths: {
@@ -128,7 +128,8 @@
             w2utils: '../bower_components/w2ui/src/w2utils',
 
             Anno: '../bower_components/anno.js/anno',
-            'jquery-scrollintoview': '../bower_components/jquery-scrollintoview/jquery.scrollintoview.min'
+            'jquery-scrollintoview': '../bower_components/jquery-scrollintoview/jquery.scrollintoview.min',
+            'expr-eval': '../bower_components/expr-eval/index'
         },
 
         hbs: {

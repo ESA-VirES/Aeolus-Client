@@ -47,22 +47,6 @@
     z-index: 20;
 }
 
-/*Rewrite some defaults of bootstrap*/
-.filterContainer label {
-    margin-bottom: 0px!important; 
-    font-weight: normal!important;
-}
-
-.filterContainer input {
-    margin: 1px 4px 0!important;
-
-}
-
-.filterContainer .editButton{
-    -webkit-box-sizing: content-box;
-    -moz-box-sizing: content-box;
-    box-sizing: content-box; 
-}
 
 .editButton.remove, .editButton.add {
     margin-top: 0px !important;
@@ -73,20 +57,6 @@
     font-size: 12px;
     position: absolute;
 }
-
-.filterContainer input{
-    margin-top: 0px!important;
-}
-
-
-
-
-
-#filterDivContainer{
-   text-align: center;
-}
-
-
 
 
 .d3canvas {
@@ -405,4 +375,31 @@
 
 .cross.removePlot {
     margin-left: -4px!important;
+}
+
+
+/*Rewrite some defaults of bootstrap*/
+.filterContainer label {
+    margin-bottom: 0px!important; 
+    font-weight: normal!important;
+}
+
+.filterContainer input {
+    margin-right: 2px!important;
+    margin-top: 2px!important;
+}
+
+
+.filterContainer .editButton{
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box; 
+}
+
+#filterDivContainer{
+   text-align: center;
+}
+
+.boolParameterContainer input {
+    margin-top: 0px!important;
 }
