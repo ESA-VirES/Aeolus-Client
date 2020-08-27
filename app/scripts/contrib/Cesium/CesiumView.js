@@ -123,7 +123,7 @@ define([
                         if(idKeys[i] === 'ALD_U_N_1B'){
                             that.createCurtains(data[idKeys[i]], idKeys[i]);
                         } else if (idKeys[i].includes('ALD_U_N_2')){
-                            that.createL2Curtains(data[idKeys[i]], idKeys[i]);
+                            that.createL2Curtains(data[idKeys[i]], idKeys[i], false);
                         } else {
                             that.graph.data = {};
                             that.createPointCollection(data[idKeys[i]], idKeys[i]);
@@ -1104,8 +1104,9 @@ define([
 
 
 
-        createL2Curtains: function(data, cov_id){
+        createL2Curtains: function(data, cov_id, createWallPrimitives){
 
+            createWallPrimitives = defaultFor(createWallPrimitives, true);
             var currProd = globals.products.find(
                 function(p){return p.get('download').id === cov_id;}
             );
@@ -1127,7 +1128,10 @@ define([
             var curtainCollection;
 
             if(currProd.hasOwnProperty('curtains')){
-                currProd.curtains.removeAll();
+                // Only delete the primitives if we are going to recreate them
+                if(createWallPrimitives){
+                    currProd.curtains.removeAll();
+                }
                 curtainCollection = currProd.curtains;
             }else{
                 curtainCollection = new Cesium.PrimitiveCollection();
@@ -1135,6 +1139,7 @@ define([
                 this.map.scene.primitives.add(curtainCollection);
                 currProd.curtains = curtainCollection;
             }
+
             var parameters = currProd.get('parameters');
             var band;
             var keys = _.keys(parameters);
@@ -1400,10 +1405,6 @@ define([
             pStopTimes = data[currPar.timeStop];
             signCross = data[currPar.signCross];
 
-            var height = 1000000;
-            var lineInstances = [];
-            var renderOutlines = defaultFor(currProd.get('outlines'), false);
-
             // Go through slices and render them
             for (var jIdx = 0; jIdx <= dataJumps.length; jIdx++) {
 
@@ -1473,209 +1474,240 @@ define([
                     this.graph.clearXDomain();
                 }
 
-                var newmat = new Cesium.Material({
-                    fabric : {
-                        type : 'Image',
-                        uniforms : {
-                            image : this.graph.getCanvasImage()
+                var imageTexture = this.graph.getCanvasImage();
+                if(createWallPrimitives){
+                    this.createWallPrimitive(
+                        currProd, startSlice, endSlice, lats, lons, dataJumps,
+                        modifier, start, end, imageTexture, curtainCollection
+                    );
+                } else {
+                    // Just update the textures instead of recreating all primitives
+                    if(currProd.hasOwnProperty('curtains')){
+                        var curtainIdx = jIdx;
+                        if(defaultFor(currProd.get('outlines'), false)){
+                            curtainIdx = curtainIdx*2;
                         }
-                    },
-                    minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
-                    magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST
-                });
-
-                var slicedLats, slicedLons, slicedTime;
-
-                if(dataJumps.length > 0){
-                    slicedLats = lats.slice(startSlice, endSlice+modifier);
-                    slicedLons = lons.slice(startSlice, endSlice+modifier);
-                } else {
-                    slicedLats = lats;
-                    slicedLons = lons;
-                }
-
-                var posDataHeight = [];
-                var posDataLineHeight = [];
-                var posData = [];
-
-                // We need uniformly distributed sections in the curtain to not 
-                // create distortions in the texture, for this we use the time
-                // information which should be uniform
-
-                var cleanLats = [];
-                var cleanLons = [];
-
-                var sliceTimeInterval = end.getTime() - start.getTime();
-                var endMs = end.getTime();
-                // Lets try to get around a value each ~90 seconds, more or less
-                // a curtain section per profile
-                var steps = (sliceTimeInterval/1000) / 90;
-                if(steps < 1.0){
-                    steps = 1.0;
-                }
-                var datastepsize = Math.floor(slicedLats.length / steps);
-                var timeDelta = (sliceTimeInterval/steps);
-
-                var currentTime = start.getTime();
-                var currSliceStep = startSlice;
-
-                for (var currStep = 0; currStep < slicedLats.length; currStep+=datastepsize) {
-                    cleanLats.push(slicedLats[currStep]);
-                    cleanLons.push(slicedLons[currStep]);
-                }
-
-
-                if(cleanLats[cleanLats.length-1] !== slicedLats[slicedLats.length-1]){
-                    if(cleanLats.length>1){
-                        cleanLats.pop();
-                        cleanLons.pop();
+                        var currPrim = currProd.curtains.get(curtainIdx);
+                        if(typeof currPrim !== 'undefined'){
+                            //currPrim.appearance.material._textures.image.copyFrom(this.graph.getCanvas())
+                            currPrim.appearance.material.uniforms.image = imageTexture;
+                        }
                     }
-                    cleanLats.push(slicedLats[slicedLats.length-1]);
-                    cleanLons.push(slicedLons[slicedLons.length-1]);
                 }
+            }
 
-                // As first and last profile can have very different size
-                // we make sure we find the min and max value of initial and last
-                // values
-                var delta = 1;
-                if(cleanLats[0]-cleanLats[1]<0){
-                    cleanLats[0] = d3.min(slicedLats.slice(0,delta));
-                    cleanLats[cleanLats.length-1] = d3.max(slicedLats.slice(-delta));
-                } else {
-                    cleanLats[0] = d3.max(slicedLats.slice(0,delta));
-                    cleanLats[cleanLats.length-1] = d3.min(slicedLats.slice(-delta));
-                }
-                
-                
-                if(cleanLons[0]-cleanLons[1]<0){
-                    cleanLons[0] = d3.min(slicedLons.slice(0,delta));
-                    cleanLons[cleanLons.length-1] = d3.max(slicedLons.slice(-delta));
-                } else {
-                    cleanLons[0] = d3.max(slicedLons.slice(0,delta));
-                    cleanLons[cleanLons.length-1] = d3.min(slicedLons.slice(-delta));
-                }
-                
+        },
 
-                for (var p = 0; p < cleanLats.length; p++) {
-                    posDataHeight.push(cleanLons[p]);
-                    posDataHeight.push(cleanLats[p]);
-                    posDataHeight.push(height);
-                    posDataLineHeight.push(cleanLons[p]);
-                    posDataLineHeight.push(cleanLats[p]);
-                    posDataLineHeight.push(height+20000);
-                    posData.push(cleanLons[p]);
-                    posData.push(cleanLats[p]);
-                }
+        createWallPrimitive: function(
+            currProd, startSlice, endSlice, lats, lons, dataJumps, modifier,
+            start, end, imageTexture, curtainCollection ) {
 
-                if(renderOutlines){
-                    lineInstances.push(
-                        new Cesium.GeometryInstance({
-                            geometry : new Cesium.PolylineGeometry({
-                                positions : 
-                                Cesium.Cartesian3.fromDegreesArrayHeights(
-                                    posDataLineHeight
-                                ),
-                                width : 10.0
-                            })
+            var newmat = new Cesium.Material({
+                fabric : {
+                    type : 'Image',
+                    uniforms : {
+                        image : imageTexture
+                    }
+                },
+                minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
+                magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST
+            });
+
+            var slicedLats, slicedLons, slicedTime;
+
+            if(dataJumps.length > 0){
+                slicedLats = lats.slice(startSlice, endSlice+modifier);
+                slicedLons = lons.slice(startSlice, endSlice+modifier);
+            } else {
+                slicedLats = lats;
+                slicedLons = lons;
+            }
+
+            var posDataHeight = [];
+            var posDataLineHeight = [];
+            var posData = [];
+
+            var height = 1000000;
+            var lineInstances = [];
+            var renderOutlines = defaultFor(currProd.get('outlines'), false);
+
+            // We need uniformly distributed sections in the curtain to not 
+            // create distortions in the texture, for this we use the time
+            // information which should be uniform
+
+            var cleanLats = [];
+            var cleanLons = [];
+
+            var sliceTimeInterval = end.getTime() - start.getTime();
+            var endMs = end.getTime();
+            // Lets try to get around a value each ~90 seconds, more or less
+            // a curtain section per profile
+            var steps = (sliceTimeInterval/1000) / 90;
+            if(steps < 1.0){
+                steps = 1.0;
+            }
+            var datastepsize = Math.floor(slicedLats.length / steps);
+            var timeDelta = (sliceTimeInterval/steps);
+
+            var currentTime = start.getTime();
+            var currSliceStep = startSlice;
+
+            for (var currStep = 0; currStep < slicedLats.length; currStep+=datastepsize) {
+                cleanLats.push(slicedLats[currStep]);
+                cleanLons.push(slicedLons[currStep]);
+            }
+
+
+            if(cleanLats[cleanLats.length-1] !== slicedLats[slicedLats.length-1]){
+                if(cleanLats.length>1){
+                    cleanLats.pop();
+                    cleanLons.pop();
+                }
+                cleanLats.push(slicedLats[slicedLats.length-1]);
+                cleanLons.push(slicedLons[slicedLons.length-1]);
+            }
+
+            // As first and last profile can have very different size
+            // we make sure we find the min and max value of initial and last
+            // values
+            var delta = 1;
+            if(cleanLats[0]-cleanLats[1]<0){
+                cleanLats[0] = d3.min(slicedLats.slice(0,delta));
+                cleanLats[cleanLats.length-1] = d3.max(slicedLats.slice(-delta));
+            } else {
+                cleanLats[0] = d3.max(slicedLats.slice(0,delta));
+                cleanLats[cleanLats.length-1] = d3.min(slicedLats.slice(-delta));
+            }
+            
+            
+            if(cleanLons[0]-cleanLons[1]<0){
+                cleanLons[0] = d3.min(slicedLons.slice(0,delta));
+                cleanLons[cleanLons.length-1] = d3.max(slicedLons.slice(-delta));
+            } else {
+                cleanLons[0] = d3.max(slicedLons.slice(0,delta));
+                cleanLons[cleanLons.length-1] = d3.min(slicedLons.slice(-delta));
+            }
+            
+
+            for (var p = 0; p < cleanLats.length; p++) {
+                posDataHeight.push(cleanLons[p]);
+                posDataHeight.push(cleanLats[p]);
+                posDataHeight.push(height);
+                posDataLineHeight.push(cleanLons[p]);
+                posDataLineHeight.push(cleanLats[p]);
+                posDataLineHeight.push(height+20000);
+                posData.push(cleanLons[p]);
+                posData.push(cleanLats[p]);
+            }
+
+            if(renderOutlines){
+                lineInstances.push(
+                    new Cesium.GeometryInstance({
+                        geometry : new Cesium.PolylineGeometry({
+                            positions : 
+                            Cesium.Cartesian3.fromDegreesArrayHeights(
+                                posDataLineHeight
+                            ),
+                            width : 10.0
                         })
-                    );
+                    })
+                );
 
-                    lineInstances.push(
-                        new Cesium.GeometryInstance({
-                            geometry : new Cesium.PolylineGeometry({
-                                positions : 
-                                Cesium.Cartesian3.fromDegreesArray(
-                                    posData
-                                ),
-                                width : 10.0
-                            })
+                lineInstances.push(
+                    new Cesium.GeometryInstance({
+                        geometry : new Cesium.PolylineGeometry({
+                            positions : 
+                            Cesium.Cartesian3.fromDegreesArray(
+                                posData
+                            ),
+                            width : 10.0
                         })
-                    );
-                }
+                    })
+                );
+            }
 
-                if(posDataHeight.length === 6){
-                    if (posDataHeight[0] === posDataHeight[3] &&
-                        posDataHeight[1] === posDataHeight[4]){
-                        console.log('Warning curtain geometry has equal start and end point, geometry creation was skipped');
-                        continue;
-                    }
+            if(posDataHeight.length === 6){
+                if (posDataHeight[0] === posDataHeight[3] &&
+                    posDataHeight[1] === posDataHeight[4]){
+                    console.log('Warning curtain geometry has equal start and end point, geometry creation was skipped');
+                    return;
                 }
+            }
 
-                // Debug helper
-                /*
-                if(this.auxOutlineLines){
-                    this.map.entities.remove(this.auxOutlineLines);
-                }
-                this.auxOutlineLines = this.map.entities.add({
-                    wall : {
-                        positions : Cesium.Cartesian3.fromDegreesArrayHeights(
-                            posDataHeight
-                        ),
-                        outline : true,
-                        outlineColor : Cesium.Color.RED,
-                        outlineWidth : 2,
-                        material : Cesium.Color.fromRandom({alpha : 0.7})
-                    }
-                });
-                */
-
-                var wall = new Cesium.WallGeometry({
+            // Debug helper
+            /*
+            if(this.auxOutlineLines){
+                this.map.entities.remove(this.auxOutlineLines);
+            }
+            this.auxOutlineLines = this.map.entities.add({
+                wall : {
                     positions : Cesium.Cartesian3.fromDegreesArrayHeights(
                         posDataHeight
-                    )
-                });
+                    ),
+                    outline : true,
+                    outlineColor : Cesium.Color.RED,
+                    outlineWidth : 2,
+                    material : Cesium.Color.fromRandom({alpha : 0.7})
+                }
+            });
+            */
 
-                var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
-                if(wallGeometry){
-                    var instance = new Cesium.GeometryInstance({
-                      geometry : wallGeometry
-                    }); 
+            var wall = new Cesium.WallGeometry({
+                positions : Cesium.Cartesian3.fromDegreesArrayHeights(
+                    posDataHeight
+                )
+            });
 
-                    // Check the normal vector, in some cases we need to flip the
-                    // direction of the texture to be applied
-                    if(wallGeometry.attributes.normal.values[0]>0 &&
-                        wallGeometry.attributes.normal.values[1]<0 &&
-                        wallGeometry.attributes.normal.values[2]>0){
-                        newmat.uniforms.repeat.x = 1;
-                    } else if (wallGeometry.attributes.normal.values[0]<0 &&
-                        wallGeometry.attributes.normal.values[1]>0 &&
-                        wallGeometry.attributes.normal.values[2]<0){
-                        newmat.uniforms.repeat.x = -1;
-                    } else if (wallGeometry.attributes.normal.values[0]>0 &&
-                        wallGeometry.attributes.normal.values[1]>0 &&
-                        wallGeometry.attributes.normal.values[2]<0){
-                        newmat.uniforms.repeat.x = -1;
-                    } else if (wallGeometry.attributes.normal.values[0]>0 &&
-                        wallGeometry.attributes.normal.values[1]<0 &&
-                        wallGeometry.attributes.normal.values[2]<0){
-                        newmat.uniforms.repeat.x = -1;
-                    } else if (wallGeometry.attributes.normal.values[0]<0 &&
-                        wallGeometry.attributes.normal.values[1]<0 &&
-                        wallGeometry.attributes.normal.values[2]<0){
-                        newmat.uniforms.repeat.x = -1;
-                    }
+            var wallGeometry = Cesium.WallGeometry.createGeometry(wall);
+            if(wallGeometry){
+                var instance = new Cesium.GeometryInstance({
+                  geometry : wallGeometry
+                }); 
 
-                } else {
-                    console.log("CesiumView.js: Wallgeometry not created correctly!");
+                // Check the normal vector, in some cases we need to flip the
+                // direction of the texture to be applied
+                if(wallGeometry.attributes.normal.values[0]>0 &&
+                    wallGeometry.attributes.normal.values[1]<0 &&
+                    wallGeometry.attributes.normal.values[2]>0){
+                    newmat.uniforms.repeat.x = 1;
+                } else if (wallGeometry.attributes.normal.values[0]<0 &&
+                    wallGeometry.attributes.normal.values[1]>0 &&
+                    wallGeometry.attributes.normal.values[2]<0){
+                    newmat.uniforms.repeat.x = -1;
+                } else if (wallGeometry.attributes.normal.values[0]>0 &&
+                    wallGeometry.attributes.normal.values[1]>0 &&
+                    wallGeometry.attributes.normal.values[2]<0){
+                    newmat.uniforms.repeat.x = -1;
+                } else if (wallGeometry.attributes.normal.values[0]>0 &&
+                    wallGeometry.attributes.normal.values[1]<0 &&
+                    wallGeometry.attributes.normal.values[2]<0){
+                    newmat.uniforms.repeat.x = -1;
+                } else if (wallGeometry.attributes.normal.values[0]<0 &&
+                    wallGeometry.attributes.normal.values[1]<0 &&
+                    wallGeometry.attributes.normal.values[2]<0){
+                    newmat.uniforms.repeat.x = -1;
                 }
 
-
-                var sliceAppearance = new Cesium.MaterialAppearance({
-                    translucent : true,
-                    flat: true,
-                    faceForward: true,
-                    material : newmat
-                });
-
-                var prim = new Cesium.Primitive({
-                  geometryInstances : instance,
-                  appearance : sliceAppearance,
-                  releaseGeometryInstances: false,
-                  asynchronous: false
-                });
-
-                curtainCollection.add(prim);
+            } else {
+                console.log("CesiumView.js: Wallgeometry not created correctly!");
             }
+
+
+            var sliceAppearance = new Cesium.MaterialAppearance({
+                translucent : true,
+                flat: true,
+                faceForward: true,
+                material : newmat
+            });
+
+            var prim = new Cesium.Primitive({
+              geometryInstances : instance,
+              appearance : sliceAppearance,
+              releaseGeometryInstances: false,
+              asynchronous: false
+            });
+            
+            curtainCollection.add(prim);
 
             if(renderOutlines){
                 var linesPrim = new Cesium.Primitive({
@@ -1688,8 +1720,8 @@ define([
                 });
                 curtainCollection.add(linesPrim);
             }
-
         },
+
 
 
         //method to create layer depending on protocol
