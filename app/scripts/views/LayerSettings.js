@@ -109,11 +109,13 @@
                 }
 
                 _.each(keys, function(key){
-                    if(options[key].selected){
-                        that.selected = key;
-                        option += '<option value="'+ key + '" selected>' + options[key].name + '</option>';
-                    }else{
-                        option += '<option value="'+ key + '">' + options[key].name + '</option>';
+                    if(!options[key].hasOwnProperty('notAvailable')){
+                        if(options[key].selected){
+                            that.selected = key;
+                            option += '<option value="'+ key + '" selected>' + options[key].name + '</option>';
+                        }else{
+                            option += '<option value="'+ key + '">' + options[key].name + '</option>';
+                        }
                     }
                 });
 
@@ -121,208 +123,202 @@
 
                 this.$("#options").append(option);
 
-                // Check if selected is not inside the available options
-                // This happens if residuals were selected for the layer and
-                // then the model was removed also removing the residuals parameter
-                // from the cotnext menu.
-                // If this happens the visualized parameter needs to be changed
-                if(!options.hasOwnProperty(this.selected)){
-                    this.onOptionsChanged();
-                }else{
-
-                    if(options[this.selected].description){
-                        this.$("#description").text(options[this.selected].description);
-                    }
-                    this.addLogOption(options);
-
-                    this.$("#options").unbind();
-                    // Add event handler for change in drop down selection
-                    this.$("#options").change(this.onOptionsChanged.bind(this));
-
-                    // Set values for color scale ranges
-                    this.$("#range_min").val(options[this.selected].range[0]);
-                    this.$("#range_max").val(options[this.selected].range[1]);
-                    
-                    // Register necessary key events
-                    this.registerKeyEvents(this.$("#range_min"));
-                    this.registerKeyEvents(this.$("#range_max"));
-                    
-
-                    var colorscale_options = "";
-                    var selected_colorscale;
-                    _.each(this.colorscaletypes, function(colorscale){
-                        var prodId = that.current_model.get('download').id;
-                        if(globals.dataSettings[prodId][that.selected].colorscale == colorscale){
-                            selected_colorscale = colorscale;
-                            colorscale_options += '<option value="'+ colorscale + '" selected>' + colorscale + '</option>';
-                        }else{
-                            colorscale_options += '<option value="'+ colorscale + '">' + colorscale + '</option>';
-                        }
-                    });
-
-                    this.$("#style").unbind();
-
-                    this.$("#style").empty();
-                    this.$("#style").append(colorscale_options);
-
-                    this.$("#style").change(function(evt){
-                        var prodId = that.current_model.get('download').id;
-                        var colScale = $(evt.target).find("option:selected").text();
-                        if(globals.dataSettings[prodId].hasOwnProperty(that.selected)){
-                            globals.dataSettings[prodId][that.selected].colorscale = colScale;
-                        }
-                        selected_colorscale = colScale;
-                        options[that.selected].colorscale = colScale;
-                        that.current_model.set("parameters", options);
-
-                        if(options[that.selected].hasOwnProperty("logarithmic"))
-                            that.createScale(options[that.selected].logarithmic);
-                        else
-                            that.createScale();
-
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
-                    });
-
-                    this.$("#opacitysilder").unbind();
-                    this.$("#opacitysilder").val(this.current_model.attributes.opacity*100);
-                    this.$("#opacitysilder").on("input change", function(){
-                        var opacity = Number(this.value)/100;
-                        that.current_model.set("opacity", opacity);
-                        Communicator.mediator.trigger('productCollection:updateOpacity', {model:that.current_model, value:opacity});
-                    });
-
-                    
-
-                    if(!(typeof outlines === 'undefined')){
-                        var checked = "";
-                        if (outlines)
-                            checked = "checked";
-
-                        $("#outlines input").unbind();
-                        $("#outlines").empty();
-                        this.$("#outlines").append(
-                            '<form style="vertical-align: middle;">'+
-                            '<label class="valign" for="outlines" style="width: 120px;">Outlines </label>'+
-                            '<input class="valign" style="margin-top: -5px;" type="checkbox" name="outlines" value="outlines" ' + checked + '></input>'+
-                            '</form>'
-                        );
-
-                        this.$("#outlines input").change(function(evt){
-                            var outlines = !that.current_model.get("outlines");
-                            that.current_model.set("outlines", outlines);
-                            Communicator.mediator.trigger("layer:outlines:changed", that.current_model.get("views")[0].id, outlines);
-                        });
-                    }
-
-                    if(!(typeof showColorscale === 'undefined')){
-                        var checked = "";
-                        if (showColorscale)
-                            checked = "checked";
-
-                        $("#showColorscale input").unbind();
-                        $("#showColorscale").empty();
-                        this.$("#showColorscale").append(
-                            '<form style="vertical-align: middle;">'+
-                            '<label class="valign" for="showColorscale" style="width: 120px; margin">Legend </label>'+
-                            '<input class="valign" style="margin-top: -5px;" type="checkbox" name="showColorscale" value="showColorscale" ' + checked + '></input>'+
-                            '</form>'
-                        );
-
-                        this.$("#showColorscale input").change(function(evt){
-                            var showColorscale = !that.current_model.get("showColorscale");
-                            that.current_model.set("showColorscale", showColorscale);
-                            Communicator.mediator.trigger("layer:colorscale:show", that.current_model.get("download").id);
-                        });
-                    }
-
-
-                    if(!(typeof this.current_model.get("coefficients_range") === 'undefined')){
-
-                        this.$("#coefficients_range").empty();
-
-                        this.$("#coefficients_range").append(
-                        '<li style="margin-top: 5px;">'+
-                            '<label for="coefficients_range_min" style="width: 120px;">Coefficients range</label>'+
-                            '<input id="coefficients_range_min" type="text" style="width:30px;"/>'+
-                            '<input id="coefficients_range_max" type="text" style="width:30px; margin-left:8px"/>'+
-                        '</li>'+
-                        '<p style="font-size:0.85em; margin-left:130px;"> [-1,-1]: No range limitation</p>'
-                        );
-
-                        this.$("#coefficients_range_min").val(this.current_model.get("coefficients_range") [0]);
-                        this.$("#coefficients_range_max").val(this.current_model.get("coefficients_range") [1]);
-
-                        // Register necessary key events
-                        this.registerKeyEvents(this.$("#coefficients_range_min"));
-                        this.registerKeyEvents(this.$("#coefficients_range_max"));
-                        
-                    }
-
-                    if(options[this.selected].hasOwnProperty("logarithmic"))
-                        this.createScale(options[that.selected].logarithmic);
-                    else
-                        this.createScale();
-
-                    this.createHeightTextbox(this.current_model.get("height"));
-
-                    if(altitude!==null){
-                        this.$("#height").empty();
-                        this.$("#height").append(
-                            '<form style="vertical-align: middle;">'+
-                            '<label for="heightvalue" style="width: 120px;">Altitude filter</label>'+
-                            '<input id="heightvalue" type="text" style="width:30px; margin-left:8px"/>'+
-                            '</form>'
-                        );
-                        this.$("#heightvalue").val(altitude);
-                        this.$("#height").append(
-                            '<p style="font-size:0.85em; margin-left: 120px;">Maximum altitude (Km)</p>'
-                        );
-                        // Register necessary key events
-                        this.registerKeyEvents(this.$("#heightvalue"));
-                    }
-
-                    if(altitudeExtentSet!==null){
-                        /*
-                        var checked = "";
-                        if (altitudeExtentSet)
-                            checked = "checked";
-
-                        $("#altitudeExtentSetCB").unbind();
-                        this.$("#altitudeExtent").empty();
-
-                        this.$("#altitudeExtent").append(
-                            '<form style="vertical-align: middle;">'+
-                            '<label class="valign" for="altitudeExtentSetCB" style="width: 120px;">Use altitude extent</label>'+
-                            '<input class="valign" id="altitudeExtentSetCB" style="margin-top: -5px;" type="checkbox" name="altitudeExtentSetCB" value="altitudeExtentSetCB" ' + checked + '></input>'+
-                            '</form>'
-                        );
-
-                        this.$("#altitudeExtentSetCB").change(function(evt){
-                            var altitudeExtentSet = !that.current_model.get("altitudeExtentSet");
-                            that.current_model.set("altitudeExtentSet", altitudeExtentSet);
-                            //Communicator.mediator.trigger("layer:outlines:changed", that.current_model.get("views")[0].id, outlines);
-                        });
-                        */
-                        // TODO: I think we need a set extent for the vertical
-                        // curtains as different curtains sections have different
-                        // altitude ranges which creates issues, so for now we 
-                        // will not allow activating/deactivating the extent
-                        this.$("#altitudeExtent").append(
-                            '<form style="vertical-align: middle;">'+
-                            '<label for="minAltitude" style="width: 120px;">Altitude extent</label>'+
-                            '<input id="minAltitude" type="text" style="width:40px;"/>'+
-                            '<input id="maxAltitude" type="text" style="width:40px; margin-left:8px"/>'+
-                            '</form>'
-                        );
-                        this.$("#minAltitude").val(altitudeExtent[0]);
-                        this.$("#maxAltitude").val(altitudeExtent[1]);
-                        // Register necessary key events
-                        this.registerKeyEvents(this.$("#minAltitude"));
-                        this.registerKeyEvents(this.$("#maxAltitude"));
-
-
-                    }
+                if(options[this.selected].description){
+                    this.$("#description").text(options[this.selected].description);
                 }
+                this.addLogOption(options);
+
+                this.$("#options").unbind();
+                // Add event handler for change in drop down selection
+                this.$("#options").change(this.onOptionsChanged.bind(this));
+
+                // Set values for color scale ranges
+                this.$("#range_min").val(options[this.selected].range[0]);
+                this.$("#range_max").val(options[this.selected].range[1]);
+                
+                // Register necessary key events
+                this.registerKeyEvents(this.$("#range_min"));
+                this.registerKeyEvents(this.$("#range_max"));
+                
+
+                var colorscale_options = "";
+                var selected_colorscale;
+                _.each(this.colorscaletypes, function(colorscale){
+                    var prodId = that.current_model.get('download').id;
+                    if(globals.dataSettings[prodId][that.selected].colorscale == colorscale){
+                        selected_colorscale = colorscale;
+                        colorscale_options += '<option value="'+ colorscale + '" selected>' + colorscale + '</option>';
+                    }else{
+                        colorscale_options += '<option value="'+ colorscale + '">' + colorscale + '</option>';
+                    }
+                });
+
+                this.$("#style").unbind();
+
+                this.$("#style").empty();
+                this.$("#style").append(colorscale_options);
+
+                this.$("#style").change(function(evt){
+                    var prodId = that.current_model.get('download').id;
+                    var colScale = $(evt.target).find("option:selected").text();
+                    if(globals.dataSettings[prodId].hasOwnProperty(that.selected)){
+                        globals.dataSettings[prodId][that.selected].colorscale = colScale;
+                    }
+                    selected_colorscale = colScale;
+                    options[that.selected].colorscale = colScale;
+                    that.current_model.set("parameters", options);
+
+                    if(options[that.selected].hasOwnProperty("logarithmic"))
+                        that.createScale(options[that.selected].logarithmic);
+                    else
+                        that.createScale();
+
+                    Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
+                });
+
+                this.$("#opacitysilder").unbind();
+                this.$("#opacitysilder").val(this.current_model.attributes.opacity*100);
+                this.$("#opacitysilder").on("input change", function(){
+                    var opacity = Number(this.value)/100;
+                    that.current_model.set("opacity", opacity);
+                    Communicator.mediator.trigger('productCollection:updateOpacity', {model:that.current_model, value:opacity});
+                });
+
+                
+
+                if(!(typeof outlines === 'undefined')){
+                    var checked = "";
+                    if (outlines)
+                        checked = "checked";
+
+                    $("#outlines input").unbind();
+                    $("#outlines").empty();
+                    this.$("#outlines").append(
+                        '<form style="vertical-align: middle;">'+
+                        '<label class="valign" for="outlines" style="width: 120px;">Outlines </label>'+
+                        '<input class="valign" style="margin-top: -5px;" type="checkbox" name="outlines" value="outlines" ' + checked + '></input>'+
+                        '</form>'
+                    );
+
+                    this.$("#outlines input").change(function(evt){
+                        var outlines = !that.current_model.get("outlines");
+                        that.current_model.set("outlines", outlines);
+                        Communicator.mediator.trigger("layer:outlines:changed", that.current_model.get("views")[0].id, outlines);
+                    });
+                }
+
+                if(!(typeof showColorscale === 'undefined')){
+                    var checked = "";
+                    if (showColorscale)
+                        checked = "checked";
+
+                    $("#showColorscale input").unbind();
+                    $("#showColorscale").empty();
+                    this.$("#showColorscale").append(
+                        '<form style="vertical-align: middle;">'+
+                        '<label class="valign" for="showColorscale" style="width: 120px; margin">Legend </label>'+
+                        '<input class="valign" style="margin-top: -5px;" type="checkbox" name="showColorscale" value="showColorscale" ' + checked + '></input>'+
+                        '</form>'
+                    );
+
+                    this.$("#showColorscale input").change(function(evt){
+                        var showColorscale = !that.current_model.get("showColorscale");
+                        that.current_model.set("showColorscale", showColorscale);
+                        Communicator.mediator.trigger("layer:colorscale:show", that.current_model.get("download").id);
+                    });
+                }
+
+
+                if(!(typeof this.current_model.get("coefficients_range") === 'undefined')){
+
+                    this.$("#coefficients_range").empty();
+
+                    this.$("#coefficients_range").append(
+                    '<li style="margin-top: 5px;">'+
+                        '<label for="coefficients_range_min" style="width: 120px;">Coefficients range</label>'+
+                        '<input id="coefficients_range_min" type="text" style="width:30px;"/>'+
+                        '<input id="coefficients_range_max" type="text" style="width:30px; margin-left:8px"/>'+
+                    '</li>'+
+                    '<p style="font-size:0.85em; margin-left:130px;"> [-1,-1]: No range limitation</p>'
+                    );
+
+                    this.$("#coefficients_range_min").val(this.current_model.get("coefficients_range") [0]);
+                    this.$("#coefficients_range_max").val(this.current_model.get("coefficients_range") [1]);
+
+                    // Register necessary key events
+                    this.registerKeyEvents(this.$("#coefficients_range_min"));
+                    this.registerKeyEvents(this.$("#coefficients_range_max"));
+                    
+                }
+
+                if(options[this.selected].hasOwnProperty("logarithmic"))
+                    this.createScale(options[that.selected].logarithmic);
+                else
+                    this.createScale();
+
+                this.createHeightTextbox(this.current_model.get("height"));
+
+                if(altitude!==null){
+                    this.$("#height").empty();
+                    this.$("#height").append(
+                        '<form style="vertical-align: middle;">'+
+                        '<label for="heightvalue" style="width: 120px;">Altitude filter</label>'+
+                        '<input id="heightvalue" type="text" style="width:30px; margin-left:8px"/>'+
+                        '</form>'
+                    );
+                    this.$("#heightvalue").val(altitude);
+                    this.$("#height").append(
+                        '<p style="font-size:0.85em; margin-left: 120px;">Maximum altitude (Km)</p>'
+                    );
+                    // Register necessary key events
+                    this.registerKeyEvents(this.$("#heightvalue"));
+                }
+
+                if(altitudeExtentSet!==null){
+                    /*
+                    var checked = "";
+                    if (altitudeExtentSet)
+                        checked = "checked";
+
+                    $("#altitudeExtentSetCB").unbind();
+                    this.$("#altitudeExtent").empty();
+
+                    this.$("#altitudeExtent").append(
+                        '<form style="vertical-align: middle;">'+
+                        '<label class="valign" for="altitudeExtentSetCB" style="width: 120px;">Use altitude extent</label>'+
+                        '<input class="valign" id="altitudeExtentSetCB" style="margin-top: -5px;" type="checkbox" name="altitudeExtentSetCB" value="altitudeExtentSetCB" ' + checked + '></input>'+
+                        '</form>'
+                    );
+
+                    this.$("#altitudeExtentSetCB").change(function(evt){
+                        var altitudeExtentSet = !that.current_model.get("altitudeExtentSet");
+                        that.current_model.set("altitudeExtentSet", altitudeExtentSet);
+                        //Communicator.mediator.trigger("layer:outlines:changed", that.current_model.get("views")[0].id, outlines);
+                    });
+                    */
+                    $("#minAltitude").off();
+                    $("#maxAltitude").off();
+                    $("#altitudeExtent").empty();
+                    // TODO: I think we need a set extent for the vertical
+                    // curtains as different curtains sections have different
+                    // altitude ranges which creates issues, so for now we 
+                    // will not allow activating/deactivating the extent
+                    this.$("#altitudeExtent").append(
+                        '<form style="vertical-align: middle;">'+
+                        '<label for="minAltitude" style="width: 120px;">Altitude extent</label>'+
+                        '<input id="minAltitude" type="text" style="width:40px;"/>'+
+                        '<input id="maxAltitude" type="text" style="width:40px; margin-left:8px"/>'+
+                        '</form>'
+                    );
+                    this.$("#minAltitude").val(altitudeExtent[0]);
+                    this.$("#maxAltitude").val(altitudeExtent[1]);
+                    // Register necessary key events
+                    this.registerKeyEvents(this.$("#minAltitude"));
+                    this.registerKeyEvents(this.$("#maxAltitude"));
+
+
+                }
+            
                 if(this.selected == "Fieldlines"){
                     $("#coefficients_range").hide();
                     $("#opacitysilder").parent().hide();

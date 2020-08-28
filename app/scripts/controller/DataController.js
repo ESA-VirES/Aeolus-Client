@@ -2139,6 +2139,29 @@
           }
         }
 
+        // Once we are done preparing the data we need to check the product
+        // configuration for cesium visualization to see what parameters are
+        // available, and if a selected parameter is no longer available switch
+        // to a default one
+        if(!$.isEmptyObject(resData)){
+          var pPars = product.get('parameters');
+          var allKeys = Object.keys(pPars);
+          for (var pKey in pPars) {
+            if(!resData.hasOwnProperty(pKey)){
+              pPars[pKey].notAvailable = true;
+              if(pPars[pKey].hasOwnProperty('selected')){
+                delete pPars[pKey].selected;
+                // The first item in all configs is the default required parameter
+                pPars[allKeys[0]].selected = true;
+                Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
+              }
+            } else if(pPars[pKey].hasOwnProperty('notAvailable')){
+              delete pPars[pKey].notAvailable;
+            }
+          }
+          product.set('parameters', pPars);
+        }
+
         return resData;
       },
 
