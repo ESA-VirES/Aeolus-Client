@@ -957,39 +957,45 @@
       checkFlatteningComplete: function(){
         if(this.processedParameters === this.totalLength){
           var resData = {};
-          resData[this.collectionId] = this.tmpdata;
+          resData = this.tmpdata;
           var collId = this.collectionId;
 
-          // We go through currently selected parameters to make sure
-          // what is selected before we trigger the new load event
-          // as some parameters may have been removed
-          // Filter out unavailable data parameters
-          var product = globals.products.find(
-              function(p){return p.get('download').id === collId;}
-          );
-          var pars = product.get('parameters');
-          var keys = Object.keys(pars);
-          var changeSelected = false;
-          for (var i = keys.length - 1; i >= 0; i--) {
-              if(!this.tmpdata.hasOwnProperty(keys[i])){
-                if(pars[keys[i]].hasOwnProperty('selected') && pars[keys[i]]){
-                  changeSelected = true;
-                  delete pars[keys[i]].selected;
+          // Once we are done preparing the data we need to check the product
+          // configuration for cesium visualization to see what parameters are
+          // available, and if a selected parameter is no longer available switch
+          // to a default one
+          if(!$.isEmptyObject(resData)){
+            var currCol = this.collectionId;
+            var product = globals.products.find(
+              function(p){return p.get('download').id === currCol;}
+            );
+            var pPars = product.get('parameters');
+            var allKeys = Object.keys(pPars);
+            for (var pKey in pPars) {
+              if(!resData.hasOwnProperty(pKey)){
+                pPars[pKey].notAvailable = true;
+                if(pPars[pKey].hasOwnProperty('selected')){
+                  delete pPars[pKey].selected;
+                  // The first item in all configs is the default required parameter
+                  pPars[allKeys[0]].selected = true;
+                  Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
                 }
-                keys.splice(i,1);
+              } else if(pPars[pKey].hasOwnProperty('notAvailable')){
+                delete pPars[pKey].notAvailable;
+                Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
               }
+            }
+            product.set('parameters', pPars);
           }
-          if(changeSelected){
-            pars[keys[0]].selected = true;
-          }
-          product.set('parameters', pars);
 
           globals.filterManager.dataSettings = globals.dataSettings[collId];
-          globals.filterManager.loadData(resData[this.collectionId]);
+          globals.filterManager.loadData(resData);
           globals.filterManager._initData();
           globals.filterManager._renderFilters();
           globals.filterManager._renderFilters();
-          globals.swarm.set({data: resData});
+          var data = {};
+          data[this.collectionId] = resData;
+          globals.swarm.set({data: data});
           this.checkTutorialStatus();
         }
       },
@@ -1685,6 +1691,30 @@
 
         }
 
+        // Once we are done preparing the data we need to check the product
+        // configuration for cesium visualization to see what parameters are
+        // available, and if a selected parameter is no longer available switch
+        // to a default one
+        if(!$.isEmptyObject(resData)){
+          var pPars = product.get('parameters');
+          var allKeys = Object.keys(pPars);
+          for (var pKey in pPars) {
+            if(!resData.hasOwnProperty(pKey)){
+              pPars[pKey].notAvailable = true;
+              if(pPars[pKey].hasOwnProperty('selected')){
+                delete pPars[pKey].selected;
+                // The first item in all configs is the default required parameter
+                pPars[allKeys[0]].selected = true;
+                Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
+              }
+            } else if(pPars[pKey].hasOwnProperty('notAvailable')){
+              delete pPars[pKey].notAvailable;
+              Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
+            }
+          }
+          product.set('parameters', pPars);
+        }
+
         return resData;
       },
 
@@ -2157,6 +2187,7 @@
               }
             } else if(pPars[pKey].hasOwnProperty('notAvailable')){
               delete pPars[pKey].notAvailable;
+              Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
             }
           }
           product.set('parameters', pPars);

@@ -275,27 +275,6 @@
                 }
 
                 if(altitudeExtentSet!==null){
-                    /*
-                    var checked = "";
-                    if (altitudeExtentSet)
-                        checked = "checked";
-
-                    $("#altitudeExtentSetCB").unbind();
-                    this.$("#altitudeExtent").empty();
-
-                    this.$("#altitudeExtent").append(
-                        '<form style="vertical-align: middle;">'+
-                        '<label class="valign" for="altitudeExtentSetCB" style="width: 120px;">Use altitude extent</label>'+
-                        '<input class="valign" id="altitudeExtentSetCB" style="margin-top: -5px;" type="checkbox" name="altitudeExtentSetCB" value="altitudeExtentSetCB" ' + checked + '></input>'+
-                        '</form>'
-                    );
-
-                    this.$("#altitudeExtentSetCB").change(function(evt){
-                        var altitudeExtentSet = !that.current_model.get("altitudeExtentSet");
-                        that.current_model.set("altitudeExtentSet", altitudeExtentSet);
-                        //Communicator.mediator.trigger("layer:outlines:changed", that.current_model.get("views")[0].id, outlines);
-                    });
-                    */
                     $("#minAltitude").off();
                     $("#maxAltitude").off();
                     $("#altitudeExtent").empty();
