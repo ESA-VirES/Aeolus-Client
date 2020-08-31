@@ -856,7 +856,9 @@
                 "rayleigh_wind_result_reference_temperature":{"active": true,"uom": "10⁻²K", "name": "Reference temperature used for inverting the Rayleigh response into an HLOS wind"},
                 "rayleigh_wind_result_reference_backscatter_ratio":{"uom": "10⁻⁶", "name": "Reference backscatter ratio used for inverting the Rayleigh response measured by the lidar"},
                 "mie_wind_profile_observation_type":{"uom": null, "name": "Cloud or no-cloud profile  (0=undefined, 1=cloudy, 2=clear)"},
-                "rayleigh_wind_profile_observation_type":{"uom": null, "name": "Cloud or no-cloud profile  (0=undefined, 1=cloudy, 2=clear)"}
+                "rayleigh_wind_profile_observation_type":{"uom": null, "name": "Cloud or no-cloud profile  (0=undefined, 1=cloudy, 2=clear)"},
+                "mie_wind_result_albedo_off_nadir":{"uom":null, "name":"Mie wind result albedo off nadir"},
+                "rayleigh_wind_result_albedo_off_nadir":{"uom":null, "name":"Rayleigh wind result albedo off nadir"}
             },
             "download_groups": {
                 "mie_grouping": [

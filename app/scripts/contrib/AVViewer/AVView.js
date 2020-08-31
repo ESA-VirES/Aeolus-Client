@@ -65,8 +65,30 @@ define(['backbone.marionette',
             localStorage.setItem(
                 'groupSelected',
                 JSON.stringify(graph.renderSettings.groups)
-            )
+            );
 
+            localStorage.setItem(
+                'additionalXTicks',
+                JSON.stringify(graph.renderSettings.additionalXTicks)
+            );
+            if(typeof graph.renderSettings.yAxisLabel !== 'undefined'){
+                localStorage.setItem(
+                    'yAxisLabel',
+                    JSON.stringify(graph.renderSettings.yAxisLabel)
+                );
+            }
+            if(typeof graph.renderSettings.y2AxisLabel !== 'undefined'){
+                localStorage.setItem(
+                    'y2AxisLabel',
+                    JSON.stringify(graph.renderSettings.y2AxisLabel)
+                );
+            }
+            if(typeof graph.renderSettings.xAxisLabel !== 'undefined'){
+                localStorage.setItem(
+                    'xAxisLabel',
+                    JSON.stringify(graph.renderSettings.xAxisLabel)
+                );
+            }
         },
 
         extendSettings: function(settings){
@@ -84,6 +106,10 @@ define(['backbone.marionette',
             var y2AxisLocked = JSON.parse(localStorage.getItem('y2AxisLocked'));
             var yAxisExtent = JSON.parse(localStorage.getItem('yAxisExtent'));
             var y2AxisExtent = JSON.parse(localStorage.getItem('y2AxisExtent'));
+            var additionalXTicks = JSON.parse(localStorage.getItem('additionalXTicks'));
+            var yAxisLabel = JSON.parse(localStorage.getItem('yAxisLabel'));
+            var y2AxisLabel = JSON.parse(localStorage.getItem('y2AxisLabel'));
+            var xAxisLabel = JSON.parse(localStorage.getItem('xAxisLabel'));
 
             var revY = null;
             var revY2 = null;
@@ -211,6 +237,27 @@ define(['backbone.marionette',
             if (revY2 !== null) {
                 currSets.reversedY2Axis = revY2;
             }
+
+            if (additionalXTicks !== null) {
+                // Check to see if selected parameters are still available
+                for (var i = additionalXTicks.length - 1; i >= 0; i--) {
+                    if(this.currentKeys.indexOf(additionalXTicks[i]) === -1){
+                        additionalXTicks.splice(i, 1);
+                    }
+                }
+                currSets.additionalXTicks = additionalXTicks;
+            }
+            if (yAxisLabel !== null) {
+                currSets.yAxisLabel = yAxisLabel;
+            }
+            if (y2AxisLabel !== null) {
+                currSets.y2AxisLabel = y2AxisLabel;
+            }
+            if (xAxisLabel !== null) {
+                currSets.xAxisLabel = xAxisLabel;
+            }
+
+
             currSets.yAxisLocked = yAxisLocked;
             currSets.y2AxisLocked = y2AxisLocked;
             currSets.yAxisExtent = yAxisExtent;
@@ -1825,9 +1872,34 @@ define(['backbone.marionette',
                     );
                 });
 
-                this.graph.on('axisExtentChanged', function () {
-
+                this.graph.on('zoomUpdate', function () {
+                    // TODO: Do we save the extent when axis fixed?
+                    /*
                     var globeNeedsUpdate = false;
+                    for (var i = 0; i < this.renderSettings.yAxisLocked.length; i++) {
+                        if(this.renderSettings.yAxisLocked[i]){
+                            globeNeedsUpdate = true;
+                        }
+                    }
+                    for (var i = 0; i < this.renderSettings.y2AxisLocked.length; i++) {
+                        if(this.renderSettings.y2AxisLocked[i]){
+                            globeNeedsUpdate = true;
+                        }
+                    }
+                     // Trigger layer parameters changed to make sure globe
+                    // view is updated acordingly
+                    // Only do this for relevant changes, i.e. if the changes
+                    // affect the currently visualized parameter on globe
+                    if(globeNeedsUpdate) {
+                        Communicator.mediator.trigger(
+                            'layer:parameters:changed', prodId
+                        );
+                    }
+                    */
+
+                });
+
+                this.graph.on('axisExtentChanged', function () {
 
                     localStorage.setItem(
                         'yAxisExtent', JSON.stringify(this.renderSettings.yAxisExtent)
@@ -1841,19 +1913,6 @@ define(['backbone.marionette',
                     localStorage.setItem(
                         'y2AxisLocked', JSON.stringify(this.renderSettings.y2AxisLocked)
                     );
-
-                    /*
-                    for (var i = 0; i < this.renderSettings.yAxisLocked.length; i++) {
-                        if(this.renderSettings.yAxisLocked[i]){
-                            globeNeedsUpdate = true;
-                        }
-                    }
-                    for (var i = 0; i < this.renderSettings.y2AxisLocked.length; i++) {
-                        if(this.renderSettings.y2AxisLocked[i]){
-                            globeNeedsUpdate = true;
-                        }
-                    }
-                    */
 
                     // Save parameter style changes
                     localStorage.setItem(
@@ -1876,15 +1935,10 @@ define(['backbone.marionette',
                         }
                     }
                     currProd.set('parameters', parOpts);
-                    // Trigger layer parameters changed to make sure globe
-                    // view is updated acordingly
-                    // Only do this for relevant changes, i.e. if the changes
-                    // affect the currently visualized parameter on globe
-                    if(globeNeedsUpdate){
-                        Communicator.mediator.trigger(
-                            'layer:parameters:changed', prodId
-                        );
-                    }
+                    Communicator.mediator.trigger(
+                        'layer:parameters:changed', prodId
+                    );
+                    
                 });
             }
 
