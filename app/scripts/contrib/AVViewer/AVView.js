@@ -71,22 +71,57 @@ define(['backbone.marionette',
                 'additionalXTicks',
                 JSON.stringify(graph.renderSettings.additionalXTicks)
             );
-            if(typeof graph.renderSettings.yAxisLabel !== 'undefined'){
+            localStorage.setItem(
+                'additionalYTicks',
+                JSON.stringify(graph.renderSettings.additionalYTicks)
+            );
+            if(typeof graph.yAxisLabel !== 'undefined'){
                 localStorage.setItem(
                     'yAxisLabel',
-                    JSON.stringify(graph.renderSettings.yAxisLabel)
+                    JSON.stringify(graph.yAxisLabel)
                 );
             }
-            if(typeof graph.renderSettings.y2AxisLabel !== 'undefined'){
+            if(typeof graph.y2AxisLabel !== 'undefined'){
                 localStorage.setItem(
                     'y2AxisLabel',
-                    JSON.stringify(graph.renderSettings.y2AxisLabel)
+                    JSON.stringify(graph.y2AxisLabel)
                 );
             }
-            if(typeof graph.renderSettings.xAxisLabel !== 'undefined'){
+            if(typeof graph.xAxisLabel !== 'undefined'){
                 localStorage.setItem(
                     'xAxisLabel',
-                    JSON.stringify(graph.renderSettings.xAxisLabel)
+                    JSON.stringify(graph.xAxisLabel)
+                );
+            }
+
+            if(typeof graph.renderSettings.reversedYAxis !== 'undefined'){
+                localStorage.setItem(
+                    'reversedYAxis',
+                    JSON.stringify(graph.renderSettings.reversedYAxis)
+                );
+            }
+            if(typeof graph.renderSettings.reversedY2Axis !== 'undefined'){
+                localStorage.setItem(
+                    'reversedY2Axis',
+                    JSON.stringify(graph.renderSettings.reversedY2Axis)
+                );
+            }
+            if(typeof graph.logY !== 'undefined'){
+                localStorage.setItem(
+                    'logY',
+                    JSON.stringify(graph.logY)
+                );
+            }
+            if(typeof graph.logY2 !== 'undefined'){
+                localStorage.setItem(
+                    'logY2',
+                    JSON.stringify(graph.logY2)
+                );
+            }
+            if(typeof graph.logX !== 'undefined'){
+                localStorage.setItem(
+                    'logX',
+                    JSON.stringify(graph.logX)
                 );
             }
         },
@@ -107,9 +142,13 @@ define(['backbone.marionette',
             var yAxisExtent = JSON.parse(localStorage.getItem('yAxisExtent'));
             var y2AxisExtent = JSON.parse(localStorage.getItem('y2AxisExtent'));
             var additionalXTicks = JSON.parse(localStorage.getItem('additionalXTicks'));
+            var additionalYTicks = JSON.parse(localStorage.getItem('additionalYTicks'));
             var yAxisLabel = JSON.parse(localStorage.getItem('yAxisLabel'));
             var y2AxisLabel = JSON.parse(localStorage.getItem('y2AxisLabel'));
             var xAxisLabel = JSON.parse(localStorage.getItem('xAxisLabel'));
+            var logY = JSON.parse(localStorage.getItem('logY'));
+            var logY2 = JSON.parse(localStorage.getItem('logY2'));
+            var logX = JSON.parse(localStorage.getItem('logX'));
 
             var revY = null;
             var revY2 = null;
@@ -238,6 +277,16 @@ define(['backbone.marionette',
                 currSets.reversedY2Axis = revY2;
             }
 
+            if (logY !== null) {
+                currSets.logY = logY;
+            }
+            if (logY2 !== null) {
+                currSets.logY2 = logY2;
+            }
+            if (logX !== null) {
+                currSets.logX = logX;
+            }
+
             if (additionalXTicks !== null) {
                 // Check to see if selected parameters are still available
                 for (var i = additionalXTicks.length - 1; i >= 0; i--) {
@@ -246,6 +295,30 @@ define(['backbone.marionette',
                     }
                 }
                 currSets.additionalXTicks = additionalXTicks;
+            }
+            if (additionalYTicks !== null) {
+                // Check to see if selected parameters are still available
+                for (var i = additionalYTicks.length - 1; i >= 0; i--) {
+                    for (var yy = additionalYTicks.length - 1; yy >= 0; yy--) {
+                        if(Array.isArray(additionalYTicks[i]) && additionalYTicks[i].lenght>=yy){
+                            if(this.currentKeys.indexOf(additionalYTicks[i][yy]) === -1){
+                                additionalYTicks[i].splice(yy, 1);
+                            }
+                        }
+                    }
+                }
+                currSets.additionalYTicks = additionalYTicks;
+            }
+            // Apply custom subticks in the size of the amount of plots
+            // subticks are not saved at the moment
+            if (groups !== null) {
+                if(additionalYTicks !== null && additionalYTicks.length !== currSets.yAxis.length){
+                    var yticks = [];
+                    for (var i = 0; i < currSets.yAxis.length; i++) {
+                        yticks.push([]);
+                    }
+                    currSets.additionalYTicks = yticks;
+                }
             }
             if (yAxisLabel !== null) {
                 currSets.yAxisLabel = yAxisLabel;
@@ -263,15 +336,6 @@ define(['backbone.marionette',
             currSets.yAxisExtent = yAxisExtent;
             currSets.y2AxisExtent = y2AxisExtent;
 
-            // Apply custom subticks in the size of the amount of plots
-            // subticks are not saved at the moment
-            if (groups !== null) {
-                var yticks = [];
-                for (var i = 0; i < currSets.yAxis.length; i++) {
-                    yticks.push([]);
-                }
-                currSets.additionalYTicks = yticks;
-            }
             return currSets;
         },
 
@@ -1797,6 +1861,9 @@ define(['backbone.marionette',
                     var rS = that.graph.renderSettings;
                     for (var yPos = 0; yPos < rS.yAxis.length; yPos++) {
                         var revAv = false;
+                        if(typeof rS.reversedYAxis!=='undefined' && rS.reversedYAxis.length >= yPos){
+                            revAv = rS.reversedYAxis[yPos];
+                        }
                         for (var par = 0; par < rS.yAxis[yPos].length; par++) {
                             if(parsToReverse.indexOf(rS.yAxis[yPos][par]) !== -1){
                                 revAv = true;
@@ -2607,6 +2674,15 @@ define(['backbone.marionette',
                         }
                     }
                     this.graph.setRenderSettings(renderSettings);
+                    if(renderSettings.hasOwnProperty('logY')){
+                        this.graph.logY = renderSettings.logY;
+                    }
+                    if(renderSettings.hasOwnProperty('logY2')){
+                        this.graph.logY2 = renderSettings.logY2;
+                    }
+                    if(renderSettings.hasOwnProperty('logX')){
+                        this.graph.logX = renderSettings.logX;
+                    }
 
                     if(cP === 'ALD_U_N_1B' || cP === 'ALD_U_N_2A'){
 
