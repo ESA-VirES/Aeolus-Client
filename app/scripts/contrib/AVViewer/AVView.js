@@ -2344,8 +2344,19 @@ define(['backbone.marionette',
                         aUOM[key].modifiedUOM = globals.dataSettings[prodId][key].modifiedUOM;
                     }
                   }
-                  if(this.currentKeys && this.currentKeys.indexOf(key) === -1 && 
-                      groupKeys.indexOf(key) === -1){
+                  if(this.currentKeys && this.currentKeys.indexOf(key) === -1){
+                    if(groupKeys.indexOf(key) === -1){
+                      delete aUOM[key];
+                    }
+                  }
+                  // Remove also mask and boolparameter from list
+                  if(globals.filterManager.maskParameter.hasOwnProperty(key)){
+                    delete aUOM[key];
+                  }
+                  if(globals.filterManager.boolParameter.parameters.indexOf(key) !== -1){
+                    delete aUOM[key];
+                  }
+                  if(globals.filterManager.choiceParameter.hasOwnProperty(key)){
                     delete aUOM[key];
                   }
                 }
