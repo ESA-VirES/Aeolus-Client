@@ -1296,9 +1296,9 @@
               var currMeasStart = ((currObsStart+observationOffset)*30) + gD.group_start_meas_obs[i];
               var currMeasEnd = ((currObsStart+observationOffset)*30) + gD.group_end_meas_obs[i];
               var heighBinIndex = gD.group_height_bin_index[i]-1;
-              if(typeof oD.mie_altitude_obs[currObsStart] !== 'undefined'){
-                var currAltStart = oD.mie_altitude_obs[currObsStart][heighBinIndex];
-                var currAltEnd = oD.mie_altitude_obs[currObsStart][heighBinIndex+1];
+              if(typeof oD.rayleigh_altitude_obs[currObsStart] !== 'undefined'){
+                var currAltStart = oD.rayleigh_altitude_obs[currObsStart][heighBinIndex];
+                var currAltEnd = oD.rayleigh_altitude_obs[currObsStart][heighBinIndex+1];
                 
                 // TODO: In theory we should filter out -1 values, not sure if these
                 // apply equally to all parameters...
@@ -1361,9 +1361,9 @@
 
           // We generate a new parameter here we need to copy over the
           // related datasettings of original parameter
-          if(globals.dataSettings[collectionId].hasOwnProperty('mie_altitude_obs')){
+          if(globals.dataSettings[collectionId].hasOwnProperty('rayleigh_altitude_obs')){
             globals.dataSettings[collectionId].altitude_obs = 
-              globals.dataSettings[collectionId]['mie_altitude_obs']
+              globals.dataSettings[collectionId]['rayleigh_altitude_obs']
           }
 
           resData.alt_start = alt_start;
@@ -1386,6 +1386,7 @@
 
           resData.group_jumps = group_jumpPos;
           resData.group_signCross = group_signCross;
+          
         } else {
 
           var conversionFunction = function(value, maskLength){
@@ -2482,7 +2483,23 @@
         this.xhr.onreadystatechange = function() {
        
           if(request.readyState == 4) {
-            if(request.status == 200) {
+            if(request.status == 400) {
+              Communicator.mediator.trigger("progress:change", false);
+              var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+              if (error_text && error_text.length > 1) {
+                var errorParameter = error_text[1].split('\'')[1];
+                w2confirm('The parameter "'+errorParameter+'" is not available for the product(s) you are selecting.</br>'+
+                  'Would you like to disable it from the Data configuration?')
+                    .yes(function () {
+                        delete globals.dataSettings[collectionId][errorParameter].active;
+                        Communicator.mediator.trigger('layer:parameterlist:changed');
+                    });
+
+              } else {
+                error_text = 'Please contact feedback@vires.services if issue persists.'
+                showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+              }
+            } else if(request.status == 200) {
 
                 that.tmpdata = {};
                 ;delete globals.swarm.altitudeExtents
