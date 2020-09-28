@@ -4,7 +4,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
 
     var swarm_model = Backbone.Model.extend({data:[]});
     return {
-        version: '2.1',
+        version: '2.1.1',
         objects: new ObjectStore(),
         selections: new ObjectStore(),
         baseLayers: new Backbone.Collection(),
@@ -64,7 +64,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     uom: 'm/s',
                     colorscale: 'viridis',
                     extent: [-40,40],
-                    filterExtent: [-40, 40]
+                    filterExtent: [-40, 40],
                 },
                 'time_start': {
                     scaleFormat: 'time',
@@ -79,13 +79,38 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     colorscale: 'viridis',
                     extent: [-20,20],
                     filterExtent: [-20, 20]
-                }
+                },
+                mie_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                rayleigh_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                
             },
+/*
+maskParameter: 'SCA_mie_SNR_valid',
+maskParameter: 'SCA_rayleigh_SNR_valid',
+maskParameter: 'SCA_extinction_error_bar_valid',
+maskParameter: 'SCA_backscatter_error_bar_valid',
+maskParameter: 'SCA_cumulative_LOD_valid',
+*/
+/*
+SCA_middle_bin_BER_valid
+SCA_middle_bin_mie_SNR_valid
+SCA_middle_bin_rayleigh_SNR_valid
+SCA_middle_bin_extinction_error_bar_valid
+SCA_middle_bin_backscatter_error_bar_valid
+SCA_middle_bin_cumulative_LOD_valid
+*/
             'ALD_U_N_2A': {
                 'SCA_extinction': {
                     uom: '10-6 * m^-1',
                     colorscale: 'viridis',
-                    extent: [0, 250]
+                    extent: [0, 250],
+                    maskParameter: 'SCA_extinction_valid',
                 },
                 'SCA_extinction_variance': {
                     uom: 'm^-2',
@@ -96,7 +121,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     uom: '10-6 * m^-1* sr^-1',
                     colorscale: 'viridis',
                     extent: [0, 15],
-                    filterExtent: [-1,1]
+                    filterExtent: [-1,1],
+                    maskParameter: 'SCA_backscatter_valid',
                 },
                 'SCA_backscatter_variance': {
                     uom: 'm^-2*sr^-2',
@@ -130,6 +156,20 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
                 },
+                'SCA_middle_bin_extinction': {
+                    maskParameter: 'SCA_middle_bin_extinction_valid',
+                },
+                'SCA_middle_bin_backscatter': {
+                    maskParameter: 'SCA_middle_bin_backscatter_valid',
+                },
+                /*
+                'SCA_middle_bin_extinction_variance',
+                'SCA_middle_bin_backscatter_variance',
+                'SCA_middle_bin_LOD_variance',
+                'SCA_middle_bin_BER_variance',
+                'SCA_middle_bin_LOD',
+                'SCA_middle_bin_BER',
+                */
                 'MCA_extinction': {
                     uom: '10-6 * m^-1',
                     colorscale: 'viridis',
@@ -175,16 +215,38 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 },
                 'group_extinction':{
                     uom: '10-6 * m^-1',
-                    nullValue: -1
+                    nullValue: -1,
+                    extent: [-3.5e-9, -2e-10],
                 },
                 'group_backscatter':{
                     uom: '10-6 * m^-1* sr^-1',
-                    nullValue: -1
+                    nullValue: -1,
+                    extent: [-3.5e-9, -2e-10],
                 },
                 'group_LOD_variance':{
                     uom: null,
                     nullValue: -1
-                }
+                },
+                time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                group_start_time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                group_end_time: {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                mie_altitude_obs: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                rayleigh_altitude_obs: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
             },
             'ALD_U_N_2B': {
                 'mie_meas_map': {
@@ -236,9 +298,26 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     timeFormat: 'MJD2000_S'
                 },
                 'rayleigh_wind_result_wind_velocity': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
+                },
+                'rayleigh_wind_result_wind_velocity_normalised': {
+                    uom: 'cm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
+                },
+                rayleigh_wind_result_bottom_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                rayleigh_wind_result_top_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
                 },
                 'mie_wind_result_start_time': {
                     scaleFormat: 'time',
@@ -249,10 +328,27 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     timeFormat: 'MJD2000_S'
                 },
                 'mie_wind_result_wind_velocity': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
-                }
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
+                },
+                'mie_wind_result_wind_velocity_normalised': {
+                    uom: 'cm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
+                },
+                mie_wind_result_bottom_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                mie_wind_result_top_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
             },
 
             'ALD_U_N_2C': {
@@ -305,9 +401,34 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     timeFormat: 'MJD2000_S'
                 },
                 'rayleigh_wind_result_wind_velocity': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
+                },
+                'rayleigh_wind_result_wind_velocity_normalised': {
+                    uom: 'cm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
+                },
+                rayleigh_wind_result_bottom_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                rayleigh_wind_result_top_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                mie_wind_result_bottom_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                mie_wind_result_top_altitude: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
                 },
                 'mie_wind_result_start_time': {
                     scaleFormat: 'time',
@@ -318,10 +439,19 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                     timeFormat: 'MJD2000_S'
                 },
                 'mie_wind_result_wind_velocity': {
-                    uom: 'm/s',
+                    uom: 'cm/s',
                     colorscale: 'viridis',
-                    extent: [-20,20]
-                }
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
+                },
+                'mie_wind_result_wind_velocity_normalised': {
+                    uom: 'cm/s',
+                    colorscale: 'viridis',
+                    extent: [-20,20],
+                    modifier: 'x*1E-2',
+                    modifiedUOM: 'm/s'
+                },
             },
 
             'AUX_MRC_1B': {
@@ -502,12 +632,16 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
               'longitude_of_DEM_intersection',
               'latitude_of_DEM_intersection',
               'altitude_of_DEM_intersection',
+              'argument_of_latitude_of_dem_intersection',
               'mie_longitude',
               'mie_latitude',
               'rayleigh_longitude',
               'rayleigh_latitude',
               'mie_altitude',
               'rayleigh_altitude',
+              'rayleigh_topocentric_azimuth_of_height_bin',
+              'rayleigh_topocentric_elevation_of_height_bin',
+              'rayleigh_target_to_sun_visibility_flag',
               'mie_range',
               'rayleigh_range',
               'geoid_separation',
@@ -524,6 +658,16 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
               'mie_ground_velocity',
               'rayleigh_ground_velocity',
               'mie_HBE_ground_velocity',
+              'mie_ground_fwhm',
+              'mie_ground_useful_signal',
+              'mie_ground_signal_to_noise_ratio',
+              'mie_ground_refined_signal_to_noise_ratio',
+              'rayleigh_ground_useful_signal',
+              'rayleigh_ground_signal_to_noise_ratio',
+              'mie_average_ground_wind_bin_thickness',
+              'rayleigh_average_ground_wind_bin_thickness',
+              'mie_average_ground_wind_bin_thickness_above_dem',
+              'rayleigh_average_ground_wind_bin_thickness_above_dem',
               'rayleigh_HBE_ground_velocity',
               'mie_total_ZWC',
               'rayleigh_total_ZWC',
@@ -532,14 +676,40 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
               'rayleigh_channel_A_SNR',
               'rayleigh_channel_B_SNR',
               'rayleigh_SNR',
+              'mie_num_invalid_reference_pulse',
+              'rayleigh_num_invalid_reference_pulse',
               'mie_error_quantifier',
               'rayleigh_error_quantifier',
               'average_laser_energy',
+              'laser_frequency_offset_std_dev',
+              'uv_energy_std_dev',
+              'mie_ref_pulse_signal_to_noise_ratio',
+              'mie_ref_pulse_refined_signal_to_noise_ratio',
+              'rayleigh_ref_pulse_signal_to_noise_ratio_channel_a',
+              'rayleigh_ref_pulse_signal_to_noise_ratio_channel_b',
+              'mie_num_peak_invalid',
+              'mie_corrected_reference_pulse_response',
+              'rayleigh_corrected_reference_pulse_response',
               'laser_frequency',
               'rayleigh_bin_quality_flag',
               'mie_bin_quality_flag',
               'rayleigh_reference_pulse_quality_flag',
               'mie_reference_pulse_quality_flag',
+              'aht_22_tel_m1',
+              'aht_23_tel_m1',
+              'aht_24_tel_m1',
+              'aht_25_tel_m1',
+              'aht_26_tel_m1',
+              'aht_27_tel_m1',
+              'tc_18_tel_m11',
+              'tc_19_tel_m12',
+              'tc_20_tel_m13',
+              'tc_21_tel_m14',
+              'tc_25_tm15_ths1y',
+              'tc_27_tm16_ths1y',
+              'tc_29_ths2',
+              'tc_23_ths1',
+              'tc_32_ths3',
               'albedo_off_nadir',
               'rayleigh_signal_intensity_range_corrected',
               'mie_signal_intensity_range_corrected',
@@ -551,6 +721,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
               'longitude_of_DEM_intersection',
               'latitude_of_DEM_intersection',
               'altitude_of_DEM_intersection',
+              'argument_of_latitude_of_dem_intersection',
               'mie_longitude',
               'mie_latitude',
               'rayleigh_longitude',
@@ -633,7 +804,9 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
               'SCA_middle_bin_extinction',
               'SCA_middle_bin_backscatter',
               'SCA_middle_bin_LOD',
-              'SCA_middle_bin_BER'
+              'SCA_middle_bin_BER',
+              'SCA_processing_qc_flag',
+              'SCA_middle_bin_processing_qc_flag'
             ],
             'measurement_fields': [
               'L1B_time_meas',
@@ -654,10 +827,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
               'group_height_bin_index',
               'group_backscatter',
               'group_backscatter_variance',
-              'group_extinction_variance'
-              /*'group_start_time',
-              'group_end_time',
-              'group_centroid_time',
+              'group_extinction_variance',
+              /*'group_centroid_time',
               'group_middle_bin_start_altitude',
               'group_middle_bin_stop_altitude',
               'group_start_obs',
@@ -718,6 +889,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 'mie_wind_result_stop_longitude',
                 'mie_wind_result_lat_of_DEM_intersection',
                 'mie_wind_result_lon_of_DEM_intersection',
+                'mie_wind_result_arg_of_lat_of_DEM_intersection',
                 'mie_wind_result_geoid_separation',
                 'mie_wind_result_alt_of_DEM_intersection',
                 'mie_wind_result_HLOS_error',
@@ -731,7 +903,30 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 'mie_wind_result_wind_velocity',
                 'mie_wind_result_integration_length',
                 'mie_wind_result_num_of_measurements',
-                'mie_wind_result_albedo_off_nadir'
+                'mie_wind_result_albedo_off_nadir',
+
+                'mie_wind_result_reference_hlos',
+                'mie_wind_result_extinction',
+                'mie_wind_result_background_high',
+                'mie_wind_result_observation_type',
+                'mie_wind_result_applied_spacecraft_los_corr_velocity',
+                'mie_wind_result_applied_m1_temperature_corr_velocity',
+                'mie_aht_22',
+                'mie_aht_23',
+                'mie_aht_24',
+                'mie_aht_25',
+                'mie_aht_26',
+                'mie_aht_27',
+                'mie_tc_18',
+                'mie_tc_19',
+                'mie_tc_20',
+                'mie_tc_21',
+                'mie_tc_23',
+                'mie_tc_25',
+                'mie_tc_27',
+                'mie_tc_29',
+                'mie_tc_32',
+
               ],
               'rayleigh_wind_fields': [
                 'rayleigh_wind_result_id',
@@ -753,6 +948,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 'rayleigh_wind_result_stop_longitude',
                 'rayleigh_wind_result_lat_of_DEM_intersection',
                 'rayleigh_wind_result_lon_of_DEM_intersection',
+                'rayleigh_wind_result_arg_of_lat_of_DEM_intersection',
                 'rayleigh_wind_result_geoid_separation',
                 'rayleigh_wind_result_alt_of_DEM_intersection',
                 'rayleigh_wind_result_HLOS_error',
@@ -768,7 +964,33 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 'rayleigh_wind_result_reference_pressure',
                 'rayleigh_wind_result_reference_temperature',
                 'rayleigh_wind_result_reference_backscatter_ratio',
-                'rayleigh_wind_result_albedo_off_nadir'
+                'rayleigh_wind_result_albedo_off_nadir',
+
+                'rayleigh_wind_result_reference_hlos',
+                'rayleigh_wind_result_background_high',
+                'rayleigh_wind_result_wind_to_pressure',
+                'rayleigh_wind_result_wind_to_temperature',
+                'rayleigh_wind_result_wind_to_backscatter_ratio',
+                'rayleigh_wind_result_applied_spacecraft_los_corr_velocity',
+                'rayleigh_wind_result_applied_rdb_corr_velocity',
+                'rayleigh_wind_result_applied_ground_corr_velocity',
+                'rayleigh_wind_result_applied_m1_temperature_corr_velocity',
+                'rayleigh_aht_22',
+                'rayleigh_aht_23',
+                'rayleigh_aht_24',
+                'rayleigh_aht_25',
+                'rayleigh_aht_26',
+                'rayleigh_aht_27',
+                'rayleigh_tc_18',
+                'rayleigh_tc_19',
+                'rayleigh_tc_20',
+                'rayleigh_tc_21',
+                'rayleigh_tc_23',
+                'rayleigh_tc_25',
+                'rayleigh_tc_27',
+                'rayleigh_tc_29',
+                'rayleigh_tc_32',
+
               ],
               'rayleigh_profile_fields': [
                 'rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection',
@@ -803,11 +1025,14 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 'mie_wind_result_geoid_separation',
                 'mie_wind_result_alt_of_DEM_intersection',
                 'mie_wind_result_HLOS_error',
+                'mie_wind_result_reference_hlos',
                 'mie_wind_result_QC_flags_1',
                 'mie_wind_result_QC_flags_2',
                 'mie_wind_result_QC_flags_3',
                 'mie_wind_result_SNR',
                 'mie_wind_result_scattering_ratio',
+                'mie_wind_result_extinction',
+                'mie_wind_result_background_high',
                 'mie_assimilation_L2B_QC',
                 'mie_assimilation_persistence_error',
                 'mie_assimilation_representativity_error',
@@ -820,6 +1045,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 'mie_wind_result_observation_type',
                 'mie_wind_result_validity_flag',
                 'mie_wind_result_wind_velocity',
+                'mie_wind_result_applied_spacecraft_los_corr_velocity',
+                'mie_wind_result_applied_m1_temperature_corr_velocity',
                 'mie_wind_result_integration_length',
                 'mie_wind_result_num_of_measurements',
                 'mie_assimilation_validity_flag',
@@ -833,7 +1060,23 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 'mie_assimilation_analysis_v_wind_velocity',
                 'mie_assimilation_analysis_horizontal_wind_velocity',
                 'mie_assimilation_analysis_wind_direction',
-                'mie_wind_result_albedo_off_nadir'
+                'mie_wind_result_albedo_off_nadir',
+
+                'mie_aht_22',
+                'mie_aht_23',
+                'mie_aht_24',
+                'mie_aht_25',
+                'mie_aht_26',
+                'mie_aht_27',
+                'mie_tc_18',
+                'mie_tc_19',
+                'mie_tc_20',
+                'mie_tc_21',
+                'mie_tc_23',
+                'mie_tc_25',
+                'mie_tc_27',
+                'mie_tc_29',
+                'mie_tc_32',
               ],
               'rayleigh_profile_fields': [
                 'rayleigh_profile_lat_of_DEM_intersection', 'rayleigh_profile_lon_of_DEM_intersection',
@@ -862,6 +1105,8 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 'rayleigh_wind_result_geoid_separation',
                 'rayleigh_wind_result_alt_of_DEM_intersection',
                 'rayleigh_wind_result_HLOS_error',
+                'rayleigh_wind_result_reference_hlos',
+                'rayleigh_wind_result_background_high',
                 'rayleigh_wind_result_QC_flags_1',
                 'rayleigh_wind_result_QC_flags_2',
                 'rayleigh_wind_result_QC_flags_3',
@@ -878,6 +1123,13 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 'rayleigh_wind_result_observation_type',
                 'rayleigh_wind_result_validity_flag',
                 'rayleigh_wind_result_wind_velocity',
+                'rayleigh_wind_result_wind_to_pressure',
+                'rayleigh_wind_result_wind_to_temperature',
+                'rayleigh_wind_result_wind_to_backscatter_ratio',
+                'rayleigh_wind_result_applied_spacecraft_los_corr_velocity',
+                'rayleigh_wind_result_applied_rdb_corr_velocity',
+                'rayleigh_wind_result_applied_ground_corr_velocity',
+                'rayleigh_wind_result_applied_m1_temperature_corr_velocity',
                 'rayleigh_wind_result_integration_length',
                 'rayleigh_wind_result_num_of_measurements',
                 'rayleigh_wind_result_reference_pressure',
@@ -895,6 +1147,22 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
                 'rayleigh_assimilation_analysis_horizontal_wind_velocity',
                 'rayleigh_assimilation_analysis_wind_direction',
                 'rayleigh_wind_result_albedo_off_nadir',
+
+                'rayleigh_aht_22',
+                'rayleigh_aht_23',
+                'rayleigh_aht_24',
+                'rayleigh_aht_25',
+                'rayleigh_aht_26',
+                'rayleigh_aht_27',
+                'rayleigh_tc_18',
+                'rayleigh_tc_19',
+                'rayleigh_tc_20',
+                'rayleigh_tc_21',
+                'rayleigh_tc_23',
+                'rayleigh_tc_25',
+                'rayleigh_tc_27',
+                'rayleigh_tc_29',
+                'rayleigh_tc_32',
               ],
            },
           'AUX_MRC_1B': [

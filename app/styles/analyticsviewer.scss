@@ -47,43 +47,16 @@
     z-index: 20;
 }
 
-/*Rewrite some defaults of bootstrap*/
-.filterContainer label {
-    margin-bottom: 0px!important; 
-    font-weight: normal!important;
+
+.editButton.remove, .editButton.add {
+    margin-top: 0px !important;
 }
-
-.filterContainer input {
-    margin: 1px 4px 0!important;
-
-}
-
-.filterContainer .editButton{
-    -webkit-box-sizing: content-box;
-    -moz-box-sizing: content-box;
-    box-sizing: content-box; 
-}
-
 .editButton.remove:before {
     margin-left: -3px;
     margin-top: 0px;
     font-size: 12px;
     position: absolute;
 }
-
-.filterContainer input{
-    margin-top: 3px!important;
-}
-
-
-
-
-
-#filterDivContainer{
-   text-align: center;
-}
-
-
 
 
 .d3canvas {
@@ -392,6 +365,41 @@
 /*Breaking of long filter words*/
 .choiceParameterContainer label{
     word-break: break-word;
-    width: 150px!important;
+    width: 140px!important;
     padding-left: 15px;
+}
+
+.arrowChangePlot {
+    margin-left: -7px!important;
+}
+
+.cross.removePlot {
+    margin-left: -4px!important;
+}
+
+
+/*Rewrite some defaults of bootstrap*/
+.filterContainer label {
+    margin-bottom: 0px!important; 
+    font-weight: normal!important;
+}
+
+.filterContainer input {
+    margin-right: 2px!important;
+    margin-top: 2px!important;
+}
+
+
+.filterContainer .editButton{
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box; 
+}
+
+#filterDivContainer{
+   text-align: center;
+}
+
+.boolParameterContainer input {
+    margin-top: 0px!important;
 }

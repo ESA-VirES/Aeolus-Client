@@ -28,6 +28,10 @@
     margin-top: 22px;
 }
 
+#options {
+    width: 100%;
+}
+
 #sat_selection .checkbox{
     //margin-bottom: 2px;
 }
@@ -47,6 +51,22 @@
 
 #satcheckcontainer label{
     font-weight: bold;
+}
+
+#parameters .axis path {
+    fill: none;
+    shape-rendering: crispEdges;
+    stroke: #000;
+    stroke-dasharray: 0;
+    stroke-width: 2;
+}
+
+#parameters .axis line {
+    fill: none;
+    shape-rendering: crispEdges;
+    stroke: #000;
+    stroke-dasharray: 0;
+    stroke-width: 1;
 }
 
 

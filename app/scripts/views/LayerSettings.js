@@ -52,13 +52,47 @@
                 var contours = this.current_model.get("contours");
                 var granularity = this.current_model.get("granularity");
                 var altitude = this.current_model.get("altitude");
-                //var 
-
+                var altitudeExtentSet = this.current_model.get("altitudeExtentSet");
+                var altitudeExtent = this.current_model.get("altitudeExtent");
+                var pId = this.current_model.get("download").id;
                 var that = this;
 
-                if(granularity !== 'group'){
+
+                // Special filtering for L2A related to having group visualization
+                // also on globe
+                if(pId === 'ALD_U_N_2A'){
+                    var selected = null;
+                    _.each(keys, function(key){
+                        if(options[key].selected){
+                            selected = key;
+                        }
+                    });
+                    if (granularity === 'group') {
+                        /*if(!selected.startsWith('group')){
+                            // Need to change selected to default l2a group parameter
+                            delete options[selected].selected;
+                            options['group_backscatter'].selected = true;
+                        }*/
+                        for (var i = keys.length - 1; i >= 0; i--) {
+                            if(!keys[i].startsWith('group')){
+                                keys.splice(i,1);
+                            }
+                        }
+                    } else {
+                        for (var i = keys.length - 1; i >= 0; i--) {
+                            if(keys[i].startsWith('group')){
+                                keys.splice(i,1);
+                            }
+                        }
+                    }
+                }
+
+                // TODO: Make sure once data is loaded to only allow selection
+                // or to change selection of parameters that are available in the data
+
+                if(granularity !== 'group' || pId === 'ALD_U_N_2A'){
                     // Filter out unavailable data parameters
-                    var currdata = globals.swarm.get('data');
+                    /*var currdata = globals.swarm.get('data');
                     if(!$.isEmptyObject(currdata)){
                         for (var i = keys.length - 1; i >= 0; i--) {
                             var currProd = this.current_model.get('download').id;
@@ -68,18 +102,20 @@
                                 }
                             }
                         }
-                    }
+                    }*/
                     this.enableInputs();
                 } else {
                     this.disableInputs();
                 }
 
                 _.each(keys, function(key){
-                    if(options[key].selected){
-                        that.selected = key;
-                        option += '<option value="'+ key + '" selected>' + options[key].name + '</option>';
-                    }else{
-                        option += '<option value="'+ key + '">' + options[key].name + '</option>';
+                    if(!options[key].hasOwnProperty('notAvailable')){
+                        if(options[key].selected){
+                            that.selected = key;
+                            option += '<option value="'+ key + '" selected>' + options[key].name + '</option>';
+                        }else{
+                            option += '<option value="'+ key + '">' + options[key].name + '</option>';
+                        }
                     }
                 });
 
@@ -87,169 +123,181 @@
 
                 this.$("#options").append(option);
 
-                // Check if selected is not inside the available options
-                // This happens if residuals were selected for the layer and
-                // then the model was removed also removing the residuals parameter
-                // from the cotnext menu.
-                // If this happens the visualized parameter needs to be changed
-                if(!options.hasOwnProperty(this.selected)){
-                    this.onOptionsChanged();
-                }else{
-
-                    if(options[this.selected].description){
-                        this.$("#description").text(options[this.selected].description);
-                    }
-
-                    if(options[that.selected].hasOwnProperty("logarithmic")){
-                        this.addLogOption(options);
-                    }
-
-                    this.$("#options").unbind();
-                    // Add event handler for change in drop down selection
-                    this.$("#options").change(this.onOptionsChanged.bind(this));
-
-                    // Set values for color scale ranges
-                    this.$("#range_min").val(options[this.selected].range[0]);
-                    this.$("#range_max").val(options[this.selected].range[1]);
-                    
-                    // Register necessary key events
-                    this.registerKeyEvents(this.$("#range_min"));
-                    this.registerKeyEvents(this.$("#range_max"));
-                    
-
-                    var colorscale_options = "";
-                    var selected_colorscale;
-                    _.each(this.colorscaletypes, function(colorscale){
-                        var prodId = that.current_model.get('download').id;
-                        if(globals.dataSettings[prodId][that.selected].colorscale == colorscale){
-                            selected_colorscale = colorscale;
-                            colorscale_options += '<option value="'+ colorscale + '" selected>' + colorscale + '</option>';
-                        }else{
-                            colorscale_options += '<option value="'+ colorscale + '">' + colorscale + '</option>';
-                        }
-                    });
-
-                    this.$("#style").unbind();
-
-                    this.$("#style").empty();
-                    this.$("#style").append(colorscale_options);
-
-                    this.$("#style").change(function(evt){
-                        var prodId = that.current_model.get('download').id;
-                        var colScale = $(evt.target).find("option:selected").text();
-                        if(globals.dataSettings[prodId].hasOwnProperty(that.selected)){
-                            globals.dataSettings[prodId][that.selected].colorscale = colScale;
-                        }
-                        selected_colorscale = colScale;
-                        options[that.selected].colorscale = colScale;
-                        that.current_model.set("parameters", options);
-
-                        if(options[that.selected].hasOwnProperty("logarithmic"))
-                            that.createScale(options[that.selected].logarithmic);
-                        else
-                            that.createScale();
-
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
-                    });
-
-                    this.$("#opacitysilder").unbind();
-                    this.$("#opacitysilder").val(this.current_model.attributes.opacity*100);
-                    this.$("#opacitysilder").on("input change", function(){
-                        var opacity = Number(this.value)/100;
-                        that.current_model.set("opacity", opacity);
-                        Communicator.mediator.trigger('productCollection:updateOpacity', {model:that.current_model, value:opacity});
-                    });
-
-                    
-
-                    if(!(typeof outlines === 'undefined')){
-                        var checked = "";
-                        if (outlines)
-                            checked = "checked";
-
-                        $("#outlines input").unbind();
-                        $("#outlines").empty();
-                        this.$("#outlines").append(
-                            '<form style="vertical-align: middle;">'+
-                            '<label class="valign" for="outlines" style="width: 120px;">Outlines </label>'+
-                            '<input class="valign" style="margin-top: -5px;" type="checkbox" name="outlines" value="outlines" ' + checked + '></input>'+
-                            '</form>'
-                        );
-
-                        this.$("#outlines input").change(function(evt){
-                            var outlines = !that.current_model.get("outlines");
-                            that.current_model.set("outlines", outlines);
-                            Communicator.mediator.trigger("layer:outlines:changed", that.current_model.get("views")[0].id, outlines);
-                        });
-                    }
-
-                    if(!(typeof showColorscale === 'undefined')){
-                        var checked = "";
-                        if (showColorscale)
-                            checked = "checked";
-
-                        $("#showColorscale input").unbind();
-                        $("#showColorscale").empty();
-                        this.$("#showColorscale").append(
-                            '<form style="vertical-align: middle;">'+
-                            '<label class="valign" for="showColorscale" style="width: 120px; margin">Legend </label>'+
-                            '<input class="valign" style="margin-top: -5px;" type="checkbox" name="showColorscale" value="showColorscale" ' + checked + '></input>'+
-                            '</form>'
-                        );
-
-                        this.$("#showColorscale input").change(function(evt){
-                            var showColorscale = !that.current_model.get("showColorscale");
-                            that.current_model.set("showColorscale", showColorscale);
-                            Communicator.mediator.trigger("layer:colorscale:show", that.current_model.get("download").id);
-                        });
-                    }
-
-
-                    if(!(typeof this.current_model.get("coefficients_range") === 'undefined')){
-
-                        this.$("#coefficients_range").empty();
-
-                        this.$("#coefficients_range").append(
-                        '<li style="margin-top: 5px;">'+
-                            '<label for="coefficients_range_min" style="width: 120px;">Coefficients range</label>'+
-                            '<input id="coefficients_range_min" type="text" style="width:30px;"/>'+
-                            '<input id="coefficients_range_max" type="text" style="width:30px; margin-left:8px"/>'+
-                        '</li>'+
-                        '<p style="font-size:0.85em; margin-left:130px;"> [-1,-1]: No range limitation</p>'
-                        );
-
-                        this.$("#coefficients_range_min").val(this.current_model.get("coefficients_range") [0]);
-                        this.$("#coefficients_range_max").val(this.current_model.get("coefficients_range") [1]);
-
-                        // Register necessary key events
-                        this.registerKeyEvents(this.$("#coefficients_range_min"));
-                        this.registerKeyEvents(this.$("#coefficients_range_max"));
-                        
-                    }
-
-                    if(options[this.selected].hasOwnProperty("logarithmic"))
-                        this.createScale(options[that.selected].logarithmic);
-                    else
-                        this.createScale();
-
-                    this.createHeightTextbox(this.current_model.get("height"));
-
-                    if(altitude!==null){
-                        this.$("#height").empty();
-                        this.$("#height").append(
-                            '<form style="vertical-align: middle;">'+
-                            '<label for="heightvalue" style="width: 120px;">Altitude filter</label>'+
-                            '<input id="heightvalue" type="text" style="width:30px; margin-left:8px"/>'+
-                            '</form>'
-                        );
-                        this.$("#heightvalue").val(altitude);
-                        this.$("#height").append(
-                            '<p style="font-size:0.85em; margin-left: 120px;">Maximum altitude (Km)</p>'
-                        );
-                        // Register necessary key events
-                        this.registerKeyEvents(this.$("#heightvalue"));
-                    }
+                if(options[this.selected].description){
+                    this.$("#description").text(options[this.selected].description);
                 }
+                this.addLogOption(options);
+
+                this.$("#options").unbind();
+                // Add event handler for change in drop down selection
+                this.$("#options").change(this.onOptionsChanged.bind(this));
+
+                // Set values for color scale ranges
+                this.$("#range_min").val(options[this.selected].range[0]);
+                this.$("#range_max").val(options[this.selected].range[1]);
+                
+                // Register necessary key events
+                this.registerKeyEvents(this.$("#range_min"));
+                this.registerKeyEvents(this.$("#range_max"));
+                
+
+                var colorscale_options = "";
+                var selected_colorscale;
+                _.each(this.colorscaletypes, function(colorscale){
+                    var prodId = that.current_model.get('download').id;
+                    if(globals.dataSettings[prodId][that.selected].colorscale == colorscale){
+                        selected_colorscale = colorscale;
+                        colorscale_options += '<option value="'+ colorscale + '" selected>' + colorscale + '</option>';
+                    }else{
+                        colorscale_options += '<option value="'+ colorscale + '">' + colorscale + '</option>';
+                    }
+                });
+
+                this.$("#style").unbind();
+
+                this.$("#style").empty();
+                this.$("#style").append(colorscale_options);
+
+                this.$("#style").change(function(evt){
+                    var prodId = that.current_model.get('download').id;
+                    var colScale = $(evt.target).find("option:selected").text();
+                    if(globals.dataSettings[prodId].hasOwnProperty(that.selected)){
+                        globals.dataSettings[prodId][that.selected].colorscale = colScale;
+                    }
+                    selected_colorscale = colScale;
+                    options[that.selected].colorscale = colScale;
+                    that.current_model.set("parameters", options);
+
+                    if(options[that.selected].hasOwnProperty("logarithmic"))
+                        that.createScale(options[that.selected].logarithmic);
+                    else
+                        that.createScale();
+
+                    Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
+                });
+
+                this.$("#opacitysilder").unbind();
+                this.$("#opacitysilder").val(this.current_model.attributes.opacity*100);
+                this.$("#opacitysilder").on("input change", function(){
+                    var opacity = Number(this.value)/100;
+                    that.current_model.set("opacity", opacity);
+                    Communicator.mediator.trigger('productCollection:updateOpacity', {model:that.current_model, value:opacity});
+                });
+
+                
+
+                if(!(typeof outlines === 'undefined')){
+                    var checked = "";
+                    if (outlines)
+                        checked = "checked";
+
+                    $("#outlines input").unbind();
+                    $("#outlines").empty();
+                    this.$("#outlines").append(
+                        '<form style="vertical-align: middle;">'+
+                        '<label class="valign" for="outlines" style="width: 120px;">Outlines </label>'+
+                        '<input class="valign" style="margin-top: -5px;" type="checkbox" name="outlines" value="outlines" ' + checked + '></input>'+
+                        '</form>'
+                    );
+
+                    this.$("#outlines input").change(function(evt){
+                        var outlines = !that.current_model.get("outlines");
+                        that.current_model.set("outlines", outlines);
+                        Communicator.mediator.trigger("layer:outlines:changed", that.current_model.get("views")[0].id, outlines);
+                    });
+                }
+
+                if(!(typeof showColorscale === 'undefined')){
+                    var checked = "";
+                    if (showColorscale)
+                        checked = "checked";
+
+                    $("#showColorscale input").unbind();
+                    $("#showColorscale").empty();
+                    this.$("#showColorscale").append(
+                        '<form style="vertical-align: middle;">'+
+                        '<label class="valign" for="showColorscale" style="width: 120px; margin">Legend </label>'+
+                        '<input class="valign" style="margin-top: -5px;" type="checkbox" name="showColorscale" value="showColorscale" ' + checked + '></input>'+
+                        '</form>'
+                    );
+
+                    this.$("#showColorscale input").change(function(evt){
+                        var showColorscale = !that.current_model.get("showColorscale");
+                        that.current_model.set("showColorscale", showColorscale);
+                        Communicator.mediator.trigger("layer:colorscale:show", that.current_model.get("download").id);
+                    });
+                }
+
+
+                if(!(typeof this.current_model.get("coefficients_range") === 'undefined')){
+
+                    this.$("#coefficients_range").empty();
+
+                    this.$("#coefficients_range").append(
+                    '<li style="margin-top: 5px;">'+
+                        '<label for="coefficients_range_min" style="width: 120px;">Coefficients range</label>'+
+                        '<input id="coefficients_range_min" type="text" style="width:30px;"/>'+
+                        '<input id="coefficients_range_max" type="text" style="width:30px; margin-left:8px"/>'+
+                    '</li>'+
+                    '<p style="font-size:0.85em; margin-left:130px;"> [-1,-1]: No range limitation</p>'
+                    );
+
+                    this.$("#coefficients_range_min").val(this.current_model.get("coefficients_range") [0]);
+                    this.$("#coefficients_range_max").val(this.current_model.get("coefficients_range") [1]);
+
+                    // Register necessary key events
+                    this.registerKeyEvents(this.$("#coefficients_range_min"));
+                    this.registerKeyEvents(this.$("#coefficients_range_max"));
+                    
+                }
+
+                if(options[this.selected].hasOwnProperty("logarithmic"))
+                    this.createScale(options[that.selected].logarithmic);
+                else
+                    this.createScale();
+
+                this.createHeightTextbox(this.current_model.get("height"));
+
+                if(altitude!==null){
+                    this.$("#height").empty();
+                    this.$("#height").append(
+                        '<form style="vertical-align: middle;">'+
+                        '<label for="heightvalue" style="width: 120px;">Altitude filter</label>'+
+                        '<input id="heightvalue" type="text" style="width:30px; margin-left:8px"/>'+
+                        '</form>'
+                    );
+                    this.$("#heightvalue").val(altitude);
+                    this.$("#height").append(
+                        '<p style="font-size:0.85em; margin-left: 120px;">Maximum altitude (Km)</p>'
+                    );
+                    // Register necessary key events
+                    this.registerKeyEvents(this.$("#heightvalue"));
+                }
+
+                if(altitudeExtentSet!==null){
+                    $("#minAltitude").off();
+                    $("#maxAltitude").off();
+                    $("#altitudeExtent").empty();
+                    // TODO: I think we need a set extent for the vertical
+                    // curtains as different curtains sections have different
+                    // altitude ranges which creates issues, so for now we 
+                    // will not allow activating/deactivating the extent
+                    this.$("#altitudeExtent").append(
+                        '<form style="vertical-align: middle;">'+
+                        '<label for="minAltitude" style="width: 120px;">Altitude extent</label>'+
+                        '<input id="minAltitude" type="text" style="width:40px;"/>'+
+                        '<input id="maxAltitude" type="text" style="width:40px; margin-left:8px"/>'+
+                        '</form>'
+                    );
+                    this.$("#minAltitude").val(altitudeExtent[0]);
+                    this.$("#maxAltitude").val(altitudeExtent[1]);
+                    // Register necessary key events
+                    this.registerKeyEvents(this.$("#minAltitude"));
+                    this.registerKeyEvents(this.$("#maxAltitude"));
+
+
+                }
+            
                 if(this.selected == "Fieldlines"){
                     $("#coefficients_range").hide();
                     $("#opacitysilder").parent().hide();
@@ -291,8 +339,37 @@
                         $("#granularity_selection").on('change', function(){
                             var granularity = $("#granularity_selection").find("option:selected").val();
                             that.model.set('granularity', granularity);
+                            var pId = that.model.get("download").id;
+                            // Switch between group and observation parameters
+                            // when switching l2a granularity
+                            if(pId === 'ALD_U_N_2A'){
+                                var options = that.model.get("parameters");
+                                var keys = _.keys(options);
+                                var selected = null;
+                                _.each(keys, function(key){
+                                    if(options[key].selected){
+                                        selected = key;
+                                    }
+                                });
+                                if(granularity === 'group'){
+                                    if(!selected.startsWith('group')){
+                                        // Need to change selected to default l2a group parameter
+                                        delete options[selected].selected;
+                                        options['group_backscatter'].selected = true;
+                                        that.model.set('parameters', options);
+                                        that.onShow();
+                                    }
+                                } else {
+                                    if(selected.startsWith('group')){
+                                        delete options[selected].selected;
+                                        options['SCA_extinction'].selected = true;
+                                        that.model.set('parameters', options);
+                                        that.onShow();
+                                    }
+                                }
+                            }
                             // If group granularity is selected we hide some things
-                            if(granularity === 'group'){
+                            if(granularity === 'group' && pId !== 'ALD_U_N_2A'){
                                 that.disableInputs();
                             } else {
                                 that.enableInputs();
@@ -403,12 +480,8 @@
                 this.createScale();
 
 
-                if(options[this.selected].hasOwnProperty("logarithmic")){
-                    this.addLogOption(options);
-
-                }else{
-                    this.$("#logarithmic").empty();
-                }
+                this.$("#logarithmic").empty();
+                this.addLogOption(options);
 
                 options[this.selected].selected = true;
 
@@ -532,6 +605,12 @@
                 var range_max = parseFloat($("#range_max").val());
                 error = error || this.checkValue(range_max,$("#range_max"));
 
+                var minAltitude = parseFloat($("#minAltitude").val());
+                error = error || this.checkValue(minAltitude,$("#minAltitude"));
+                
+                var maxAltitude = parseFloat($("#maxAltitude").val());
+                error = error || this.checkValue(maxAltitude,$("#maxAltitude"));
+
                 var prodId = this.current_model.get('download').id;
 
                 // Set parameters and redraw color scale
@@ -541,6 +620,7 @@
                     if(globals.dataSettings[prodId].hasOwnProperty(this.selected)){
                         globals.dataSettings[prodId][this.selected].extent = [range_min, range_max];
                     }
+                    this.current_model.set("altitudeExtent", [minAltitude, maxAltitude]);
 
                     if(options[this.selected].hasOwnProperty("logarithmic"))
                         this.createScale(options[this.selected].logarithmic);
@@ -584,36 +664,70 @@
 
             addLogOption: function(options){
                 var that = this;
-                if(options[this.selected].hasOwnProperty("logarithmic")){
-                    var checked = "";
-                    if (options[this.selected].logarithmic)
-                        checked = "checked";
+                var prodId = this.current_model.get('download').id;
+                var logscale = defaultFor(
+                    globals.dataSettings[prodId][this.selected].logarithmic,
+                    false
+                );
 
-                    this.$("#logarithmic").empty();
-
-                    this.$("#logarithmic").append(
-                        '<form style="vertical-align: middle;">'+
-                        '<label class="valign" for="outlines" style="width: 100px;">Log. Scale</label>'+
-                        '<input class="valign" style="margin-top: -5px;" type="checkbox" name="logarithmic" value="logarithmic" ' + checked + '></input>'+
-                        '</form>'
-                    );
-
-                    this.$("#logarithmic input").change(function(evt){
-                        var options = that.current_model.get("parameters");
-                        options[that.selected].logarithmic = !options[that.selected].logarithmic;
-                        
-                        that.current_model.set("parameters", options);
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
-
-                        if(options[that.selected].hasOwnProperty("logarithmic"))
-                            that.createScale(options[that.selected].logarithmic);
-                        else
-                            that.createScale();
-                    });
+                var checked = "";
+                if (logscale) {
+                    checked = "checked";
                 }
+
+                this.$("#logarithmic").empty();
+
+                this.$("#logarithmic").append(
+                    '<form style="vertical-align: middle;">'+
+                    '<label class="valign" for="logarithmic" style="width: 120px;">Log. colorscale </label>'+
+                    '<input class="valign" style="margin-top: -5px;" type="checkbox" name="logarithmic" value="logarithmic" ' + checked + '></input>'+
+                    '</form>'
+                );
+
+                this.$("#logarithmic input").change(function(evt){
+                    var prodId = that.current_model.get('download').id;
+                    globals.dataSettings[prodId][that.selected].logarithmic =
+                        defaultFor(
+                            !globals.dataSettings[prodId][that.selected].logarithmic,
+                            true
+                        );
+                    var currPars = globals.dataSettings[prodId][that.selected];
+                    if (currPars.logarithmic) {
+                        // If logarithmic scale was activated we need to make 
+                        // sure extent does not contain 0
+                        if(currPars.hasOwnProperty('extent')){
+                            var ext = currPars.extent;
+                            if(ext[0]<=0 && ext[1]>0) {
+                                // Try to get data of this parameter and
+                                // calculate extent
+                                var data = globals.swarm.get('data');
+                                if(Object.keys(data).length > 0){
+                                    if(data.hasOwnProperty(that.selected)) {
+                                        var tmpDomain = d3.extent(
+                                            data[that.selected].filter(function(val) {
+                                                return val>0.0;
+                                            })
+                                        );
+                                        currPars.extent[0] = tmpDomain[0];
+                                    }
+                                } else {
+                                    currPars.extent = [1e-10, 100];
+                                }
+
+                                var options = that.current_model.get("parameters");
+                                options[that.selected].range = currPars.extent;
+                                that.current_model.set("parameters", options);
+                            }
+                        }
+                    }
+                    Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("download").id);
+                    //that.renderView();
+                    that.onShow();
+                });
+
             },
 
-            createScale: function(logscale){
+            createScale: function(){
 
                 var superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹",
                 formatPower = function(d) { 
@@ -633,7 +747,9 @@
                 var range_min = globals.dataSettings[prodId][this.selected].extent[0];
                 var range_max = globals.dataSettings[prodId][this.selected].extent[1];
                 var uom = globals.dataSettings[prodId][this.selected].uom;
+                var modifiedUOM = globals.dataSettings[prodId][this.selected].modifiedUOM;
                 var style = globals.dataSettings[prodId][this.selected].colorscale;
+                var logscale = defaultFor(globals.dataSettings[prodId][this.selected].logarithmic, false);
 
                 $("#setting_colorscale").append(
                     '<div id="gradient" style="width:'+scalewidth+'px;margin-left:'+margin+'px"></div>'
@@ -664,13 +780,7 @@
                     .scale(axisScale);
 
                 if(logscale){
-                    var numberFormat = d3.format(",f");
-                    function logFormat(d) {
-                        var x = Math.log(d) / Math.log(10) + 1e-6;
-                        return Math.abs(x - Math.floor(x)) < .3 ? numberFormat(d) : "";
-                    }
-                    xAxis.tickFormat(logFormat);
-
+                    xAxis.ticks(0, '0.0e');
                 }else{
                     var step = (range_max - range_min)/5
                     xAxis.tickValues(
@@ -684,7 +794,20 @@
                     .attr("transform", "translate(" + [margin, 3]+")")
                     .call(xAxis);
 
-                if(uom){
+                if(modifiedUOM){
+                    var textEl = g.append("text")
+                        .style("text-anchor", "middle")
+                        .style("font-size", "1.1em")
+                        .attr("transform", "translate(" + [scalewidth/2, 35]+")");
+
+                    textEl.append("tspan")
+                            .text(modifiedUOM);
+
+                    textEl.append("tspan")
+                        .style("font-size", "0.7em")
+                        .text(' (modified)');
+
+                } else if(uom){
                     g.append("text")
                         .style("text-anchor", "middle")
                         .style("font-size", "1.1em")

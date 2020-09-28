@@ -179,6 +179,10 @@
             }
             if(show){
               if(parInfo !== undefined){
+                var modifier = defaultFor(parInfo.modifier, null);
+                if(modifier !== null){
+                  modifier = modifier.replace('x*1E', '');
+                }
                 var parOptions = {
                   key: key,
                   name: parameterList[key].name,
@@ -186,7 +190,10 @@
                   extent: defaultFor(parInfo.extent, null),
                   filterExtent: defaultFor(parInfo.filterExtent, null),
                   colorscaleOptions: this.colorscaletypes,
-                  active: defaultFor(parInfo.active, false)
+                  active: defaultFor(parInfo.active, false),
+                  logarithmic: defaultFor(parInfo.logarithmic, false),
+                  modifier: modifier,
+                  modifiedUOM: defaultFor(parInfo.modifiedUOM, null),
                 };
                 if(parameterList[key].hasOwnProperty('required')){
                   parOptions.required = true;
@@ -212,6 +219,52 @@
               } else {
                 that.currentChanges[paramId]={};
                 that.currentChanges[paramId].colorscale = selectedCS;
+              }
+            }
+            that.addApplyChanges();
+          });
+          // Add listerner to logarithmic colorscale change
+          $('.logarithmicInputCB').change(function(){
+            var paramId = $(this).attr('id').substr(2);
+            var selected = $(this).is(":checked");
+            if(globals.dataSettings[currentId].hasOwnProperty(paramId)){
+              if(that.currentChanges.hasOwnProperty(paramId)){
+                  that.currentChanges[paramId].logarithmic = selected;
+              } else {
+                that.currentChanges[paramId]={};
+                that.currentChanges[paramId].logarithmic = selected;
+              }
+            }
+            that.addApplyChanges();
+          });
+          // Listen to changes in modified uom
+          $('.modifiedUOM').keyup(function(){
+            var parItemId = this.className;
+            var paramId = this.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.id;
+            var modifiedUOM = this.value;
+           
+            if(globals.dataSettings[currentId].hasOwnProperty(paramId)){
+              if(that.currentChanges.hasOwnProperty(paramId)){
+                that.currentChanges[paramId][parItemId] = modifiedUOM;
+              } else {
+                that.currentChanges[paramId] = {};
+                that.currentChanges[paramId][parItemId] = modifiedUOM;
+              }
+            }
+            that.addApplyChanges();
+          });
+          // Listen to changes in modifier function
+          $('.modifier').keyup(function(){
+            var parItemId = this.className;
+            var paramId = this.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.id;
+            var modifier = Number(this.value);
+            console.log(modifier);
+            if(globals.dataSettings[currentId].hasOwnProperty(paramId)){
+              if(that.currentChanges.hasOwnProperty(paramId)){
+                that.currentChanges[paramId][parItemId] = 'x*1E'+modifier;
+              } else {
+                that.currentChanges[paramId] = {};
+                that.currentChanges[paramId][parItemId] = 'x*1E'+modifier;
               }
             }
             that.addApplyChanges();
@@ -349,7 +402,7 @@
           for(var key in that.currentChanges){
             if(globals.dataSettings[currentId].hasOwnProperty(key)){
               for(var parItem in that.currentChanges[key]){
-                if(parItem === 'active'){
+                if(parItem === 'active' || parItem === 'modifier'){
                   changesToRequestedParameters = true;
                 }
                 globals.dataSettings[currentId][key][parItem] = that.currentChanges[key][parItem];

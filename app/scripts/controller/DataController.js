@@ -14,11 +14,15 @@
     'hbs!tmpl/wps_dataRequest',
     'app',
     'papaparse',
+    'expr-eval',
     'tutorial',
     'graphly'
   ],
 
-  function( Backbone, Communicator, globals, msgpack, wps_dataRequestTmpl, App, Papa, tutorial) {
+  function( 
+    Backbone, Communicator, globals, msgpack, wps_dataRequestTmpl, App,
+    Papa, exprEval, tutorial
+  ) {
 
     var DataController = Backbone.Marionette.Controller.extend({
 
@@ -32,6 +36,7 @@
         this.previousCollection = '';
         this.firstLoad = true;
         this.xhr = null;
+        this.parser = new exprEval.Parser();
 
         var filterSettings = {
             parameterMatrix: {
@@ -89,7 +94,18 @@
                   'mie_bin_quality_flag',
                   'mie_reference_pulse_quality_flag',
                   'mie_signal_intensity_range_corrected',
-                  'mie_signal_intensity_normalised'
+                  'mie_signal_intensity_normalised',
+                  'mie_ground_fwhm',
+                  'mie_ground_useful_signal',
+                  'mie_ground_signal_to_noise_ratio',
+                  'mie_ground_refined_signal_to_noise_ratio',
+                  'mie_average_ground_wind_bin_thickness',
+                  'mie_average_ground_wind_bin_thickness_above_dem',
+                  'mie_num_invalid_reference_pulse',
+                  'mie_ref_pulse_signal_to_noise_ratio',
+                  'mie_ref_pulse_refined_signal_to_noise_ratio',
+                  'mie_num_peak_invalid',
+                  'mie_corrected_reference_pulse_response',
                 ],
                 [
                   'rayleigh_time_start',
@@ -114,7 +130,19 @@
                   'rayleigh_bin_quality_flag',
                   'rayleigh_reference_pulse_quality_flag',
                   'rayleigh_signal_intensity_range_corrected',
-                  'rayleigh_signal_intensity_normalised'
+                  'rayleigh_signal_intensity_normalised',
+
+                  'rayleigh_topocentric_azimuth_of_height_bin',
+                  'rayleigh_topocentric_elevation_of_height_bin',
+                  'rayleigh_target_to_sun_visibility_flag',
+                  'rayleigh_ground_useful_signal',
+                  'rayleigh_ground_signal_to_noise_ratio',
+                  'rayleigh_average_ground_wind_bin_thickness',
+                  'rayleigh_average_ground_wind_bin_thickness_above_dem',
+                  'rayleigh_num_invalid_reference_pulse',
+                  'rayleigh_ref_pulse_signal_to_noise_ratio_channel_a',
+                  'rayleigh_ref_pulse_signal_to_noise_ratio_channel_b',
+                  'rayleigh_corrected_reference_pulse_response',
                 ],
                 [
                   'time_off_nadir',
@@ -168,6 +196,17 @@
                   'SCA_backscatter',
                   'SCA_LOD',
                   'SCA_SR',
+                  'SCA_processing_qc_flag'
+                ],
+                [
+                  'SCA_extinction_valid',
+                  'SCA_extinction',
+                  'rayleigh_altitude',
+                  'rayleigh_altitude_obs_top',
+                  'rayleigh_altitude_obs_bottom',
+                  'SCA_time_obs_start',
+                  'SCA_time_obs_stop',
+                  'SCA_time',
                 ],
                 [
                   'SCA_middle_bin_time',
@@ -185,7 +224,8 @@
                   'SCA_middle_bin_extinction',
                   'SCA_middle_bin_backscatter',
                   'SCA_middle_bin_LOD',
-                  'SCA_middle_bin_BER'
+                  'SCA_middle_bin_BER',
+                  'SCA_middle_bin_processing_qc_flag'
                 ],
                 [
                   'bins',
@@ -220,6 +260,7 @@
                   'mie_wind_result_stop_longitude',
                   'mie_wind_result_lat_of_DEM_intersection',
                   'mie_wind_result_lon_of_DEM_intersection',
+                  'mie_wind_result_arg_of_lat_of_DEM_intersection',
                   'mie_wind_result_geoid_separation',
                   'mie_wind_result_alt_of_DEM_intersection',
                   'mie_wind_result_HLOS_error',
@@ -253,7 +294,30 @@
                   'mie_assimilation_analysis_v_wind_velocity',
                   'mie_assimilation_analysis_horizontal_wind_velocity',
                   'mie_assimilation_analysis_wind_direction',
-                  'mie_wind_result_albedo_off_nadir'
+                  'mie_wind_result_albedo_off_nadir',
+                  'mie_orbit_pass',
+
+                  'mie_wind_result_reference_hlos',
+                  'mie_wind_result_extinction',
+                  'mie_wind_result_background_high',
+                  'mie_wind_result_observation_type',
+                  'mie_wind_result_applied_spacecraft_los_corr_velocity',
+                  'mie_wind_result_applied_m1_temperature_corr_velocity',
+                  'mie_aht_22',
+                  'mie_aht_23',
+                  'mie_aht_24',
+                  'mie_aht_25',
+                  'mie_aht_26',
+                  'mie_aht_27',
+                  'mie_tc_18',
+                  'mie_tc_19',
+                  'mie_tc_20',
+                  'mie_tc_21',
+                  'mie_tc_23',
+                  'mie_tc_25',
+                  'mie_tc_27',
+                  'mie_tc_29',
+                  'mie_tc_32',
                 ],
                 [
                   'rayleigh_wind_result_id',
@@ -275,6 +339,7 @@
                   'rayleigh_wind_result_stop_longitude',
                   'rayleigh_wind_result_lat_of_DEM_intersection',
                   'rayleigh_wind_result_lon_of_DEM_intersection',
+                  'rayleigh_wind_result_arg_of_lat_of_DEM_intersection',
                   'rayleigh_wind_result_geoid_separation',
                   'rayleigh_wind_result_alt_of_DEM_intersection',
                   'rayleigh_wind_result_HLOS_error',
@@ -311,6 +376,32 @@
                   'rayleigh_assimilation_analysis_horizontal_wind_velocity',
                   'rayleigh_assimilation_analysis_wind_direction',
                   'rayleigh_wind_result_albedo_off_nadir',
+                  'rayleigh_orbit_pass',
+
+                  'rayleigh_wind_result_reference_hlos',
+                  'rayleigh_wind_result_background_high',
+                  'rayleigh_wind_result_wind_to_pressure',
+                  'rayleigh_wind_result_wind_to_temperature',
+                  'rayleigh_wind_result_wind_to_backscatter_ratio',
+                  'rayleigh_wind_result_applied_spacecraft_los_corr_velocity',
+                  'rayleigh_wind_result_applied_rdb_corr_velocity',
+                  'rayleigh_wind_result_applied_ground_corr_velocity',
+                  'rayleigh_wind_result_applied_m1_temperature_corr_velocity',
+                  'rayleigh_aht_22',
+                  'rayleigh_aht_23',
+                  'rayleigh_aht_24',
+                  'rayleigh_aht_25',
+                  'rayleigh_aht_26',
+                  'rayleigh_aht_27',
+                  'rayleigh_tc_18',
+                  'rayleigh_tc_19',
+                  'rayleigh_tc_20',
+                  'rayleigh_tc_21',
+                  'rayleigh_tc_23',
+                  'rayleigh_tc_25',
+                  'rayleigh_tc_27',
+                  'rayleigh_tc_29',
+                  'rayleigh_tc_32',
                 ],
                 // TODO: Add some way to ignore fata keys in analytics, for now
                 // we can separete it here to be ignored by other filters
@@ -326,6 +417,7 @@
                 'SCA_backscatter','SCA_QC_flag',
                 'SCA_extinction_variance', 'SCA_backscatter_variance','SCA_LOD_variance',
                 'mie_altitude_obs','MCA_LOD',
+                'SCA_processing_qc_flag', 'SCA_middle_bin_processing_qc_flag',
                 // L2B, L2C
                 'mie_wind_result_SNR', 'mie_wind_result_HLOS_error',
                 'mie_wind_result_COG_range',
@@ -372,7 +464,7 @@
                 enabled: [
                     false,
                     true,
-                    true
+                    true,
                 ]
             },
             maskParameter: {
@@ -452,6 +544,50 @@
                       false
                   ]
               },
+              'SCA_processing_qc_flag': {
+                  values: [
+                      ['Bit 1', 'Extinction; data valid 1, otherwise 0'],
+                      ['Bit 2', 'Backscatter; data valid 1, otherwise 0'],
+                      ['Bit 3', 'Mie SNR; data valid 1, otherwise 0'],
+                      ['Bit 4', 'Rayleigh SNR; data valid 1, otherwise 0'],
+                      ['Bit 5', 'Extinction error bar; data valid 1, otherwise 0'],
+                      ['Bit 6', 'Backscatter error bar; data valid 1, otherwise 0'],
+                      ['Bit 7', 'cumulative LOD; data valid 1, otherwise 0'],
+                      ['Bit 8', 'Spare'],
+                  ],
+                   enabled: [
+                      true,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false
+                  ]
+              },'SCA_middle_bin_processing_qc_flag': {
+                  values: [
+                      ['Bit 1', 'Extinction; data valid 1, otherwise 0'],
+                      ['Bit 2', 'Backscatter; data valid 1, otherwise 0'],
+                      ['Bit 3', 'BER; data valid 1, otherwise 0'],
+                      ['Bit 4', 'Mie SNR; data valid 1, otherwise 0'],
+                      ['Bit 5', 'Rayleigh SNR; data valid 1, otherwise 0'],
+                      ['Bit 6', 'Extinction error bar; data valid 1, otherwise 0'],
+                      ['Bit 7', 'Backscatter error bar; data valid 1, otherwise 0'],
+                      ['Bit 8', 'Cumulative LOD; data valid 1, otherwise 0'],
+                  ],
+                   enabled: [
+                      true,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false
+                  ]
+              },
               'rayleigh_wind_result_QC_flags_1': {
                 values: [
                     ['Bit 1', 'missing usefull reference pulse signal Rayleigh Channel A'],
@@ -522,7 +658,28 @@
                     {'name': 'clear', value: 2},
                   ],
                   selected: 2
-              }
+              },
+              'orbit_pass': {
+                options: [
+                    {'name': 'ascending', value:'ascending'},
+                    {'name': 'descending', value:'descending'},
+                ],
+                selected: -1
+              },
+              'mie_orbit_pass': {
+                options: [
+                    {'name': 'ascending', value:'ascending'},
+                    {'name': 'descending', value:'descending'},
+                ],
+                selected: -1
+              },
+              'rayleigh_orbit_pass': {
+                options: [
+                    {'name': 'ascending', value:'ascending'},
+                    {'name': 'descending', value:'descending'},
+                ],
+                selected: -1
+              },
           }
         };
 
@@ -870,39 +1027,45 @@
       checkFlatteningComplete: function(){
         if(this.processedParameters === this.totalLength){
           var resData = {};
-          resData[this.collectionId] = this.tmpdata;
+          resData = this.tmpdata;
           var collId = this.collectionId;
 
-          // We go through currently selected parameters to make sure
-          // what is selected before we trigger the new load event
-          // as some parameters may have been removed
-          // Filter out unavailable data parameters
-          var product = globals.products.find(
-              function(p){return p.get('download').id === collId;}
-          );
-          var pars = product.get('parameters');
-          var keys = Object.keys(pars);
-          var changeSelected = false;
-          for (var i = keys.length - 1; i >= 0; i--) {
-              if(!this.tmpdata.hasOwnProperty(keys[i])){
-                if(pars[keys[i]].hasOwnProperty('selected') && pars[keys[i]]){
-                  changeSelected = true;
-                  delete pars[keys[i]].selected;
+          // Once we are done preparing the data we need to check the product
+          // configuration for cesium visualization to see what parameters are
+          // available, and if a selected parameter is no longer available switch
+          // to a default one
+          if(!$.isEmptyObject(resData)){
+            var currCol = this.collectionId;
+            var product = globals.products.find(
+              function(p){return p.get('download').id === currCol;}
+            );
+            var pPars = product.get('parameters');
+            var allKeys = Object.keys(pPars);
+            for (var pKey in pPars) {
+              if(!resData.hasOwnProperty(pKey)){
+                pPars[pKey].notAvailable = true;
+                if(pPars[pKey].hasOwnProperty('selected')){
+                  delete pPars[pKey].selected;
+                  // The first item in all configs is the default required parameter
+                  pPars[allKeys[0]].selected = true;
+                  Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
                 }
-                keys.splice(i,1);
+              } else if(pPars[pKey].hasOwnProperty('notAvailable')){
+                delete pPars[pKey].notAvailable;
+                Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
               }
+            }
+            product.set('parameters', pPars);
           }
-          if(changeSelected){
-            pars[keys[0]].selected = true;
-          }
-          product.set('parameters', pars);
 
           globals.filterManager.dataSettings = globals.dataSettings[collId];
-          globals.filterManager.loadData(resData[this.collectionId]);
+          globals.filterManager.loadData(resData);
           globals.filterManager._initData();
           globals.filterManager._renderFilters();
           globals.filterManager._renderFilters();
-          globals.swarm.set({data: resData});
+          var data = {};
+          data[this.collectionId] = resData;
+          globals.swarm.set({data: data});
           this.checkTutorialStatus();
         }
       },
@@ -1021,6 +1184,28 @@
         var resData = {};
         var gran = product.get('granularity');
 
+        // Go throug dataset and check if some conversion is needed
+        // Check for modifiers that need to be applied
+        var currSetts = globals.dataSettings[collectionId];
+        var currData = ds;
+        for (var group in ds){
+          for (var key in ds[group]){
+            if(currSetts.hasOwnProperty(key)){
+              if(currSetts[key].hasOwnProperty('modifier')){
+                var expr = this.parser.parse(currSetts[key].modifier);
+                var exprFn = expr.toJSFunction('x');
+                if(ds[group][key].length>0){
+                  if(Array.isArray(ds[group][key][0])){
+                    ds[group][key] = ds[group][key].map(function(arr){return arr.map(exprFn);});
+                  } else {
+                    ds[group][key] = ds[group][key].map(exprFn);
+                  }
+                }
+              }
+            }
+          }
+        }
+
         if(typeof USERVARIABLE !== 'undefined'){
           var userCollId = 'user_collection_'+ USERVARIABLE;
           var dataGranularity = gran + '_data';
@@ -1093,8 +1278,13 @@
           var meas_end = [];
           var alt_start = [];
           var alt_end = [];
+          var lat_start = [];
+          var lat_end = [];
+          var lon_start = [];
+          var lon_end = [];
           var gD = data.ALD_U_N_2A.group_data;
           var oD = data.ALD_U_N_2A.observation_data;
+          // TODO: Get also lat lon obs data
 
           if( $.isEmptyObject(gD) || $.isEmptyObject(oD) ){
             return;
@@ -1106,9 +1296,9 @@
               var currMeasStart = ((currObsStart+observationOffset)*30) + gD.group_start_meas_obs[i];
               var currMeasEnd = ((currObsStart+observationOffset)*30) + gD.group_end_meas_obs[i];
               var heighBinIndex = gD.group_height_bin_index[i]-1;
-              if(typeof oD.mie_altitude_obs[currObsStart] !== 'undefined'){
-                var currAltStart = oD.mie_altitude_obs[currObsStart][heighBinIndex];
-                var currAltEnd = oD.mie_altitude_obs[currObsStart][heighBinIndex+1];
+              if(typeof oD.rayleigh_altitude_obs[currObsStart] !== 'undefined'){
+                var currAltStart = oD.rayleigh_altitude_obs[currObsStart][heighBinIndex];
+                var currAltEnd = oD.rayleigh_altitude_obs[currObsStart][heighBinIndex+1];
                 
                 // TODO: In theory we should filter out -1 values, not sure if these
                 // apply equally to all parameters...
@@ -1119,8 +1309,62 @@
                 alt_start.push(currAltEnd);
                 alt_end.push(currAltStart);
               }
-              
+              if(typeof oD.latitude_of_DEM_intersection_obs[currObsStart] !== 'undefined'){
+                var currLatStart = oD.latitude_of_DEM_intersection_obs[currObsStart];
+                var currLonStart = oD.longitude_of_DEM_intersection_obs[currObsStart];
+                if(currObsStart < oD.latitude_of_DEM_intersection_obs.length-1){
+                  var currLatEnd = oD.latitude_of_DEM_intersection_obs[currObsStart+1];
+                  lat_start.push(currLatStart);
+                  lat_end.push(currLatEnd);
+                  var currLonEnd = oD.longitude_of_DEM_intersection_obs[currObsStart+1];
+                  lon_start.push(currLonStart);
+                  lon_end.push(currLonEnd);
+                } else {
+                  lat_start.push(currLatStart);
+                  lat_end.push(
+                    currLatStart + (
+                      oD.latitude_of_DEM_intersection_obs[currObsStart] -
+                      oD.latitude_of_DEM_intersection_obs[currObsStart-1]
+                    )
+                  );
+                  lon_start.push(currLonStart);
+                  lon_end.push(
+                    currLonStart + (
+                      oD.longitude_of_DEM_intersection_obs[currObsStart] -
+                      oD.longitude_of_DEM_intersection_obs[currObsStart-1]
+                    )
+                  );
+                }
+              }
            }
+
+          var group_jumpPos = [];
+          var group_signCross = [];
+          var currLats = oD.latitude_of_DEM_intersection_obs;
+          var currLons = oD.longitude_of_DEM_intersection_obs;
+          for (var i = 1; i < currLats.length; i++) {
+            var latdiff = Math.abs(
+              currLats[i-1] - currLats[i]
+            );
+            var londiff = Math.abs(
+              currLons[i-1] - currLons[i]
+            ); 
+            // TODO: slicing not working correctly for L2a
+            if (latdiff >= latStep) {
+              group_signCross.push(latdiff>160);
+              group_jumpPos.push(i);
+            }else if (londiff >= lonStep) {
+              group_signCross.push(londiff>340);
+              group_jumpPos.push(i);
+            }
+          }
+
+          // We generate a new parameter here we need to copy over the
+          // related datasettings of original parameter
+          if(globals.dataSettings[collectionId].hasOwnProperty('rayleigh_altitude_obs')){
+            globals.dataSettings[collectionId].altitude_obs = 
+              globals.dataSettings[collectionId]['rayleigh_altitude_obs']
+          }
 
           resData.alt_start = alt_start;
           resData.alt_end = alt_end;
@@ -1133,10 +1377,114 @@
           resData.group_LOD_variance = gD.group_LOD_variance;
           resData.group_LOD = gD.group_LOD;
           resData.group_SR = gD.group_SR;
+          resData.group_start_time = gD.group_start_time;
+          resData.group_end_time = gD.group_end_time;
+          resData.latitude_of_DEM_intersection_start = lat_start;
+          resData.latitude_of_DEM_intersection_end = lat_end;
+          resData.latitude_of_DEM_intersection_obs_orig = oD.latitude_of_DEM_intersection_obs;
+          resData.longitude_of_DEM_intersection_obs_orig = oD.longitude_of_DEM_intersection_obs;
 
+          resData.group_jumps = group_jumpPos;
+          resData.group_signCross = group_signCross;
+          
         } else {
 
-          
+          var conversionFunction = function(value, maskLength){
+            var boolArray = [];
+            var result = Math.abs(value).toString(2);
+            while(result.length < maskLength) {
+                result = "0" + result;
+            }
+            for (var i=0; i<result.length; i++) {
+                boolArray.push(result[i] === '1');
+            }
+            return boolArray;
+          }
+
+          if(ds.sca_data.hasOwnProperty('SCA_processing_qc_flag')){
+            // Split up bits into separate components
+            /*
+            ['Bit 8', 'Extinction; data valid 1, otherwise 0'],
+            ['Bit 7', 'Backscatter; data valid 1, otherwise 0'],
+            ['Bit 6', 'Mie SNR; data valid 1, otherwise 0'],
+            ['Bit 5', 'Rayleigh SNR; data valid 1, otherwise 0'],
+            ['Bit 4', 'Extinction error bar; data valid 1, otherwise 0'],
+            ['Bit 3', 'Backscatter error bar; data valid 1, otherwise 0'],
+            ['Bit 2', 'cumulative LOD; data valid 1, otherwise 0'],
+            ['Bit 1', 'Spare'],
+            */
+            var validityArray = [[],[],[],[],[],[],[],[]];
+
+            for (var ff = 0; ff < ds.sca_data.SCA_processing_qc_flag.length; ff++) {
+              var profBoolArray = [[],[],[],[],[],[],[],[]];
+              var currProf = ds.sca_data.SCA_processing_qc_flag[ff];
+              for (var pp = 0; pp < currProf.length; pp++) {
+                var boolArray = conversionFunction(currProf[pp], 8);
+
+                for (var bt = 0; bt < boolArray.length; bt++) {
+                  profBoolArray[bt].push(boolArray[bt]);
+                }
+              }
+              for (var ba = 0; ba < profBoolArray.length; ba++) {
+                validityArray[ba].push(profBoolArray[ba]);
+              }
+            }
+
+            ds.sca_data['SCA_extinction_valid'] = validityArray[7];
+            ds.sca_data['SCA_backscatter_valid'] = validityArray[6];
+            ds.sca_data['SCA_mie_SNR_valid'] = validityArray[5];
+            /*
+            ds.sca_data['SCA_rayleigh_SNR_valid'] = validityArray[4];
+            ds.sca_data['SCA_extinction_error_bar_valid'] = validityArray[3];
+            ds.sca_data['SCA_backscatter_error_bar_valid'] = validityArray[2];
+            ds.sca_data['SCA_cumulative_LOD_valid'] = validityArray[1];
+            */
+            // Spare bit
+          }
+
+          // Same for middle bin bit significance a little different
+          if(ds.sca_data.hasOwnProperty('SCA_middle_bin_processing_qc_flag')){
+            // Split up bits into separate components
+            /*
+           Bit 1: Extinction; data valid 1, otherwise 0
+            Bit 2: Backscatter; data valid 1, otherwise 0
+            Bit 3: BER; data valid 1, otherwise 0
+            Bit 4: Mie SNR; data valid 1, otherwise 0
+            Bit 5: Rayleigh SNR; data valid 1, otherwise 0
+            Bit 6: Extinction error bar; data valid 1, otherwise 0
+            Bit 7: Backscatter error bar; data valid 1, otherwise 0
+            Bit 8: Cumulative LOD; data valid 1, otherwise 0
+            */
+            var validityArray = [[],[],[],[],[],[],[],[]];
+
+            for (var ff = 0; ff < ds.sca_data.SCA_middle_bin_processing_qc_flag.length; ff++) {
+              var profBoolArray = [[],[],[],[],[],[],[],[]];
+              var currProf = ds.sca_data.SCA_middle_bin_processing_qc_flag[ff];
+              for (var pp = 0; pp < currProf.length; pp++) {
+                var boolArray = conversionFunction(currProf[pp], 8);
+
+                for (var bt = 0; bt < boolArray.length; bt++) {
+                  profBoolArray[bt].push(boolArray[bt]);
+                }
+              }
+              for (var ba = 0; ba < profBoolArray.length; ba++) {
+                validityArray[ba].push(profBoolArray[ba]);
+              }
+            }
+
+            ds.sca_data['SCA_middle_bin_extinction_valid'] = validityArray[7];
+            ds.sca_data['SCA_middle_bin_backscatter_valid'] = validityArray[6];
+            /*
+            ds.sca_data['SCA_middle_bin_BER_valid'] = validityArray[5];
+            ds.sca_data['SCA_middle_bin_mie_SNR_valid'] = validityArray[4];
+            ds.sca_data['SCA_middle_bin_rayleigh_SNR_valid'] = validityArray[3];
+            ds.sca_data['SCA_middle_bin_extinction_error_bar_valid'] = validityArray[2];
+            ds.sca_data['SCA_middle_bin_backscatter_error_bar_valid'] = validityArray[1];
+            ds.sca_data['SCA_middle_bin_cumulative_LOD_valid'] = validityArray[0];
+            */
+          }
+
+
           if(ds.observation_data.hasOwnProperty('sca_mask')){
             // check if same length for mca elements and mca mask
             var nonMasked = ds.observation_data.sca_mask.filter(function(e){
@@ -1173,6 +1521,13 @@
           // sca and ica masks provided by the product
           if(ds.observation_data.hasOwnProperty('rayleigh_altitude_obs') &&
              ds.observation_data.hasOwnProperty('ica_mask') ){
+
+            // We generate a new parameter here we need to copy over the
+            // related datasettings of original parameter
+            if(globals.dataSettings[collectionId].hasOwnProperty('rayleigh_altitude_obs')){
+              globals.dataSettings[collectionId].ICA_rayleigh_altitude_obs = 
+                globals.dataSettings[collectionId]['rayleigh_altitude_obs']
+            }
 
             ds.ica_data.ICA_rayleigh_altitude_obs = 
               ds.observation_data.rayleigh_altitude_obs.filter(
@@ -1405,6 +1760,30 @@
             resData['ica_jumps'] = [];
           }
 
+        }
+
+        // Once we are done preparing the data we need to check the product
+        // configuration for cesium visualization to see what parameters are
+        // available, and if a selected parameter is no longer available switch
+        // to a default one
+        if(!$.isEmptyObject(resData)){
+          var pPars = product.get('parameters');
+          var allKeys = Object.keys(pPars);
+          for (var pKey in pPars) {
+            if(!resData.hasOwnProperty(pKey)){
+              pPars[pKey].notAvailable = true;
+              if(pPars[pKey].hasOwnProperty('selected')){
+                delete pPars[pKey].selected;
+                // The first item in all configs is the default required parameter
+                pPars[allKeys[0]].selected = true;
+                Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
+              }
+            } else if(pPars[pKey].hasOwnProperty('notAvailable')){
+              delete pPars[pKey].notAvailable;
+              Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
+            }
+          }
+          product.set('parameters', pPars);
         }
 
         return resData;
@@ -1671,8 +2050,7 @@
               ds.hasOwnProperty('mie_wind_data') && 
               ds.mie_wind_data.hasOwnProperty('mie_wind_result_bottom_altitude') && 
               ds.mie_wind_data.mie_wind_result_bottom_altitude.length > 0
-            )
-            {
+            ){
               var mie_alt_min = d3.min(ds.mie_wind_data.mie_wind_result_bottom_altitude);
               var mie_alt_max = d3.max(ds.mie_wind_data.mie_wind_result_top_altitude);
               var ray_alt_min = d3.min(ds.rayleigh_wind_data.rayleigh_wind_result_bottom_altitude);
@@ -1684,26 +2062,66 @@
                 ray_min: ray_alt_min,
                 ray_max: ray_alt_max
               }
-            }
+          }
 
+          // Check for argument_of_latitude_of_dem_intersection and
+          // create a new parameter for satellite direction
+          
+          if(ds.mie_wind_data.hasOwnProperty('mie_wind_result_arg_of_lat_of_DEM_intersection')) {
+            if(ds.mie_wind_data.hasOwnProperty('mie_wind_result_wind_velocity')){
+              var orbit_pass = [];
+              var mie_HLOS_wind_speed_normalised = [];
+              for (var i = 0; i < ds.mie_wind_data.mie_wind_result_arg_of_lat_of_DEM_intersection.length; i++) {
+                var deg = ds.mie_wind_data.mie_wind_result_arg_of_lat_of_DEM_intersection[i]*1E-6;
+                if(deg >= 90 && deg < 270){
+                  orbit_pass.push('descending');
+                  mie_HLOS_wind_speed_normalised.push(
+                    ds.mie_wind_data.mie_wind_result_wind_velocity[i] * -1
+                  );
+                } else {
+                  orbit_pass.push('ascending');
+                  mie_HLOS_wind_speed_normalised.push(
+                    ds.mie_wind_data.mie_wind_result_wind_velocity[i]
+                  );
+                }
+              }
+              ds.mie_wind_data.mie_orbit_pass = orbit_pass;
+              ds.mie_wind_data.mie_wind_result_wind_velocity_normalised = mie_HLOS_wind_speed_normalised;
+            }
+          }
+
+          if(ds.rayleigh_wind_data.hasOwnProperty('rayleigh_wind_result_arg_of_lat_of_DEM_intersection')) {
+            if(ds.rayleigh_wind_data.hasOwnProperty('rayleigh_wind_result_wind_velocity')){
+              var orbit_pass = [];
+              var rayleigh_HLOS_wind_speed_normalised = [];
+              for (var i = 0; i < ds.rayleigh_wind_data.rayleigh_wind_result_arg_of_lat_of_DEM_intersection.length; i++) {
+                var deg = ds.rayleigh_wind_data.rayleigh_wind_result_arg_of_lat_of_DEM_intersection[i]*1E-6;
+                if(deg >= 90 && deg < 270){
+                  orbit_pass.push('descending');
+                  rayleigh_HLOS_wind_speed_normalised.push(
+                    ds.rayleigh_wind_data.rayleigh_wind_result_wind_velocity[i] * -1
+                  );
+                } else {
+                  orbit_pass.push('ascending');
+                  rayleigh_HLOS_wind_speed_normalised.push(
+                    ds.rayleigh_wind_data.rayleigh_wind_result_wind_velocity[i]
+                  );
+                }
+              }
+              ds.rayleigh_wind_data.rayleigh_orbit_pass = orbit_pass;
+              ds.rayleigh_wind_data.rayleigh_wind_result_wind_velocity_normalised = rayleigh_HLOS_wind_speed_normalised;
+            }
+          }
+
+
+          var currSetts = globals.dataSettings[collectionId];
           for (var k = 0; k < keys.length; k++) {
 
             var subK = Object.keys(ds[keys[k]]);
 
             for (var l = 0; l < subK.length; l++) {
-              
-              if(subK[l] === 'mie_wind_result_wind_velocity' ||
-                 subK[l] === 'rayleigh_wind_result_wind_velocity'){
-                // Convert from cm/s to m/s
-                resData[subK[l]]= ds[keys[k]][subK[l]].map(
-                  function(x) { return x / 100; }
-                );
-            //  } else if(
-            //     subK[l] === 'mie_wind_result_COG_range' ||
-            //     subK[l] === 'rayleigh_wind_result_COG_range'){
-            //    // Convert from m to km
-            //    resData[subK[l]]= ds[keys[k]][subK[l]].map(function(x) { return x / 1000; });
-              } else if(startEndVarsBins.indexOf(subK[l]) !== -1){
+
+              if(startEndVarsBins.indexOf(subK[l]) !== -1){
                 resData[subK[l]+'_start'] = ds[keys[k]][subK[l]];
                 resData[subK[l]+'_end'] = ds[keys[k]][subK[l]].map(
                   function(x) { return x+1; }
@@ -1722,12 +2140,22 @@
               } else {
                 resData[subK[l]] = ds[keys[k]][subK[l]];
               }
+
+              // Check for modifiers that need to be applied
+              if(currSetts.hasOwnProperty(subK[l])){
+                if(currSetts[subK[l]].hasOwnProperty('modifier')){
+                  var expr = this.parser.parse(currSetts[subK[l]].modifier);
+                  var exprFn = expr.toJSFunction('x');
+                  resData[subK[l]] = ds[keys[k]][subK[l]].map(exprFn);
+                }
+              }
+
             }
           }
           var lonStep = 15;
           var latStep = 15;
 
-          var mieSignCross = []; 
+          var mieSignCross = [];
           var mieJumpPositions = [];
           if(ds.hasOwnProperty('mie_wind_data') && 
              ds.mie_wind_data.hasOwnProperty('mie_wind_result_lat_of_DEM_intersection') &&
@@ -1812,6 +2240,30 @@
           }
         }
 
+        // Once we are done preparing the data we need to check the product
+        // configuration for cesium visualization to see what parameters are
+        // available, and if a selected parameter is no longer available switch
+        // to a default one
+        if(!$.isEmptyObject(resData)){
+          var pPars = product.get('parameters');
+          var allKeys = Object.keys(pPars);
+          for (var pKey in pPars) {
+            if(!resData.hasOwnProperty(pKey)){
+              pPars[pKey].notAvailable = true;
+              if(pPars[pKey].hasOwnProperty('selected')){
+                delete pPars[pKey].selected;
+                // The first item in all configs is the default required parameter
+                pPars[allKeys[0]].selected = true;
+                Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
+              }
+            } else if(pPars[pKey].hasOwnProperty('notAvailable')){
+              delete pPars[pKey].notAvailable;
+              Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
+            }
+          }
+          product.set('parameters', pPars);
+        }
+
         return resData;
       },
 
@@ -1889,7 +2341,7 @@
         var requestOptions = {
           l2a_group: {
             //measurement_fields: 'altitude_of_DEM_intersection_meas,mie_altitude_meas',
-            observation_fields: 'altitude_of_DEM_intersection_obs,mie_altitude_obs,rayleigh_altitude_obs'/*+'latitude_of_DEM_intersection_obs,longitude_of_DEM_intersection_obs'*/,
+            observation_fields: 'altitude_of_DEM_intersection_obs,mie_altitude_obs,rayleigh_altitude_obs,latitude_of_DEM_intersection_obs,longitude_of_DEM_intersection_obs',
             group_fields: 'group_start_obs,group_end_obs,group_start_meas_obs,group_end_meas_obs,group_start_time,group_end_time,group_height_bin_index,'+
                           'group_extinction,group_backscatter,group_backscatter_variance,group_extinction_variance,group_LOD_variance,group_LOD,group_SR'
 
@@ -2031,7 +2483,24 @@
         this.xhr.onreadystatechange = function() {
        
           if(request.readyState == 4) {
-            if(request.status == 200) {
+            if(request.status == 400) {
+              Communicator.mediator.trigger("progress:change", false);
+              var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+              if (error_text && error_text.length > 1) {
+                var errorParameter = error_text[1].split('\'')[1];
+                w2confirm('The parameter "'+errorParameter+'" is not available for the product(s) you are selecting.</br>'+
+                  'Would you like to disable it from the Data configuration?')
+                    .yes(function () {
+                        delete globals.dataSettings[collectionId][errorParameter].active;
+                        Communicator.mediator.trigger('layer:parameters:changed', collectionId);
+                        Communicator.mediator.trigger('layer:parameterlist:changed');
+                    });
+
+              } else {
+                error_text = 'Please contact feedback@vires.services if issue persists.'
+                showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+              }
+            } else if(request.status == 200) {
 
                 that.tmpdata = {};
                 ;delete globals.swarm.altitudeExtents
@@ -2262,59 +2731,97 @@
 
                   var mie_jumps = that.findObservationJumps(ds.mie_altitude, stepPositions, signCross);
 
-                  /*'mie_ground_velocity', 'mie_reference_pulse_quality_flag',
-                    'rayleigh_ground_velocity', 'mie_bin_quality_flag', 
-                    'AOCS_roll_angle', 'mie_signal_intensity_range_corrected',
-                    'velocity_at_DEM_intersection', 'rayleigh_HLOS_wind_speed',
-                    'mie_latitude', 'longitude_of_DEM_intersection', 
-                    'rayleigh_error_quantifier', 'latitude_of_DEM_intersection', 
-                    'rayleigh_range', 'mie_total_ZWC', 'rayleigh_signal_channel_A_intensity',
-                    'rayleigh_bin_quality_flag', 'mie_signal_intensity_normalised',
-                    'mie_scattering_ratio', 'mie_altitude', 'rayleigh_latitude',
-                    'AOCS_pitch_angle', 'mie_error_quantifier', 'geoid_separation',
-                    'rayleigh_signal_channel_B_intensity', 'mie_HBE_ground_velocity',
-                    'rayleigh_signal_intensity', 'time', 'rayleigh_altitude',
-                    'laser_frequency', 'altitude_of_DEM_intersection', 'rayleigh_SNR',
-                    'rayleigh_total_ZWC', 'average_laser_energy',
-                    'rayleigh_signal_intensity_range_corrected',
-                    'mie_HLOS_wind_speed', 'albedo_off_nadir',
-                    'rayleigh_reference_pulse_quality_flag', 'mie_longitude',
-                    'rayleigh_channel_B_SNR', 'mie_signal_intensity',
-                    'rayleigh_longitude', 'AOCS_yaw_angle', 'mie_SNR',
-                    'rayleigh_HBE_ground_velocity', 'mie_range',
-                    'rayleigh_channel_A_SNR', 'rayleigh_signal_intensity_normalised',*/
+                  // Check for argument_of_latitude_of_dem_intersection and
+                  // create a new parameter for satellite direction
+                  if(ds.hasOwnProperty('argument_of_latitude_of_dem_intersection')) {
+                    var orbit_pass = [];
+                    for (var i = 0; i < ds.argument_of_latitude_of_dem_intersection.length; i++) {
+                      var deg = ds.argument_of_latitude_of_dem_intersection[i];
+                      if(deg >= 90 && deg < 270){
+                        orbit_pass.push('descending');
+                      } else {
+                        orbit_pass.push('ascending');
+                      }
+                    }
+                    ds.orbit_pass = orbit_pass;
+                  }
+
+                  var gran = product.get('granularity');
 
                   var mieVars = [
                     'time',
-                    'mie_ground_velocity',
-                    'mie_reference_pulse_quality_flag',
-                    'mie_bin_quality_flag', 
-                    'mie_signal_intensity_range_corrected',
-                    'mie_latitude',
-                    'mie_total_ZWC',
-                    'mie_signal_intensity_normalised',
-                    'mie_scattering_ratio',
-                    'mie_altitude', 
-                    'mie_error_quantifier',
-                    'mie_HBE_ground_velocity',
-                    'mie_HLOS_wind_speed',
-                    'mie_longitude',
-                    'mie_signal_intensity',
-                    'mie_SNR',
-                    'mie_range',
-                    'geoid_separation',
+                    
+                    'mie_time',
+                    'mie_time_start',
+                    'mie_time_end',
+                    'longitude_of_DEM_intersection_start',
+                    'longitude_of_DEM_intersection_end',
+                    'latitude_of_DEM_intersection_start',
+                    'latitude_of_DEM_intersection_end',
                     'altitude_of_DEM_intersection',
-                    'longitude_of_DEM_intersection', 
-                    'latitude_of_DEM_intersection', 
-                    'laser_frequency',
-                    'average_laser_energy',
-                    'AOCS_roll_angle',
+                    'argument_of_latitude_of_dem_intersection',
+                    'mie_longitude',
+                    'mie_latitude',
+                    'mie_altitude',
+                    'mie_altitude_start',
+                    'mie_altitude_end',
+                    'mie_range',
+                    'mie_range_start',
+                    'mie_range_end',
+                    'bin_number',
+                    'range_bin_number_start',
+                    'range_bin_number_end',
+                    'geoid_separation',
+                    'velocity_at_DEM_intersection',
                     'AOCS_pitch_angle',
+                    'AOCS_roll_angle',
                     'AOCS_yaw_angle',
-                    'velocity_at_DEM_intersection', 
+                    'mie_HLOS_wind_speed',
+                    'mie_HLOS_wind_speed_normalised',
+                    'mie_signal_intensity',
+                    'mie_ground_velocity',
+                    'mie_HBE_ground_velocity',
+                    'mie_total_ZWC',
+                    'mie_scattering_ratio',
+                    'mie_SNR',
+                    'mie_error_quantifier',
+                    'average_laser_energy',
+                    'laser_frequency',
+                    'mie_bin_quality_flag',
+                    'mie_reference_pulse_quality_flag',
                     'albedo_off_nadir',
-                    'range_bin_number',
-                    'bin_number'
+                    'mie_signal_intensity_range_corrected',
+                    'mie_signal_intensity_normalised',
+
+                    'laser_frequency_offset_std_dev',
+                    'uv_energy_std_dev',
+                    'aht_22_tel_m1',
+                    'aht_23_tel_m1',
+                    'aht_24_tel_m1',
+                    'aht_25_tel_m1',
+                    'aht_26_tel_m1',
+                    'aht_27_tel_m1',
+                    'tc_18_tel_m11',
+                    'tc_19_tel_m12',
+                    'tc_20_tel_m13',
+                    'tc_21_tel_m14',
+                    'tc_25_tm15_ths1y',
+                    'tc_27_tm16_ths1y',
+                    'tc_29_ths2',
+                    'tc_23_ths1',
+                    'tc_32_ths3',
+
+                    'mie_ground_fwhm',
+                    'mie_ground_useful_signal',
+                    'mie_ground_signal_to_noise_ratio',
+                    'mie_ground_refined_signal_to_noise_ratio',
+                    'mie_average_ground_wind_bin_thickness',
+                    'mie_average_ground_wind_bin_thickness_above_dem',
+                    'mie_num_invalid_reference_pulse',
+                    'mie_ref_pulse_signal_to_noise_ratio',
+                    'mie_ref_pulse_refined_signal_to_noise_ratio',
+                    'mie_num_peak_invalid',
+                    'mie_corrected_reference_pulse_response',
                   ];
 
                   if(mieDiffVars){
@@ -2326,42 +2833,104 @@
 
                   var rayleighVars = [
                     'time',
-                    'rayleigh_ground_velocity',
-                    'rayleigh_HLOS_wind_speed',
-                    'rayleigh_error_quantifier',
-                    'rayleigh_range',
-                    'rayleigh_signal_channel_A_intensity',
-                    'rayleigh_bin_quality_flag',
+
+                    'rayleigh_time',
+                    'rayleigh_time_start',
+                    'rayleigh_time_end',
+                    'longitude_of_DEM_intersection_start',
+                    'longitude_of_DEM_intersection_end',
+                    'latitude_of_DEM_intersection_start',
+                    'latitude_of_DEM_intersection_end',
+                    'altitude_of_DEM_intersection',
+                    'argument_of_latitude_of_dem_intersection',
+                    'rayleigh_longitude',
                     'rayleigh_latitude',
+                    'rayleigh_altitude',
+                    'rayleigh_altitude_start',
+                    'rayleigh_altitude_end',
+                    'rayleigh_range',
+                    'rayleigh_range_start',
+                    'rayleigh_range_end',
+                    'bin_number',
+                    'range_bin_number_start',
+                    'range_bin_number_end',
+                    'geoid_separation',
+                    'velocity_at_DEM_intersection',
+                    'AOCS_pitch_angle',
+                    'AOCS_roll_angle',
+                    'AOCS_yaw_angle',
+                    'rayleigh_HLOS_wind_speed',
+                    'rayleigh_HLOS_wind_speed_normalised',
+                    'rayleigh_signal_channel_A_intensity',
                     'rayleigh_signal_channel_B_intensity',
                     'rayleigh_signal_intensity',
-                    'rayleigh_altitude',
-                    'rayleigh_SNR',
-                    'rayleigh_total_ZWC',
-                    'rayleigh_signal_intensity_range_corrected',
-                    'rayleigh_reference_pulse_quality_flag',
-                    'rayleigh_channel_B_SNR',
-                    'rayleigh_longitude',
+                    'rayleigh_ground_velocity',
                     'rayleigh_HBE_ground_velocity',
+                    'rayleigh_total_ZWC',
                     'rayleigh_channel_A_SNR',
-                    'rayleigh_signal_intensity_normalised',
-                    /*'average_laser_energy',
-                    'velocity_at_DEM_intersection',
-                    'AOCS_yaw_angle',
-                    'AOCS_roll_angle',
-                    'AOCS_pitch_angle',
-                    'geoid_separation',
-                    'altitude_of_DEM_intersection',
-                    'latitude_of_DEM_intersection', 
-                    'longitude_of_DEM_intersection', 
+                    'rayleigh_channel_B_SNR',
+                    'rayleigh_SNR',
+                    'rayleigh_error_quantifier',
+                    'average_laser_energy',
                     'laser_frequency',
-                    'albedo_off_nadir',*/
+                    'rayleigh_bin_quality_flag',
+                    'rayleigh_reference_pulse_quality_flag',
+                    'albedo_off_nadir',
+                    'rayleigh_signal_intensity_range_corrected',
+                    'rayleigh_signal_intensity_normalised',
+
+                    'laser_frequency_offset_std_dev',
+                    'uv_energy_std_dev',
+                    'aht_22_tel_m1',
+                    'aht_23_tel_m1',
+                    'aht_24_tel_m1',
+                    'aht_25_tel_m1',
+                    'aht_26_tel_m1',
+                    'aht_27_tel_m1',
+                    'tc_18_tel_m11',
+                    'tc_19_tel_m12',
+                    'tc_20_tel_m13',
+                    'tc_21_tel_m14',
+                    'tc_25_tm15_ths1y',
+                    'tc_27_tm16_ths1y',
+                    'tc_29_ths2',
+                    'tc_23_ths1',
+                    'tc_32_ths3',
+
+                    'rayleigh_topocentric_azimuth_of_height_bin',
+                    'rayleigh_topocentric_elevation_of_height_bin',
+                    'rayleigh_target_to_sun_visibility_flag',
+                    'rayleigh_ground_useful_signal',
+                    'rayleigh_ground_signal_to_noise_ratio',
+                    'rayleigh_average_ground_wind_bin_thickness',
+                    'rayleigh_average_ground_wind_bin_thickness_above_dem',
+                    'rayleigh_num_invalid_reference_pulse',
+                    'rayleigh_ref_pulse_signal_to_noise_ratio_channel_a',
+                    'rayleigh_ref_pulse_signal_to_noise_ratio_channel_b',
+                    'rayleigh_corrected_reference_pulse_response',
                   ];
 
                   if(rayleighDiffVars){
                     for (var i = 0; i < rayleighDiffVars.length; i++) {
                       rayleighVars.push(rayleighDiffVars[i]+'_user');
                       rayleighVars.push(rayleighDiffVars[i]+'_diff');
+                    }
+                  }
+
+                  // Go through data and check if we need to apply modifiers
+                  var currSetts = globals.dataSettings[collectionId];
+                  var currData = ds;
+                  for(var setKey in currSetts){
+                    if(currSetts[setKey].hasOwnProperty('modifier')){
+                      if(currData.hasOwnProperty(setKey)){
+                        var expr = that.parser.parse(currSetts[setKey].modifier);
+                        var exprFn = expr.toJSFunction('x');
+                        var convertedData = [];
+                        for (var pf = 0; pf < currData[setKey].length; pf++) {
+                          convertedData.push(currData[setKey][pf].map(exprFn));
+                        }
+                        currData[setKey] = convertedData;
+                      }
                     }
                   }
 

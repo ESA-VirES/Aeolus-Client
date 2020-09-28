@@ -53,12 +53,14 @@
     'hbs!tmpl/DownloadProcess',
     'hbs!tmpl/CoverageDownloadPost',
     'hbs!tmpl/wps_dataRequest',
+    'expr-eval',
     'underscore',
     'w2ui',
     'w2popup'
   ],
   function( Backbone, Communicator, globals, msgpack, m, DownloadFilterTmpl,
-            FilterTmpl, DownloadProcessTmpl, CoverageDownloadPostTmpl, wps_fetchFilteredDataAsync ) {
+            FilterTmpl, DownloadProcessTmpl, CoverageDownloadPostTmpl,
+            wps_fetchFilteredDataAsync, exprEval ) {
 
     var DownloadProcessView = Backbone.Marionette.ItemView.extend({
       tagName: "div",
@@ -330,6 +332,7 @@
         this.models = [];
         this.swarm_prod = [];
         this.loadcounter = 0;
+        this.parser = new exprEval.Parser();
 
       },
       onShow: function(view){
@@ -697,7 +700,7 @@
         var fil_div = this.$el.find("#filters");
         fil_div.empty();
         //fil_div.append("<div>Filters</div>");
-
+        var modifiedUOM = false;
         _.each(_.keys(filters), function(key){
 
           // TODO: For now we only handle min max filters
@@ -705,8 +708,8 @@
             var extent;
             if(Array.isArray(filters[key])){
               extent = [
-                Number(filters[key][0].toFixed(6)),
-                Number(filters[key][1].toFixed(6))
+                Number(filters[key][0].toPrecision(6)),
+                Number(filters[key][1].toPrecision(6))
               ];
             }else{
               extent = [
@@ -714,8 +717,34 @@
                 filters[key]
               ];
             }
-            
+
+            // Go through data and check if we need to apply modifiers
+            var currProd = globals.products.find(function(p){
+              return p.get('visible')
+            });
+            var currSetts = globals.dataSettings[currProd.get('download').id];
+
+            if(currSetts.hasOwnProperty(key) && currSetts[key].hasOwnProperty('modifier')){
+              var inverse = currSetts[key].modifier.replace(/\*/g, '/');
+              console.log(inverse);
+              var expr = this.parser.parse(inverse);
+              var exprFn = expr.toJSFunction('x');
+              extent = extent.map(exprFn)
+            }
+
             var name = key.replace(/_/g, " ");
+            var dowPars = currProd.get('download_parameters');
+            // Add possible uom info
+            if(dowPars.hasOwnProperty(key)
+              && dowPars[key].hasOwnProperty('uom')
+              && dowPars[key].uom !== null){
+              name += ' ['+dowPars[key].uom+']';
+            }
+            // Check if modifier is used in parameter add * for information
+            if(currSetts.hasOwnProperty(key) && currSetts[key].hasOwnProperty('modifiedUOM')){
+              name += ' *';
+              modifiedUOM = true;
+            }
             var $html = $(FilterTmpl({
                 id: key,
                 name: name,
@@ -725,7 +754,9 @@
             fil_div.append($html);
           }
         }, this);
-
+        if(modifiedUOM){
+          fil_div.append('<div style="font-size:0.8em">* filter extent modified to original unit of measurement of product</div>')
+        }
       },
 
       round: function(val){

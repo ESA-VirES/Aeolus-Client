@@ -5,7 +5,7 @@
 
     root.require.config({
         // Update for each release
-        urlArgs: 'bust=v2.0.2',
+        urlArgs: 'bust=v2.1.1',
 
         waitSeconds: 120,
         /* starting point for application */
@@ -70,7 +70,7 @@
             },
             cesium: {
                 exports: 'Cesium'
-            }
+            },
         },
 
         paths: {
@@ -128,7 +128,8 @@
             w2utils: '../bower_components/w2ui/src/w2utils',
 
             Anno: '../bower_components/anno.js/anno',
-            'jquery-scrollintoview': '../bower_components/jquery-scrollintoview/jquery.scrollintoview.min'
+            'jquery-scrollintoview': '../bower_components/jquery-scrollintoview/jquery.scrollintoview.min',
+            'expr-eval': '../bower_components/expr-eval/index'
         },
 
         hbs: {
