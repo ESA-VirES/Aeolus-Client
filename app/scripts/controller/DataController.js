@@ -94,7 +94,18 @@
                   'mie_bin_quality_flag',
                   'mie_reference_pulse_quality_flag',
                   'mie_signal_intensity_range_corrected',
-                  'mie_signal_intensity_normalised'
+                  'mie_signal_intensity_normalised',
+                  'mie_ground_fwhm',
+                  'mie_ground_useful_signal',
+                  'mie_ground_signal_to_noise_ratio',
+                  'mie_ground_refined_signal_to_noise_ratio',
+                  'mie_average_ground_wind_bin_thickness',
+                  'mie_average_ground_wind_bin_thickness_above_dem',
+                  'mie_num_invalid_reference_pulse',
+                  'mie_ref_pulse_signal_to_noise_ratio',
+                  'mie_ref_pulse_refined_signal_to_noise_ratio',
+                  'mie_num_peak_invalid',
+                  'mie_corrected_reference_pulse_response',
                 ],
                 [
                   'rayleigh_time_start',
@@ -119,7 +130,19 @@
                   'rayleigh_bin_quality_flag',
                   'rayleigh_reference_pulse_quality_flag',
                   'rayleigh_signal_intensity_range_corrected',
-                  'rayleigh_signal_intensity_normalised'
+                  'rayleigh_signal_intensity_normalised',
+
+                  'rayleigh_topocentric_azimuth_of_height_bin',
+                  'rayleigh_topocentric_elevation_of_height_bin',
+                  'rayleigh_target_to_sun_visibility_flag',
+                  'rayleigh_ground_useful_signal',
+                  'rayleigh_ground_signal_to_noise_ratio',
+                  'rayleigh_average_ground_wind_bin_thickness',
+                  'rayleigh_average_ground_wind_bin_thickness_above_dem',
+                  'rayleigh_num_invalid_reference_pulse',
+                  'rayleigh_ref_pulse_signal_to_noise_ratio_channel_a',
+                  'rayleigh_ref_pulse_signal_to_noise_ratio_channel_b',
+                  'rayleigh_corrected_reference_pulse_response',
                 ],
                 [
                   'time_off_nadir',
@@ -273,6 +296,28 @@
                   'mie_assimilation_analysis_wind_direction',
                   'mie_wind_result_albedo_off_nadir',
                   'mie_orbit_pass',
+
+                  'mie_wind_result_reference_hlos',
+                  'mie_wind_result_extinction',
+                  'mie_wind_result_background_high',
+                  'mie_wind_result_observation_type',
+                  'mie_wind_result_applied_spacecraft_los_corr_velocity',
+                  'mie_wind_result_applied_m1_temperature_corr_velocity',
+                  'mie_aht_22',
+                  'mie_aht_23',
+                  'mie_aht_24',
+                  'mie_aht_25',
+                  'mie_aht_26',
+                  'mie_aht_27',
+                  'mie_tc_18',
+                  'mie_tc_19',
+                  'mie_tc_20',
+                  'mie_tc_21',
+                  'mie_tc_23',
+                  'mie_tc_25',
+                  'mie_tc_27',
+                  'mie_tc_29',
+                  'mie_tc_32',
                 ],
                 [
                   'rayleigh_wind_result_id',
@@ -332,6 +377,31 @@
                   'rayleigh_assimilation_analysis_wind_direction',
                   'rayleigh_wind_result_albedo_off_nadir',
                   'rayleigh_orbit_pass',
+
+                  'rayleigh_wind_result_reference_hlos',
+                  'rayleigh_wind_result_background_high',
+                  'rayleigh_wind_result_wind_to_pressure',
+                  'rayleigh_wind_result_wind_to_temperature',
+                  'rayleigh_wind_result_wind_to_backscatter_ratio',
+                  'rayleigh_wind_result_applied_spacecraft_los_corr_velocity',
+                  'rayleigh_wind_result_applied_rdb_corr_velocity',
+                  'rayleigh_wind_result_applied_ground_corr_velocity',
+                  'rayleigh_wind_result_applied_m1_temperature_corr_velocity',
+                  'rayleigh_aht_22',
+                  'rayleigh_aht_23',
+                  'rayleigh_aht_24',
+                  'rayleigh_aht_25',
+                  'rayleigh_aht_26',
+                  'rayleigh_aht_27',
+                  'rayleigh_tc_18',
+                  'rayleigh_tc_19',
+                  'rayleigh_tc_20',
+                  'rayleigh_tc_21',
+                  'rayleigh_tc_23',
+                  'rayleigh_tc_25',
+                  'rayleigh_tc_27',
+                  'rayleigh_tc_29',
+                  'rayleigh_tc_32',
                 ],
                 // TODO: Add some way to ignore fata keys in analytics, for now
                 // we can separete it here to be ignored by other filters
@@ -1226,9 +1296,9 @@
               var currMeasStart = ((currObsStart+observationOffset)*30) + gD.group_start_meas_obs[i];
               var currMeasEnd = ((currObsStart+observationOffset)*30) + gD.group_end_meas_obs[i];
               var heighBinIndex = gD.group_height_bin_index[i]-1;
-              if(typeof oD.mie_altitude_obs[currObsStart] !== 'undefined'){
-                var currAltStart = oD.mie_altitude_obs[currObsStart][heighBinIndex];
-                var currAltEnd = oD.mie_altitude_obs[currObsStart][heighBinIndex+1];
+              if(typeof oD.rayleigh_altitude_obs[currObsStart] !== 'undefined'){
+                var currAltStart = oD.rayleigh_altitude_obs[currObsStart][heighBinIndex];
+                var currAltEnd = oD.rayleigh_altitude_obs[currObsStart][heighBinIndex+1];
                 
                 // TODO: In theory we should filter out -1 values, not sure if these
                 // apply equally to all parameters...
@@ -1291,9 +1361,9 @@
 
           // We generate a new parameter here we need to copy over the
           // related datasettings of original parameter
-          if(globals.dataSettings[collectionId].hasOwnProperty('mie_altitude_obs')){
+          if(globals.dataSettings[collectionId].hasOwnProperty('rayleigh_altitude_obs')){
             globals.dataSettings[collectionId].altitude_obs = 
-              globals.dataSettings[collectionId]['mie_altitude_obs']
+              globals.dataSettings[collectionId]['rayleigh_altitude_obs']
           }
 
           resData.alt_start = alt_start;
@@ -1316,6 +1386,7 @@
 
           resData.group_jumps = group_jumpPos;
           resData.group_signCross = group_signCross;
+          
         } else {
 
           var conversionFunction = function(value, maskLength){
@@ -2412,7 +2483,23 @@
         this.xhr.onreadystatechange = function() {
        
           if(request.readyState == 4) {
-            if(request.status == 200) {
+            if(request.status == 400) {
+              Communicator.mediator.trigger("progress:change", false);
+              var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+              if (error_text && error_text.length > 1) {
+                var errorParameter = error_text[1].split('\'')[1];
+                w2confirm('The parameter "'+errorParameter+'" is not available for the product(s) you are selecting.</br>'+
+                  'Would you like to disable it from the Data configuration?')
+                    .yes(function () {
+                        delete globals.dataSettings[collectionId][errorParameter].active;
+                        Communicator.mediator.trigger('layer:parameterlist:changed');
+                    });
+
+              } else {
+                error_text = 'Please contact feedback@vires.services if issue persists.'
+                showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+              }
+            } else if(request.status == 200) {
 
                 that.tmpdata = {};
                 ;delete globals.swarm.altitudeExtents
@@ -2643,28 +2730,6 @@
 
                   var mie_jumps = that.findObservationJumps(ds.mie_altitude, stepPositions, signCross);
 
-                  /*'mie_ground_velocity', 'mie_reference_pulse_quality_flag',
-                    'rayleigh_ground_velocity', 'mie_bin_quality_flag', 
-                    'AOCS_roll_angle', 'mie_signal_intensity_range_corrected',
-                    'velocity_at_DEM_intersection', 'rayleigh_HLOS_wind_speed',
-                    'mie_latitude', 'longitude_of_DEM_intersection', 
-                    'rayleigh_error_quantifier', 'latitude_of_DEM_intersection', 
-                    'rayleigh_range', 'mie_total_ZWC', 'rayleigh_signal_channel_A_intensity',
-                    'rayleigh_bin_quality_flag', 'mie_signal_intensity_normalised',
-                    'mie_scattering_ratio', 'mie_altitude', 'rayleigh_latitude',
-                    'AOCS_pitch_angle', 'mie_error_quantifier', 'geoid_separation',
-                    'rayleigh_signal_channel_B_intensity', 'mie_HBE_ground_velocity',
-                    'rayleigh_signal_intensity', 'time', 'rayleigh_altitude',
-                    'laser_frequency', 'altitude_of_DEM_intersection', 'rayleigh_SNR',
-                    'rayleigh_total_ZWC', 'average_laser_energy',
-                    'rayleigh_signal_intensity_range_corrected',
-                    'mie_HLOS_wind_speed', 'albedo_off_nadir',
-                    'rayleigh_reference_pulse_quality_flag', 'mie_longitude',
-                    'rayleigh_channel_B_SNR', 'mie_signal_intensity',
-                    'rayleigh_longitude', 'AOCS_yaw_angle', 'mie_SNR',
-                    'rayleigh_HBE_ground_velocity', 'mie_range',
-                    'rayleigh_channel_A_SNR', 'rayleigh_signal_intensity_normalised',*/
-
                   // Check for argument_of_latitude_of_dem_intersection and
                   // create a new parameter for satellite direction
                   if(ds.hasOwnProperty('argument_of_latitude_of_dem_intersection')) {
@@ -2680,39 +2745,82 @@
                     ds.orbit_pass = orbit_pass;
                   }
 
+                  var gran = product.get('granularity');
+
                   var mieVars = [
                     'time',
-                    'mie_ground_velocity',
-                    'mie_reference_pulse_quality_flag',
-                    'mie_bin_quality_flag', 
-                    'mie_signal_intensity_range_corrected',
-                    'mie_latitude',
-                    'mie_total_ZWC',
-                    'mie_signal_intensity_normalised',
-                    'mie_scattering_ratio',
-                    'mie_altitude', 
-                    'mie_error_quantifier',
-                    'mie_HBE_ground_velocity',
-                    'mie_HLOS_wind_speed',
-                    'mie_longitude',
-                    'mie_signal_intensity',
-                    'mie_SNR',
-                    'mie_range',
-                    'geoid_separation',
+                    
+                    'mie_time',
+                    'mie_time_start',
+                    'mie_time_end',
+                    'longitude_of_DEM_intersection_start',
+                    'longitude_of_DEM_intersection_end',
+                    'latitude_of_DEM_intersection_start',
+                    'latitude_of_DEM_intersection_end',
                     'altitude_of_DEM_intersection',
-                    'longitude_of_DEM_intersection', 
-                    'latitude_of_DEM_intersection', 
                     'argument_of_latitude_of_dem_intersection',
-                    'orbit_pass',
-                    'laser_frequency',
-                    'average_laser_energy',
-                    'AOCS_roll_angle',
+                    'mie_longitude',
+                    'mie_latitude',
+                    'mie_altitude',
+                    'mie_altitude_start',
+                    'mie_altitude_end',
+                    'mie_range',
+                    'mie_range_start',
+                    'mie_range_end',
+                    'bin_number',
+                    'range_bin_number_start',
+                    'range_bin_number_end',
+                    'geoid_separation',
+                    'velocity_at_DEM_intersection',
                     'AOCS_pitch_angle',
+                    'AOCS_roll_angle',
                     'AOCS_yaw_angle',
-                    'velocity_at_DEM_intersection', 
+                    'mie_HLOS_wind_speed',
+                    'mie_HLOS_wind_speed_normalised',
+                    'mie_signal_intensity',
+                    'mie_ground_velocity',
+                    'mie_HBE_ground_velocity',
+                    'mie_total_ZWC',
+                    'mie_scattering_ratio',
+                    'mie_SNR',
+                    'mie_error_quantifier',
+                    'average_laser_energy',
+                    'laser_frequency',
+                    'mie_bin_quality_flag',
+                    'mie_reference_pulse_quality_flag',
                     'albedo_off_nadir',
-                    'range_bin_number',
-                    'bin_number'
+                    'mie_signal_intensity_range_corrected',
+                    'mie_signal_intensity_normalised',
+
+                    'laser_frequency_offset_std_dev',
+                    'uv_energy_std_dev',
+                    'aht_22_tel_m1',
+                    'aht_23_tel_m1',
+                    'aht_24_tel_m1',
+                    'aht_25_tel_m1',
+                    'aht_26_tel_m1',
+                    'aht_27_tel_m1',
+                    'tc_18_tel_m11',
+                    'tc_19_tel_m12',
+                    'tc_20_tel_m13',
+                    'tc_21_tel_m14',
+                    'tc_25_tm15_ths1y',
+                    'tc_27_tm16_ths1y',
+                    'tc_29_ths2',
+                    'tc_23_ths1',
+                    'tc_32_ths3',
+
+                    'mie_ground_fwhm',
+                    'mie_ground_useful_signal',
+                    'mie_ground_signal_to_noise_ratio',
+                    'mie_ground_refined_signal_to_noise_ratio',
+                    'mie_average_ground_wind_bin_thickness',
+                    'mie_average_ground_wind_bin_thickness_above_dem',
+                    'mie_num_invalid_reference_pulse',
+                    'mie_ref_pulse_signal_to_noise_ratio',
+                    'mie_ref_pulse_refined_signal_to_noise_ratio',
+                    'mie_num_peak_invalid',
+                    'mie_corrected_reference_pulse_response',
                   ];
 
                   if(mieDiffVars){
@@ -2724,36 +2832,81 @@
 
                   var rayleighVars = [
                     'time',
-                    'rayleigh_ground_velocity',
-                    'rayleigh_HLOS_wind_speed',
-                    'rayleigh_error_quantifier',
-                    'rayleigh_range',
-                    'rayleigh_signal_channel_A_intensity',
-                    'rayleigh_bin_quality_flag',
+
+                    'rayleigh_time',
+                    'rayleigh_time_start',
+                    'rayleigh_time_end',
+                    'longitude_of_DEM_intersection_start',
+                    'longitude_of_DEM_intersection_end',
+                    'latitude_of_DEM_intersection_start',
+                    'latitude_of_DEM_intersection_end',
+                    'altitude_of_DEM_intersection',
+                    'argument_of_latitude_of_dem_intersection',
+                    'rayleigh_longitude',
                     'rayleigh_latitude',
+                    'rayleigh_altitude',
+                    'rayleigh_altitude_start',
+                    'rayleigh_altitude_end',
+                    'rayleigh_range',
+                    'rayleigh_range_start',
+                    'rayleigh_range_end',
+                    'bin_number',
+                    'range_bin_number_start',
+                    'range_bin_number_end',
+                    'geoid_separation',
+                    'velocity_at_DEM_intersection',
+                    'AOCS_pitch_angle',
+                    'AOCS_roll_angle',
+                    'AOCS_yaw_angle',
+                    'rayleigh_HLOS_wind_speed',
+                    'rayleigh_HLOS_wind_speed_normalised',
+                    'rayleigh_signal_channel_A_intensity',
                     'rayleigh_signal_channel_B_intensity',
                     'rayleigh_signal_intensity',
-                    'rayleigh_altitude',
-                    'rayleigh_SNR',
-                    'rayleigh_total_ZWC',
-                    'rayleigh_signal_intensity_range_corrected',
-                    'rayleigh_reference_pulse_quality_flag',
-                    'rayleigh_channel_B_SNR',
-                    'rayleigh_longitude',
+                    'rayleigh_ground_velocity',
                     'rayleigh_HBE_ground_velocity',
+                    'rayleigh_total_ZWC',
                     'rayleigh_channel_A_SNR',
-                    'rayleigh_signal_intensity_normalised',
-                    /*'average_laser_energy',
-                    'velocity_at_DEM_intersection',
-                    'AOCS_yaw_angle',
-                    'AOCS_roll_angle',
-                    'AOCS_pitch_angle',
-                    'geoid_separation',
-                    'altitude_of_DEM_intersection',
-                    'latitude_of_DEM_intersection', 
-                    'longitude_of_DEM_intersection', 
+                    'rayleigh_channel_B_SNR',
+                    'rayleigh_SNR',
+                    'rayleigh_error_quantifier',
+                    'average_laser_energy',
                     'laser_frequency',
-                    'albedo_off_nadir',*/
+                    'rayleigh_bin_quality_flag',
+                    'rayleigh_reference_pulse_quality_flag',
+                    'albedo_off_nadir',
+                    'rayleigh_signal_intensity_range_corrected',
+                    'rayleigh_signal_intensity_normalised',
+
+                    'laser_frequency_offset_std_dev',
+                    'uv_energy_std_dev',
+                    'aht_22_tel_m1',
+                    'aht_23_tel_m1',
+                    'aht_24_tel_m1',
+                    'aht_25_tel_m1',
+                    'aht_26_tel_m1',
+                    'aht_27_tel_m1',
+                    'tc_18_tel_m11',
+                    'tc_19_tel_m12',
+                    'tc_20_tel_m13',
+                    'tc_21_tel_m14',
+                    'tc_25_tm15_ths1y',
+                    'tc_27_tm16_ths1y',
+                    'tc_29_ths2',
+                    'tc_23_ths1',
+                    'tc_32_ths3',
+
+                    'rayleigh_topocentric_azimuth_of_height_bin',
+                    'rayleigh_topocentric_elevation_of_height_bin',
+                    'rayleigh_target_to_sun_visibility_flag',
+                    'rayleigh_ground_useful_signal',
+                    'rayleigh_ground_signal_to_noise_ratio',
+                    'rayleigh_average_ground_wind_bin_thickness',
+                    'rayleigh_average_ground_wind_bin_thickness_above_dem',
+                    'rayleigh_num_invalid_reference_pulse',
+                    'rayleigh_ref_pulse_signal_to_noise_ratio_channel_a',
+                    'rayleigh_ref_pulse_signal_to_noise_ratio_channel_b',
+                    'rayleigh_corrected_reference_pulse_response',
                   ];
 
                   if(rayleighDiffVars){
