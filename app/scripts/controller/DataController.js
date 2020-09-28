@@ -2492,6 +2492,7 @@
                   'Would you like to disable it from the Data configuration?')
                     .yes(function () {
                         delete globals.dataSettings[collectionId][errorParameter].active;
+                        Communicator.mediator.trigger('layer:parameters:changed', collectionId);
                         Communicator.mediator.trigger('layer:parameterlist:changed');
                     });
 
