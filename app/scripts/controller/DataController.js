@@ -2485,8 +2485,12 @@
           if(request.readyState == 4) {
             if(request.status == 400) {
               Communicator.mediator.trigger("progress:change", false);
+              var exception_text = request.responseText.match("<ows:Exception (.*)");
               var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
-              if (error_text && error_text.length > 1) {
+
+              if (exception_text.length > 0 && exception_text[0].startsWith('<ows:Exception exceptionCode="NoSuchField"') &&
+                  error_text && error_text.length > 0 && error_text[0].startsWith('<ows:ExceptionText>')) {
+
                 var errorParameter = error_text[1].split('\'')[1];
                 w2confirm('The parameter "'+errorParameter+'" is not available for the product(s) you are selecting.</br>'+
                   'Would you like to disable it from the Data configuration?')
@@ -2496,6 +2500,8 @@
                         Communicator.mediator.trigger('layer:parameterlist:changed');
                     });
 
+              } else if(error_text.length>0) {
+                showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
               } else {
                 error_text = 'Please contact feedback@vires.services if issue persists.'
                 showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
