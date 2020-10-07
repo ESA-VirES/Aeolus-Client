@@ -140,7 +140,7 @@ var VECTOR_BREAKDOWN = {};
                     // loaded anyhow, but we add check here just in case
                     var versionssegments = serviceVersion.split('.');
                     if(versionssegments.length>1){
-                        numberSV = Number(versionssegments[0]+versionssegments[1]);
+                        numberSV = Number(versionssegments[0]+'.'+versionssegments[1]);
                     }
                     if(serviceVersion!==globals.version){
                         if(localStorage.getItem('configurationLoaded') !== null){
