@@ -2498,6 +2498,10 @@
                         delete globals.dataSettings[collectionId][errorParameter].active;
                         Communicator.mediator.trigger('layer:parameters:changed', collectionId);
                         Communicator.mediator.trigger('layer:parameterlist:changed');
+                        // Save changes to localstorage
+                        localStorage.setItem(
+                          'dataSettings', JSON.stringify(globals.dataSettings)
+                        );
                     });
 
               } else if(error_text.length>0) {
