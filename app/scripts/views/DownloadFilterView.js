@@ -102,6 +102,7 @@
             'ALD_U_N_2B': 'aeolus:level2B',
             'ALD_U_N_2B_public': 'aeolus:level2B',
             'ALD_U_N_2C': 'aeolus:level2C',
+            'ALD_U_N_2C_public': 'aeolus:level2C',
             'AUX_MRC_1B': 'aeolus:level1B:AUX:MRC',
             'AUX_RRC_1B': 'aeolus:level1B:AUX:RRC',
             'AUX_ISR_1B': 'aeolus:level1B:AUX:ISR',

@@ -430,6 +430,9 @@
           selectedProduct.set('parameters', parOpts);
           Communicator.mediator.trigger('layer:parameters:changed', that.currentSelection);
 
+          // Save changes to localstorage
+          localStorage.setItem('dataSettings', JSON.stringify(globals.dataSettings));
+
           that.onClose();
         });
       },

@@ -341,6 +341,11 @@
 .groupSelect{
     /*Solving issue of select being different because of bootstrap*/
     margin-top: -10px;
+    border:1px solid #ccc;
+}
+
+.choiceParameterContainer select {
+    border:1px solid #ccc;
 }
 
 #parameterSettings, .parameterInfo{
@@ -402,4 +407,8 @@
 
 .boolParameterContainer input {
     margin-top: 0px!important;
+}
+
+#tickFontSize, #labelFontSize{
+    width: 100%!important;
 }

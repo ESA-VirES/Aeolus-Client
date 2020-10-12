@@ -131,22 +131,22 @@ var VECTOR_BREAKDOWN = {};
                 // Check if version of service is set and if it differs from the
                 // current version
                 var serviceVersion;
+                var numberSV = NaN;
                 if(localStorage.getItem('serviceVersion') !== null){
                     serviceVersion = JSON.parse(
                         localStorage.getItem('serviceVersion')
                     );
+                    // If service version older then 1.3 it should not be
+                    // loaded anyhow, but we add check here just in case
+                    var versionssegments = serviceVersion.split('.');
+                    if(versionssegments.length>1){
+                        numberSV = Number(versionssegments[0]+'.'+versionssegments[1]);
+                    }
                     if(serviceVersion!==globals.version){
                         if(localStorage.getItem('configurationLoaded') !== null){
                             // A configuration from a previous version was loaded
                             localStorage.removeItem('configurationLoaded');
-                            // If service version older then 1.3 it should not be
-                            // loaded anyhow, but we add check here just in case
-                            var versionssegments = serviceVersion.split('.');
-                            if(versionssegments.length>1){
-                            var numberSV = Number(versionssegments[0]+versionssegments[1]);
-                            } else {
-                                numberSV = NaN;
-                            }
+                            
                             if(isNaN(numberSV) || numberSV<1.3){
                                 localStorage.clear();
                                 showMessage('success',
@@ -449,8 +449,6 @@ var VECTOR_BREAKDOWN = {};
 
                 // Check if datasettings already available, and also from which
                 // service version the datasettings are coming from
-                var numberSV = Number(serviceVersion);
-
                 if(!isNaN(numberSV) && numberSV>1.4 && 
                     localStorage.getItem('dataSettings') !== null){
                     globals.dataSettings = JSON.parse(localStorage.getItem('dataSettings'));
