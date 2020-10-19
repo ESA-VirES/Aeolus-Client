@@ -1979,6 +1979,18 @@ define(['backbone.marionette',
                     Communicator.mediator.trigger('cesium:highlight:point', values);
                 });
 
+                this.graph.on('maskParameterChange', function(values){
+                    var currProd = globals.products.find(
+                        function(p){return p.get('visible');}
+                    );
+                    var prodId = currProd.get('download').id;
+                    // Trigger layer parameters changed to make sure globe
+                    // view is updated acordingly
+                    Communicator.mediator.trigger(
+                        'layer:parameters:changed', prodId
+                    );
+                });
+
                 this.graph.on('axisChange', function () {
                     // If a parameter should be plotted reversed in y axis we
                     // change it here
