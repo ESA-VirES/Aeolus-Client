@@ -574,7 +574,7 @@ SCA_middle_bin_cumulative_LOD_valid
             'AUX_ZWC_1B': {
                 'mie_ground_correction_velocity': {
                     selected: true,
-                    range: [-0.5, 0.5],
+                    extent: [-0.5, 0.5],
                     uom: 'm/s',
                     colorscale: 'redblue',
                     symbol: 'x',
@@ -583,7 +583,7 @@ SCA_middle_bin_cumulative_LOD_valid
                 },
                 'rayleigh_ground_correction_velocity': {
                     selected: true,
-                    range: [-1.6, 2],
+                    extent: [-1.6, 2],
                     uom: 'm/s',
                     colorscale: 'redblue',
                     symbol: 'triangle_empty',
