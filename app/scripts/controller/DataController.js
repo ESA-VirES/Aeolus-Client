@@ -2532,7 +2532,19 @@
                   if(that.firstLoad){
                     that.firstLoad = false;
                   } else {
+                    // When changing product make sure filters are reset
+                    var setts = JSON.parse(JSON.stringify(
+                        globals.swarm.get('originalFilterSettings')
+                    ));
+                    globals.filterManager.filterSettings = setts;
+                    if(setts.hasOwnProperty('boolParameter')){
+                        globals.filterManager.boolParameter = setts.boolParameter;
+                    }
+                    if(setts.hasOwnProperty('maskParameter')){
+                        globals.filterManager.maskParameter = setts.maskParameter;
+                    }
                     globals.filterManager.resetManager();
+                    globals.swarm.set({filters: globals.filterManager.filters});
                   }
                 }
 
