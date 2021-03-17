@@ -983,7 +983,7 @@
       onSelectionChanged: function(bbox) {
         this.wpsProdChange = true;
         if(bbox){
-          this.selection_list.push(bbox);
+          this.selection_list = [bbox];
           this.checkSelections();
         }else{
           this.plotdata = [];
