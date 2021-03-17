@@ -26,5 +26,5 @@ jobs:
         if: success()
 
       - name: Push docker image(s)
-        run: docker push eoxa/aeolus-client
+        run: docker push eoxa/aeolus-client:${{ steps.branch_name.outputs.SOURCE_BRANCH }}
         if: success()
