@@ -2227,6 +2227,10 @@ define(['backbone.marionette',
                         delete that.filterManager.filters[filter];
                         delete that.filterManager.brushes[filter];
                     }
+                    // Check if mask filter was set
+                    if (globals.filterManager.maskFilters.hasOwnProperty(filter)){
+                        delete globals.filterManager.maskFilters[filter];
+                    }
                     globals.filterManager._filtersChanged();
                     localStorage.setItem(
                         'selectedFilterList',
@@ -2291,6 +2295,13 @@ define(['backbone.marionette',
                 var setts = globals.filterManager.filterSettings;
                 setts.visibleFilters = this.selectedFilterList;
                 globals.filterManager.updateFilterSettings(setts);
+                // If it is a mask filter it probably has default filters
+                // we need to redraw
+                if (setts.hasOwnProperty('maskParameter')) {
+                    if (setts.maskParameter.hasOwnProperty(selected)) {
+                        globals.filterManager._filtersChanged();
+                    }
+                }
                 localStorage.setItem(
                     'selectedFilterList',
                     JSON.stringify(this.selectedFilterList)
@@ -2481,7 +2492,7 @@ define(['backbone.marionette',
                   }
                 }
 
-                // Show only filters for currently available data 
+                // Show only filters for currently available data
                 for (var key in aUOM) {
                   // Check if we have global dataSettings information to use
                   if(globals.dataSettings[prodId].hasOwnProperty(key)){
@@ -2494,6 +2505,7 @@ define(['backbone.marionette',
                       delete aUOM[key];
                     }
                   }
+                  /*
                   // Remove also mask and boolparameter from list
                   if(globals.filterManager.maskParameter.hasOwnProperty(key)){
                     delete aUOM[key];
@@ -2504,6 +2516,7 @@ define(['backbone.marionette',
                   if(globals.filterManager.choiceParameter.hasOwnProperty(key)){
                     delete aUOM[key];
                   }
+                  */
                 }
             }
 
