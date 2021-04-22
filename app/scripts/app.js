@@ -360,10 +360,17 @@ var VECTOR_BREAKDOWN = {};
                             var currId = USERPERMISSIONS[i].substring(undIdx+1);
                             // Check if collections is public collection
                             if(currId.indexOf('_public') !== -1){
-                                // We add it to globals reference so that
-                                // requests are adapted accordingly
+                                // If only the public permissions are available 
+                                // we add the information to make use of the public
+                                // collections, if also the privileged collection
+                                // is available we ignore the public one
                                 currId = currId.replace('_public', '');
-                                globals.publicCollections[currId] = true;
+                                if(USERPERMISSIONS.findIndex(function(item) {
+                                  var actualId = item.substring(USERPERMISSIONS[i].indexOf('_')+1);
+                                  return actualId === currId;
+                                }) === -1) {
+                                  globals.publicCollections[currId] = true;
+                                }
                             }
                             allowedProducts.push(currId);
                         }
