@@ -52,7 +52,7 @@ var VECTOR_BREAKDOWN = {};
                     allowMultiple: true,
                     labelIdle: ('Drag & Drop your files or <span class="filepond--label-action"> Browse </span><br>'+
                                 'Use uncompressed product file (DBL, EEF)<br>'+
-                                'Additional information in the <a target="_blank" href="/accounts/faq">FAQ</a>'),
+                                'Additional information in the <a target="_blank" href="/faq">FAQ</a>'),
                     name: 'file',
                     server: 'upload/',
                     onprocessfile: function(error, file){
@@ -190,7 +190,7 @@ var VECTOR_BREAKDOWN = {};
                                 'A new version ('+globals.version+') of the service has been released. '+
                                 'Your configuration has been updated.</br>'+
                                 'You can find information on the changes in the '+
-                                '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
+                                '<b><a target="_blank" href="/changelog">changelog</a></b>.', 35
                             );
                             localStorage.clear();
                             localStorage.setItem(
@@ -213,7 +213,7 @@ var VECTOR_BREAKDOWN = {};
                         'A new version ('+globals.version+') of the service has been released. '+
                         'Your configuration has been updated.</br>'+
                         'You can find information on the changes in the '+
-                        '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
+                        '<b><a target="_blank" href="/changelog">changelog</a></b>.', 35
                     );
                 }
 
