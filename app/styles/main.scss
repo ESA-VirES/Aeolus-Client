@@ -526,6 +526,11 @@ button[active=active] {
   overflow: hidden; 
 }
 
+/* Allow larger fields in drop down menus */
+.dropdown-menu>li>a {
+  max-width: none!important;
+}
+
 .nav.navbar-nav a{
   padding-left: 8px;
   padding-right: 8px;
