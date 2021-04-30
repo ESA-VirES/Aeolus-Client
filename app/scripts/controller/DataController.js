@@ -2947,11 +2947,12 @@
                       if(currData.hasOwnProperty(setKey)){
                         var expr = that.parser.parse(currSetts[setKey].modifier);
                         var exprFn = expr.toJSFunction('x');
-                        var convertedData = [];
-                        for (var pf = 0; pf < currData[setKey].length; pf++) {
-                          convertedData.push(currData[setKey][pf].map(exprFn));
+                        if(Array.isArray(ds[setKey][0])){
+                          ds[setKey] = ds[setKey].map(function(arr){return arr.map(exprFn);});
+                        } else {
+                          ds[setKey] = ds[setKey].map(exprFn);
                         }
-                        currData[setKey] = convertedData;
+
                       }
                     }
                   }
