@@ -467,10 +467,7 @@
         this.$el.find("#custom_parameter_cb").off();
         this.$el.find("#custom_download").empty();
         this.$el.find("#custom_download").html(
-          '<div class="w2ui-field">'+
-              '<div class="checkbox" style="margin-left:20px;"><label><input type="checkbox" value="" id="custom_parameter_cb">Custom download parameters</label></div>'+
-              '<div style="margin-left:0px;"> <input id="param_enum" style="width:100%;"> </div>'+
-          '</div>'
+          '<div class="checkbox" style="margin-left:3px;"><label><input type="checkbox" value="" id="custom_parameter_cb" checked>Retrieve only enabled parameters in the Data Panel</label></div>'
         );
 
         this.$el.find("#dsd_info_cb").off();
@@ -529,97 +526,6 @@
             
           }
 
-        });
-
-
-        var currProd = globals.products.find(function(p){
-          return p.get('visible')
-        });
-        var currProdID = currProd.get('download').id;
-        var currGran = currProd.get('granularity');
-        var currDownGroups;
-        if(currGran){
-          currDownGroups = globals.downloadMatrix[currProdID][currGran];
-        }
-
-        var availableParameters = [];
-        var downloadParameters = currProd.get('download_parameters');
-        var downloadGroups = currProd.get('download_groups');
-
-
-        for(var id in downloadParameters){
-          if(currProd.attributes.hasOwnProperty('download_groups') && 
-             currProd.attributes.download_groups){
-            var gran = false;
-            for (var dg = currDownGroups.length - 1; dg >= 0; dg--) {
-              if(downloadGroups[currDownGroups[dg]].indexOf(id) !== -1){
-                gran = currDownGroups[dg];
-              }
-            }
-            if(currDownGroups.indexOf(gran)!==-1){
-               availableParameters.push({
-                'id': id, 
-                'uom': downloadParameters[id].uom,
-                'description': downloadParameters[id].name,
-                'granularity': gran
-              });
-            }
-          } else {
-            availableParameters.push({
-                'id': id, 
-                'uom': downloadParameters[id].uom,
-                'description': downloadParameters[id].name,
-                'granularity': false
-              });
-          }
-         
-        }
-
-
-        $('#param_enum').w2field('enum', { 
-            items: _.sortBy(availableParameters, 'id'), // Sort parameters alphabetically 
-            openOnFocus: true,
-            renderItem: function (item, index, remove) {
-                if(item.id == "Latitude" || item.id == "Longitude" ||
-                   item.id == "Timestamp" || item.id == "Radius"){
-                  remove = "";
-                }
-                var html = remove + item.id;
-                return html;
-            },
-            renderDrop: function (item, options) {
-              $("#w2ui-overlay").addClass("downloadsection");
-
-              var html = '<b>'+item.id+'</b>';
-              if(item.uom != null){
-                html += ' ['+item.uom+']';
-              }
-              if(item.description){
-                html+= ': '+item.description;
-              }
-              //'<i class="fa fa-info-circle" aria-hidden="true" data-placement="right" style="margin-left:4px;" title="'+item.description+'"></i>';
-              
-              return html;
-            },
-            onRemove: function(evt){
-              if(evt.item.id == "Radius" || evt.item.id == "Latitude" ||
-                 evt.item.id == "Longitude" || evt.item.id == "Timestamp"){
-                evt.preventDefault();
-                evt.stopPropagation();
-              }
-            }
-        });
-        $('#param_enum').prop('disabled', true);
-        $('#param_enum').w2field().refresh();
-
-        this.$el.find("#custom_parameter_cb").click(function(evt){
-          if ($('#custom_parameter_cb').is(':checked')) {
-            $('#param_enum').prop('disabled', false);
-            $('#param_enum').w2field().refresh();
-          }else{
-            $('#param_enum').prop('disabled', true);
-            $('#param_enum').w2field().refresh();
-          }
         });
 
       },
@@ -1046,148 +952,130 @@
           options.dsdInfo = true;
         }
 
-        // Custom variables
-        if ($('#custom_parameter_cb').is(':checked')) {
-          var granularity;
-          _.each(this.model.get("products"), function(prod){
-            if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
-              var collectionId = prod.get("download").id;
 
-              // TODO: This only takes into account having one product selected
-              options.processId = prod.get('process');
-              if(prod.get('granularity')){
-                granularity = prod.get('granularity')+'_fields';
-              }
-            }
-
-            var variables = $('#param_enum').data('selected');
-            //variables = variables.map(function(item) {return item.id;});
-            if(granularity){
-              for (var i = variables.length - 1; i >= 0; i--) {
-                var gran = variables[i].granularity + '_fields';
-                if(options.hasOwnProperty(gran)){
-                  options[gran] += (','+variables[i].id);
-                } else {
-                  options[gran] = (''+variables[i].id);
-                }
-              }
-            } else {
-              options['fields'] = variables.map(function(m){return m.id;}).join(',');
-            }
-
-          },this);
-        }else{
-          // Use default parameters as described by download
-          // product parameters in configuration
-
-
-            var fieldsList = {
-            'AUX_MET_12': [
-              'time_off_nadir', 'time_nadir',
-              'surface_wind_component_u_off_nadir',
-              'surface_wind_component_u_nadir',
-              'surface_wind_component_v_off_nadir',
-              'surface_wind_component_v_nadir',
-              'surface_pressure_off_nadir','surface_pressure_nadir',
-              'surface_altitude_off_nadir', 'surface_altitude_nadir',
-              // 2D data
-              'layer_validity_flag_nadir',
-              'layer_pressure_nadir',
-              'layer_temperature_nadir',
-              'layer_wind_component_u_nadir',
-              'layer_wind_component_v_nadir',
-              'layer_rel_humidity_nadir',
-              'layer_spec_humidity_nadir',
-              'layer_cloud_cover_nadir',
-              'layer_cloud_liquid_water_content_nadir',
-              'layer_cloud_ice_water_content_nadir',
-              'layer_validity_flag_off_nadir',
-              'layer_pressure_off_nadir',
-              'layer_temperature_off_nadir',
-              'layer_wind_component_u_off_nadir',
-              'layer_wind_component_v_off_nadir',
-              'layer_rel_humidity_off_nadir',
-              'layer_spec_humidity_off_nadir',
-              'layer_cloud_cover_off_nadir',
-              'layer_cloud_liquid_water_content_off_nadir',
-              'layer_cloud_ice_water_content_off_nadir'
-            ]
-
-          };
-
-          var currProd = globals.products.find(function(p){
-            return p.get('visible')
-          });
-          var currProdID = currProd.get('download').id;
-          var currGran = currProd.get('granularity');
-          var currDownGroups;
-          if(currGran){
-            currDownGroups = globals.downloadMatrix[currProdID][currGran];
-          }
-
-          var availableParameters = [];
-          var downloadParameters = currProd.get('download_parameters');
-          var downloadGroups = currProd.get('download_groups');
-
-
-          for(var id in downloadParameters){
-            if(currProd.attributes.hasOwnProperty('download_groups')  && 
-               currProd.attributes.download_groups){
-              var gran = false;
-              for (var dg = currDownGroups.length - 1; dg >= 0; dg--) {
-                if(downloadGroups[currDownGroups[dg]].indexOf(id) !== -1){
-                  gran = currDownGroups[dg];
-                }
-              }
-              if(currDownGroups.indexOf(gran)!==-1){
-                 availableParameters.push({
-                  'id': id, 
-                  'uom': downloadParameters[id].uom,
-                  'description': downloadParameters[id].name,
-                  'granularity': gran
-                });
-              }
-            } else {
-              availableParameters.push({
-                  'id': id, 
-                  'uom': downloadParameters[id].uom,
-                  'description': downloadParameters[id].name,
-                  'granularity': false
-                });
-            }
-          }
-
-          var granularity;
-          var downGran = null;
-          _.each(this.model.get("products"), function(prod){
-            if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
-              var collectionId = prod.get("download").id;
-
-              // TODO: This only takes into account having one product selected
-              options.processId = prod.get('process');
-              if(prod.get('granularity')){
-                downGran = prod.get('granularity');
-                granularity = downGran+'_fields';
-              }
-            }
-
-            var variables = availableParameters;
-            if(granularity){
-              for (var i = variables.length - 1; i >= 0; i--) {
-                var gran = variables[i].granularity + '_fields';
-                if(options.hasOwnProperty(gran)){
-                  options[gran] += (','+variables[i].id);
-                } else {
-                  options[gran] = (''+variables[i].id);
-                }
-              }
-            } else {
-              options['fields'] = variables.map(function(m){return m.id;}).join(',');
-            }
-
-          },this);
+        var currProd = globals.products.find(function(p){
+          return p.get('visible')
+        });
+        var currProdID = currProd.get('download').id;
+        var currGran = currProd.get('granularity');
+        var currDownGroups;
+        if(currGran){
+          currDownGroups = globals.downloadMatrix[currProdID][currGran];
         }
-       
+
+
+        // Use default parameters as described by download
+        // product parameters in configuration
+
+
+          var fieldsList = {
+          'AUX_MET_12': [
+            'time_off_nadir', 'time_nadir',
+            'surface_wind_component_u_off_nadir',
+            'surface_wind_component_u_nadir',
+            'surface_wind_component_v_off_nadir',
+            'surface_wind_component_v_nadir',
+            'surface_pressure_off_nadir','surface_pressure_nadir',
+            'surface_altitude_off_nadir', 'surface_altitude_nadir',
+            // 2D data
+            'layer_validity_flag_nadir',
+            'layer_pressure_nadir',
+            'layer_temperature_nadir',
+            'layer_wind_component_u_nadir',
+            'layer_wind_component_v_nadir',
+            'layer_rel_humidity_nadir',
+            'layer_spec_humidity_nadir',
+            'layer_cloud_cover_nadir',
+            'layer_cloud_liquid_water_content_nadir',
+            'layer_cloud_ice_water_content_nadir',
+            'layer_validity_flag_off_nadir',
+            'layer_pressure_off_nadir',
+            'layer_temperature_off_nadir',
+            'layer_wind_component_u_off_nadir',
+            'layer_wind_component_v_off_nadir',
+            'layer_rel_humidity_off_nadir',
+            'layer_spec_humidity_off_nadir',
+            'layer_cloud_cover_off_nadir',
+            'layer_cloud_liquid_water_content_off_nadir',
+            'layer_cloud_ice_water_content_off_nadir'
+          ]
+
+        };
+
+        var availableParameters = [];
+        var downloadParameters = currProd.get('download_parameters');
+        var downloadGroups = currProd.get('download_groups');
+
+
+        for(var id in downloadParameters){
+          if(currProd.attributes.hasOwnProperty('download_groups')  && 
+             currProd.attributes.download_groups){
+            var gran = false;
+            for (var dg = currDownGroups.length - 1; dg >= 0; dg--) {
+              if(downloadGroups[currDownGroups[dg]].indexOf(id) !== -1){
+                gran = currDownGroups[dg];
+              }
+            }
+            if(currDownGroups.indexOf(gran)!==-1){
+               availableParameters.push({
+                'id': id, 
+                'uom': downloadParameters[id].uom,
+                'description': downloadParameters[id].name,
+                'granularity': gran
+              });
+            }
+          } else {
+            availableParameters.push({
+              'id': id, 
+              'uom': downloadParameters[id].uom,
+              'description': downloadParameters[id].name,
+              'granularity': false
+            });
+          }
+        }
+
+        var granularity;
+        var downGran = null;
+        _.each(this.model.get("products"), function(prod){
+          if(prod.get('visible') && prod.get('download').id!=='ADAM_albedo'){
+            var collectionId = prod.get("download").id;
+
+            // TODO: This only takes into account having one product selected
+            options.processId = prod.get('process');
+            if(prod.get('granularity')){
+              downGran = prod.get('granularity');
+              granularity = downGran+'_fields';
+            }
+          }
+
+          var variables = availableParameters;
+
+          // Only selected variables in datapanel
+          if ($('#custom_parameter_cb').is(':checked')) {
+            variables = variables.filter(function(par){
+              return (
+                globals.dataSettings[currProdID].hasOwnProperty(par.id) &&
+                globals.dataSettings[currProdID][par.id].hasOwnProperty('active') &&
+                globals.dataSettings[currProdID][par.id].active
+              );
+            });
+          }
+
+          if(granularity){
+            for (var i = variables.length - 1; i >= 0; i--) {
+              var gran = variables[i].granularity + '_fields';
+              if(options.hasOwnProperty(gran)){
+                options[gran] += (','+variables[i].id);
+              } else {
+                options[gran] = (''+variables[i].id);
+              }
+            }
+          } else {
+            options['fields'] = variables.map(function(m){return m.id;}).join(',');
+          }
+
+        },this);
+
 
         options.async = true;
 
