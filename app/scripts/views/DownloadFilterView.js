@@ -467,7 +467,7 @@
         this.$el.find("#custom_parameter_cb").off();
         this.$el.find("#custom_download").empty();
         this.$el.find("#custom_download").html(
-          '<div class="checkbox" style="margin-left:3px;"><label><input type="checkbox" value="" id="custom_parameter_cb">Retrieve only parameters selected in Data Panel</label></div>'
+          '<div class="checkbox" style="margin-left:3px;"><label><input type="checkbox" value="" id="custom_parameter_cb" checked>Retrieve only enabled parameters in the Data Panel</label></div>'
         );
 
         this.$el.find("#dsd_info_cb").off();
@@ -1026,11 +1026,11 @@
             }
           } else {
             availableParameters.push({
-                'id': id, 
-                'uom': downloadParameters[id].uom,
-                'description': downloadParameters[id].name,
-                'granularity': false
-              });
+              'id': id, 
+              'uom': downloadParameters[id].uom,
+              'description': downloadParameters[id].name,
+              'granularity': false
+            });
           }
         }
 
