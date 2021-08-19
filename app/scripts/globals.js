@@ -18,7 +18,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             'measurement': ['measurement']
           },
           'ALD_U_N_2A': {
-            'observation': ['observation', 'ica', 'sca'],
+            'observation': ['observation', 'ica', 'sca', 'mca'],
             'group': ['group', 'measurement']
           },
           'ALD_U_N_2B': {
