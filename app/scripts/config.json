@@ -665,6 +665,7 @@
                 "group_middle_bin_BER_bottom": {"uom": null, "name": "Backscatter-to-extinction ratio of the top middle bin"},
                 "scene_classification_NWP_cloud_flag": {"uom": null, "name": "Bit flag composed of  ClTp + 3*ClContent"},
                 "scene_classification_group_class_reliability": {"uom": null, "name": "Coefficient characterising the reliability of the classification"},
+                "mca_mask":{"required": true,"uom": null, "name": "MCA mask"},
                 "sca_mask":{"required": true,"uom": null, "name": "SCA mask"},
                 "ica_mask":{"required": true,"uom": null, "name": "ICA mask"},
                 "albedo_off_nadir": {"uom": null, "name": "Albedo off-nadir value"}
@@ -673,7 +674,6 @@
                 "observation": [
                     "L1B_start_time_obs",
                     "L1B_centroid_time_obs",
-                    "MCA_time_obs",
                     "longitude_of_DEM_intersection_obs",
                     "latitude_of_DEM_intersection_obs",
                     "altitude_of_DEM_intersection_obs",
@@ -681,12 +681,9 @@
                     "mie_altitude_obs",
                     "rayleigh_altitude_obs",
                     "L1B_num_of_meas_per_obs",
-                    "MCA_clim_BER",
-                    "MCA_extinction",
-                    "MCA_LOD",
+                    "mca_mask",
                     "sca_mask",
                     "ica_mask",
-                    "mca_mask",
                     "albedo_off_nadir"
                 ],
                 "measurement": [
@@ -734,6 +731,12 @@
                     "group_middle_bin_BER_bottom",
                     "scene_classification_NWP_cloud_flag",
                     "scene_classification_group_class_reliability"
+                ],
+                "mca": [
+                    "MCA_time_obs",
+                    "MCA_clim_BER",
+                    "MCA_extinction",
+                    "MCA_LOD"
                 ],
                 "ica": [
                     "ICA_time_obs",
