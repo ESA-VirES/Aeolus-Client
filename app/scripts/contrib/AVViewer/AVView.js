@@ -764,6 +764,7 @@ define(['backbone.marionette',
                     groups: ['SCA', 'SCA', 'MCA'],
                     combinedParameters: {
                         mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
+                        MCA_mie_altitude: ['MCA_mie_altitude_obs_top','MCA_mie_altitude_obs_bottom'],
                         MCA_time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
                         rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
                         ICA_rayleigh_altitude: ['ICA_rayleigh_altitude_obs_top','ICA_rayleigh_altitude_obs_bottom'],
@@ -795,13 +796,13 @@ define(['backbone.marionette',
                                 'albedo_off_nadir'
                             ],
                             defaults: {
-                                yAxis: 'mie_altitude',
+                                yAxis: 'MCA_mie_altitude',
                                 colorAxis: 'MCA_extinction'
                             },
                             positionAlias: {
                                 'latitude': 'latitude_of_DEM_intersection_obs',
                                 'longitude': 'longitude_of_DEM_intersection_obs',
-                                'altitude': 'mie_altitude'
+                                'altitude': 'MCA_mie_altitude'
                             }
                         },
                         SCA: {

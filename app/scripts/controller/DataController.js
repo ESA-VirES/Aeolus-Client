@@ -166,20 +166,22 @@
                   'mie_altitude', 
                   'mie_altitude_obs_top', 
                   'mie_altitude_obs_bottom',
-                  'MCA_time_obs_start',
-                  'MCA_time_obs_stop',
                   'L1B_start_time_obs',
                   'L1B_centroid_time_obs',
-                  'MCA_time',
                   'longitude_of_DEM_intersection_obs',
                   'latitude_of_DEM_intersection_obs',
                   'altitude_of_DEM_intersection_obs',
                   'geoid_separation_obs',
                   'L1B_num_of_meas_per_obs',
+                  'albedo_off_nadir'
+                ],
+                [
+                  'MCA_time_obs_start',
+                  'MCA_time_obs_stop',
+                  'MCA_time',
                   'MCA_clim_BER',
                   'MCA_extinction',
                   'MCA_LOD',
-                  'albedo_off_nadir'
                 ],
                 [
                   'rayleigh_altitude',
@@ -1504,6 +1506,20 @@
           }
 
           if(ds.observation_data.hasOwnProperty('ica_mask')){
+            // Filter the MCA location data
+            ds.mca_data.mca_latitude_of_DEM_intersection_obs = 
+              ds.observation_data.latitude_of_DEM_intersection_obs.filter(
+                function(e,i){
+                  return ds.observation_data.sca_mask[i]===1;
+            });
+            ds.mca_data.mca_longitude_of_DEM_intersection_obs = 
+              ds.observation_data.longitude_of_DEM_intersection_obs.filter(
+              function(e,i){
+                return ds.observation_data.sca_mask[i]===1;
+            });
+          }
+
+          if(ds.observation_data.hasOwnProperty('ica_mask')){
             // We also need to filter the ICA location data
             ds.ica_data.ica_latitude_of_DEM_intersection_obs = 
               ds.observation_data.latitude_of_DEM_intersection_obs.filter(
@@ -1517,8 +1533,25 @@
             });
           }
 
-          // Convert rayleigh altitude into sca and ica altitudes based on the
-          // sca and ica masks provided by the product
+          // Convert rayleigh altitude into mca, sca and ica altitudes based on the
+          // corresponding masks provided by the product
+          if(ds.observation_data.hasOwnProperty('mie_altitude_obs') &&
+             ds.observation_data.hasOwnProperty('mca_mask') ){
+
+            // We generate a new parameter here we need to copy over the
+            // related datasettings of original parameter
+            if(globals.dataSettings[collectionId].hasOwnProperty('mie_altitude_obs')){
+              globals.dataSettings[collectionId].MCA_mie_altitude_obs = 
+                globals.dataSettings[collectionId]['mie_altitude_obs']
+            }
+
+            ds.mca_data.MCA_mie_altitude_obs = 
+              ds.observation_data.rayleigh_altitude_obs.filter(
+                function(e,i){
+                  return ds.observation_data.mca_mask[i]===1;
+            });
+          }
+
           if(ds.observation_data.hasOwnProperty('rayleigh_altitude_obs') &&
              ds.observation_data.hasOwnProperty('ica_mask') ){
 
@@ -1581,7 +1614,7 @@
             // This should not happen log issue
             console.log(
               'DataController: '+
-              'missing parameter in L2A data, sca_mask, ica_mask, rayleigh_altitude_obs'
+              'missing parameter in L2A data, mca_mask, sca_mask, ica_mask, rayleigh_altitude_obs'
             );
           }
 
@@ -2387,6 +2420,7 @@
         } else if(collectionId === 'ALD_U_N_2A'){
           var fields = gran+'_fields';
           options[fields] = fieldsList[collectionId][fields];
+          options.mca_fields = fieldsList[collectionId].mca_fields;
           options.ica_fields = fieldsList[collectionId].ica_fields;
           options.sca_fields = fieldsList[collectionId].sca_fields;
         } else if(collectionId === 'ALD_U_N_2B'  && gran === 'group'){
