@@ -18,7 +18,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             'measurement': ['measurement']
           },
           'ALD_U_N_2A': {
-            'observation': ['observation', 'ica', 'sca'],
+            'observation': ['observation', 'ica', 'sca', 'mca'],
             'group': ['group', 'measurement']
           },
           'ALD_U_N_2B': {
@@ -763,7 +763,6 @@ SCA_middle_bin_cumulative_LOD_valid
             'observation_fields': [
               'L1B_start_time_obs',
               'L1B_centroid_time_obs',
-              'MCA_time_obs',
               'longitude_of_DEM_intersection_obs',
               'latitude_of_DEM_intersection_obs',
               'altitude_of_DEM_intersection_obs',
@@ -771,12 +770,16 @@ SCA_middle_bin_cumulative_LOD_valid
               'mie_altitude_obs',
               'rayleigh_altitude_obs',
               'L1B_num_of_meas_per_obs',
-              'MCA_clim_BER',
-              'MCA_extinction',
-              'MCA_LOD',
+              'mca_mask',
               'sca_mask',
               'ica_mask',
               'albedo_off_nadir'
+            ],
+            'mca_fields': [
+              'MCA_time_obs',
+              'MCA_clim_BER',
+              'MCA_extinction',
+              'MCA_LOD',
             ],
             'ica_fields': [
               'ICA_time_obs',
