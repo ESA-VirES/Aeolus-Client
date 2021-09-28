@@ -2526,17 +2526,50 @@
                   error_text && error_text.length > 0 && error_text[0].startsWith('<ows:ExceptionText>')) {
 
                 var errorParameter = error_text[1].split('\'')[1];
-                w2confirm('The parameter "'+errorParameter+'" is not available for the product(s) you are selecting.</br>'+
-                  'Would you like to disable it from the Data configuration?')
-                    .yes(function () {
-                        delete globals.dataSettings[collectionId][errorParameter].active;
-                        Communicator.mediator.trigger('layer:parameters:changed', collectionId);
-                        Communicator.mediator.trigger('layer:parameterlist:changed');
-                        // Save changes to localstorage
-                        localStorage.setItem(
-                          'dataSettings', JSON.stringify(globals.dataSettings)
-                        );
-                    });
+
+                // Load parameters for selected product type
+                var selectedProduct = null;
+                var parameterList = null;
+                globals.products.each(function(product){
+                  if(product.get('download').id === collectionId){
+                    selectedProduct = product;
+                  }
+                });
+                if(selectedProduct !== null){
+                    parameterList = selectedProduct.get('download_parameters');
+                }
+                if(parameterList.hasOwnProperty(errorParameter)){
+                    if(parameterList[errorParameter].hasOwnProperty('required')
+                        && parameterList[errorParameter].required){
+                        // We can't disable required parameters
+                        showMessage('danger', (
+                            'The selected product does not contain a required parameter:' + errorParameter
+                            + ' and can not be shown. Please contact feedback@vires.services if the issue persists.'
+                            ), 35);
+                    } else {
+                        // Disable parameter and try again
+                        w2confirm('The parameter "'+errorParameter+'" is not available for the product(s) you are selecting.</br>'+
+                        'Would you like to disable it from the Data configuration?')
+                        .yes(function () {
+                            delete globals.dataSettings[collectionId][errorParameter].active;
+                            Communicator.mediator.trigger('layer:parameters:changed', collectionId);
+                            Communicator.mediator.trigger('layer:parameterlist:changed');
+                            // Save changes to localstorage
+                            localStorage.setItem(
+                              'dataSettings', JSON.stringify(globals.dataSettings)
+                            );
+                        });
+                    }
+                } else {
+                    // Should not happen
+                    if(error_text.length>0) {
+                        showMessage('danger', ('Problem retrieving data: ' + error_text[0]
+                            + '.</br>Please contact feedback@vires.services if issue persists.'), 35);
+                    } else {
+                        showMessage('danger', ('Problem retrieving data: ' + error_text
+                            + '.</br>Please contact feedback@vires.services if issue persists.'), 35);
+                    }
+                }
 
               } else if(error_text.length>0) {
                 showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
