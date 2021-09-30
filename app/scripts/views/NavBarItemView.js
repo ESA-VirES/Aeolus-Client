@@ -26,22 +26,41 @@
                 Communicator.mediator.trigger(this.model.get('eventToRaise'), this);
             },
 
-            initialize: function(options){
-                var self = this;
-                if(this.model.get("subitems")){
+            initialize: function (options) {
+                function getModalId(eventToRaise) {
+                    var parts = eventToRaise.split(':');
+                    return parts && parts[0] === 'modal' ? parts[1] : null;
+                }
+
+                if (this.model.get("subitems")) {
                     this.$el.attr("class", "dropdown");
-                }else if(this.model.get("url")){
-                    this.$el.on("click", function () {
-                        window.location.href = self.model.get("url");
-                    });
-                }else{
-                    var event = this.model.get("eventToRaise").split(':');
-                    if(event && event[0] === 'modal'){
+                    this.model.set("subitems", _.map(
+                        this.model.get("subitems"),
+                        function (item) {
+                            if (item.eventToRaise) {
+                                var modalId = getModalId(item.eventToRaise);
+                                if (modalId) {
+                                    item.modalId = modalId;
+                                }
+                            }
+                            if (item.type === "divider") {
+                                item._class = "divider";
+                                item._empty = true;
+                            }
+                            return item;
+                        }
+                    ));
+                } else if (this.model.get("url")) {
+                    this.$el.on("click", _.bind(function () {
+                        window.location.href = this.model.get("url");
+                    }, this));
+                } else {
+                    var modalId = getModalId(this.model.get("eventToRaise"));
+                    if (modalId) {
                         this.$el.on("click", function () {
-                            $(('#'+event[1])).modal('show');
+                            $('#' + modalId).modal('show');
                         });
-                        
-                    }else{
+                    } else {
                         this.$el.on("click", $.proxy(this.itemClicked, this));
                     }
                 }
