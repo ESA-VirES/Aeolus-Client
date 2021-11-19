@@ -1001,9 +1001,7 @@
                     "mie_grouping_start_obs",
                     "mie_grouping_start_meas_per_obs",
                     "mie_grouping_end_obs",
-                    "mie_grouping_end_meas_per_obs",
-                    "mie_grouping_start_time",
-                    "mie_grouping_stop_time"
+                    "mie_grouping_end_meas_per_obs"
                 ],
                 "rayleigh_grouping": [
                     "rayleigh_grouping_id",
@@ -1011,9 +1009,7 @@
                     "rayleigh_grouping_start_obs",
                     "rayleigh_grouping_start_meas_per_obs",
                     "rayleigh_grouping_end_obs",
-                    "rayleigh_grouping_end_meas_per_obs",
-                    "rayleigh_grouping_start_time",
-                    "rayleigh_grouping_stop_time"
+                    "rayleigh_grouping_end_meas_per_obs"
                 ],
                 "mie_profile": [
                     "mie_wind_profile_wind_result_id",
@@ -1293,15 +1289,15 @@
                 "mie_grouping_id":{"uom": null, "name": "An unique id for this group in this L2B  file"},
                 "mie_grouping_time":{"uom": null, "name": "Start date and time of group [UTC]"},
                 "mie_grouping_start_obs":{"required": true,"uom": null, "name": "L1B BRC (obs.) number for the measurement at which this group starts"},
-                "mie_grouping_start_meas_per_obs":{"required": true,"uom": null, "name": "L1B measurement number within the above mentioned L1B BRC (obs.) at which this group starts"},
+                "mie_grouping_start_meas_obs":{"required": true,"uom": null, "name": "L1B measurement number within the above mentioned L1B BRC (obs.) at which this group starts"},
                 "mie_grouping_end_obs":{"required": true,"uom": null, "name": "L1B BRC (obs.) number for the measurement at which this group ends"},
-                "mie_grouping_end_meas_per_obs":{"required": true,"uom": null, "name": "L1B measurement number within the above mentioned L1B BRC (obs.) at which this group end"},
+                "mie_grouping_end_meas_obs":{"required": true,"uom": null, "name": "L1B measurement number within the above mentioned L1B BRC (obs.) at which this group end"},
                 "rayleigh_grouping_id":{"uom": null, "name": "An unique id for this group in this L2B  file"},
                 "rayleigh_grouping_time":{"uom": null, "name": "Start date and time of group [UTC]"},
                 "rayleigh_grouping_start_obs":{"required": true,"uom": null, "name": "L1B BRC (obs.) number for the measurement at which this group starts"},
-                "rayleigh_grouping_start_meas_per_obs":{"required": true,"uom": null, "name": "L1B measurement number within the above mentioned L1B BRC (obs.) at which this group starts"},
+                "rayleigh_grouping_start_meas_obs":{"required": true,"uom": null, "name": "L1B measurement number within the above mentioned L1B BRC (obs.) at which this group starts"},
                 "rayleigh_grouping_end_obs":{"required": true,"uom": null, "name": "L1B BRC (obs.) number for the measurement at which this group ends"},
-                "rayleigh_grouping_end_meas_per_obs":{"uom": null, "name": "L1B measurement number within the above mentioned L1B BRC (obs.) at which this group ends"},
+                "rayleigh_grouping_end_meas_obs":{"uom": null, "name": "L1B measurement number within the above mentioned L1B BRC (obs.) at which this group ends"},
                 "l1B_num_of_measurements_per_obs":{"uom": null, "name": "The index of the original L1B BRC from which this L2B measurement was taken - one value for each measurement"},
                 "l1B_obs_number":{"uom": null, "name": "Number of measurements per BRC (obs.) - one value for each measurement"},
                 "mie_wind_result_id":{"uom": null, "name": "An unique id for this wind for this channel in this L2B  file"},
