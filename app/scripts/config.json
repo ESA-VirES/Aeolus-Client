@@ -499,30 +499,6 @@
                     "colorscale": "viridis",
                     "name": "MCA LOD"
                 },
-                "ICA_filling_case": {
-                    "range": [1, 3],
-                    "colorscale": "viridis",
-                    "uom": null,
-                    "name": "ICA filling case"
-                },
-                "ICA_extinction": {
-                    "range": [0, 300],
-                    "colorscale": "viridis",
-                    "uom": "10⁻⁶*m⁻¹",
-                    "name": "ICA extinction"
-                },
-                "ICA_backscatter": {
-                    "range": [0, 3],
-                    "colorscale": "viridis",
-                    "uom": "10⁻⁶*m⁻¹* sr⁻¹",
-                    "name": "ICA backscatter"
-                },
-                "ICA_LOD": {
-                    "range": [0, 0.4],
-                    "colorscale": "viridis",
-                    "uom": null,
-                    "name": "ICA LOD"
-                },
                 "SCA_middle_bin_extinction": {
                     "range": [0, 400],
                     "colorscale": "viridis",
@@ -589,7 +565,6 @@
                 "L1B_centroid_time_obs": {"uom": null, "name": "Centroid date and time of Observation (UTC)"},
                 "L1B_time_meas": {"uom": null, "name": "Measurement centroid time from L1B (UTC)"},
                 "SCA_time_obs": {"required": true,"uom": null, "name": "Start date and time of the SCA profile covered by the present DSR (UTC)"},
-                "ICA_time_obs": {"required": true,"uom": null, "name": "Start date and time of the ICA profile covered by the present DSR (UTC)"},
                 "MCA_time_obs": {"required": true,"uom": null, "name": "Start date and time of the MCA profile covered by the present DSR (UTC)"},
                 "group_start_time": {"required": true,"uom": null, "name": "Start date and time of the group profile covered by the present DSR (UTC)"},
                 "group_end_time": {"required": true,"uom": null, "name": "End date and time of the group profile covered by the present DSR (UTC)"},
@@ -624,7 +599,6 @@
                 "SCA_middle_bin_backscatter_variance": {"uom": "m⁻²*sr⁻²", "name": "Variance of the backscatter coefficient retrieved by the SCA in this bin"},
                 "SCA_middle_bin_LOD_variance": {"uom": null, "name": "Variance of the LOD retrieved by the SCA in this bin"},
                 "SCA_middle_bin_BER_variance": {"uom": "sr⁻²", "name": "Variance of the backscatter-to-extinction ratio"},
-                "ICA_QC_flag": {"uom": null, "name": "ICA QC flag about processed data: 1 if the first matching bin is clear; 0 else"},
                 "group_extinction_variance": {"active": true,"uom": "m⁻²", "name": "Variance of the particle extinction coefficient"},
                 "group_backscatter_variance": {"active": true,"uom": "m⁻²*sr⁻²", "name": "Variance of the particle extinction coefficient"},
                 "group_LOD_variance": {"uom": null, "name": "Variance of the particle local optical depth"},
@@ -644,10 +618,6 @@
                 "SCA_middle_bin_backscatter": {"active": true,"uom": "10⁻⁶*m⁻¹* sr⁻¹", "name": "Particle backscatter of the height bin"},
                 "SCA_middle_bin_LOD": {"uom": null, "name": "Particle LOD of the height bin"},
                 "SCA_middle_bin_BER": {"uom": null, "name": "Backscatter-to-extinction ratio of the middle bin"},
-                "ICA_filling_case": {"uom": null, "name": "Filling case estimated by the algorithm (case 1-7)"},
-                "ICA_extinction": {"required": true,"uom": "10⁻⁶*m⁻¹", "name": "Particle extinction of the height bin"},
-                "ICA_backscatter": {"active": true,"uom": "10⁻⁶*m⁻¹* sr⁻¹", "name": "Particle backscatter of the height bin"},
-                "ICA_LOD": {"uom": null, "name": "Particle LOD of the height bin"},
                 "MCA_clim_BER": {"uom": "sr⁻¹", "name": "Particle backscatter‐to‐extinction ratio extracted from the climatology"},
                 "MCA_extinction": {"required": true,"uom": "10⁻⁶*m⁻¹", "name": "Particle extinction of the bin"},
                 "MCA_LOD": {"uom": null, "name": "Particle LOD of the bin"},
@@ -667,7 +637,6 @@
                 "scene_classification_group_class_reliability": {"uom": null, "name": "Coefficient characterising the reliability of the classification"},
                 "mca_mask":{"required": true,"uom": null, "name": "MCA mask"},
                 "sca_mask":{"required": true,"uom": null, "name": "SCA mask"},
-                "ica_mask":{"required": true,"uom": null, "name": "ICA mask"},
                 "albedo_off_nadir": {"uom": null, "name": "Albedo off-nadir value"}
             },
             "download_groups": {
@@ -683,7 +652,6 @@
                     "L1B_num_of_meas_per_obs",
                     "mca_mask",
                     "sca_mask",
-                    "ica_mask",
                     "albedo_off_nadir"
                 ],
                 "measurement": [
@@ -737,14 +705,6 @@
                     "MCA_clim_BER",
                     "MCA_extinction",
                     "MCA_LOD"
-                ],
-                "ica": [
-                    "ICA_time_obs",
-                    "ICA_QC_flag",
-                    "ICA_filling_case",
-                    "ICA_extinction",
-                    "ICA_backscatter",
-                    "ICA_LOD"
                 ],
                 "sca": [
                     "SCA_QC_flag",

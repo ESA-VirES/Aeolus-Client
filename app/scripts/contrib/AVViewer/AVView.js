@@ -767,10 +767,7 @@ define(['backbone.marionette',
                         MCA_mie_altitude: ['MCA_mie_altitude_obs_top','MCA_mie_altitude_obs_bottom'],
                         MCA_time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
                         rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
-                        ICA_rayleigh_altitude: ['ICA_rayleigh_altitude_obs_top','ICA_rayleigh_altitude_obs_bottom'],
                         SCA_time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
-                        bins: ['ICA_bins_end', 'ICA_bins_start'],
-                        ICA_time: ['ICA_time_obs_start', 'ICA_time_obs_stop'],
                         SCA_middle_bin_altitude: ['SCA_middle_bin_altitude_obs_top', 'SCA_middle_bin_altitude_obs_bottom'],
                         SCA_middle_bin_time: ['SCA_middle_bin_time_obs_start', 'SCA_middle_bin_time_obs_stop']
                     },
@@ -887,37 +884,11 @@ define(['backbone.marionette',
                                 'longitude': 'longitude_of_DEM_intersection_obs',
                                 'altitude': 'SCA_middle_bin_altitude'
                             }
-                        },
-                        ICA: {
-                            parameters: [
-                                'bins',
-                                'ICA_rayleigh_altitude',
-                                'ICA_rayleigh_altitude_obs_top',
-                                'ICA_rayleigh_altitude_obs_bottom',
-                                'ICA_bins_start',
-                                'ICA_bins_end',
-                                'ICA_time_obs_start',
-                                'ICA_time_obs_stop',
-                                'ICA_time',
-                                'ICA_QC_flag',
-                                'ICA_filling_case',
-                                'ICA_extinction',
-                                'ICA_backscatter',
-                                'ICA_LOD',
-                                'longitude_of_DEM_intersection_obs',
-                                'latitude_of_DEM_intersection_obs',
-                                'altitude_of_DEM_intersection_obs',
-                                'albedo_off_nadir'
-                            ],
-                            defaults: {
-                                yAxis: 'ICA_rayleigh_altitude',
-                                colorAxis: 'ICA_backscatter'
-                            }
                         }
                     },
                     sharedParameters: {
                         'time': [
-                            'MCA_time', 'SCA_time', 'ICA_time', 'SCA_middle_bin_time'
+                            'MCA_time', 'SCA_time', 'SCA_middle_bin_time'
                         ]
                     },
                     availableParameters: false

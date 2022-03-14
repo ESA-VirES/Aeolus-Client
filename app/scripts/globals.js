@@ -18,7 +18,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             'measurement': ['measurement']
           },
           'ALD_U_N_2A': {
-            'observation': ['observation', 'ica', 'sca', 'mca'],
+            'observation': ['observation', 'sca', 'mca'],
             'group': ['group', 'measurement']
           },
           'ALD_U_N_2B': {
@@ -187,21 +187,6 @@ SCA_middle_bin_cumulative_LOD_valid
                 'MCA_time_obs_stop': {
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
-                },
-
-                'ICA_time_obs_start': {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                'ICA_time_obs_stop': {
-                    scaleFormat: 'time',
-                    timeFormat: 'MJD2000_S'
-                },
-                'ICA_extinction':{
-                    nullValue: -1000000
-                },
-                'ICA_backscatter':{
-                    nullValue: -1000000
                 },
 
                 // L2A Group
@@ -759,7 +744,6 @@ SCA_middle_bin_cumulative_LOD_valid
             ]
           },
           'ALD_U_N_2A': {
-            // ICA have different size, for now disabled
             'observation_fields': [
               'L1B_start_time_obs',
               'L1B_centroid_time_obs',
@@ -772,7 +756,6 @@ SCA_middle_bin_cumulative_LOD_valid
               'L1B_num_of_meas_per_obs',
               'mca_mask',
               'sca_mask',
-              'ica_mask',
               'albedo_off_nadir'
             ],
             'mca_fields': [
@@ -780,14 +763,6 @@ SCA_middle_bin_cumulative_LOD_valid
               'MCA_clim_BER',
               'MCA_extinction',
               'MCA_LOD',
-            ],
-            'ica_fields': [
-              'ICA_time_obs',
-              'ICA_QC_flag',
-              'ICA_filling_case',
-              'ICA_extinction',
-              'ICA_backscatter',
-              'ICA_LOD'
             ],
             'sca_fields': [
               'SCA_time_obs',

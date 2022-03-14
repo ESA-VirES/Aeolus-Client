@@ -1213,20 +1213,6 @@ define([
                         jumps: 'jumps',
                         signCross: 'signCross'
                     },
-                    'ICA': {
-                        lats: 'ica_latitude_of_DEM_intersection_obs_orig',
-                        lons: 'ica_longitude_of_DEM_intersection_obs_orig',
-                        timeStart: 'ICA_time_obs_orig_start',
-                        timeStop: 'ICA_time_obs_orig_stop',
-                        xAxis:'time',
-                        yAxis: ['ICA_rayleigh_altitude'],
-                        combinedParameters: {
-                            ICA_rayleigh_altitude: ['ICA_rayleigh_altitude_obs_top', 'ICA_rayleigh_altitude_obs_bottom'],
-                            time: ['ICA_time_obs_start', 'ICA_time_obs_stop'],
-                        },
-                        jumps: 'ica_jumps',
-                        signCross: 'signCross'
-                    },
                     'group': {
                         lats: 'latitude_of_DEM_intersection_obs_orig',
                         lons: 'longitude_of_DEM_intersection_obs_orig',
@@ -1357,9 +1343,6 @@ define([
                 currPar.colorAxis = [band];
             } else if (band.startsWith('MCA_')){
                 currPar = params[cov_id]['MCA'];
-                currPar.colorAxis = [band];
-            } else if (band.startsWith('ICA_')){
-                currPar = params[cov_id]['ICA'];
                 currPar.colorAxis = [band];
             } else if (band.startsWith('group_')){
                 currPar = params[cov_id]['group'];
