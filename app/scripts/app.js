@@ -39,7 +39,6 @@ var VECTOR_BREAKDOWN = {};
 
             configure: function(config) {
 
-
                 var imagerenderercanvas = $('<canvas/>',{id: 'imagerenderercanvas'});
                 $('body').append(imagerenderercanvas);
 
@@ -276,6 +275,12 @@ var VECTOR_BREAKDOWN = {};
 
                 // If there are already saved product config in the local
                 // storage use that instead
+
+                var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
+
+                // Add reset button to loadscreen just in case some configuration
+                // has been done incorrectly 
+                $('#loadscreen').append('<button style="position:absolute;top:5px;right:5px;" type="button" onclick="'+clickEvent+'">Reset client</button>');
 
                 if(localStorage.getItem('productsConfig') !== null){
 
@@ -628,10 +633,6 @@ var VECTOR_BREAKDOWN = {};
                         className: "radio-inline"
                     })
                 });
-
-
-
-                var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
 
 
                 this.productsView = new v.LayerSelectionView({
