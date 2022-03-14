@@ -230,19 +230,6 @@
                   'SCA_middle_bin_processing_qc_flag'
                 ],
                 [
-                  'bins',
-                  'ICA_bins_start',
-                  'ICA_bins_end',
-                  'ICA_time_obs_start',
-                  'ICA_time_obs_stop',
-                  'ICA_time',
-                  'ICA_QC_flag',
-                  'ICA_filling_case',
-                  'ICA_extinction',
-                  'ICA_backscatter',
-                  'ICA_LOD'
-                ],
-                [
                   'mie_wind_result_id',
                   'mie_wind_result_range_bin_number',
                   'mie_wind_result_start_time',
@@ -1244,7 +1231,7 @@
                 'MCA_LOD',
               ];
 
-              var granularities = ['ica_data', 'observation_data', 'sca_data'];
+              var granularities = ['observation_data', 'sca_data'];
 
               for (var i = 0; i < granularities.length; i++) {
                 var dataGranularity = granularities[i];
@@ -1505,34 +1492,6 @@
             }
           }
 
-          if(ds.observation_data.hasOwnProperty('ica_mask')){
-            // Filter the MCA location data
-            ds.mca_data.mca_latitude_of_DEM_intersection_obs = 
-              ds.observation_data.latitude_of_DEM_intersection_obs.filter(
-                function(e,i){
-                  return ds.observation_data.sca_mask[i]===1;
-            });
-            ds.mca_data.mca_longitude_of_DEM_intersection_obs = 
-              ds.observation_data.longitude_of_DEM_intersection_obs.filter(
-              function(e,i){
-                return ds.observation_data.sca_mask[i]===1;
-            });
-          }
-
-          if(ds.observation_data.hasOwnProperty('ica_mask')){
-            // We also need to filter the ICA location data
-            ds.ica_data.ica_latitude_of_DEM_intersection_obs = 
-              ds.observation_data.latitude_of_DEM_intersection_obs.filter(
-                function(e,i){
-                  return ds.observation_data.sca_mask[i]===1;
-            });
-            ds.ica_data.ica_longitude_of_DEM_intersection_obs = 
-              ds.observation_data.longitude_of_DEM_intersection_obs.filter(
-              function(e,i){
-                return ds.observation_data.sca_mask[i]===1;
-            });
-          }
-
           // Convert rayleigh altitude into mca, sca and ica altitudes based on the
           // corresponding masks provided by the product
           if(ds.observation_data.hasOwnProperty('mie_altitude_obs') &&
@@ -1549,23 +1508,6 @@
               ds.observation_data.rayleigh_altitude_obs.filter(
                 function(e,i){
                   return ds.observation_data.mca_mask[i]===1;
-            });
-          }
-
-          if(ds.observation_data.hasOwnProperty('rayleigh_altitude_obs') &&
-             ds.observation_data.hasOwnProperty('ica_mask') ){
-
-            // We generate a new parameter here we need to copy over the
-            // related datasettings of original parameter
-            if(globals.dataSettings[collectionId].hasOwnProperty('rayleigh_altitude_obs')){
-              globals.dataSettings[collectionId].ICA_rayleigh_altitude_obs = 
-                globals.dataSettings[collectionId]['rayleigh_altitude_obs']
-            }
-
-            ds.ica_data.ICA_rayleigh_altitude_obs = 
-              ds.observation_data.rayleigh_altitude_obs.filter(
-                function(e,i){
-                  return ds.observation_data.ica_mask[i]===1;
             });
           }
 
@@ -1614,21 +1556,8 @@
             // This should not happen log issue
             console.log(
               'DataController: '+
-              'missing parameter in L2A data, mca_mask, sca_mask, ica_mask, rayleigh_altitude_obs'
+              'missing parameter in L2A data, mca_mask, sca_mask, rayleigh_altitude_obs'
             );
-          }
-
-          if(ds.ica_data.hasOwnProperty('ICA_time_obs') && ds.ica_data['ICA_time_obs'].length > 0) {
-            var bins_start = [];
-            var bins_end = [];
-            for (var ica = 0; ica < ds.ica_data['ICA_time_obs'].length; ica++) {
-              for (var i = 0; i < 24; i++) {
-                bins_start.push(i+1);
-                bins_end.push(i);
-              }
-            }
-            ds.ica_data['ICA_bins_start'] = bins_start;
-            ds.ica_data['ICA_bins_end'] = bins_end;
           }
 
           for (var k = 0; k < keys.length; k++) {
@@ -1655,32 +1584,26 @@
                 } else {
                   resData[subK[l]] = [].concat.apply([], ds[keys[k]][subK[l]]);
                 }
-              }else{
-                if (subK[l].indexOf('ICA_bins')===-1){
+              } else {
+                var tmpArr = [];
+                for (var i = 0; i < curArr.length; i++) {
+                  for (var j = 0; j < 24; j++) {
+                    tmpArr.push(curArr[i]);
+                  }
+                }
+                resData[subK[l]+'_orig'] = curArr;
+                resData[subK[l]] = tmpArr;
+
+                if(subK[l] === 'SCA_time_obs'){
                   var tmpArr = [];
                   for (var i = 0; i < curArr.length; i++) {
-                    for (var j = 0; j < 24; j++) {
+                    for (var j = 0; j < 23; j++) {
                       tmpArr.push(curArr[i]);
                     }
                   }
-                  resData[subK[l]+'_orig'] = curArr;
-                  resData[subK[l]] = tmpArr;
-
-                  if(subK[l] === 'SCA_time_obs'){
-                    tmpArr = [];
-                    for (var i = 0; i < curArr.length; i++) {
-                      for (var j = 0; j < 23; j++) {
-                        tmpArr.push(curArr[i]);
-                      }
-                    }
-                    resData['SCA_middle_bin_time_obs_orig'] = curArr;
-                    resData['SCA_middle_bin_time_obs'] = tmpArr;
-                  }
-                  
-                } else {
-                  resData[subK[l]] = curArr;
+                  resData['SCA_middle_bin_time_obs_orig'] = curArr;
+                  resData['SCA_middle_bin_time_obs'] = tmpArr;
                 }
-                
               }
             }
           }
@@ -1704,9 +1627,6 @@
 
             resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
             resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].map(function(e){return e+offs;});
-
-            resData['ICA_time_obs_start'] = resData['ICA_time_obs'].slice();
-            resData['ICA_time_obs_stop'] = resData['ICA_time_obs'].map(function(e){return e+offs;});
 
             resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
             resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].map(function(e){return e+offs;});
@@ -1776,21 +1696,6 @@
             }
             resData.jumps = jumpPos;
             resData.signCross = signCross;
-          }
-
-          // ICA should be handled separately as it can easily be empty
-          if((resData.hasOwnProperty('ICA_time_obs') && resData['ICA_time_obs'].length > 0)){
-            var offs = 12.01;
-             // Create new start and stop time to allow rendering
-            resData['ICA_time_obs_start'] = resData['ICA_time_obs'].slice();
-            //resData['ICA_time_obs_stop'] = resData['ICA_time_obs'].slice(24, resData['ICA_time_obs'].length);
-            resData['ICA_time_obs_stop'] = resData['ICA_time_obs'].map(function(e){return e+offs;});
-
-            resData['ICA_time_obs_orig_start'] = resData['ICA_time_obs_orig'].slice();
-            //resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].slice(1, resData['ICA_time_obs_orig'].length);
-            resData['ICA_time_obs_orig_stop'] = resData['ICA_time_obs_orig'].map(function(e){return e+offs;});
-
-            resData['ica_jumps'] = [];
           }
 
         }
@@ -2421,7 +2326,6 @@
           var fields = gran+'_fields';
           options[fields] = fieldsList[collectionId][fields];
           options.mca_fields = fieldsList[collectionId].mca_fields;
-          options.ica_fields = fieldsList[collectionId].ica_fields;
           options.sca_fields = fieldsList[collectionId].sca_fields;
         } else if(collectionId === 'ALD_U_N_2B'  && gran === 'group'){
           $.extend(options, requestOptions.l2b_group);
