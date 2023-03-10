@@ -11,7 +11,7 @@ var mountFolder = function (connect, dir) {
 };
 
 
-var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
+var proxySnippet = require('grunt-connect-proxy3/lib/utils').proxyRequest;
 
 // # Globbing
 // for performance reasons we're only matching one level down:
