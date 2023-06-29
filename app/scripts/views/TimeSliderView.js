@@ -90,18 +90,9 @@
                     selectionstart = new Date(time[0]);
                     selectionend = new Date(time[1]);
                 }else{
-                    // If time not in localstorage use default of current date
-                    // minus 12 hours
-                    selectionstart = new Date();
-                    selectionstart.setUTCHours(selectionstart.getUTCHours() - 12);
-
-                    selectionend = new Date(selectionstart.getTime());
-                    selectionend.setUTCHours(selectionend.getUTCHours() + 1);
-
-                    // TODO: Temporary overwrite to show last available data
-                    // as default
-                    //selectionstart = new Date('2019-01-13T00:09:15Z');
-                    //selectionend = new Date('2019-01-13T01:21:44Z');
+                    // As mission not producing new data we set fixed selection time
+                    selectionstart = new Date('2023-04-26T01:56:33Z');
+                    selectionend = new Date('2023-04-26T04:16:30Z');
 
                 }
 
@@ -111,16 +102,9 @@
                     domainStart = new Date(domain[0]);
                     domainEnd = new Date(domain[1]);
                 }else{
-                    domainStart = new Date();
-                    domainStart.setUTCHours(domainStart.getUTCHours() - 36);
-
-                    domainEnd = new Date();
-                    domainEnd.setUTCHours(domainEnd.getUTCHours() + 12);
-
-                    // TODO: Temporary overwrite to show last available data
-                    // as default
-                    //domainStart = new Date('2019-01-11T23:50:00Z');
-                    //domainEnd = new Date('2019-01-14T01:45:00Z');
+                    // As mission not producing new data we set fixed domain
+                    domainStart = new Date('2023-04-22T21:39:35Z');
+                    domainEnd = new Date('2023-04-28T07:53:37Z');
 
                 }
 
