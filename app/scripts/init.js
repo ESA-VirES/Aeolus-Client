@@ -82,10 +82,10 @@
             contrib: 'contrib',
             core: 'core',
             requirejs: '../node_modules/requirejs/require',
-            jquery: '../node_modules/jquery/jquery.min',
-            jqueryui: '../node_modules/jquery-ui/ui/minified/jquery-ui.min',
+            jquery: '../node_modules/jquery/dist/jquery.min',
+            jqueryui: '../node_modules/jquery-ui/dist/jquery-ui.min',
             jqueryuitouch: '../node_modules/jqueryui-touch-punch/jquery.ui.touch-punch.min',
-            backbone: '../node_modules/backbone-amd/backbone-min',
+            backbone: '../node_modules/backbone/backbone-min',
             underscore: '../node_modules/underscore-amd/underscore-min',
             d3: '../node_modules/d3/d3.min',
             timeslider: '../node_modules/d3.TimeSlider/d3.timeslider.min',
@@ -98,8 +98,8 @@
 
             /* alias all marionette libs */
             'backbone.marionette': '../node_modules/backbone.marionette/lib/core/amd/backbone.marionette.min',
-            'backbone.wreqr': '../node_modules/backbone.wreqr/lib/amd/backbone.wreqr.min', 
-            'backbone.babysitter': '../node_modules/backbone.babysitter/lib/amd/backbone.babysitter.min',
+            'backbone.wreqr': '../node_modules/backbone.wreqr/lib/backbone.wreqr.min', 
+            'backbone.babysitter': '../node_modules/backbone.babysitter/lib/backbone.babysitter.min',
 
             /* alias the bootstrap js lib */
             bootstrap: '../node_modules/bootstrap/dist/js/bootstrap.min',
