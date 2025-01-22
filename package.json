@@ -2,7 +2,7 @@
   "name": "aeolus-client",
   "version": "0.0.0",
   "dependencies": {
-    "backbone": "1.6.0",
+    "backbone-amd": "github:amdjs/backbone#47e136947fc97c2f21f24aa339271194c6143dc4",
     "backbone.babysitter": "~0.1.12",
     "backbone.marionette": "~1.8.8",
     "backbone.marionette.handlebars": "github:asciidisco/Backbone.Marionette.Handlebars#c2aad626b3631560120ac95235b85178a415b14d",
