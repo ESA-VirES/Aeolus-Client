@@ -22,6 +22,7 @@
     "jqueryui-touch-punch": "github:RWAP/jquery-ui-touch-punch#970cab8db60884db070bb9e1b044041aa347c375",
     "modernizr": "^3.13.1",
     "msgpack-lite": "~0.1.26",
+    "papaparse": "^5.5.1",
     "plotty": "~0.4.9",
     "require-handlebars-plugin": "~0.11.0",
     "requirejs": "~2.3.6",
