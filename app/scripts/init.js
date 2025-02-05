@@ -1,139 +1,143 @@
-(function() {
-    'use strict';
+(function () {
+  'use strict';
 
-    var root = this;
+  var root = this;
 
-    root.require.config({
-        // Update for each release
-        urlArgs: 'bust=v2.1.41',
+  root.require.config({
+    urlArgs: 'bust=v2.1.41',
 
-        waitSeconds: 120,
-        /* starting point for application */
-        deps: ['backbone', 'backbone.marionette', 'bootstrap', 'marionette.handlebars', 'main'],
+    waitSeconds: 120,
+    /* starting point for application */
+    deps: ['backbone', 'backbone.marionette', 'bootstrap', 'marionette.handlebars', 'main'],
 
-        shim: {
-            jqueryui: {
-                deps:['jquery']
-            },
-            jqueryuitouch: {
-                deps:['jqueryui']
-            },
-            handlebars: {
-                exports: 'Handlebars'
-            },
-            filepond: {
-                exports: 'FilePond',
-                deps:['jquery']
-            },
-            backbone: {
-                deps: [
-                    'underscore',
-                    'jquery'
-                ],
-                exports: 'Backbone'
-            },
-            bootstrap: {
-                deps: ['jquery'],
-                exports: 'jquery'
-            },
-            FileSaver: {
-                deps: ['canvas-toBlob', 'Blob'],
-                exports: 'saveAs'
-            },
-            lm:{
-                exports: 'lm'
-            },
-            timeslider: {
-                deps: ['d3']
-            },
-            xtk: {
-                exports: 'X'
-            },
-            'xtk-gui': {
-                exports: 'dat'
-            },
-            drawhelper: {
-                deps: ['cesium'],
-                exports: 'DrawHelper'
-            },
-            w2ui: {
-                deps: ['jquery']
-            },
-            w2popup: {
-                deps: ['w2utils', 'jquery']
-            },
-            graphly: {
-                deps: ['d3', 'msgpack']
-            },
-            Anno: {
-                deps: ['jquery-scrollintoview']
-            },
-            cesium: {
-                exports: 'Cesium'
-            },
-        },
+    shim: {
+      Anno: {
+        deps: ['jquery']
+      },
+      jqueryui: {
+        deps: ['jquery']
+      },
+      jqueryuitouch: {
+        deps: ['jqueryui']
+      },
+      handlebars: {
+        exports: 'Handlebars'
+      },
+      filepond: {
+        exports: 'FilePond',
+        deps: ['jquery']
+      },
+      backbone: {
+        deps: [
+          'underscore',
+          'jquery'
+        ],
+        exports: 'Backbone'
+      },
+      bootstrap: {
+        deps: ['jquery'],
+        exports: 'jquery'
+      },
+      FileSaver: {
+        deps: ['canvas-toBlob', 'Blob'],
+        exports: 'saveAs'
+      },
+      lm: {
+        exports: 'lm'
+      },
+      timeslider: {
+        deps: ['d3']
+      },
+      xtk: {
+        exports: 'X'
+      },
+      'xtk-gui': {
+        exports: 'dat'
+      },
+      drawhelper: {
+        deps: ['cesium/Cesium'],
+        exports: 'DrawHelper'
+      },
+      w2ui: {
+        deps: ['jquery']
+      },
+      w2popup: {
+        deps: ['w2utils', 'jquery']
+      },
+      graphly: {
+        deps: ['d3', 'msgpack']
+      },
+      Anno: {
+        deps: ['jquery-scrollintoview', "jquery"]
+      },
+      cesium: {
+        exports: 'Cesium'
+      },
+    },
 
-        paths: {
-            filepond: '../node_modules/filepond/dist/filepond',
-            msgpack: '../node_modules/msgpack-lite/dist/msgpack.min',
-            graphly: '../node_modules/graphly/dist/graphly.min',
-            cesium: "../node_modules/cesium/Build/Cesium/Cesium",
-            drawhelper: "../scripts/vendor/cesium_DrawHelper",
-            contrib: 'contrib',
-            core: 'core',
-            requirejs: '../node_modules/requirejs/require',
-            jquery: '../node_modules/jquery/dist/jquery.min',
-            jqueryui: '../node_modules/jquery-ui/dist/jquery-ui.min',
-            jqueryuitouch: '../node_modules/jqueryui-touch-punch/jquery.ui.touch-punch.min',
-            backbone: '../node_modules/backbone/backbone-min',
-            underscore: '../node_modules/underscore-amd/underscore-min',
-            d3: '../node_modules/d3/d3.min',
-            timeslider: '../node_modules/d3.TimeSlider/d3.timeslider.min',
+    paths: {
+      filepond: '../node_modules/filepond/dist/filepond',
+      msgpack: '../node_modules/msgpack-lite/dist/msgpack.min',
+      graphly: '../node_modules/graphly/dist/graphly.min',
+      cesium: "../node_modules/cesium/Build/Cesium/Cesium",
+      drawhelper: "../scripts/vendor/cesium_DrawHelper",
+      contrib: 'contrib',
+      core: 'core',
+      requirejs: '../node_modules/requirejs/require',
+      jquery: '../node_modules/jquery/dist/jquery.min',
+      jQuery: '../node_modules/jquery/dist/jquery.min',
+      jqueryui: '../node_modules/jquery-ui/dist/jquery-ui.min',
+      "jquery-ui": '../node_modules/jquery-ui/dist/jquery-ui.min',
+      jqueryuitouch: '../node_modules/jqueryui-touch-punch/jquery.ui.touch-punch',
+      backbone: '../node_modules/backbone/backbone-min',
+      underscore: '../node_modules/underscore/underscore-min',
+      d3: '../node_modules/d3/d3.min',
+      timeslider: '../node_modules/d3.TimeSlider/d3.timeslider.min',
 
-            'canvas-toBlob': '../node_modules/canvas-toBlob.js/canvas-toBlob',
-            'Blob': '../node_modules/Blob.js/Blob',
-            'FileSaver': '../node_modules/FileSaver.js/FileSaver',
+      'canvas-toBlob': '../node_modules/canvas-toBlob/canvas-toBlob',
+      'Blob': '../node_modules/blob-polyfill/Blob',
+      'FileSaver': '../node_modules/FileSaver.js/FileSaver',
 
-            lm: '../node_modules/lm.js/lm',
+      lm: '../node_modules/lm.js/lm.min',
 
-            /* alias all marionette libs */
-            'backbone.marionette': '../node_modules/backbone.marionette/lib/core/amd/backbone.marionette.min',
-            'backbone.wreqr': '../node_modules/backbone.wreqr/lib/backbone.wreqr.min', 
-            'backbone.babysitter': '../node_modules/backbone.babysitter/lib/backbone.babysitter.min',
+      /* alias all marionette libs */
+      'backbone.marionette': '../node_modules/backbone.marionette/lib/core/amd/backbone.marionette.min',
+      'backbone.wreqr': '../node_modules/backbone.wreqr/lib/backbone.wreqr.min',
+      'backbone.babysitter': '../node_modules/backbone.babysitter/lib/backbone.babysitter.min',
 
-            /* alias the bootstrap js lib */
-            bootstrap: '../node_modules/bootstrap/dist/js/bootstrap.min',
+      /* alias the bootstrap js lib */
+      bootstrap: '../node_modules/bootstrap/dist/js/bootstrap.min',
 
-            /* Alias text.js for template loading and shortcut the templates dir to tmpl */
-            text: '../node_modules/requirejs-text/text',
-            tmpl: "../templates",
+      /* Alias text.js for template loading and shortcut the templates dir to tmpl */
+      text: '../node_modules/requirejs-text/text',
+      tmpl: "../templates",
 
-            /* handlebars from the require handlerbars plugin below */
-            handlebars: '../node_modules/require-handlebars-plugin/Handlebars',
+      /* handlebars from the require handlerbars plugin below */
+      handlebars: '../node_modules/require-handlebars-plugin/Handlebars',
 
-            /* require handlebars plugin - Alex Sexton */
-            i18nprecompile: '../node_modules/require-handlebars-plugin/hbs/i18nprecompile',
-            json2: '../node_modules/require-handlebars-plugin/hbs/json2',
-            hbs: '../node_modules/require-handlebars-plugin/hbs',
+      /* require handlebars plugin - Alex Sexton */
+      i18nprecompile: '../node_modules/require-handlebars-plugin/hbs/i18nprecompile',
+      json2: '../node_modules/require-handlebars-plugin/hbs/json2',
+      hbs: '../node_modules/require-handlebars-plugin/hbs',
 
-            /* marionette and handlebars plugin */
-            'marionette.handlebars': '../node_modules/backbone.marionette.handlebars/backbone.marionette.handlebars.min',
+      /* marionette and handlebars plugin */
+      'marionette.handlebars': '../node_modules/backbone.marionette.handlebars/backbone.marionette.handlebars.min',
 
-            papaparse: '../node_modules/papaparse/papaparse.min',
+      papaparse: '../node_modules/papaparse/papaparse.min',
 
-            sumoselect: '../node_modules/sumoselect/jquery.sumoselect.min',
+      sumoselect: '../node_modules/sumoselect/jquery.sumoselect.min',
 
-            w2ui: '../node_modules/w2ui/dist/w2ui-fields.min',
-            w2popup: '../node_modules/w2ui/src/w2popup',
-            w2utils: '../node_modules/w2ui/src/w2utils',
+      w2ui: '../node_modules/w2ui/dist/w2ui-1.5.min',
+      w2popup: '../node_modules/w2ui/src/w2popup',
+      w2utils: '../node_modules/w2ui/src/w2utils',
 
-            Anno: '../node_modules/anno.js/anno',
-            'jquery-scrollintoview': '../node_modules/jquery-scrollintoview/jquery.scrollintoview.min',
-            'expr-eval': '../node_modules/expr-eval/index'
-        },
+      Anno: '../node_modules/anno.js/dist/anno',
+      'jquery-scrollintoview': '../node_modules/jquery-scrollintoview/jquery.scrollintoview.min',
+      'expr-eval': '../node_modules/expr-eval/dist/bundle',
+    },
 
-        hbs: {
-            disableI18n: true
-        }
-    });
-}).call( this );
+    hbs: {
+      disableI18n: true
+    }
+  });
+}).call(this);
