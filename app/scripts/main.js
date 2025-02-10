@@ -30,7 +30,7 @@ function defaultFor(arg, val) { return typeof arg !== 'undefined' ? arg : val; }
         'backbone.marionette',
         'regionManager',
         'jquery',
-        'jqueryui',
+        'jquery-ui',
         'jqueryuitouch',
         "text!config.json",
         "util",

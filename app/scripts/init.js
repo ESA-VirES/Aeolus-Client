@@ -6,19 +6,22 @@
   root.require.config({
     urlArgs: 'bust=v2.1.41',
 
-    waitSeconds: 120,
+    waitSeconds: 5,
     /* starting point for application */
     deps: ['backbone', 'backbone.marionette', 'bootstrap', 'marionette.handlebars', 'main'],
 
     shim: {
-      Anno: {
-        deps: ['jquery']
-      },
-      jqueryui: {
+      "jquery-ui": {
         deps: ['jquery']
       },
       jqueryuitouch: {
-        deps: ['jqueryui']
+        deps: ['jquery-ui']
+      },
+      Modernizr:{
+        deps: ['jquery',"jquery-ui"]
+      },
+      Anno: {
+        deps: ['jquery']
       },
       handlebars: {
         exports: 'Handlebars'
@@ -55,7 +58,7 @@
         exports: 'dat'
       },
       drawhelper: {
-        deps: ['cesium/Cesium'],
+        deps: ['cesium'],
         exports: 'DrawHelper'
       },
       w2ui: {
@@ -86,13 +89,12 @@
       requirejs: '../node_modules/requirejs/require',
       jquery: '../node_modules/jquery/dist/jquery.min',
       jQuery: '../node_modules/jquery/dist/jquery.min',
-      jqueryui: '../node_modules/jquery-ui/dist/jquery-ui.min',
-      "jquery-ui": '../node_modules/jquery-ui/dist/jquery-ui.min',
+      "jquery-ui": '../node_modules/jquery-ui/jquery-ui',
       jqueryuitouch: '../node_modules/jqueryui-touch-punch/jquery.ui.touch-punch',
       backbone: '../node_modules/backbone/backbone-min',
       underscore: '../node_modules/underscore/underscore-min',
       d3: '../node_modules/d3/d3.min',
-      timeslider: '../node_modules/d3.TimeSlider/d3.timeslider.min',
+      timeslider: '../node_modules/d3.TimeSlider/build/d3.timeslider',
 
       'canvas-toBlob': '../node_modules/canvas-toBlob/canvas-toBlob',
       'Blob': '../node_modules/blob-polyfill/Blob',
@@ -126,6 +128,7 @@
       papaparse: '../node_modules/papaparse/papaparse.min',
 
       sumoselect: '../node_modules/sumoselect/jquery.sumoselect.min',
+      FileSaver:"../node_modules/file-saver/FileSaver",
 
       w2ui: '../node_modules/w2ui/dist/w2ui-1.5.min',
       w2popup: '../node_modules/w2ui/src/w2popup',
