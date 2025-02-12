@@ -95,7 +95,7 @@
 
       'canvas-toBlob': '../node_modules/canvas-toBlob/canvas-toBlob',
       'Blob': '../node_modules/blob-polyfill/Blob',
-      'FileSaver': '../node_modules/FileSaver.js/FileSaver',
+      'FileSaver': '../node_modules/file-saver/FileSaver',
 
       lm: '../node_modules/lm.js/lm.min',
 
@@ -125,7 +125,7 @@
       papaparse: '../node_modules/papaparse/papaparse.min',
 
       sumoselect: '../node_modules/sumoselect/jquery.sumoselect.min',
-      FileSaver:"../node_modules/file-saver/FileSaver",
+      // FileSaver:"../node_modules/file-saver/FileSaver",
 
       w2ui: '../node_modules/w2ui/dist/w2ui-1.5.min',
       w2popup: '../node_modules/w2ui/src/w2popup',

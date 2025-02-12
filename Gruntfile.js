@@ -353,7 +353,7 @@ module.exports = function (grunt) {
                         'node_modules/underscore/underscore-min.js',
                         'node_modules/d3/d3.min.js',
                         "node_modules/d3.TimeSlider/build/d3.timeslider.js",
-                        'node_modules/FileSaver.js/FileSaver.js',
+                        'node_modules/file-saver/FileSaver.js',
                         'node_modules/canvas-toBlob/canvas-toBlob.js',
                         'node_modules/blob-polyfill/Blob.js',
                         'node_modules/backbone.marionette/lib/core/amd/backbone.marionette.min.js',
