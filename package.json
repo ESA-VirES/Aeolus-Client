@@ -10,7 +10,7 @@
     "D3.TimeSlider": "1.2.0",
     "FileSaver.js": "github:eligrey/FileSaver.js#cea522bc41bfadc364837293d0c4dc585a65ac46",
     "anno.js": "1.0.3",
-    "backbone-amd": "github:amdjs/backbone#47e136947fc97c2f21f24aa339271194c6143dc4",
+    "backbone": "~1.0.0",
     "backbone.babysitter": "~0.1.12",
     "backbone.marionette": "~1.8.8",
     "backbone.marionette.handlebars": "github:asciidisco/Backbone.Marionette.Handlebars#c2aad626b3631560120ac95235b85178a415b14d",
@@ -38,7 +38,7 @@
     "requirejs": "~2.3.6",
     "requirejs-text": "~2.0.16",
     "sumoselect": "github:HemantNegi/jquery.sumoselect#9f75647fa51939e5a5804822005341fd524fec97",
-    "underscore": "1.8.3",
+    "underscore": "1.7.0",
     "w2ui": "github:vitmalina/w2ui#9821c19bd54861dd52504efe34e9d4256fdd4cce"
   },
   "repository": {

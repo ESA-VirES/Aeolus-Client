@@ -20,9 +20,6 @@
       Modernizr:{
         deps: ['jquery',"jquery-ui"]
       },
-      Anno: {
-        deps: ['jquery']
-      },
       handlebars: {
         exports: 'Handlebars'
       },
