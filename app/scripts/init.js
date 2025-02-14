@@ -11,6 +11,9 @@
     deps: ['backbone', 'backbone.marionette', 'bootstrap', 'marionette.handlebars', 'main'],
 
     shim: {
+      underscore: {
+        exports: '_',
+      },
       "jquery-ui": {
         deps: ['jquery']
       },
@@ -36,7 +39,6 @@
       },
       bootstrap: {
         deps: ['jquery'],
-        exports: 'jquery'
       },
       FileSaver: {
         deps: ['canvas-toBlob', 'Blob'],
@@ -67,6 +69,9 @@
       graphly: {
         deps: ['d3', 'msgpack']
       },
+      /*jquery: {
+        exports: 'jQuery'
+      },*/
       Anno: {
         deps: ['jquery-scrollintoview', "jquery"]
       },
@@ -85,13 +90,13 @@
       core: 'core',
       requirejs: '../node_modules/requirejs/require',
       jquery: '../node_modules/jquery/dist/jquery.min',
-      jQuery: '../node_modules/jquery/dist/jquery.min',
+      // jQuery: '../node_modules/jquery/dist/jquery.min',
       "jquery-ui": '../node_modules/jquery-ui/jquery-ui',
       jqueryuitouch: '../node_modules/jqueryui-touch-punch/jquery.ui.touch-punch',
       backbone: '../node_modules/backbone/backbone-min',
       underscore: '../node_modules/underscore/underscore-min',
       d3: '../node_modules/d3/d3.min',
-      timeslider: '../node_modules/d3.TimeSlider/build/d3.timeslider',
+      timeslider: '../node_modules/D3.TimeSlider/build/d3.timeslider',
 
       'canvas-toBlob': '../node_modules/canvas-toBlob/canvas-toBlob',
       'Blob': '../node_modules/blob-polyfill/Blob',

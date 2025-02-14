@@ -10,9 +10,9 @@
     'backbone',
     'communicator',
     'globals',
+    'app',
     'msgpack',
     'hbs!tmpl/wps_dataRequest',
-    'app',
     'papaparse',
     'expr-eval',
     'tutorial',
@@ -20,7 +20,7 @@
   ],
 
   function( 
-    Backbone, Communicator, globals, msgpack, wps_dataRequestTmpl, App,
+    Backbone, Communicator, globals, App, msgpack, wps_dataRequestTmpl, 
     Papa, exprEval, tutorial
   ) {
 

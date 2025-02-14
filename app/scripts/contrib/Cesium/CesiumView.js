@@ -112,7 +112,7 @@ define([
                     this.graph.filters = globals.swarm.get('filters');
                 }
             }
-
+/*
             globals.filterManager.on('filterChange', function(filters){
                 //console.log(filters);
                 var data = globals.swarm.get('data');
@@ -131,7 +131,7 @@ define([
                     }
                 }
 
-            });
+            });*/
         },
 
         createMap: function() {
@@ -146,8 +146,11 @@ define([
             Cesium.Camera.DEFAULT_VIEW_RECTANGLE = Cesium.Rectangle.fromDegrees(0.0, -10.0, 30.0, 55.0);
 
             Cesium.WebMapServiceImageryProvider.prototype.updateProperties = function(property, value) {
-                var qPars = this._tileProvider._resource._queryParameters;
-                qPars[property] = value;
+                if ('_resource' in this._tileProvider && '_queryParameters' in this._tileProvider._resource) {
+                    debugger;
+                    var qPars = this._tileProvider._resource._queryParameters;
+                    qPars[property] = value;
+                }
             };
 
             this.$el.append('<div id="coordinates_label"></div>');
@@ -640,7 +643,7 @@ define([
                 'pointcollection', 'band'
             );*/
             var data = globals.swarm.get('data');
-            if (Object.keys(data).length){
+            if (typeof data !== 'undefined' && Object.keys(data).length){
                 var idKeys = Object.keys(data);
                 for (var i = idKeys.length - 1; i >= 0; i--) {
                     if(idKeys[i] === 'ALD_U_N_1B'){

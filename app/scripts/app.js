@@ -9,6 +9,7 @@ var VECTOR_BREAKDOWN = {};
     var root = this;
 
     root.define([
+        'controller/DataController',
             'backbone',
             'globals',
             'cesium',
@@ -25,11 +26,10 @@ var VECTOR_BREAKDOWN = {};
             'controller/LoadingController',
             'controller/LayerController',
             'controller/SelectionController',
-            'controller/DifferenceController',
-            'controller/DataController'
+            'controller/DifferenceController'
         ],
 
-        function(Backbone, globals, Cesium, DialogRegion,
+        function(DC, Backbone, globals, Cesium, DialogRegion,
             UIRegion, LayerControlLayout, ToolControlLayout, OptionsLayout,
             WindowView, Communicator, FilePond) {
 
@@ -813,7 +813,7 @@ var VECTOR_BREAKDOWN = {};
                     if (document.cookie && document.cookie != '') {
                         var cookies = document.cookie.split(';');
                         for (var i = 0; i < cookies.length; i++) {
-                            var cookie = jquery.trim(cookies[i]);
+                            var cookie = $.trim(cookies[i]);
                             // Does this cookie string begin with the name we want?
                             if (cookie.substring(0, name.length + 1) == (name + '=')) {
                                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));

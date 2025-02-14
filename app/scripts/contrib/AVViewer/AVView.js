@@ -1901,7 +1901,9 @@ define(['backbone.marionette',
                     activeProd = prod.get('download').id;
                 }
 
-                globals.filterManager.visibleFilters = this.selectedFilterList;
+                if ('filterManager' in globals) {
+                    globals.filterManager.visibleFilters = this.selectedFilterList;
+                }
 
                 var settings = iterationCopy(this.renderSettings[activeProd]);
 
@@ -1946,7 +1948,9 @@ define(['backbone.marionette',
                     );
                 }
 
-                globals.filterManager.setRenderNode('#analyticsFilters');
+                if ('filterManager' in globals) {
+                    globals.filterManager.setRenderNode('#analyticsFilters');
+                }
                 this.graph.on('pointSelect', function(values){
                     Communicator.mediator.trigger('cesium:highlight:point', values);
                 });
@@ -2154,83 +2158,84 @@ define(['backbone.marionette',
                 }
                 globals.filterManager.filters = globals.swarm.get('filters');
             }
-
-            globals.filterManager.on('filterChange', function(filters){
-                var filterRanges = {};
-                for (var f in this.brushes){
-                    // check if filter is a combined filter
-                    var parM = this.filterSettings.parameterMatrix;
-                    if(parM.hasOwnProperty(f)){
-                        for (var i = 0; i < parM[f].length; i++) {
-                            filterRanges[parM[f][i]] = this.brushes[f];
+            if ('filterManager' in globals) {
+                globals.filterManager.on('filterChange', function(filters){
+                    var filterRanges = {};
+                    for (var f in this.brushes){
+                        // check if filter is a combined filter
+                        var parM = this.filterSettings.parameterMatrix;
+                        if(parM.hasOwnProperty(f)){
+                            for (var i = 0; i < parM[f].length; i++) {
+                                filterRanges[parM[f][i]] = this.brushes[f];
+                            }
+                        } else {
+                            filterRanges[f] = this.brushes[f];
                         }
-                    } else {
-                        filterRanges[f] = this.brushes[f];
                     }
-                }
 
-                // Check if a binary mask filter was set
-                for (var mf in this.maskParameter){
-                    var mfobj = this.maskParameter[mf];
-                    if(mfobj.hasOwnProperty('selection')){
-                        filterRanges[mf] = mfobj.selection;
+                    // Check if a binary mask filter was set
+                    for (var mf in this.maskParameter){
+                        var mfobj = this.maskParameter[mf];
+                        if(mfobj.hasOwnProperty('selection')){
+                            filterRanges[mf] = mfobj.selection;
+                        }
                     }
-                }
 
-                var tosave = {};
-                for(var key in filterRanges){
-                    if(!this.filterSettings.maskParameter.hasOwnProperty(key)){
-                        tosave[key] = filterRanges[key];
+                    var tosave = {};
+                    for(var key in filterRanges){
+                        if(!this.filterSettings.maskParameter.hasOwnProperty(key)){
+                            tosave[key] = filterRanges[key];
+                        }
                     }
-                }
-                
-                localStorage.setItem('filterSelection', JSON.stringify(tosave));
-                Communicator.mediator.trigger('analytics:set:filter', filterRanges);
-                globals.swarm.set({filters: filters});
+                    
+                    localStorage.setItem('filterSelection', JSON.stringify(tosave));
+                    Communicator.mediator.trigger('analytics:set:filter', filterRanges);
+                    globals.swarm.set({filters: filters});
 
-            });
+                });
 
-            globals.filterManager.on('removeFilter', function(filter){
-                var index = that.selectedFilterList.indexOf(filter);
-                if(index !== -1){
-                    that.selectedFilterList.splice(index, 1);
-                    // Check if filter was set
-                    if (globals.filterManager.filters.hasOwnProperty(filter)){
-                        delete that.filterManager.filters[filter];
-                        delete that.filterManager.brushes[filter];
+                globals.filterManager.on('removeFilter', function(filter){
+                    var index = that.selectedFilterList.indexOf(filter);
+                    if(index !== -1){
+                        that.selectedFilterList.splice(index, 1);
+                        // Check if filter was set
+                        if (globals.filterManager.filters.hasOwnProperty(filter)){
+                            delete that.filterManager.filters[filter];
+                            delete that.filterManager.brushes[filter];
+                        }
+                        // Check if mask filter was set
+                        if (globals.filterManager.maskFilters.hasOwnProperty(filter)){
+                            delete globals.filterManager.maskFilters[filter];
+                        }
+                        globals.filterManager._filtersChanged();
+                        localStorage.setItem(
+                            'selectedFilterList',
+                            JSON.stringify(that.selectedFilterList)
+                        );
                     }
-                    // Check if mask filter was set
-                    if (globals.filterManager.maskFilters.hasOwnProperty(filter)){
-                        delete globals.filterManager.maskFilters[filter];
-                    }
-                    globals.filterManager._filtersChanged();
-                    localStorage.setItem(
-                        'selectedFilterList',
-                        JSON.stringify(that.selectedFilterList)
+                    that.renderFilterList();
+                });
+
+                globals.filterManager.on('parameterChange', function(filters){
+                    var currProd = globals.products.find(
+                        function(p){return p.get('visible');}
                     );
-                }
-                that.renderFilterList();
-            });
+                    var prodId = currProd.get('download').id;
 
-            globals.filterManager.on('parameterChange', function(filters){
-                var currProd = globals.products.find(
-                    function(p){return p.get('visible');}
-                );
-                var prodId = currProd.get('download').id;
-
-                var filterSetts = globals.dataSettings[prodId];
-                for(var key in filterSetts){
-                    if(filterSetts[key].hasOwnProperty('filterExtent')){
-                        globals.dataSettings[key]['filterExtent'] = filterSetts[key].filterExtent;
+                    var filterSetts = globals.dataSettings[prodId];
+                    for(var key in filterSetts){
+                        if(filterSetts[key].hasOwnProperty('filterExtent')){
+                            globals.dataSettings[key]['filterExtent'] = filterSetts[key].filterExtent;
+                        }
                     }
-                }
-                localStorage.setItem(
-                    'dataSettings',
-                    JSON.stringify(globals.dataSettings)
-                );
-            });
+                    localStorage.setItem(
+                        'dataSettings',
+                        JSON.stringify(globals.dataSettings)
+                    );
+                });
+            }
 
-            if(Object.keys(data).length > 0){
+            if(typeof data !== 'undefined' && Object.keys(data).length > 0){
                 // This scope is called when data already available when showing
                 // the analytics panel, normally when switching views
 
