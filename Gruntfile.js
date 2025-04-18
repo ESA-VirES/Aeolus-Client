@@ -502,7 +502,7 @@ module.exports = function (grunt) {
             'concurrent:server',
             'configureProxies',
             'connect:livereload',
-            'open',
+            // 'open',
             'watch'
         ]);
     });
