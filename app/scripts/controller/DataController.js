@@ -184,6 +184,22 @@
                   'MCA_LOD',
                 ],
                 [
+                  'MLE_time_obs_start',
+                  'MLE_time_obs_stop',
+                  'MLE_time',
+                  'MLE_extinction',
+                  'MLE_backscatter',
+                  'MLE_lidar_ratio',
+                ],
+                [
+                  'MLE_SUB_time_obs_start',
+                  'MLE_SUB_time_obs_stop',
+                  'MLE_SUB_time',
+                  'MLE_SUB_extinction',
+                  'MLE_SUB_backscatter',
+                  'MLE_SUB_lidar_ratio',
+                ],
+                [
                   'rayleigh_altitude',
                   'rayleigh_altitude_obs_top',
                   'rayleigh_altitude_obs_bottom',
@@ -1613,6 +1629,8 @@
           // Check if data is actually available
           if((resData.hasOwnProperty('SCA_time_obs') && resData['SCA_time_obs'].length > 0) && 
              (resData.hasOwnProperty('MCA_time_obs') && resData['MCA_time_obs'].length > 0) && 
+             (resData.hasOwnProperty('MLE_time_obs') && resData['MLE_time_obs'].length > 0) && 
+             (resData.hasOwnProperty('MLE_SUB_time_obs') && resData['MLE_SUB_time_obs'].length > 0) && 
              (resData.hasOwnProperty('SCA_middle_bin_time_obs') && resData['SCA_middle_bin_time_obs'].length > 0)) {
 
             var offs = 12.01;
@@ -1628,11 +1646,23 @@
             resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
             resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].map(function(e){return e+offs;});
 
+            resData['MLE_time_obs_start'] = resData['MLE_time_obs'].slice();
+            resData['MLE_time_obs_stop'] = resData['MLE_time_obs'].map(function(e){return e+offs;});
+
+            resData['MLE_SUB_time_obs_start'] = resData['MLE_SUB_time_obs'].slice();
+            resData['MLE_SUB_time_obs_stop'] = resData['MLE_SUB_time_obs'].map(function(e){return e+offs;});
+
             resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
             resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].map(function(e){return e+offs;});
 
             resData['MCA_time_obs_orig_start'] = resData['MCA_time_obs_orig'].slice();
             resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].map(function(e){return e+offs;});
+
+            resData['MLE_time_obs_orig_start'] = resData['MLE_time_obs_orig'].slice();
+            resData['MLE_time_obs_orig_stop'] = resData['MLE_time_obs_orig'].map(function(e){return e+offs;});
+
+            resData['MLE_SUB_time_obs_orig_start'] = resData['MLE_SUB_time_obs_orig'].slice();
+            resData['MLE_SUB_time_obs_orig_stop'] = resData['MLE_SUB_time_obs_orig'].map(function(e){return e+offs;});
 
             resData['SCA_middle_bin_time_obs_orig_start'] = resData['SCA_middle_bin_time_obs_orig'].slice();
             resData['SCA_middle_bin_time_obs_orig_stop'] = resData['SCA_middle_bin_time_obs_orig'].map(function(e){return e+offs;});
@@ -2327,6 +2357,8 @@
           options[fields] = fieldsList[collectionId][fields];
           options.mca_fields = fieldsList[collectionId].mca_fields;
           options.sca_fields = fieldsList[collectionId].sca_fields;
+          options.mle_fields = fieldsList[collectionId].mle_fields;
+          options.mle_sub_fields = fieldsList[collectionId].mle_sub_fields;
         } else if(collectionId === 'ALD_U_N_2B'  && gran === 'group'){
           $.extend(options, requestOptions.l2b_group);
         } else if(collectionId === 'ALD_U_N_2C'  && gran === 'group'){
@@ -2402,7 +2434,6 @@
 
 
         options.mimeType = 'application/msgpack';
-
         var body = wps_dataRequestTmpl(options);
 
         if(this.xhr !== null){

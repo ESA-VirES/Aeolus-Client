@@ -1213,6 +1213,34 @@ define([
                         jumps: 'jumps',
                         signCross: 'signCross'
                     },
+                    'MLE': {
+                        lats: 'latitude_of_DEM_intersection_obs_orig',
+                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        timeStart: 'MLE_time_obs_orig_start',
+                        timeStop: 'MLE_time_obs_orig_stop',
+                        xAxis:'time',
+                        yAxis: ['rayleigh_altitude'],
+                        combinedParameters: {
+                            rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
+                            time: ['MLE_time_obs_start', 'MLE_time_obs_stop'],
+                        },
+                        jumps: 'sca_jumps',
+                        signCross: 'sca_signCross'
+                    },
+                    'MLE_SUB': {
+                        lats: 'latitude_of_DEM_intersection_obs_orig',
+                        lons: 'longitude_of_DEM_intersection_obs_orig',
+                        timeStart: 'MLE_SUB_time_obs_orig_start',
+                        timeStop: 'MLE_SUB_time_obs_orig_stop',
+                        xAxis:'time',
+                        yAxis: ['rayleigh_altitude'],
+                        combinedParameters: {
+                            rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
+                            time: ['MLE_SUB_time_obs_start', 'MLE_SUB_time_obs_stop'],
+                        },
+                        jumps: 'sca_jumps',
+                        signCross: 'sca_signCross'
+                    },
                     'group': {
                         lats: 'latitude_of_DEM_intersection_obs_orig',
                         lons: 'longitude_of_DEM_intersection_obs_orig',
@@ -1343,6 +1371,12 @@ define([
                 currPar.colorAxis = [band];
             } else if (band.startsWith('MCA_')){
                 currPar = params[cov_id]['MCA'];
+                currPar.colorAxis = [band];
+            } else if (band.startsWith('MLE_SUB_')){
+                currPar = params[cov_id]['MLE_SUB'];
+                currPar.colorAxis = [band];
+            } else if (band.startsWith('MLE_')){
+                currPar = params[cov_id]['MLE'];
                 currPar.colorAxis = [band];
             } else if (band.startsWith('group_')){
                 currPar = params[cov_id]['group'];
@@ -3091,6 +3125,8 @@ define([
 
                             } else if (active === 'rayleigh_HLOS_wind_speed' ||
                                 active === 'SCA_extinction' ||
+                                active === 'MLE_extinction' ||
+                                active === 'MLE_SUB_extinction' ||
                                 active === 'rayleigh_wind_result_wind_velocity'){
                                 extent = exts.ray_max - exts.ray_min;
                                 currmin = exts.ray_min;

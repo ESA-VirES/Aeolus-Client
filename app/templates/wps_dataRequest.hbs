@@ -79,6 +79,22 @@
       </wps:Data>
     </wps:Input>
     {{/if}}
+    {{#if mle_fields}}
+    <wps:Input>
+      <ows:Identifier>mle_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{mle_fields}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    {{/if}}
+    {{#if mle_sub_fields}}
+    <wps:Input>
+      <ows:Identifier>mle_sub_fields</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{mle_sub_fields}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    {{/if}}
     {{#if ica_fields}}
     <wps:Input>
       <ows:Identifier>ica_fields</ows:Identifier>

@@ -499,6 +499,42 @@
                     "colorscale": "viridis",
                     "name": "MCA LOD"
                 },
+                "MLE_extinction": {
+                    "range": [0, 400],
+                    "uom":"10⁻⁶*m⁻¹",
+                    "colorscale": "viridis",
+                    "name": "MLE extinction"
+                },
+                "MLE_backscatter": {
+                    "uom": null,
+                    "range": [0, 0.1],
+                    "colorscale": "viridis",
+                    "name": "MLE backscatter"
+                },
+                "MLE_lidar_ratio": {
+                    "range": [0, 0.1],
+                    "colorscale": "viridis",
+                    "uom": "sr⁻¹",
+                    "name": "MLE lidar ratio"
+                },
+                "MLE_SUB_extinction": {
+                    "range": [0, 400],
+                    "uom":"10⁻⁶*m⁻¹",
+                    "colorscale": "viridis",
+                    "name": "MLE SUB extinction"
+                },
+                "MLE_SUB_backscatter": {
+                    "uom": null,
+                    "range": [0, 0.1],
+                    "colorscale": "viridis",
+                    "name": "MLE SUB backscatter"
+                },
+                "MLE_SUB_lidar_ratio": {
+                    "range": [0, 0.1],
+                    "colorscale": "viridis",
+                    "uom": "sr⁻¹",
+                    "name": "MLE SUB lidar ratio"
+                },
                 "SCA_middle_bin_extinction": {
                     "range": [0, 400],
                     "colorscale": "viridis",
@@ -566,6 +602,8 @@
                 "L1B_time_meas": {"uom": null, "name": "Measurement centroid time from L1B (UTC)"},
                 "SCA_time_obs": {"required": true,"uom": null, "name": "Start date and time of the SCA profile covered by the present DSR (UTC)"},
                 "MCA_time_obs": {"required": true,"uom": null, "name": "Start date and time of the MCA profile covered by the present DSR (UTC)"},
+                "MLE_time_obs": {"required": true,"uom": null, "name": "Start date and time of the MLE profile covered by the present DSR (UTC)"},
+                "MLE_SUB_time_obs": {"required": true,"uom": null, "name": "Start date and time of the MLE profile covered by the present DSR (UTC)"},
                 "group_start_time": {"required": true,"uom": null, "name": "Start date and time of the group profile covered by the present DSR (UTC)"},
                 "group_end_time": {"required": true,"uom": null, "name": "End date and time of the group profile covered by the present DSR (UTC)"},
                 "group_centroid_time": {"uom": null, "name": "Centroid date and time of the group profile covered by the present DSR (UTC)"},
@@ -621,6 +659,12 @@
                 "MCA_clim_BER": {"uom": "sr⁻¹", "name": "Particle backscatter‐to‐extinction ratio extracted from the climatology"},
                 "MCA_extinction": {"required": true,"uom": "10⁻⁶*m⁻¹", "name": "Particle extinction of the bin"},
                 "MCA_LOD": {"uom": null, "name": "Particle LOD of the bin"},
+                "MLE_extinction": {"required": true,"uom": "10⁻⁶*m⁻¹", "name": "Particle extinction of the bin"},
+                "MLE_backscatter": {"active": true,"uom": "sr⁻¹", "name": "TBD"},
+                "MLE_lidar_ratio": {"active": true,"uom": null, "name": "TBD"},
+                "MLE_SUB_extinction": {"required": true,"uom": "10⁻⁶*m⁻¹", "name": "Particle extinction of the bin"},
+                "MLE_SUB_backscatter": {"active": true,"uom": "sr⁻¹", "name": "TBD"},
+                "MLE_SUB_lidar_ratio": {"active": true,"uom": null, "name": "TBD"},
                 "group_extinction": {"required": true,"uom": "10⁻⁶*m⁻¹", "name": "Particle extinction of the height bin"},
                 "group_backscatter": {"active": true,"uom": "10⁻⁶*m⁻¹* sr⁻¹", "name": "Particle backscatter of the height bin"},
                 "group_LOD": {"uom": null, "name": "Particle LOD of the height bin"},
@@ -705,6 +749,18 @@
                     "MCA_clim_BER",
                     "MCA_extinction",
                     "MCA_LOD"
+                ],
+                "mle": [
+                    "MLE_time_obs",
+                    "MLE_extinction",
+                    "MLE_backscatter",
+                    "MLE_lidar_ratio"
+                ],
+                "mle_sub": [
+                    "MLE_SUB_time_obs",
+                    "MLE_SUB_extinction",
+                    "MLE_SUB_backscatter",
+                    "MLE_SUB_lidar_ratio"
                 ],
                 "sca": [
                     "SCA_QC_flag",
