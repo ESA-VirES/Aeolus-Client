@@ -662,9 +662,11 @@
                 "MLE_extinction": {"required": true,"uom": "10⁻⁶*m⁻¹", "name": "Particle extinction of the bin"},
                 "MLE_backscatter": {"active": true,"uom": "sr⁻¹", "name": "TBD"},
                 "MLE_lidar_ratio": {"active": true,"uom": null, "name": "TBD"},
+                "MLE_QC_flag": {"active":true,"uom": null, "name": "Quality flag for MLE processing of a specific bin"},
                 "MLE_SUB_extinction": {"required": true,"uom": "10⁻⁶*m⁻¹", "name": "Particle extinction of the bin"},
                 "MLE_SUB_backscatter": {"active": true,"uom": "sr⁻¹", "name": "TBD"},
                 "MLE_SUB_lidar_ratio": {"active": true,"uom": null, "name": "TBD"},
+                "MLE_SUB_QC_flag": {"active":true,"uom": null, "name": "Quality flag for MLE SUB processing of a specific bin"},
                 "group_extinction": {"required": true,"uom": "10⁻⁶*m⁻¹", "name": "Particle extinction of the height bin"},
                 "group_backscatter": {"active": true,"uom": "10⁻⁶*m⁻¹* sr⁻¹", "name": "Particle backscatter of the height bin"},
                 "group_LOD": {"uom": null, "name": "Particle LOD of the height bin"},
@@ -754,13 +756,15 @@
                     "MLE_time_obs",
                     "MLE_extinction",
                     "MLE_backscatter",
-                    "MLE_lidar_ratio"
+                    "MLE_lidar_ratio",
+                    "MLE_QC_flag"
                 ],
                 "mle_sub": [
                     "MLE_SUB_time_obs",
                     "MLE_SUB_extinction",
                     "MLE_SUB_backscatter",
-                    "MLE_SUB_lidar_ratio"
+                    "MLE_SUB_lidar_ratio",
+                    "MLE_SUB_QC_flag"
                 ],
                 "sca": [
                     "SCA_QC_flag",

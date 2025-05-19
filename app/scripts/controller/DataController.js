@@ -184,6 +184,7 @@
                   'MCA_LOD',
                 ],
                 [
+                  'MLE_QC_flag',
                   'MLE_time_obs_start',
                   'MLE_time_obs_stop',
                   'MLE_time',
@@ -192,6 +193,7 @@
                   'MLE_lidar_ratio',
                 ],
                 [
+                  'MLE_SUB_QC_flag',
                   'MLE_SUB_time_obs_start',
                   'MLE_SUB_time_obs_stop',
                   'MLE_SUB_time',

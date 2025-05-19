@@ -812,12 +812,14 @@ SCA_middle_bin_cumulative_LOD_valid
               'MCA_LOD',
             ],
             'mle_fields': [
+              'MLE_QC_flag',
               'MLE_time_obs',
               'MLE_extinction',
               'MLE_backscatter',
               'MLE_lidar_ratio',
             ],
             'mle_sub_fields': [
+              'MLE_SUB_QC_flag',
               'MLE_SUB_time_obs',
               'MLE_SUB_extinction',
               'MLE_SUB_backscatter',
