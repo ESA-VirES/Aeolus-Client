@@ -1553,9 +1553,11 @@
                 validityArray[ba].push(profBoolArray[ba]);
               }
             }
-            const combinedValidity = validityArray[7].map((profileFlags1, i) =>
-              profileFlags1.map((flagValue, j) => flagValue && validityArray[6][i][j])
-            );
+            var combinedValidity = validityArray[7].map(function(profileFlags1, i) {
+              return profileFlags1.map(function(flagValue, j) {
+                return flagValue && validityArray[6][i][j];
+              });
+            });
             ds.mle_sub_data['MLE_alpha_beta_valid'] = combinedValidity;
           }
 
@@ -1576,10 +1578,11 @@
                 validityArray[ba].push(profBoolArray[ba]);
               }
             }
-
-            const combinedValidity = validityArray[7].map((profileFlags1, i) =>
-              profileFlags1.map((flagValue, j) => flagValue && validityArray[6][i][j])
-            );
+            var combinedValidity = validityArray[7].map(function(profileFlags1, i) {
+              return profileFlags1.map(function(flagValue, j) {
+                return flagValue && validityArray[6][i][j];
+              });
+            });
             ds.mle_sub_data['MLE_SUB_alpha_beta_valid'] = combinedValidity;
           }
 
