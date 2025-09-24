@@ -573,7 +573,8 @@
                       false,
                       false
                   ]
-              },'SCA_middle_bin_processing_qc_flag': {
+              },
+              'SCA_middle_bin_processing_qc_flag': {
                   values: [
                       ['Bit 1', 'Extinction; data valid 1, otherwise 0'],
                       ['Bit 2', 'Backscatter; data valid 1, otherwise 0'],
@@ -593,6 +594,51 @@
                       false,
                       false,
                       false
+                  ]
+              },
+              'MLE_QC_flag': {
+                  values: [
+                    ['Bit 8', 'Not used;'],
+                    ['Bit 7', 'Not used;'],
+                    ['Bit 6', 'Beta error bar valid; data valid 1, otherwise 0'],
+                    ['Bit 5', 'Alpha error bar valid; data valid 1, otherwise 0'],
+                    ['Bit 4', 'Ray SNR valid; data valid 1, otherwise 0'],
+                    ['Bit 3', 'Mie SNR valid; data valid 1, otherwise 0'],
+                    ['Bit 2', 'Beta valid; data valid 1, otherwise 0'],
+                    ['Bit 1', 'Alpha valid; data valid 1, otherwise 0'],
+                  ],
+                  enabled: [
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      true,
+                      true
+                  ],
+
+              },
+              'MLE_SUB_QC_flag': {
+                  values: [
+                    ['Bit 8', 'Not used;'],
+                    ['Bit 7', 'Not used;'],
+                    ['Bit 6', 'Beta error bar valid; data valid 1, otherwise 0'],
+                    ['Bit 5', 'Alpha error bar valid; data valid 1, otherwise 0'],
+                    ['Bit 4', 'Ray SNR valid; data valid 1, otherwise 0'],
+                    ['Bit 3', 'Mie SNR valid; data valid 1, otherwise 0'],
+                    ['Bit 2', 'Beta valid; data valid 1, otherwise 0'],
+                    ['Bit 1', 'Alpha valid; data valid 1, otherwise 0'],
+                  ],
+                   enabled: [
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      true,
+                      true
                   ]
               },
               'rayleigh_wind_result_QC_flags_1': {
@@ -1490,6 +1536,52 @@
             ds.sca_data['SCA_middle_bin_cumulative_LOD_valid'] = validityArray[0];
             */
           }
+          if(ds.mle_data.hasOwnProperty('MLE_QC_flag')){
+            var validityArray = [[],[],[],[],[],[],[],[]];
+
+            for (var ff = 0; ff < ds.mle_data.MLE_QC_flag.length; ff++) {
+              var profBoolArray = [[],[],[],[],[],[],[],[]];
+              var currProf = ds.mle_data.MLE_QC_flag[ff];
+              for (var pp = 0; pp < currProf.length; pp++) {
+                var boolArray = conversionFunction(currProf[pp], 8);
+
+                for (var bt = 0; bt < boolArray.length; bt++) {
+                  profBoolArray[bt].push(boolArray[bt]);
+                }
+              }
+              for (var ba = 0; ba < profBoolArray.length; ba++) {
+                validityArray[ba].push(profBoolArray[ba]);
+              }
+            }
+            const combinedValidity = validityArray[7].map((profileFlags1, i) =>
+              profileFlags1.map((flagValue, j) => flagValue && validityArray[6][i][j])
+            );
+            ds.mle_sub_data['MLE_alpha_beta_valid'] = combinedValidity;
+          }
+
+          if(ds.mle_sub_data.hasOwnProperty('MLE_SUB_QC_flag')){
+            var validityArray = [[],[],[],[],[],[],[],[]];
+
+            for (var ff = 0; ff < ds.mle_sub_data.MLE_SUB_QC_flag.length; ff++) {
+              var profBoolArray = [[],[],[],[],[],[],[],[]];
+              var currProf = ds.mle_sub_data.MLE_SUB_QC_flag[ff];
+              for (var pp = 0; pp < currProf.length; pp++) {
+                var boolArray = conversionFunction(currProf[pp], 8);
+
+                for (var bt = 0; bt < boolArray.length; bt++) {
+                  profBoolArray[bt].push(boolArray[bt]);
+                }
+              }
+              for (var ba = 0; ba < profBoolArray.length; ba++) {
+                validityArray[ba].push(profBoolArray[ba]);
+              }
+            }
+
+            const combinedValidity = validityArray[7].map((profileFlags1, i) =>
+              profileFlags1.map((flagValue, j) => flagValue && validityArray[6][i][j])
+            );
+            ds.mle_sub_data['MLE_SUB_alpha_beta_valid'] = combinedValidity;
+          }
 
 
           if(ds.observation_data.hasOwnProperty('sca_mask')){
@@ -1671,6 +1763,8 @@
 
             var lonStep = 15;
             var latStep = 15;
+
+
 
             // Separeate jump calculation for mie and rayleig
             if(resData.hasOwnProperty('sca_mask_orig')){
