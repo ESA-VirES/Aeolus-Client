@@ -506,15 +506,15 @@
                     "name": "MLE extinction"
                 },
                 "MLE_backscatter": {
-                    "uom": null,
-                    "range": [0, 0.1],
+                    "uom": "10⁻⁶*m⁻¹*sr⁻¹",
+                    "range": [0, 5],
                     "colorscale": "viridis",
                     "name": "MLE backscatter"
                 },
                 "MLE_lidar_ratio": {
-                    "range": [0, 0.1],
+                    "range": [0, 200],
                     "colorscale": "viridis",
-                    "uom": "sr⁻¹",
+                    "uom": "sr",
                     "name": "MLE lidar ratio"
                 },
                 "MLE_SUB_extinction": {
@@ -524,15 +524,15 @@
                     "name": "MLE SUB extinction"
                 },
                 "MLE_SUB_backscatter": {
-                    "uom": null,
-                    "range": [0, 0.1],
+                    "uom": "10⁻⁶*m⁻¹*sr⁻¹",
+                    "range": [0, 5],
                     "colorscale": "viridis",
                     "name": "MLE SUB backscatter"
                 },
                 "MLE_SUB_lidar_ratio": {
-                    "range": [0, 0.1],
+                    "range": [0, 200],
                     "colorscale": "viridis",
-                    "uom": "sr⁻¹",
+                    "uom": "sr",
                     "name": "MLE SUB lidar ratio"
                 },
                 "SCA_middle_bin_extinction": {
