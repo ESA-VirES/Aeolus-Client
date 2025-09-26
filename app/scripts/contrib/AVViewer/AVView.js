@@ -766,12 +766,76 @@ define(['backbone.marionette',
                         mie_altitude: ['mie_altitude_obs_top', 'mie_altitude_obs_bottom'],
                         MCA_mie_altitude: ['MCA_mie_altitude_obs_top','MCA_mie_altitude_obs_bottom'],
                         MCA_time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
+                        MLE_mie_altitude: ['SCA_mie_altitude_obs_top','MCA_mie_altitude_obs_bottom'],
+                        MLE_time: ['MLE_time_obs_start', 'MLE_time_obs_stop'],
                         rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
                         SCA_time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
                         SCA_middle_bin_altitude: ['SCA_middle_bin_altitude_obs_top', 'SCA_middle_bin_altitude_obs_bottom'],
                         SCA_middle_bin_time: ['SCA_middle_bin_time_obs_start', 'SCA_middle_bin_time_obs_stop']
                     },
                     renderGroups: {
+                        MLE: {
+                            parameters: [
+                                'rayleigh_altitude',
+                                'rayleigh_altitude_obs_top',
+                                'rayleigh_altitude_obs_bottom',
+                                'MLE_time_obs_start',
+                                'MLE_time_obs_stop',
+                                'L1B_start_time_obs',
+                                'L1B_centroid_time_obs',
+                                'MLE_time',
+                                'geoid_separation_obs',
+                                'L1B_num_of_meas_per_obs',
+                                'MLE_extinction',
+                                'MLE_backscatter',
+                                'MLE_lidar_ratio',
+                                'MLE_alpha_beta_valid',
+                                'longitude_of_DEM_intersection_obs',
+                                'latitude_of_DEM_intersection_obs',
+                                'altitude_of_DEM_intersection_obs',
+                                'albedo_off_nadir'
+                            ],
+                            defaults: {
+                                yAxis: 'rayleigh_altitude',
+                                colorAxis: 'MLE_extinction'
+                            },
+                            positionAlias: {
+                                'latitude': 'latitude_of_DEM_intersection_obs',
+                                'longitude': 'longitude_of_DEM_intersection_obs',
+                                'altitude': 'rayleigh_altitude'
+                            }
+                        },
+                        MLE_SUB: {
+                            parameters: [
+                                'rayleigh_altitude',
+                                'rayleigh_altitude_obs_top',
+                                'rayleigh_altitude_obs_bottom',
+                                'MLE_time_obs_start',
+                                'MLE_time_obs_stop',
+                                'L1B_start_time_obs',
+                                'L1B_centroid_time_obs',
+                                'MLE_time',
+                                'geoid_separation_obs',
+                                'L1B_num_of_meas_per_obs',
+                                'MLE_SUB_extinction',
+                                'MLE_SUB_backscatter',
+                                'MLE_SUB_lidar_ratio',
+                                'MLE_SUB_alpha_beta_valid',
+                                'longitude_of_DEM_intersection_obs',
+                                'latitude_of_DEM_intersection_obs',
+                                'altitude_of_DEM_intersection_obs',
+                                'albedo_off_nadir'
+                            ],
+                            defaults: {
+                                yAxis: 'rayleigh_altitude',
+                                colorAxis: 'MLE_SUB_extinction'
+                            },
+                            positionAlias: {
+                                'latitude': 'latitude_of_DEM_intersection_obs',
+                                'longitude': 'longitude_of_DEM_intersection_obs',
+                                'altitude': 'rayleigh_altitude'
+                            }
+                        },
                         MCA: {
                             parameters: [
                                 'mie_altitude', 
@@ -888,7 +952,7 @@ define(['backbone.marionette',
                     },
                     sharedParameters: {
                         'time': [
-                            'MCA_time', 'SCA_time', 'SCA_middle_bin_time'
+                            'MCA_time', 'SCA_time', 'SCA_middle_bin_time', 'MLE_time'
                         ]
                     },
                     availableParameters: false

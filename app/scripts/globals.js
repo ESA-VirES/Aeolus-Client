@@ -4,7 +4,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
 
     var swarm_model = Backbone.Model.extend({data:[]});
     return {
-        version: '2.1.4',
+        version: '2.1.5',
         objects: new ObjectStore(),
         selections: new ObjectStore(),
         baseLayers: new Backbone.Collection(),
@@ -18,7 +18,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             'measurement': ['measurement']
           },
           'ALD_U_N_2A': {
-            'observation': ['observation', 'sca', 'mca'],
+            'observation': ['observation', 'sca', 'mca', 'mle'],
             'group': ['group', 'measurement']
           },
           'ALD_U_N_2B': {
@@ -187,6 +187,57 @@ SCA_middle_bin_cumulative_LOD_valid
                 'MCA_time_obs_stop': {
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
+                },
+                'MLE_time_obs_start': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'MLE_time_obs_stop': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'MLE_extinction': {
+                    uom: '10-6 * m^-1',
+                    colorscale: 'viridis',
+                    maskParameter: 'MLE_alpha_beta_valid',
+                    extent: [0, 400]
+                },
+                'MLE_backscatter': {
+                    uom: '10-6 * m^-1* sr^-1',
+                    colorscale: 'viridis',
+                    maskParameter: 'MLE_alpha_beta_valid',
+                    extent: [-20, 20]
+                },
+                'MLE_lidar_ratio': {
+                    uom: '10-6 * m^-1* sr^-1',
+                    colorscale: 'viridis',
+                    extent: [-20, 20]
+                },
+
+                'MLE_SUB_time_obs_start': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'MLE_SUB_time_obs_stop': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'MLE_SUB_extinction': {
+                    uom: '10-6 * m^-1',
+                    colorscale: 'viridis',
+                    maskParameter: 'MLE_SUB_alpha_beta_valid',
+                    extent: [0, 400]
+                },
+                'MLE_SUB_backscatter': {
+                    uom: '10-6 * m^-1* sr^-1',
+                    colorscale: 'viridis',
+                    maskParameter: 'MLE_SUB_alpha_beta_valid',
+                    extent: [-20, 20]
+                },
+                'MLE_SUB_lidar_ratio': {
+                    uom: '10-6 * m^-1* sr^-1',
+                    colorscale: 'viridis',
+                    extent: [-20, 20]
                 },
 
                 // L2A Group
@@ -763,6 +814,20 @@ SCA_middle_bin_cumulative_LOD_valid
               'MCA_clim_BER',
               'MCA_extinction',
               'MCA_LOD',
+            ],
+            'mle_fields': [
+              'MLE_QC_flag',
+              'MLE_time_obs',
+              'MLE_extinction',
+              'MLE_backscatter',
+              'MLE_lidar_ratio',
+            ],
+            'mle_sub_fields': [
+              'MLE_SUB_QC_flag',
+              'MLE_SUB_time_obs',
+              'MLE_SUB_extinction',
+              'MLE_SUB_backscatter',
+              'MLE_SUB_lidar_ratio',
             ],
             'sca_fields': [
               'SCA_time_obs',

@@ -184,6 +184,24 @@
                   'MCA_LOD',
                 ],
                 [
+                  'MLE_QC_flag',
+                  'MLE_time_obs_start',
+                  'MLE_time_obs_stop',
+                  'MLE_time',
+                  'MLE_extinction',
+                  'MLE_backscatter',
+                  'MLE_lidar_ratio',
+                ],
+                [
+                  'MLE_SUB_QC_flag',
+                  'MLE_SUB_time_obs_start',
+                  'MLE_SUB_time_obs_stop',
+                  'MLE_SUB_time',
+                  'MLE_SUB_extinction',
+                  'MLE_SUB_backscatter',
+                  'MLE_SUB_lidar_ratio',
+                ],
+                [
                   'rayleigh_altitude',
                   'rayleigh_altitude_obs_top',
                   'rayleigh_altitude_obs_bottom',
@@ -555,7 +573,8 @@
                       false,
                       false
                   ]
-              },'SCA_middle_bin_processing_qc_flag': {
+              },
+              'SCA_middle_bin_processing_qc_flag': {
                   values: [
                       ['Bit 1', 'Extinction; data valid 1, otherwise 0'],
                       ['Bit 2', 'Backscatter; data valid 1, otherwise 0'],
@@ -575,6 +594,51 @@
                       false,
                       false,
                       false
+                  ]
+              },
+              'MLE_QC_flag': {
+                  values: [
+                    ['Bit 8', 'Not used;'],
+                    ['Bit 7', 'Not used;'],
+                    ['Bit 6', 'Beta error bar valid; data valid 1, otherwise 0'],
+                    ['Bit 5', 'Alpha error bar valid; data valid 1, otherwise 0'],
+                    ['Bit 4', 'Ray SNR valid; data valid 1, otherwise 0'],
+                    ['Bit 3', 'Mie SNR valid; data valid 1, otherwise 0'],
+                    ['Bit 2', 'Beta valid; data valid 1, otherwise 0'],
+                    ['Bit 1', 'Alpha valid; data valid 1, otherwise 0'],
+                  ],
+                  enabled: [
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      true,
+                      true
+                  ],
+
+              },
+              'MLE_SUB_QC_flag': {
+                  values: [
+                    ['Bit 8', 'Not used;'],
+                    ['Bit 7', 'Not used;'],
+                    ['Bit 6', 'Beta error bar valid; data valid 1, otherwise 0'],
+                    ['Bit 5', 'Alpha error bar valid; data valid 1, otherwise 0'],
+                    ['Bit 4', 'Ray SNR valid; data valid 1, otherwise 0'],
+                    ['Bit 3', 'Mie SNR valid; data valid 1, otherwise 0'],
+                    ['Bit 2', 'Beta valid; data valid 1, otherwise 0'],
+                    ['Bit 1', 'Alpha valid; data valid 1, otherwise 0'],
+                  ],
+                   enabled: [
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      true,
+                      true
                   ]
               },
               'rayleigh_wind_result_QC_flags_1': {
@@ -1472,6 +1536,55 @@
             ds.sca_data['SCA_middle_bin_cumulative_LOD_valid'] = validityArray[0];
             */
           }
+          if(ds.mle_data.hasOwnProperty('MLE_QC_flag')){
+            var validityArray = [[],[],[],[],[],[],[],[]];
+
+            for (var ff = 0; ff < ds.mle_data.MLE_QC_flag.length; ff++) {
+              var profBoolArray = [[],[],[],[],[],[],[],[]];
+              var currProf = ds.mle_data.MLE_QC_flag[ff];
+              for (var pp = 0; pp < currProf.length; pp++) {
+                var boolArray = conversionFunction(currProf[pp], 8);
+
+                for (var bt = 0; bt < boolArray.length; bt++) {
+                  profBoolArray[bt].push(boolArray[bt]);
+                }
+              }
+              for (var ba = 0; ba < profBoolArray.length; ba++) {
+                validityArray[ba].push(profBoolArray[ba]);
+              }
+            }
+            var combinedValidity = validityArray[7].map(function(profileFlags1, i) {
+              return profileFlags1.map(function(flagValue, j) {
+                return flagValue && validityArray[6][i][j];
+              });
+            });
+            ds.mle_sub_data['MLE_alpha_beta_valid'] = combinedValidity;
+          }
+
+          if(ds.mle_sub_data.hasOwnProperty('MLE_SUB_QC_flag')){
+            var validityArray = [[],[],[],[],[],[],[],[]];
+
+            for (var ff = 0; ff < ds.mle_sub_data.MLE_SUB_QC_flag.length; ff++) {
+              var profBoolArray = [[],[],[],[],[],[],[],[]];
+              var currProf = ds.mle_sub_data.MLE_SUB_QC_flag[ff];
+              for (var pp = 0; pp < currProf.length; pp++) {
+                var boolArray = conversionFunction(currProf[pp], 8);
+
+                for (var bt = 0; bt < boolArray.length; bt++) {
+                  profBoolArray[bt].push(boolArray[bt]);
+                }
+              }
+              for (var ba = 0; ba < profBoolArray.length; ba++) {
+                validityArray[ba].push(profBoolArray[ba]);
+              }
+            }
+            var combinedValidity = validityArray[7].map(function(profileFlags1, i) {
+              return profileFlags1.map(function(flagValue, j) {
+                return flagValue && validityArray[6][i][j];
+              });
+            });
+            ds.mle_sub_data['MLE_SUB_alpha_beta_valid'] = combinedValidity;
+          }
 
 
           if(ds.observation_data.hasOwnProperty('sca_mask')){
@@ -1613,6 +1726,8 @@
           // Check if data is actually available
           if((resData.hasOwnProperty('SCA_time_obs') && resData['SCA_time_obs'].length > 0) && 
              (resData.hasOwnProperty('MCA_time_obs') && resData['MCA_time_obs'].length > 0) && 
+             (resData.hasOwnProperty('MLE_time_obs') && resData['MLE_time_obs'].length > 0) && 
+             (resData.hasOwnProperty('MLE_SUB_time_obs') && resData['MLE_SUB_time_obs'].length > 0) && 
              (resData.hasOwnProperty('SCA_middle_bin_time_obs') && resData['SCA_middle_bin_time_obs'].length > 0)) {
 
             var offs = 12.01;
@@ -1628,17 +1743,31 @@
             resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
             resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].map(function(e){return e+offs;});
 
+            resData['MLE_time_obs_start'] = resData['MLE_time_obs'].slice();
+            resData['MLE_time_obs_stop'] = resData['MLE_time_obs'].map(function(e){return e+offs;});
+
+            resData['MLE_SUB_time_obs_start'] = resData['MLE_SUB_time_obs'].slice();
+            resData['MLE_SUB_time_obs_stop'] = resData['MLE_SUB_time_obs'].map(function(e){return e+offs;});
+
             resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
             resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].map(function(e){return e+offs;});
 
             resData['MCA_time_obs_orig_start'] = resData['MCA_time_obs_orig'].slice();
             resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].map(function(e){return e+offs;});
 
+            resData['MLE_time_obs_orig_start'] = resData['MLE_time_obs_orig'].slice();
+            resData['MLE_time_obs_orig_stop'] = resData['MLE_time_obs_orig'].map(function(e){return e+offs;});
+
+            resData['MLE_SUB_time_obs_orig_start'] = resData['MLE_SUB_time_obs_orig'].slice();
+            resData['MLE_SUB_time_obs_orig_stop'] = resData['MLE_SUB_time_obs_orig'].map(function(e){return e+offs;});
+
             resData['SCA_middle_bin_time_obs_orig_start'] = resData['SCA_middle_bin_time_obs_orig'].slice();
             resData['SCA_middle_bin_time_obs_orig_stop'] = resData['SCA_middle_bin_time_obs_orig'].map(function(e){return e+offs;});
 
             var lonStep = 15;
             var latStep = 15;
+
+
 
             // Separeate jump calculation for mie and rayleig
             if(resData.hasOwnProperty('sca_mask_orig')){
@@ -2327,6 +2456,8 @@
           options[fields] = fieldsList[collectionId][fields];
           options.mca_fields = fieldsList[collectionId].mca_fields;
           options.sca_fields = fieldsList[collectionId].sca_fields;
+          options.mle_fields = fieldsList[collectionId].mle_fields;
+          options.mle_sub_fields = fieldsList[collectionId].mle_sub_fields;
         } else if(collectionId === 'ALD_U_N_2B'  && gran === 'group'){
           $.extend(options, requestOptions.l2b_group);
         } else if(collectionId === 'ALD_U_N_2C'  && gran === 'group'){
@@ -2402,7 +2533,6 @@
 
 
         options.mimeType = 'application/msgpack';
-
         var body = wps_dataRequestTmpl(options);
 
         if(this.xhr !== null){
