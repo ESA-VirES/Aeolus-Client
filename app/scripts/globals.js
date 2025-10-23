@@ -199,13 +199,13 @@ SCA_middle_bin_cumulative_LOD_valid
                 'MLE_extinction': {
                     uom: '10-6 * m^-1',
                     colorscale: 'viridis',
-                    maskParameter: 'MLE_alpha_beta_valid',
+                    maskParameter: 'MLE_extinction_valid',
                     extent: [0, 400]
                 },
                 'MLE_backscatter': {
                     uom: '10-6 * m^-1* sr^-1',
                     colorscale: 'viridis',
-                    maskParameter: 'MLE_alpha_beta_valid',
+                    maskParameter: 'MLE_backscatter_valid',
                     extent: [-20, 20]
                 },
                 'MLE_lidar_ratio': {
@@ -225,13 +225,13 @@ SCA_middle_bin_cumulative_LOD_valid
                 'MLE_SUB_extinction': {
                     uom: '10-6 * m^-1',
                     colorscale: 'viridis',
-                    maskParameter: 'MLE_SUB_alpha_beta_valid',
+                    maskParameter: 'MLE_SUB_extinction_valid',
                     extent: [0, 400]
                 },
                 'MLE_SUB_backscatter': {
                     uom: '10-6 * m^-1* sr^-1',
                     colorscale: 'viridis',
-                    maskParameter: 'MLE_SUB_alpha_beta_valid',
+                    maskParameter: 'MLE_SUB_backscatter_valid',
                     extent: [-20, 20]
                 },
                 'MLE_SUB_lidar_ratio': {
