@@ -1553,12 +1553,8 @@
                 validityArray[ba].push(profBoolArray[ba]);
               }
             }
-            var combinedValidity = validityArray[7].map(function(profileFlags1, i) {
-              return profileFlags1.map(function(flagValue, j) {
-                return flagValue && validityArray[6][i][j];
-              });
-            });
-            ds.mle_sub_data['MLE_alpha_beta_valid'] = combinedValidity;
+            ds.mle_data['MLE_extinction_valid'] = validityArray[7];
+            ds.mle_data['MLE_backscatter_valid'] = validityArray[6];
           }
 
           if(ds.mle_sub_data.hasOwnProperty('MLE_SUB_QC_flag')){
@@ -1578,12 +1574,8 @@
                 validityArray[ba].push(profBoolArray[ba]);
               }
             }
-            var combinedValidity = validityArray[7].map(function(profileFlags1, i) {
-              return profileFlags1.map(function(flagValue, j) {
-                return flagValue && validityArray[6][i][j];
-              });
-            });
-            ds.mle_sub_data['MLE_SUB_alpha_beta_valid'] = combinedValidity;
+            ds.mle_sub_data['MLE_SUB_extinction_valid'] = validityArray[7];
+            ds.mle_sub_data['MLE_SUB_backscatter_valid'] = validityArray[6];
           }
 
 
