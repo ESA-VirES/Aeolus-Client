@@ -283,6 +283,10 @@ SCA_middle_bin_cumulative_LOD_valid
                     modifier: 'x*1E-3',
                     modifiedUOM: 'km'
                 },
+                SCA_middle_bin_altitude_obs: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
             },
             'ALD_U_N_2B': {
                 'mie_meas_map': {
