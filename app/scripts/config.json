@@ -457,11 +457,23 @@
                     "colorscale": "viridis",
                     "name": "SCA backscatter"
                 },
+                "SCA_lr": {
+                    "range": [0, 350], 
+                    "uom": "sr",
+                    "colorscale": "viridis",
+                    "name": "SCA lidar ratio"
+                },
                 "SCA_backscatter_variance": {
                     "range": [0, 2e-13],
                     "uom": "m⁻²*sr⁻²",
                     "colorscale": "viridis",
                     "name": "SCA backscatter variance"
+                },
+                "SCA_lr_variance": {
+                    "range": [0, 26000],
+                    "uom": "sr⁻²",
+                    "colorscale": "viridis",
+                    "name": "SCA lidar ratio variance"
                 },
                 "SCA_LOD": {
                     "range": [0, 0.3],
@@ -530,7 +542,7 @@
                     "name": "MLE SUB backscatter"
                 },
                 "MLE_SUB_lidar_ratio": {
-                    "range": [0, 200],
+                    "range": [0, 80],
                     "colorscale": "viridis",
                     "uom": "sr",
                     "name": "MLE SUB lidar ratio"
@@ -552,6 +564,12 @@
                     "colorscale": "viridis",
                     "uom": "10⁻⁶*m⁻¹* sr⁻¹",
                     "name": "SCA middle bin backscatter"
+                },
+                "SCA_middle_bin_lr": {
+                    "name": "SCA middle bin lidar ratio",
+                    "range": [0, 350], 
+                    "uom": "sr",
+                    "colorscale": "viridis"
                 },
                 "SCA_middle_bin_backscatter_variance": {
                     "range": [0, 5e-8],
@@ -582,6 +600,12 @@
                     "colorscale": "viridis",
                     "uom": "sr⁻²",
                     "name": "SCA middle bin BER variance"
+                },
+                "SCA_middle_bin_lr_variance": {
+                    "name": "SCA middle bin lidar ratio variance",
+                    "range": [0, 26000],
+                    "uom": "sr⁻²",
+                    "colorscale": "viridis"
                 },
                 "group_backscatter": {
                     "range": [0, 1.1e-5],
@@ -631,12 +655,14 @@
                 "SCA_extinction_variance": {"active": true,"uom": "m⁻²", "name": "Variance of the extinction coefficient retrieved by the SCA in this bin"},
                 "SCA_processing_qc_flag":{"required": true, "uom": null, "name": "QC information about processing - Bit packed quality field"},
                 "SCA_backscatter_variance": {"active": true,"uom": "m⁻²*sr⁻²", "name": "Variance of the backscatter coefficient retrieved by the SCA in this bin"},
+                "SCA_lr_variance": {"active": true, "uom": "sr⁻²", "name": "Variance of the lidar ratio retrieved by the SCA in this bin"},
                 "SCA_LOD_variance": {"uom": null, "name": "Variance of the LOD retrieved by the SCA in this bin"},
                 "SCA_middle_bin_extinction_variance": {"uom": "m⁻²", "name": "Variance of the extinction coefficient retrieved by the SCA in this bin"},
                 "SCA_middle_bin_processing_qc_flag":{"required": true, "uom": null, "name": "QC information about processing - Bit packed quality field"},
                 "SCA_middle_bin_backscatter_variance": {"uom": "m⁻²*sr⁻²", "name": "Variance of the backscatter coefficient retrieved by the SCA in this bin"},
                 "SCA_middle_bin_LOD_variance": {"uom": null, "name": "Variance of the LOD retrieved by the SCA in this bin"},
                 "SCA_middle_bin_BER_variance": {"uom": "sr⁻²", "name": "Variance of the backscatter-to-extinction ratio"},
+                "SCA_middle_bin_lr_variance": {"active": true, "uom": "sr", "name": "Variance of the lidar ratio retrieved by the SCA in this bin"},
                 "group_extinction_variance": {"active": true,"uom": "m⁻²", "name": "Variance of the particle extinction coefficient"},
                 "group_backscatter_variance": {"active": true,"uom": "m⁻²*sr⁻²", "name": "Variance of the particle extinction coefficient"},
                 "group_LOD_variance": {"uom": null, "name": "Variance of the particle local optical depth"},
@@ -650,12 +676,14 @@
                 "group_middle_bin_BER_variance_bottom": {"uom": "sr⁻²", "name": "Variance of the BER in this height bottom middle bin"},
                 "SCA_extinction": {"required": true,"uom": "10⁻⁶*m⁻¹", "name": "Particle extinction of the height bin"},
                 "SCA_backscatter": {"required": true,"uom": "10⁻⁶*m⁻¹* sr⁻¹", "name": "Particle extinction of the height bin"},
+                "SCA_lr": {"active": true,"uom": "sr", "name": "Particle lidar ratio of the height bin"},
                 "SCA_LOD": {"uom": null, "name": "Particle LOD of the height bin"},
                 "SCA_SR": {"uom": null, "name": "Scattering ratio of the height bin"},
                 "SCA_middle_bin_extinction": {"required": true,"uom": "10⁻⁶*m⁻¹", "name": "Particle extinction of the height bin"},
                 "SCA_middle_bin_backscatter": {"active": true,"uom": "10⁻⁶*m⁻¹* sr⁻¹", "name": "Particle backscatter of the height bin"},
                 "SCA_middle_bin_LOD": {"uom": null, "name": "Particle LOD of the height bin"},
                 "SCA_middle_bin_BER": {"uom": null, "name": "Backscatter-to-extinction ratio of the middle bin"},
+                "SCA_middle_bin_lr": {"active": true,"uom": "sr", "name": "Particle lidar ratio of the height bin"},
                 "MCA_clim_BER": {"uom": "sr⁻¹", "name": "Particle backscatter‐to‐extinction ratio extracted from the climatology"},
                 "MCA_extinction": {"required": true,"uom": "10⁻⁶*m⁻¹", "name": "Particle extinction of the bin"},
                 "MCA_LOD": {"uom": null, "name": "Particle LOD of the bin"},
@@ -771,6 +799,7 @@
                     "SCA_processing_qc_flag",
                     "SCA_extinction_variance",
                     "SCA_backscatter_variance",
+                    "SCA_lr_variance",
                     "SCA_LOD_variance",
                     "SCA_middle_bin_processing_qc_flag",
                     "SCA_middle_bin_extinction_variance",
@@ -780,6 +809,7 @@
                     "SCA_time_obs",
                     "SCA_extinction",
                     "SCA_backscatter",
+                    "SCA_lr",
                     "SCA_LOD",
                     "SCA_SR",
                     "SCA_middle_bin_altitude_obs",
