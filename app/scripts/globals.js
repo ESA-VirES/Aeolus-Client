@@ -132,6 +132,7 @@ SCA_middle_bin_cumulative_LOD_valid
                     uom: "sr",
                     colorscale: "viridis",
                     extent: [0, 350], 
+                    maskParameter: 'SCA_lr_valid',
                 },
                 'SCA_backscatter_variance': {
                     uom: 'm^-2*sr^-2',
@@ -235,7 +236,10 @@ SCA_middle_bin_cumulative_LOD_valid
                 'MLE_lidar_ratio': {
                     uom: '10-6 * m^-1* sr^-1',
                     colorscale: 'viridis',
-                    extent: [-20, 20]
+                    extent: [0, 80],
+                    maskParameter: 'MLE_lr_valid'
+                },
+                'MLE_QC_flag': {
                 },
 
                 'MLE_SUB_time_obs_start': {
@@ -261,7 +265,8 @@ SCA_middle_bin_cumulative_LOD_valid
                 'MLE_SUB_lidar_ratio': {
                     uom: 'sr',
                     colorscale: 'viridis',
-                    extent: [0, 80]
+                    extent: [0, 80],
+                    maskParameter: 'MLE_SUB_lr_valid'
                 },
 
                 // L2A Group
