@@ -524,7 +524,7 @@
                     "name": "MLE backscatter"
                 },
                 "MLE_lidar_ratio": {
-                    "range": [0, 200],
+                    "range": [0, 80],
                     "colorscale": "viridis",
                     "uom": "sr",
                     "name": "MLE lidar ratio"
