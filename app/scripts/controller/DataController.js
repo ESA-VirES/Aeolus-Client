@@ -1547,6 +1547,18 @@
 
             ds.sca_data['SCA_middle_bin_extinction_valid'] = validityArray[7];
             ds.sca_data['SCA_middle_bin_backscatter_valid'] = validityArray[6];
+
+            // create combined validity flag of extinction and backscatter
+            ds.sca_data['SCA_middle_bin_lr_valid'] = [];
+            for (var f = 0; f < validityArray[7].length; f++) {
+              var combinedProf = [];
+              for (var p = 0; p < validityArray[7][f].length; p++) {
+                combinedProf.push(
+                  validityArray[7][f][p] && validityArray[6][f][p]
+                );
+              }
+              ds.sca_data['SCA_middle_bin_lr_valid'].push(combinedProf);
+            }
             /*
             ds.sca_data['SCA_middle_bin_BER_valid'] = validityArray[5];
             ds.sca_data['SCA_middle_bin_mie_SNR_valid'] = validityArray[4];
@@ -1781,7 +1793,29 @@
             resData['MLE_time_obs_stop'] = resData['MLE_time_obs'].map(function(e){return e+offs;});
 
             resData['MLE_SUB_time_obs_start'] = resData['MLE_SUB_time_obs'].slice();
-            resData['MLE_SUB_time_obs_stop'] = resData['MLE_SUB_time_obs'].map(function(e){return e+offs;});
+            resData['MLE_SUB_time_obs_stop'] = resData['MLE_SUB_time_obs'].map(function(e, i){
+              var profileIndex = Math.floor(i / 24);
+              if ((profileIndex + 1) % 5 === 0) { // Check if it is the 5th, 10th, 15th, etc. profile
+                return e + ((offs-0.6)/5) + 0.7; // Apply extra delta
+              }
+              return e + ((offs-0.6)/5);
+            });
+
+            // As MLE_SUB has 5 times more data points we need to expand the altitude data to match it
+            var rayleigh_altitude_obs_bottom_expanded = [];
+            var rayleigh_altitude_obs_top_expanded = [];
+            for (var i = 0; i < resData.rayleigh_altitude_obs_bottom.length; i += 24) {
+              var bottom_chunk = resData.rayleigh_altitude_obs_bottom.slice(i, i + 24);
+              var top_chunk = resData.rayleigh_altitude_obs_top.slice(i, i + 24);
+              for (var j = 0; j < 5; j++) {
+                rayleigh_altitude_obs_bottom_expanded = rayleigh_altitude_obs_bottom_expanded.concat(bottom_chunk);
+                rayleigh_altitude_obs_top_expanded = rayleigh_altitude_obs_top_expanded.concat(top_chunk);
+              }
+            }
+
+            resData.MLE_SUB_rayleigh_altitude_obs_bottom = rayleigh_altitude_obs_bottom_expanded;
+            resData.MLE_SUB_rayleigh_altitude_obs_top = rayleigh_altitude_obs_top_expanded;
+
 
             resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
             resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].map(function(e){return e+offs;});
@@ -1793,7 +1827,13 @@
             resData['MLE_time_obs_orig_stop'] = resData['MLE_time_obs_orig'].map(function(e){return e+offs;});
 
             resData['MLE_SUB_time_obs_orig_start'] = resData['MLE_SUB_time_obs_orig'].slice();
-            resData['MLE_SUB_time_obs_orig_stop'] = resData['MLE_SUB_time_obs_orig'].map(function(e){return e+offs;});
+            resData['MLE_SUB_time_obs_orig_stop'] = resData['MLE_SUB_time_obs_orig'].map(function(e, i){
+              var profileIndex = Math.floor(i / 24);
+              if ((profileIndex + 1) % 5 === 0) { // Check if it is the 5th, 10th, 15th, etc. profile
+                return e + ((offs-0.6)/5) + 0.7; // Apply extra delta
+              }
+              return e + ((offs-0.6)/5);
+            });
 
             resData['SCA_middle_bin_time_obs_orig_start'] = resData['SCA_middle_bin_time_obs_orig'].slice();
             resData['SCA_middle_bin_time_obs_orig_stop'] = resData['SCA_middle_bin_time_obs_orig'].map(function(e){return e+offs;});

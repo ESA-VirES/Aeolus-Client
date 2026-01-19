@@ -180,7 +180,8 @@ SCA_middle_bin_cumulative_LOD_valid
                 "SCA_middle_bin_lr": {
                     uom: "sr",
                     colorscale: "viridis",
-                    extent: [0, 350], 
+                    extent: [0, 200], 
+                    maskParameter: 'SCA_middle_bin_lr_valid',
                 },
                 "SCA_middle_bin_lr_variance": {
                     uom: "sr⁻²",

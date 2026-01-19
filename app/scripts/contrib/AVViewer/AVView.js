@@ -769,6 +769,8 @@ define(['backbone.marionette',
                         MCA_time: ['MCA_time_obs_start', 'MCA_time_obs_stop'],
                         MLE_mie_altitude: ['SCA_mie_altitude_obs_top','MCA_mie_altitude_obs_bottom'],
                         MLE_time: ['MLE_time_obs_start', 'MLE_time_obs_stop'],
+                        MLE_SUB_time: ['MLE_SUB_time_obs_start', 'MLE_SUB_time_obs_stop'],
+                        MLE_SUB_rayleigh_altitude: ['MLE_SUB_rayleigh_altitude_obs_top', 'MLE_SUB_rayleigh_altitude_obs_bottom'],
                         rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
                         SCA_time: ['SCA_time_obs_start', 'SCA_time_obs_stop'],
                         SCA_middle_bin_altitude: ['SCA_middle_bin_altitude_obs_top', 'SCA_middle_bin_altitude_obs_bottom'],
@@ -810,35 +812,35 @@ define(['backbone.marionette',
                         },
                         MLE_SUB: {
                             parameters: [
-                                'rayleigh_altitude',
-                                'rayleigh_altitude_obs_top',
-                                'rayleigh_altitude_obs_bottom',
-                                'MLE_time_obs_start',
-                                'MLE_time_obs_stop',
-                                'L1B_start_time_obs',
-                                'L1B_centroid_time_obs',
-                                'MLE_time',
-                                'geoid_separation_obs',
-                                'L1B_num_of_meas_per_obs',
+                                'MLE_SUB_rayleigh_altitude',
+                                'MLE_SUB_rayleigh_altitude_obs_top',
+                                'MLE_SUB_rayleigh_altitude_obs_bottom',
+                                'MLE_SUB_time_obs_start',
+                                'MLE_SUB_time_obs_stop',
+                                //'L1B_start_time_obs',
+                                //'L1B_centroid_time_obs',
+                                'MLE_SUB_time',
+                                //'geoid_separation_obs',
+                                //'L1B_num_of_meas_per_obs',
                                 'MLE_SUB_extinction',
                                 'MLE_SUB_backscatter',
                                 'MLE_SUB_lidar_ratio',
                                 'MLE_SUB_extinction_valid',
                                 'MLE_SUB_backscatter_valid',
                                 'MLE_SUB_lr_valid',
-                                'longitude_of_DEM_intersection_obs',
-                                'latitude_of_DEM_intersection_obs',
-                                'altitude_of_DEM_intersection_obs',
-                                'albedo_off_nadir'
+                                //'longitude_of_DEM_intersection_obs',
+                                //'latitude_of_DEM_intersection_obs',
+                                //'altitude_of_DEM_intersection_obs',
+                                //'albedo_off_nadir'
                             ],
                             defaults: {
-                                yAxis: 'rayleigh_altitude',
+                                yAxis: 'MLE_SUB_rayleigh_altitude',
                                 colorAxis: 'MLE_SUB_extinction'
                             },
                             positionAlias: {
                                 'latitude': 'latitude_of_DEM_intersection_obs',
                                 'longitude': 'longitude_of_DEM_intersection_obs',
-                                'altitude': 'rayleigh_altitude'
+                                'altitude': 'MLE_SUB_rayleigh_altitude'
                             }
                         },
                         MCA: {
@@ -945,6 +947,7 @@ define(['backbone.marionette',
                                 'SCA_middle_bin_BER_valid',
                                 'SCA_middle_bin_mie_SNR_valid',
                                 'SCA_middle_bin_rayleigh_SNR_valid',
+                                'SCA_middle_bin_lr_valid',
                                 'SCA_middle_bin_extinction_error_bar_valid',
                                 'SCA_middle_bin_backscatter_error_bar_valid',
                                 'SCA_middle_bin_cumulative_LOD_valid',
@@ -962,7 +965,7 @@ define(['backbone.marionette',
                     },
                     sharedParameters: {
                         'time': [
-                            'MCA_time', 'SCA_time', 'SCA_middle_bin_time', 'MLE_time'
+                            'MCA_time', 'SCA_time', 'SCA_middle_bin_time', 'MLE_time', 'MLE_SUB_time'
                         ]
                     },
                     availableParameters: false

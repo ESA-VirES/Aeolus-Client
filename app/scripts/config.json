@@ -567,7 +567,7 @@
                 },
                 "SCA_middle_bin_lr": {
                     "name": "SCA middle bin lidar ratio",
-                    "range": [0, 350], 
+                    "range": [0, 200], 
                     "uom": "sr",
                     "colorscale": "viridis"
                 },
