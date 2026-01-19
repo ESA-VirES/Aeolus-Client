@@ -850,7 +850,10 @@ define([
                     'latitude_of_DEM_intersection_end'
                 ],
                 mie_time: ['mie_time_start', 'mie_time_end'],
-                rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end']
+                rayleigh_time: ['rayleigh_time_start', 'rayleigh_time_end'],
+                MLE_SUB_rayleigh_altitude: ['MLE_SUB_rayleigh_altitude_obs_top', 'MLE_SUB_rayleigh_altitude_obs_bottom'],
+                MLE_SUB_time: ['MLE_SUB_time_start', 'MLE_SUB_time_obs_end'],
+
             };
 
             var parameters = currProd.get('parameters');
@@ -1230,12 +1233,12 @@ define([
                     'MLE_SUB': {
                         lats: 'latitude_of_DEM_intersection_obs_orig',
                         lons: 'longitude_of_DEM_intersection_obs_orig',
-                        timeStart: 'MLE_SUB_time_obs_orig_start',
-                        timeStop: 'MLE_SUB_time_obs_orig_stop',
+                        timeStart: 'MLE_time_obs_orig_start',
+                        timeStop: 'MLE_time_obs_orig_stop',
                         xAxis:'time',
                         yAxis: ['rayleigh_altitude'],
                         combinedParameters: {
-                            rayleigh_altitude: ['rayleigh_altitude_obs_top', 'rayleigh_altitude_obs_bottom'],
+                            rayleigh_altitude: ['MLE_SUB_rayleigh_altitude_obs_top', 'MLE_SUB_rayleigh_altitude_obs_bottom'],
                             time: ['MLE_SUB_time_obs_start', 'MLE_SUB_time_obs_stop'],
                         },
                         jumps: 'sca_jumps',

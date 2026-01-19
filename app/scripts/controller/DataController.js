@@ -1794,12 +1794,28 @@
 
             resData['MLE_SUB_time_obs_start'] = resData['MLE_SUB_time_obs'].slice();
             resData['MLE_SUB_time_obs_stop'] = resData['MLE_SUB_time_obs'].map(function(e, i){
-              var binIndex = Math.floor(i / 24);
-              if ((binIndex + 1) % 5 === 0) { // Check if it is the 5th, 10th, 15th, etc. bin
+              var profileIndex = Math.floor(i / 24);
+              if ((profileIndex + 1) % 5 === 0) { // Check if it is the 5th, 10th, 15th, etc. profile
                 return e + ((offs-0.6)/5) + 0.7; // Apply extra delta
               }
               return e + ((offs-0.6)/5);
             });
+
+            // As MLE_SUB has 5 times more data points we need to expand the altitude data to match it
+            var rayleigh_altitude_obs_bottom_expanded = [];
+            var rayleigh_altitude_obs_top_expanded = [];
+            for (var i = 0; i < resData.rayleigh_altitude_obs_bottom.length; i += 24) {
+              var bottom_chunk = resData.rayleigh_altitude_obs_bottom.slice(i, i + 24);
+              var top_chunk = resData.rayleigh_altitude_obs_top.slice(i, i + 24);
+              for (var j = 0; j < 5; j++) {
+                rayleigh_altitude_obs_bottom_expanded = rayleigh_altitude_obs_bottom_expanded.concat(bottom_chunk);
+                rayleigh_altitude_obs_top_expanded = rayleigh_altitude_obs_top_expanded.concat(top_chunk);
+              }
+            }
+
+            resData.MLE_SUB_rayleigh_altitude_obs_bottom = rayleigh_altitude_obs_bottom_expanded;
+            resData.MLE_SUB_rayleigh_altitude_obs_top = rayleigh_altitude_obs_top_expanded;
+
 
             resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
             resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].map(function(e){return e+offs;});
@@ -1812,8 +1828,8 @@
 
             resData['MLE_SUB_time_obs_orig_start'] = resData['MLE_SUB_time_obs_orig'].slice();
             resData['MLE_SUB_time_obs_orig_stop'] = resData['MLE_SUB_time_obs_orig'].map(function(e, i){
-              var binIndex = Math.floor(i / 24);
-              if ((binIndex + 1) % 5 === 0) { // Check if it is the 5th, 10th, 15th, etc. bin
+              var profileIndex = Math.floor(i / 24);
+              if ((profileIndex + 1) % 5 === 0) { // Check if it is the 5th, 10th, 15th, etc. profile
                 return e + ((offs-0.6)/5) + 0.7; // Apply extra delta
               }
               return e + ((offs-0.6)/5);
