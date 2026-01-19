@@ -1547,6 +1547,18 @@
 
             ds.sca_data['SCA_middle_bin_extinction_valid'] = validityArray[7];
             ds.sca_data['SCA_middle_bin_backscatter_valid'] = validityArray[6];
+
+            // create combined validity flag of extinction and backscatter
+            ds.sca_data['SCA_middle_bin_lr_valid'] = [];
+            for (var f = 0; f < validityArray[7].length; f++) {
+              var combinedProf = [];
+              for (var p = 0; p < validityArray[7][f].length; p++) {
+                combinedProf.push(
+                  validityArray[7][f][p] && validityArray[6][f][p]
+                );
+              }
+              ds.sca_data['SCA_middle_bin_lr_valid'].push(combinedProf);
+            }
             /*
             ds.sca_data['SCA_middle_bin_BER_valid'] = validityArray[5];
             ds.sca_data['SCA_middle_bin_mie_SNR_valid'] = validityArray[4];
