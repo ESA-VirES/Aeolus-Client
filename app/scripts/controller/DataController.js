@@ -1793,7 +1793,13 @@
             resData['MLE_time_obs_stop'] = resData['MLE_time_obs'].map(function(e){return e+offs;});
 
             resData['MLE_SUB_time_obs_start'] = resData['MLE_SUB_time_obs'].slice();
-            resData['MLE_SUB_time_obs_stop'] = resData['MLE_SUB_time_obs'].map(function(e){return e+offs;});
+            resData['MLE_SUB_time_obs_stop'] = resData['MLE_SUB_time_obs'].map(function(e, i){
+              var binIndex = Math.floor(i / 24);
+              if ((binIndex + 1) % 5 === 0) { // Check if it is the 5th, 10th, 15th, etc. bin
+                return e + ((offs-0.6)/5) + 0.7; // Apply extra delta
+              }
+              return e + ((offs-0.6)/5);
+            });
 
             resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
             resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].map(function(e){return e+offs;});
@@ -1805,7 +1811,13 @@
             resData['MLE_time_obs_orig_stop'] = resData['MLE_time_obs_orig'].map(function(e){return e+offs;});
 
             resData['MLE_SUB_time_obs_orig_start'] = resData['MLE_SUB_time_obs_orig'].slice();
-            resData['MLE_SUB_time_obs_orig_stop'] = resData['MLE_SUB_time_obs_orig'].map(function(e){return e+offs;});
+            resData['MLE_SUB_time_obs_orig_stop'] = resData['MLE_SUB_time_obs_orig'].map(function(e, i){
+              var binIndex = Math.floor(i / 24);
+              if ((binIndex + 1) % 5 === 0) { // Check if it is the 5th, 10th, 15th, etc. bin
+                return e + ((offs-0.6)/5) + 0.7; // Apply extra delta
+              }
+              return e + ((offs-0.6)/5);
+            });
 
             resData['SCA_middle_bin_time_obs_orig_start'] = resData['SCA_middle_bin_time_obs_orig'].slice();
             resData['SCA_middle_bin_time_obs_orig_stop'] = resData['SCA_middle_bin_time_obs_orig'].map(function(e){return e+offs;});
