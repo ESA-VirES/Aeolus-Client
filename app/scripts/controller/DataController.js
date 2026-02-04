@@ -1492,20 +1492,20 @@
               }
             }
 
-            ds.sca_data['SCA_extinction_valid'] = validityArray[6];
-            ds.sca_data['SCA_backscatter_valid'] = validityArray[5];
+            ds.sca_data['SCA_extinction_valid'] = validityArray[7];
+            ds.sca_data['SCA_backscatter_valid'] = validityArray[6];
             // create combined validity flag of extinction and backscatter
             ds.sca_data['SCA_lr_valid'] = [];
             for (var f = 0; f < validityArray[6].length; f++) {
               var combinedProf = [];
               for (var p = 0; p < validityArray[6][f].length; p++) {
                 combinedProf.push(
-                  validityArray[6][f][p] && validityArray[5][f][p]
+                  validityArray[6][f][p] && validityArray[7][f][p]
                 );
               }
               ds.sca_data['SCA_lr_valid'].push(combinedProf);
             }
-            ds.sca_data['SCA_mie_SNR_valid'] = validityArray[4];
+            ds.sca_data['SCA_mie_SNR_valid'] = validityArray[5];
             /*
             ds.sca_data['SCA_rayleigh_SNR_valid'] = validityArray[4];
             ds.sca_data['SCA_extinction_error_bar_valid'] = validityArray[3];
@@ -1585,8 +1585,8 @@
                 validityArray[ba].push(profBoolArray[ba]);
               }
             }
-            ds.mle_data['MLE_extinction_valid'] = validityArray[5];
-            ds.mle_data['MLE_backscatter_valid'] = validityArray[4];
+            ds.mle_data['MLE_extinction_valid'] = validityArray[4];
+            ds.mle_data['MLE_backscatter_valid'] = validityArray[5];
             // create combined validity flag of extinction and backscatter
             ds.mle_data['MLE_lr_valid'] = [];
             for (var f = 0; f < validityArray[5].length; f++) {
@@ -1617,8 +1617,8 @@
                 validityArray[ba].push(profBoolArray[ba]);
               }
             }
-            ds.mle_sub_data['MLE_SUB_extinction_valid'] = validityArray[5];
-            ds.mle_sub_data['MLE_SUB_backscatter_valid'] = validityArray[4];
+            ds.mle_sub_data['MLE_SUB_extinction_valid'] = validityArray[4];
+            ds.mle_sub_data['MLE_SUB_backscatter_valid'] = validityArray[5];
             // create combined validity flag of extinction and backscatter
             ds.mle_sub_data['MLE_SUB_lr_valid'] = [];
             for (var f = 0; f < validityArray[5].length; f++) {
