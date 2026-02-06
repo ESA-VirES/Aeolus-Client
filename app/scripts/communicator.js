@@ -1,3 +1,5 @@
+/* global _, getISODateTimeString, saveProductStatus */
+
 (function() {
     'use strict';
 
@@ -23,9 +25,7 @@
                             console.log(event);
                     }
 
-                    if (typeof Piwik !== 'undefined') {
-                        this.trackEvents(event, param);
-                    }
+                    this.trackEvents(event, param);
 
                     // Track events to save current status of workspace to allow restoring
                     // when user visits again
@@ -71,6 +71,12 @@
 
             trackEvents: function(event, param){
 
+                // Check if the Matomo tracking has been loaded ...
+                if (typeof window.Matomo !== 'object' || !window.Matomo.getAsyncTracker) {return;}
+
+                // .. if so, get the configured global tracker.
+                var tracker = window.Matomo.getAsyncTracker();
+
                 var events_registered = [
                     'time:change', 'selection:changed',
                     'map:layer:change', 'analytics:set:filter'
@@ -78,8 +84,6 @@
 
                 if (events_registered.indexOf(event) > -1) {
 
-                    var u="//nix.eox.at/piwik/";
-                    var tracker = Piwik.getTracker( u+'piwik.php', 8 );
                     if(typeof USERVARIABLE !== 'undefined'){
                         tracker.setUserId(USERVARIABLE);
                     }
