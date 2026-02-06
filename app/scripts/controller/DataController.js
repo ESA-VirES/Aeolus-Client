@@ -184,6 +184,24 @@
                   'MCA_LOD',
                 ],
                 [
+                  'MLE_QC_flag',
+                  'MLE_time_obs_start',
+                  'MLE_time_obs_stop',
+                  'MLE_time',
+                  'MLE_extinction',
+                  'MLE_backscatter',
+                  'MLE_lidar_ratio',
+                ],
+                [
+                  'MLE_SUB_QC_flag',
+                  'MLE_SUB_time_obs_start',
+                  'MLE_SUB_time_obs_stop',
+                  'MLE_SUB_time',
+                  'MLE_SUB_extinction',
+                  'MLE_SUB_backscatter',
+                  'MLE_SUB_lidar_ratio',
+                ],
+                [
                   'rayleigh_altitude',
                   'rayleigh_altitude_obs_top',
                   'rayleigh_altitude_obs_bottom',
@@ -193,9 +211,11 @@
                   'SCA_QC_flag',
                   'SCA_extinction_variance',
                   'SCA_backscatter_variance',
+                  'SCA_lr_variance',
                   'SCA_LOD_variance',
                   'SCA_extinction',
                   'SCA_backscatter',
+                  'SCA_lr',
                   'SCA_LOD',
                   'SCA_SR',
                   'SCA_processing_qc_flag'
@@ -221,10 +241,12 @@
                   'SCA_middle_bin_altitude_obs_bottom',
                   'SCA_middle_bin_extinction_variance',
                   'SCA_middle_bin_backscatter_variance',
+                  'SCA_middle_bin_lr_variance',
                   'SCA_middle_bin_LOD_variance',
                   'SCA_middle_bin_BER_variance',
                   'SCA_middle_bin_extinction',
                   'SCA_middle_bin_backscatter',
+                  'SCA_middle_bin_lr',
                   'SCA_middle_bin_LOD',
                   'SCA_middle_bin_BER',
                   'SCA_middle_bin_processing_qc_flag'
@@ -403,8 +425,9 @@
                 'rayleigh_bin_quality_flag', 'rayleigh_HLOS_wind_speed',
                 // L2A
                 'rayleigh_altitude_obs',
-                'SCA_backscatter','SCA_QC_flag',
-                'SCA_extinction_variance', 'SCA_backscatter_variance','SCA_LOD_variance',
+                'SCA_backscatter', 'SCA_lr', 'SCA_QC_flag',
+                'SCA_extinction_variance', 'SCA_backscatter_variance', 'SCA_lr_variance',
+                'SCA_LOD_variance',
                 'mie_altitude_obs','MCA_LOD',
                 'SCA_processing_qc_flag', 'SCA_middle_bin_processing_qc_flag',
                 // L2B, L2C
@@ -555,7 +578,8 @@
                       false,
                       false
                   ]
-              },'SCA_middle_bin_processing_qc_flag': {
+              },
+              'SCA_middle_bin_processing_qc_flag': {
                   values: [
                       ['Bit 1', 'Extinction; data valid 1, otherwise 0'],
                       ['Bit 2', 'Backscatter; data valid 1, otherwise 0'],
@@ -575,6 +599,51 @@
                       false,
                       false,
                       false
+                  ]
+              },
+              'MLE_QC_flag': {
+                  values: [
+                    ['Bit 8', 'Not used;'],
+                    ['Bit 7', 'Not used;'],
+                    ['Bit 6', 'Beta error bar valid; data valid 1, otherwise 0'],
+                    ['Bit 5', 'Alpha error bar valid; data valid 1, otherwise 0'],
+                    ['Bit 4', 'Ray SNR valid; data valid 1, otherwise 0'],
+                    ['Bit 3', 'Mie SNR valid; data valid 1, otherwise 0'],
+                    ['Bit 2', 'Beta valid; data valid 1, otherwise 0'],
+                    ['Bit 1', 'Alpha valid; data valid 1, otherwise 0'],
+                  ],
+                  enabled: [
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      true,
+                      true
+                  ],
+
+              },
+              'MLE_SUB_QC_flag': {
+                  values: [
+                    ['Bit 8', 'Not used;'],
+                    ['Bit 7', 'Not used;'],
+                    ['Bit 6', 'Beta error bar valid; data valid 1, otherwise 0'],
+                    ['Bit 5', 'Alpha error bar valid; data valid 1, otherwise 0'],
+                    ['Bit 4', 'Ray SNR valid; data valid 1, otherwise 0'],
+                    ['Bit 3', 'Mie SNR valid; data valid 1, otherwise 0'],
+                    ['Bit 2', 'Beta valid; data valid 1, otherwise 0'],
+                    ['Bit 1', 'Alpha valid; data valid 1, otherwise 0'],
+                  ],
+                   enabled: [
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      true,
+                      true
                   ]
               },
               'rayleigh_wind_result_QC_flags_1': {
@@ -1213,19 +1282,23 @@
               var diffV = [
                 'SCA_extinction_variance',
                 'SCA_backscatter_variance',
+                'SCA_lr_variance',
                 'SCA_LOD_variance',
                 'SCA_middle_bin_extinction_variance',
                 'SCA_middle_bin_backscatter_variance',
                 'SCA_middle_bin_LOD_variance',
                 'SCA_middle_bin_BER_variance',
+                'SCA_middle_bin_lr_variance',
                 'SCA_extinction',
                 'SCA_backscatter',
+                'SCA_lr',
                 'SCA_LOD',
                 'SCA_SR',
                 'SCA_middle_bin_extinction',
                 'SCA_middle_bin_backscatter',
                 'SCA_middle_bin_LOD',
                 'SCA_middle_bin_BER',
+                'SCA_middle_bin_lr',
                 'MCA_clim_BER',
                 'MCA_extinction',
                 'MCA_LOD',
@@ -1421,6 +1494,17 @@
 
             ds.sca_data['SCA_extinction_valid'] = validityArray[7];
             ds.sca_data['SCA_backscatter_valid'] = validityArray[6];
+            // create combined validity flag of extinction and backscatter
+            ds.sca_data['SCA_lr_valid'] = [];
+            for (var f = 0; f < validityArray[6].length; f++) {
+              var combinedProf = [];
+              for (var p = 0; p < validityArray[6][f].length; p++) {
+                combinedProf.push(
+                  validityArray[6][f][p] && validityArray[7][f][p]
+                );
+              }
+              ds.sca_data['SCA_lr_valid'].push(combinedProf);
+            }
             ds.sca_data['SCA_mie_SNR_valid'] = validityArray[5];
             /*
             ds.sca_data['SCA_rayleigh_SNR_valid'] = validityArray[4];
@@ -1463,6 +1547,18 @@
 
             ds.sca_data['SCA_middle_bin_extinction_valid'] = validityArray[7];
             ds.sca_data['SCA_middle_bin_backscatter_valid'] = validityArray[6];
+
+            // create combined validity flag of extinction and backscatter
+            ds.sca_data['SCA_middle_bin_lr_valid'] = [];
+            for (var f = 0; f < validityArray[7].length; f++) {
+              var combinedProf = [];
+              for (var p = 0; p < validityArray[7][f].length; p++) {
+                combinedProf.push(
+                  validityArray[7][f][p] && validityArray[6][f][p]
+                );
+              }
+              ds.sca_data['SCA_middle_bin_lr_valid'].push(combinedProf);
+            }
             /*
             ds.sca_data['SCA_middle_bin_BER_valid'] = validityArray[5];
             ds.sca_data['SCA_middle_bin_mie_SNR_valid'] = validityArray[4];
@@ -1471,6 +1567,69 @@
             ds.sca_data['SCA_middle_bin_backscatter_error_bar_valid'] = validityArray[1];
             ds.sca_data['SCA_middle_bin_cumulative_LOD_valid'] = validityArray[0];
             */
+          }
+          if(ds.mle_data.hasOwnProperty('MLE_QC_flag')){
+            var validityArray = [[],[],[],[],[],[],[],[]];
+
+            for (var ff = 0; ff < ds.mle_data.MLE_QC_flag.length; ff++) {
+              var profBoolArray = [[],[],[],[],[],[],[],[]];
+              var currProf = ds.mle_data.MLE_QC_flag[ff];
+              for (var pp = 0; pp < currProf.length; pp++) {
+                var boolArray = conversionFunction(currProf[pp], 8);
+
+                for (var bt = 0; bt < boolArray.length; bt++) {
+                  profBoolArray[bt].push(boolArray[bt]);
+                }
+              }
+              for (var ba = 0; ba < profBoolArray.length; ba++) {
+                validityArray[ba].push(profBoolArray[ba]);
+              }
+            }
+            ds.mle_data['MLE_extinction_valid'] = validityArray[4];
+            ds.mle_data['MLE_backscatter_valid'] = validityArray[5];
+            // create combined validity flag of extinction and backscatter
+            ds.mle_data['MLE_lr_valid'] = [];
+            for (var f = 0; f < validityArray[5].length; f++) {
+              var combinedProf = [];
+              for (var p = 0; p < validityArray[7][f].length; p++) {
+                combinedProf.push(
+                  validityArray[5][f][p] && validityArray[4][f][p]
+                );
+              }
+              ds.mle_data['MLE_lr_valid'].push(combinedProf);
+            }
+          }
+
+          if(ds.mle_sub_data.hasOwnProperty('MLE_SUB_QC_flag')){
+            var validityArray = [[],[],[],[],[],[],[],[]];
+
+            for (var ff = 0; ff < ds.mle_sub_data.MLE_SUB_QC_flag.length; ff++) {
+              var profBoolArray = [[],[],[],[],[],[],[],[]];
+              var currProf = ds.mle_sub_data.MLE_SUB_QC_flag[ff];
+              for (var pp = 0; pp < currProf.length; pp++) {
+                var boolArray = conversionFunction(currProf[pp], 8);
+
+                for (var bt = 0; bt < boolArray.length; bt++) {
+                  profBoolArray[bt].push(boolArray[bt]);
+                }
+              }
+              for (var ba = 0; ba < profBoolArray.length; ba++) {
+                validityArray[ba].push(profBoolArray[ba]);
+              }
+            }
+            ds.mle_sub_data['MLE_SUB_extinction_valid'] = validityArray[4];
+            ds.mle_sub_data['MLE_SUB_backscatter_valid'] = validityArray[5];
+            // create combined validity flag of extinction and backscatter
+            ds.mle_sub_data['MLE_SUB_lr_valid'] = [];
+            for (var f = 0; f < validityArray[5].length; f++) {
+              var combinedProf = [];
+              for (var p = 0; p < validityArray[5][f].length; p++) {
+                combinedProf.push(
+                  validityArray[5][f][p] && validityArray[4][f][p]
+                );
+              }
+              ds.mle_sub_data['MLE_SUB_lr_valid'].push(combinedProf);
+            }
           }
 
 
@@ -1613,6 +1772,8 @@
           // Check if data is actually available
           if((resData.hasOwnProperty('SCA_time_obs') && resData['SCA_time_obs'].length > 0) && 
              (resData.hasOwnProperty('MCA_time_obs') && resData['MCA_time_obs'].length > 0) && 
+             (resData.hasOwnProperty('MLE_time_obs') && resData['MLE_time_obs'].length > 0) && 
+             (resData.hasOwnProperty('MLE_SUB_time_obs') && resData['MLE_SUB_time_obs'].length > 0) && 
              (resData.hasOwnProperty('SCA_middle_bin_time_obs') && resData['SCA_middle_bin_time_obs'].length > 0)) {
 
             var offs = 12.01;
@@ -1628,17 +1789,59 @@
             resData['MCA_time_obs_start'] = resData['MCA_time_obs'].slice();
             resData['MCA_time_obs_stop'] = resData['MCA_time_obs'].map(function(e){return e+offs;});
 
+            resData['MLE_time_obs_start'] = resData['MLE_time_obs'].slice();
+            resData['MLE_time_obs_stop'] = resData['MLE_time_obs'].map(function(e){return e+offs;});
+
+            resData['MLE_SUB_time_obs_start'] = resData['MLE_SUB_time_obs'].slice();
+            resData['MLE_SUB_time_obs_stop'] = resData['MLE_SUB_time_obs'].map(function(e, i){
+              var profileIndex = Math.floor(i / 24);
+              if ((profileIndex + 1) % 5 === 0) { // Check if it is the 5th, 10th, 15th, etc. profile
+                return e + ((offs-0.6)/5) + 0.7; // Apply extra delta
+              }
+              return e + ((offs-0.6)/5);
+            });
+
+            // As MLE_SUB has 5 times more data points we need to expand the altitude data to match it
+            var rayleigh_altitude_obs_bottom_expanded = [];
+            var rayleigh_altitude_obs_top_expanded = [];
+            for (var i = 0; i < resData.rayleigh_altitude_obs_bottom.length; i += 24) {
+              var bottom_chunk = resData.rayleigh_altitude_obs_bottom.slice(i, i + 24);
+              var top_chunk = resData.rayleigh_altitude_obs_top.slice(i, i + 24);
+              for (var j = 0; j < 5; j++) {
+                rayleigh_altitude_obs_bottom_expanded = rayleigh_altitude_obs_bottom_expanded.concat(bottom_chunk);
+                rayleigh_altitude_obs_top_expanded = rayleigh_altitude_obs_top_expanded.concat(top_chunk);
+              }
+            }
+
+            resData.MLE_SUB_rayleigh_altitude_obs_bottom = rayleigh_altitude_obs_bottom_expanded;
+            resData.MLE_SUB_rayleigh_altitude_obs_top = rayleigh_altitude_obs_top_expanded;
+
+
             resData['SCA_time_obs_orig_start'] = resData['SCA_time_obs_orig'].slice();
             resData['SCA_time_obs_orig_stop'] = resData['SCA_time_obs_orig'].map(function(e){return e+offs;});
 
             resData['MCA_time_obs_orig_start'] = resData['MCA_time_obs_orig'].slice();
             resData['MCA_time_obs_orig_stop'] = resData['MCA_time_obs_orig'].map(function(e){return e+offs;});
 
+            resData['MLE_time_obs_orig_start'] = resData['MLE_time_obs_orig'].slice();
+            resData['MLE_time_obs_orig_stop'] = resData['MLE_time_obs_orig'].map(function(e){return e+offs;});
+
+            resData['MLE_SUB_time_obs_orig_start'] = resData['MLE_SUB_time_obs_orig'].slice();
+            resData['MLE_SUB_time_obs_orig_stop'] = resData['MLE_SUB_time_obs_orig'].map(function(e, i){
+              var profileIndex = Math.floor(i / 24);
+              if ((profileIndex + 1) % 5 === 0) { // Check if it is the 5th, 10th, 15th, etc. profile
+                return e + ((offs-0.6)/5) + 0.7; // Apply extra delta
+              }
+              return e + ((offs-0.6)/5);
+            });
+
             resData['SCA_middle_bin_time_obs_orig_start'] = resData['SCA_middle_bin_time_obs_orig'].slice();
             resData['SCA_middle_bin_time_obs_orig_stop'] = resData['SCA_middle_bin_time_obs_orig'].map(function(e){return e+offs;});
 
             var lonStep = 15;
             var latStep = 15;
+
+
 
             // Separeate jump calculation for mie and rayleig
             if(resData.hasOwnProperty('sca_mask_orig')){
@@ -2327,6 +2530,8 @@
           options[fields] = fieldsList[collectionId][fields];
           options.mca_fields = fieldsList[collectionId].mca_fields;
           options.sca_fields = fieldsList[collectionId].sca_fields;
+          options.mle_fields = fieldsList[collectionId].mle_fields;
+          options.mle_sub_fields = fieldsList[collectionId].mle_sub_fields;
         } else if(collectionId === 'ALD_U_N_2B'  && gran === 'group'){
           $.extend(options, requestOptions.l2b_group);
         } else if(collectionId === 'ALD_U_N_2C'  && gran === 'group'){
@@ -2402,7 +2607,6 @@
 
 
         options.mimeType = 'application/msgpack';
-
         var body = wps_dataRequestTmpl(options);
 
         if(this.xhr !== null){

@@ -4,7 +4,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
 
     var swarm_model = Backbone.Model.extend({data:[]});
     return {
-        version: '2.1.4',
+        version: '2.1.5',
         objects: new ObjectStore(),
         selections: new ObjectStore(),
         baseLayers: new Backbone.Collection(),
@@ -18,7 +18,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
             'measurement': ['measurement']
           },
           'ALD_U_N_2A': {
-            'observation': ['observation', 'sca', 'mca'],
+            'observation': ['observation', 'sca', 'mca', 'mle'],
             'group': ['group', 'measurement']
           },
           'ALD_U_N_2B': {
@@ -106,6 +106,10 @@ SCA_middle_bin_backscatter_error_bar_valid
 SCA_middle_bin_cumulative_LOD_valid
 */
             'ALD_U_N_2A': {
+                'altitude_of_DEM_intersection_obs': {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
                 'SCA_extinction': {
                     uom: '10-6 * m^-1',
                     colorscale: 'viridis',
@@ -124,10 +128,21 @@ SCA_middle_bin_cumulative_LOD_valid
                     filterExtent: [-1,1],
                     maskParameter: 'SCA_backscatter_valid',
                 },
+                "SCA_lr": {
+                    uom: "sr",
+                    colorscale: "viridis",
+                    extent: [0, 350], 
+                    maskParameter: 'SCA_lr_valid',
+                },
                 'SCA_backscatter_variance': {
                     uom: 'm^-2*sr^-2',
                     nullValue: -1,
                     filterExtent: [0,1e-13]
+                },
+                "SCA_lr_variance": {
+                    uom: "sr⁻²",
+                    colorscale: "viridis",
+                    extent: [0, 26000],
                 },
                 'SCA_LOD_variance': {
                     nullValue: -1
@@ -162,6 +177,17 @@ SCA_middle_bin_cumulative_LOD_valid
                 'SCA_middle_bin_backscatter': {
                     maskParameter: 'SCA_middle_bin_backscatter_valid',
                 },
+                "SCA_middle_bin_lr": {
+                    uom: "sr",
+                    colorscale: "viridis",
+                    extent: [0, 200], 
+                    maskParameter: 'SCA_middle_bin_lr_valid',
+                },
+                "SCA_middle_bin_lr_variance": {
+                    uom: "sr⁻²",
+                    colorscale: "viridis",
+                    extent: [0, 26000],
+                },
                 /*
                 'SCA_middle_bin_extinction_variance',
                 'SCA_middle_bin_backscatter_variance',
@@ -187,6 +213,61 @@ SCA_middle_bin_cumulative_LOD_valid
                 'MCA_time_obs_stop': {
                     scaleFormat: 'time',
                     timeFormat: 'MJD2000_S'
+                },
+                'MLE_time_obs_start': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'MLE_time_obs_stop': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'MLE_extinction': {
+                    uom: '10-6 * m^-1',
+                    colorscale: 'viridis',
+                    maskParameter: 'MLE_extinction_valid',
+                    extent: [0, 400]
+                },
+                'MLE_backscatter': {
+                    uom: '10-6 * m^-1* sr^-1',
+                    colorscale: 'viridis',
+                    maskParameter: 'MLE_backscatter_valid',
+                    extent: [-20, 20]
+                },
+                'MLE_lidar_ratio': {
+                    uom: '10-6 * m^-1* sr^-1',
+                    colorscale: 'viridis',
+                    extent: [0, 80],
+                    maskParameter: 'MLE_lr_valid'
+                },
+                'MLE_QC_flag': {
+                },
+
+                'MLE_SUB_time_obs_start': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'MLE_SUB_time_obs_stop': {
+                    scaleFormat: 'time',
+                    timeFormat: 'MJD2000_S'
+                },
+                'MLE_SUB_extinction': {
+                    uom: '10-6 * m^-1',
+                    colorscale: 'viridis',
+                    maskParameter: 'MLE_SUB_extinction_valid',
+                    extent: [0, 400]
+                },
+                'MLE_SUB_backscatter': {
+                    uom: '10-6 * m^-1* sr^-1',
+                    colorscale: 'viridis',
+                    maskParameter: 'MLE_SUB_backscatter_valid',
+                    extent: [-20, 20]
+                },
+                'MLE_SUB_lidar_ratio': {
+                    uom: 'sr',
+                    colorscale: 'viridis',
+                    extent: [0, 80],
+                    maskParameter: 'MLE_SUB_lr_valid'
                 },
 
                 // L2A Group
@@ -229,6 +310,10 @@ SCA_middle_bin_cumulative_LOD_valid
                     modifiedUOM: 'km'
                 },
                 rayleigh_altitude_obs: {
+                    modifier: 'x*1E-3',
+                    modifiedUOM: 'km'
+                },
+                SCA_middle_bin_altitude_obs: {
                     modifier: 'x*1E-3',
                     modifiedUOM: 'km'
                 },
@@ -764,14 +849,30 @@ SCA_middle_bin_cumulative_LOD_valid
               'MCA_extinction',
               'MCA_LOD',
             ],
+            'mle_fields': [
+              'MLE_QC_flag',
+              'MLE_time_obs',
+              'MLE_extinction',
+              'MLE_backscatter',
+              'MLE_lidar_ratio',
+            ],
+            'mle_sub_fields': [
+              'MLE_SUB_QC_flag',
+              'MLE_SUB_time_obs',
+              'MLE_SUB_extinction',
+              'MLE_SUB_backscatter',
+              'MLE_SUB_lidar_ratio',
+            ],
             'sca_fields': [
               'SCA_time_obs',
               'SCA_QC_flag',
               'SCA_extinction_variance',
               'SCA_backscatter_variance',
+              'SCA_lr_variance',
               'SCA_LOD_variance',
               'SCA_extinction',
               'SCA_backscatter',
+              'SCA_lr',
               'SCA_LOD',
               'SCA_SR',
               'SCA_middle_bin_altitude_obs',
@@ -779,8 +880,10 @@ SCA_middle_bin_cumulative_LOD_valid
               'SCA_middle_bin_backscatter_variance',
               'SCA_middle_bin_LOD_variance',
               'SCA_middle_bin_BER_variance',
+              'SCA_middle_bin_lr_variance',
               'SCA_middle_bin_extinction',
               'SCA_middle_bin_backscatter',
+              'SCA_middle_bin_lr',
               'SCA_middle_bin_LOD',
               'SCA_middle_bin_BER',
               'SCA_processing_qc_flag',
