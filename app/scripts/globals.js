@@ -3,7 +3,7 @@
 define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
 
     var swarm_model = Backbone.Model.extend({data:[]});
-    return {
+    var ret = {
         version: '2.1.5',
         objects: new ObjectStore(),
         selections: new ObjectStore(),
@@ -1484,4 +1484,21 @@ SCA_middle_bin_cumulative_LOD_valid
             'electric','magma','plasma', 'redblue', 'rdylbu'
         ]
     };
+
+    var idsToClone = ['ALD_U_N_1B', 'ALD_U_N_2A', 'ALD_U_N_2B', 'ALD_U_N_2C'];
+    for (var i = 0; i < idsToClone.length; i++) {
+        var id = idsToClone[i];
+        var eofId = id + '_EOF';
+        if (ret.downloadMatrix[id]) {
+            ret.downloadMatrix[eofId] = ret.downloadMatrix[id];
+        }
+        if (ret.dataSettings[id]) {
+            ret.dataSettings[eofId] = ret.dataSettings[id];
+        }
+        if (ret.fieldList[id]) {
+            ret.fieldList[eofId] = ret.fieldList[id];
+        }
+    }
+
+    return ret;
 });
