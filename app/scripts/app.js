@@ -289,8 +289,8 @@ var VECTOR_BREAKDOWN = {};
                     if (collectionsToClone.indexOf(product.name) !== -1) {
                         var newProduct = JSON.parse(JSON.stringify(product));
                         newProduct.name = product.name + " (end of life)";
-                        newProduct.views[0].id = newProduct.views[0].id + "_EOF";
-                        newProduct.download.id = newProduct.download.id + "_EOF";
+                        newProduct.views[0].id = newProduct.views[0].id + "_EOL";
+                        newProduct.download.id = newProduct.download.id + "_EOL";
                         newProduct.visible = false;
                         newProducts.push(newProduct);
                     }

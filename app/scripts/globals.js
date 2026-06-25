@@ -1488,7 +1488,7 @@ SCA_middle_bin_cumulative_LOD_valid
     var idsToClone = ['ALD_U_N_1B', 'ALD_U_N_2A', 'ALD_U_N_2B', 'ALD_U_N_2C'];
     for (var i = 0; i < idsToClone.length; i++) {
         var id = idsToClone[i];
-        var eofId = id + '_EOF';
+        var eofId = id + '_EOL';
         if (ret.downloadMatrix[id]) {
             ret.downloadMatrix[eofId] = ret.downloadMatrix[id];
         }
