@@ -1124,6 +1124,7 @@ define([
 
         createL2Curtains: function(data, cov_id, createWallPrimitives){
 
+            var originalCovId = cov_id.replace('_EOL', '');
             createWallPrimitives = defaultFor(createWallPrimitives, true);
             var currProd = globals.products.find(
                 function(p){return p.get('download').id === cov_id;}
@@ -1135,7 +1136,7 @@ define([
             // TODO: If group collection is selected for now we do not create
             // curtains unless it is group granularity of L2A
             if(currProd.get('granularity') === 'group' &&
-                currProd.get('download').id !== 'ALD_U_N_2A'){
+                originalCovId !== 'ALD_U_N_2A'){
                 if(currProd.hasOwnProperty('curtains')){
                     currProd.curtains.removeAll();
                     curtainCollection = currProd.curtains;
@@ -1325,13 +1326,13 @@ define([
             var currPar;
             var modifier = 0;
 
-            if(cov_id === 'ALD_U_N_2B' || cov_id === 'ALD_U_N_2C'){
+            if(originalCovId === 'ALD_U_N_2B' || originalCovId === 'ALD_U_N_2C'){
                 modifier = 24;
-            } else if(cov_id === 'ALD_U_N_2A'){
+            } else if(originalCovId === 'ALD_U_N_2A'){
                 modifier = 2;
             }
 
-            if(cov_id === 'AUX_MET_12'){
+            if(originalCovId === 'AUX_MET_12'){
                 modifier = 0;
                 if(band.indexOf('off_nadir') !== -1){
                     currPar = {
@@ -1366,32 +1367,32 @@ define([
                         signCross: 'nadirSignCross'
                     };
                 }
-            } else if (band.startsWith('SCA_middle_bin')){
-                currPar = params[cov_id]['SCA_middle_bin'];
+            if(band.startsWith('SCA_middle_bin')){
+                currPar = params[originalCovId]['SCA_middle_bin'];
                 currPar.colorAxis = [band];
             } else if (band.startsWith('SCA_')){
-                currPar = params[cov_id]['SCA'];
+                currPar = params[originalCovId]['SCA'];
                 currPar.colorAxis = [band];
             } else if (band.startsWith('MCA_')){
-                currPar = params[cov_id]['MCA'];
+                currPar = params[originalCovId]['MCA'];
                 currPar.colorAxis = [band];
             } else if (band.startsWith('MLE_SUB_')){
-                currPar = params[cov_id]['MLE_SUB'];
+                currPar = params[originalCovId]['MLE_SUB'];
                 currPar.colorAxis = [band];
             } else if (band.startsWith('MLE_')){
-                currPar = params[cov_id]['MLE'];
+                currPar = params[originalCovId]['MLE'];
                 currPar.colorAxis = [band];
             } else if (band.startsWith('group_')){
-                currPar = params[cov_id]['group'];
+                currPar = params[originalCovId]['group'];
                 currPar.colorAxis = [band];
             }else if (band.startsWith('mie_wind_result') || band.startsWith('mie_assimilation') ){
-                currPar = params[cov_id]['mie_wind_result'];
+                currPar = params[originalCovId]['mie_wind_result'];
                 currPar.colorAxis = [band];
             }  else if (band.startsWith('rayleigh_wind_result') || band.startsWith('rayleigh_assimilation') ){
-                currPar = params[cov_id]['rayleigh_wind_result'];
+                currPar = params[originalCovId]['rayleigh_wind_result'];
                 currPar.colorAxis = [band];
             } else {
-                currPar = params[cov_id][band];
+                currPar = params[originalCovId][band];
             }
 
             this.graph.renderSettings.combinedParameters = currPar.combinedParameters;
@@ -1411,7 +1412,7 @@ define([
                     par += '_obs';
                 }
                 // For L2B and L2C we use the combined parameter as reference
-                if(cov_id === 'ALD_U_N_2B' || cov_id === 'ALD_U_N_2C'){
+                if(originalCovId === 'ALD_U_N_2B' || originalCovId === 'ALD_U_N_2C'){
                     if(currPar.combinedParameters.hasOwnProperty(par)){
                         par = currPar.combinedParameters[par][0];
                     }

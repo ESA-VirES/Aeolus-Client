@@ -1351,8 +1351,8 @@
           var lat_end = [];
           var lon_start = [];
           var lon_end = [];
-          var gD = data.ALD_U_N_2A.group_data;
-          var oD = data.ALD_U_N_2A.observation_data;
+          var gD = data[collectionId].group_data;
+          var oD = data[collectionId].observation_data;
           // TODO: Get also lat lon obs data
 
           if( $.isEmptyObject(gD) || $.isEmptyObject(oD) ){
