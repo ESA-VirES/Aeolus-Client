@@ -490,7 +490,23 @@ var VECTOR_BREAKDOWN = {};
                 // service version the datasettings are coming from
                 if(!isNaN(numberSV) && numberSV>1.4 && 
                     localStorage.getItem('dataSettings') !== null){
-                    globals.dataSettings = JSON.parse(localStorage.getItem('dataSettings'));
+                    var savedDataSettings = JSON.parse(localStorage.getItem('dataSettings'));
+                    
+                    var idsToClone = ['ALD_U_N_1B', 'ALD_U_N_2A', 'ALD_U_N_2B', 'ALD_U_N_2C'];
+                    for (var i = 0; i < idsToClone.length; i++) {
+                        var id = idsToClone[i];
+                        var eolId = id + '_EOL';
+                        if (savedDataSettings[id] && !savedDataSettings[eolId]) {
+                            savedDataSettings[eolId] = JSON.parse(JSON.stringify(savedDataSettings[id]));
+                        }
+                    }
+
+                    for(var prodId in globals.dataSettings){
+                        if(!savedDataSettings.hasOwnProperty(prodId)){
+                            savedDataSettings[prodId] = globals.dataSettings[prodId];
+                        }
+                    }
+                    globals.dataSettings = savedDataSettings;
                     // Check if ADAM albedo is correctly loaded
                     if(globals.dataSettings.hasOwnProperty('ADAM_albedo')){
                         if(globals.dataSettings['ADAM_albedo'].hasOwnProperty('nadir')){
