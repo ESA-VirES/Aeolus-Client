@@ -60,7 +60,7 @@
 
                 // Special filtering for L2A related to having group visualization
                 // also on globe
-                if(pId === 'ALD_U_N_2A'){
+                if(pId.indexOf('ALD_U_N_2A') !== -1){
                     var selected = null;
                     _.each(keys, function(key){
                         if(options[key].selected){
@@ -90,7 +90,7 @@
                 // TODO: Make sure once data is loaded to only allow selection
                 // or to change selection of parameters that are available in the data
 
-                if(granularity !== 'group' || pId === 'ALD_U_N_2A'){
+                if(granularity !== 'group' || pId.indexOf('ALD_U_N_2A') !== -1){
                     // Filter out unavailable data parameters
                     /*var currdata = globals.swarm.get('data');
                     if(!$.isEmptyObject(currdata)){
@@ -342,7 +342,7 @@
                             var pId = that.model.get("download").id;
                             // Switch between group and observation parameters
                             // when switching l2a granularity
-                            if(pId === 'ALD_U_N_2A'){
+                            if(pId.indexOf('ALD_U_N_2A') !== -1){
                                 var options = that.model.get("parameters");
                                 var keys = _.keys(options);
                                 var selected = null;
@@ -369,7 +369,7 @@
                                 }
                             }
                             // If group granularity is selected we hide some things
-                            if(granularity === 'group' && pId !== 'ALD_U_N_2A'){
+                            if(granularity === 'group' && pId.indexOf('ALD_U_N_2A') === -1){
                                 that.disableInputs();
                             } else {
                                 that.enableInputs();

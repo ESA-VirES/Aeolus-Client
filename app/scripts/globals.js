@@ -1488,15 +1488,15 @@ SCA_middle_bin_cumulative_LOD_valid
     var idsToClone = ['ALD_U_N_1B', 'ALD_U_N_2A', 'ALD_U_N_2B', 'ALD_U_N_2C'];
     for (var i = 0; i < idsToClone.length; i++) {
         var id = idsToClone[i];
-        var eofId = id + '_EOL';
+        var eolId = id + '_EOL';
         if (ret.downloadMatrix[id]) {
-            ret.downloadMatrix[eofId] = ret.downloadMatrix[id];
+            ret.downloadMatrix[eolId] = JSON.parse(JSON.stringify(ret.downloadMatrix[id]));
         }
         if (ret.dataSettings[id]) {
-            ret.dataSettings[eofId] = ret.dataSettings[id];
+            ret.dataSettings[eolId] = JSON.parse(JSON.stringify(ret.dataSettings[id]));
         }
         if (ret.fieldList[id]) {
-            ret.fieldList[eofId] = ret.fieldList[id];
+            ret.fieldList[eolId] = JSON.parse(JSON.stringify(ret.fieldList[id]));
         }
     }
 

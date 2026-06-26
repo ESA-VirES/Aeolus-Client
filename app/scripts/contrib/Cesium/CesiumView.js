@@ -120,7 +120,7 @@ define([
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
                         //this.graph.loadData(data[idKeys[i]]);
-                        if(idKeys[i] === 'ALD_U_N_1B'){
+                        if(idKeys[i].indexOf('ALD_U_N_1B') !== -1){
                             that.createCurtains(data[idKeys[i]], idKeys[i], false);
                         } else if (idKeys[i].includes('ALD_U_N_2')){
                             that.createL2Curtains(data[idKeys[i]], idKeys[i], false);
@@ -643,7 +643,7 @@ define([
             if (Object.keys(data).length){
                 var idKeys = Object.keys(data);
                 for (var i = idKeys.length - 1; i >= 0; i--) {
-                    if(idKeys[i] === 'ALD_U_N_1B'){
+                    if(idKeys[i].indexOf('ALD_U_N_1B') !== -1){
                         this.createCurtains(data[idKeys[i]], idKeys[i]);
                     } else if (idKeys[i].includes('ALD_U_N_2')){
                         this.createL2Curtains(data[idKeys[i]], idKeys[i]);
@@ -684,7 +684,7 @@ define([
                     //this.createDataFeatures(data, 'pointcollection', 'band');
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
-                        if(idKeys[i] === 'ALD_U_N_1B'){
+                        if(idKeys[i].indexOf('ALD_U_N_1B') !== -1){
                             this.createCurtains(data[idKeys[i]], idKeys[i]);
                         } else if (idKeys[i].includes('ALD_U_N_2')){
                             this.createL2Curtains(data[idKeys[i]], idKeys[i]);
@@ -718,10 +718,10 @@ define([
                 if (Object.keys(data).length){
                     var idKeys = Object.keys(data);
                     for (var i = idKeys.length - 1; i >= 0; i--) {
-                        if(idKeys[i] !== 'ALD_U_N_1B' && 
-                           idKeys[i] !== 'ALD_U_N_2A' && 
-                           idKeys[i] !== 'ALD_U_N_2B' && 
-                           idKeys[i] !== 'ALD_U_N_2C'){
+                        if(idKeys[i].indexOf('ALD_U_N_1B') === -1 && 
+                           idKeys[i].indexOf('ALD_U_N_2A') === -1 && 
+                           idKeys[i].indexOf('ALD_U_N_2B') === -1 && 
+                           idKeys[i].indexOf('ALD_U_N_2C') === -1){
                             this.createPointCollection(data[idKeys[i]], idKeys[i]);
                         }
                     }
@@ -2588,7 +2588,7 @@ define([
             if (Object.keys(data).length){
                 var idKeys = Object.keys(data);
                 for (var i = idKeys.length - 1; i >= 0; i--) {
-                    if(idKeys[i] === 'ALD_U_N_1B'){
+                    if(idKeys[i].indexOf('ALD_U_N_1B') !== -1){
                         this.createCurtains(data[idKeys[i]], idKeys[i]);
                     } else if (idKeys[i].includes('ALD_U_N_2')){
                         this.createL2Curtains(data[idKeys[i]], idKeys[i]);
@@ -2612,7 +2612,7 @@ define([
                     var covid = product.get('download').id;
                     var data = globals.swarm.get('data')[covid];
 
-                     if(covid === 'ALD_U_N_1B'){
+                     if(covid.indexOf('ALD_U_N_1B') !== -1){
                         this.createCurtains(data, covid);
                     } else if ( covid.includes('ALD_U_N_2') ){
                         this.createL2Curtains(data, covid);

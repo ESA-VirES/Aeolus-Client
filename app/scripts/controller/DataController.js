@@ -1102,6 +1102,10 @@
             for (var pKey in pPars) {
               if(!resData.hasOwnProperty(pKey)){
                 pPars[pKey].notAvailable = true;
+                if(globals.dataSettings[product.get("download").id].hasOwnProperty(pKey)){
+                  globals.dataSettings[product.get("download").id][pKey].notAvailable = true;
+                  globals.dataSettings[product.get("download").id][pKey].active = false;
+                }
                 if(pPars[pKey].hasOwnProperty('selected')){
                   delete pPars[pKey].selected;
                   // The first item in all configs is the default required parameter
@@ -1110,6 +1114,9 @@
                 }
               } else if(pPars[pKey].hasOwnProperty('notAvailable')){
                 delete pPars[pKey].notAvailable;
+                if(globals.dataSettings[product.get("download").id].hasOwnProperty(pKey)){
+                  delete globals.dataSettings[product.get("download").id][pKey].notAvailable;
+                }
                 Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
               }
             }
@@ -1913,6 +1920,10 @@
           for (var pKey in pPars) {
             if(!resData.hasOwnProperty(pKey)){
               pPars[pKey].notAvailable = true;
+              if(globals.dataSettings[product.get("download").id].hasOwnProperty(pKey)){
+                globals.dataSettings[product.get("download").id][pKey].notAvailable = true;
+                globals.dataSettings[product.get("download").id][pKey].active = false;
+              }
               if(pPars[pKey].hasOwnProperty('selected')){
                 delete pPars[pKey].selected;
                 // The first item in all configs is the default required parameter
@@ -1921,6 +1932,9 @@
               }
             } else if(pPars[pKey].hasOwnProperty('notAvailable')){
               delete pPars[pKey].notAvailable;
+              if(globals.dataSettings[product.get("download").id].hasOwnProperty(pKey)){
+                delete globals.dataSettings[product.get("download").id][pKey].notAvailable;
+              }
               Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
             }
           }
@@ -2391,6 +2405,10 @@
           for (var pKey in pPars) {
             if(!resData.hasOwnProperty(pKey)){
               pPars[pKey].notAvailable = true;
+              if(globals.dataSettings[product.get("download").id].hasOwnProperty(pKey)){
+                globals.dataSettings[product.get("download").id][pKey].notAvailable = true;
+                globals.dataSettings[product.get("download").id][pKey].active = false;
+              }
               if(pPars[pKey].hasOwnProperty('selected')){
                 delete pPars[pKey].selected;
                 // The first item in all configs is the default required parameter
@@ -2399,6 +2417,9 @@
               }
             } else if(pPars[pKey].hasOwnProperty('notAvailable')){
               delete pPars[pKey].notAvailable;
+              if(globals.dataSettings[product.get("download").id].hasOwnProperty(pKey)){
+                delete globals.dataSettings[product.get("download").id][pKey].notAvailable;
+              }
               Communicator.mediator.trigger('layer:settings:changed', product.get("download").id);
             }
           }
@@ -2422,6 +2443,7 @@
         var urlBase = product.get('download').url;
 
         var collectionId = product.get('download').id;
+        var originalCollectionId = collectionId.replace('_EOL', '');
 
         // Clone the fieldlist
         var fieldsList = {};
@@ -2523,18 +2545,18 @@
 
 
         var gran = product.get('granularity');
-        if(collectionId === 'ALD_U_N_2A'  && gran === 'group'){
+        if(originalCollectionId === 'ALD_U_N_2A'  && gran === 'group'){
           $.extend(options, requestOptions.l2a_group);
-        } else if(collectionId === 'ALD_U_N_2A'){
+        } else if(originalCollectionId === 'ALD_U_N_2A'){
           var fields = gran+'_fields';
           options[fields] = fieldsList[collectionId][fields];
           options.mca_fields = fieldsList[collectionId].mca_fields;
           options.sca_fields = fieldsList[collectionId].sca_fields;
           options.mle_fields = fieldsList[collectionId].mle_fields;
           options.mle_sub_fields = fieldsList[collectionId].mle_sub_fields;
-        } else if(collectionId === 'ALD_U_N_2B'  && gran === 'group'){
+        } else if(originalCollectionId === 'ALD_U_N_2B'  && gran === 'group'){
           $.extend(options, requestOptions.l2b_group);
-        } else if(collectionId === 'ALD_U_N_2C'  && gran === 'group'){
+        } else if(originalCollectionId === 'ALD_U_N_2C'  && gran === 'group'){
           $.extend(options, requestOptions.l2c_group);
         } else if(collectionId.indexOf('AUX')===-1){
           if(gran === 'wind-accumulation-result'){
@@ -2723,7 +2745,7 @@
                   }
                 }
 
-                if(collectionId === 'ALD_U_N_1B'){
+                if(collectionId.indexOf('ALD_U_N_1B') !== -1){
 
                   // TODO: Here we need to differentiate between observations and measurements
                   //ds = ds['observation_data'];
@@ -3536,11 +3558,11 @@
                     }
 
 
-                  } else if(collectionId === 'ALD_U_N_2A'){
+                  } else if(collectionId.indexOf('ALD_U_N_2A') !== -1){
 
                     resData = that.handleL2ADataResponse(product, data, collectionId);
 
-                  } else if(collectionId === 'ALD_U_N_2B' || collectionId === 'ALD_U_N_2C'){
+                  } else if(collectionId.indexOf('ALD_U_N_2B') !== -1 || collectionId.indexOf('ALD_U_N_2C') !== -1){
 
                     resData = that.handleL2BCDataResponse(product, data, collectionId);
 
