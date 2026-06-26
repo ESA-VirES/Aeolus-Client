@@ -2466,7 +2466,7 @@
         var prodId = product.get('download').id;
         for(var collType in fieldsList){
           if(collType === 'ADAM_albedo'){
-            break;
+            continue;
           }
           if(collType.indexOf('AUX_')===-1){
             for(var gran in fieldsList[collType]){
