@@ -1367,7 +1367,7 @@ define([
                         signCross: 'nadirSignCross'
                     };
                 }
-            if(band.startsWith('SCA_middle_bin')){
+            } else if (band.startsWith('SCA_middle_bin')){
                 currPar = params[originalCovId]['SCA_middle_bin'];
                 currPar.colorAxis = [band];
             } else if (band.startsWith('SCA_')){
