@@ -282,6 +282,33 @@ var VECTOR_BREAKDOWN = {};
                 // has been done incorrectly 
                 $('#loadscreen').append('<button style="position:absolute;top:5px;right:5px;" type="button" onclick="'+clickEvent+'">Reset client</button>');
 
+                // Dynamically add EOF products based on existing L1B, L2A, L2B, L2C products
+                var collectionsToClone = ["L1B", "L2A", "L2B", "L2C"];
+                var newProducts = [];
+                config.mapConfig.products.forEach(function(product) {
+                    if (collectionsToClone.indexOf(product.name) !== -1) {
+                        var newProduct = JSON.parse(JSON.stringify(product));
+                        newProduct.name = product.name + " (end of life)";
+                        newProduct.views[0].id = newProduct.views[0].id + "_EOL";
+                        newProduct.download.id = newProduct.download.id + "_EOL";
+                        newProduct.visible = false;
+                        newProducts.push(newProduct);
+                    }
+                });
+                
+                // Insert after L2C
+                var l2cIndex = -1;
+                for (var i=0; i<config.mapConfig.products.length; i++) {
+                    if (config.mapConfig.products[i].name === "L2C") {
+                        l2cIndex = i;
+                    }
+                }
+                if (l2cIndex !== -1) {
+                    config.mapConfig.products.splice.apply(config.mapConfig.products, [l2cIndex + 1, 0].concat(newProducts));
+                } else {
+                    config.mapConfig.products = config.mapConfig.products.concat(newProducts);
+                }
+
                 if(localStorage.getItem('productsConfig') !== null){
 
                     showMessage('success',
@@ -463,7 +490,23 @@ var VECTOR_BREAKDOWN = {};
                 // service version the datasettings are coming from
                 if(!isNaN(numberSV) && numberSV>1.4 && 
                     localStorage.getItem('dataSettings') !== null){
-                    globals.dataSettings = JSON.parse(localStorage.getItem('dataSettings'));
+                    var savedDataSettings = JSON.parse(localStorage.getItem('dataSettings'));
+                    
+                    var idsToClone = ['ALD_U_N_1B', 'ALD_U_N_2A', 'ALD_U_N_2B', 'ALD_U_N_2C'];
+                    for (var i = 0; i < idsToClone.length; i++) {
+                        var id = idsToClone[i];
+                        var eolId = id + '_EOL';
+                        if (savedDataSettings[id] && !savedDataSettings[eolId]) {
+                            savedDataSettings[eolId] = JSON.parse(JSON.stringify(savedDataSettings[id]));
+                        }
+                    }
+
+                    for(var prodId in globals.dataSettings){
+                        if(!savedDataSettings.hasOwnProperty(prodId)){
+                            savedDataSettings[prodId] = globals.dataSettings[prodId];
+                        }
+                    }
+                    globals.dataSettings = savedDataSettings;
                     // Check if ADAM albedo is correctly loaded
                     if(globals.dataSettings.hasOwnProperty('ADAM_albedo')){
                         if(globals.dataSettings['ADAM_albedo'].hasOwnProperty('nadir')){

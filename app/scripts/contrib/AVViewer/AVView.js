@@ -1945,6 +1945,18 @@ define(['backbone.marionette',
                 }
             };
 
+            var idsToClone = ['ALD_U_N_1B', 'ALD_U_N_2A', 'ALD_U_N_2B', 'ALD_U_N_2C'];
+            for (var i = 0; i < idsToClone.length; i++) {
+                var id = idsToClone[i];
+                var eolId = id + '_EOL';
+                if (this.renderSettings[id]) {
+                    this.renderSettings[eolId] = JSON.parse(JSON.stringify(this.renderSettings[id]));
+                }
+                if (this.renderSettings[id + '_group']) {
+                    this.renderSettings[eolId + '_group'] = JSON.parse(JSON.stringify(this.renderSettings[id + '_group']));
+                }
+            }
+
 
             // Check for already defined data settings
             globals.products.each(function(product) {
@@ -2085,8 +2097,8 @@ define(['backbone.marionette',
                     var data = globals.swarm.get('data');
                     var datkey = Object.keys(data)[0];
                     // Check to see if L2B or L2C groups are currently visualized
-                    if (datkey === 'ALD_U_N_2B' || 
-                        datkey === 'ALD_U_N_2C'){
+                    if (datkey.indexOf('ALD_U_N_2B') !== -1 || 
+                        datkey.indexOf('ALD_U_N_2C') !== -1){
 
                         var currProd = globals.products.find(
                             function(p){return p.get('download').id === datkey;}
@@ -2902,13 +2914,13 @@ define(['backbone.marionette',
                         this.graph.logX = renderSettings.logX;
                     }
 
-                    if(cP === 'ALD_U_N_1B' || cP === 'ALD_U_N_2A'){
+                    if(cP.indexOf('ALD_U_N_1B') !== -1 || cP.indexOf('ALD_U_N_2A') !== -1){
 
                         this.graph.debounceActive = true;
                         this.graph.fileSaveString = cP+'_'+gran+'_'+timeString;
                         this.graph.loadData(data[cP]);
 
-                    } else if(cP === 'ALD_U_N_2B' || cP === 'ALD_U_N_2C'){
+                    } else if(cP.indexOf('ALD_U_N_2B') !== -1 || cP.indexOf('ALD_U_N_2C') !== -1){
 
                         if(gran === 'group'){
 
