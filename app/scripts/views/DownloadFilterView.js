@@ -789,7 +789,12 @@
         var sendProcessingRequest = function(options){
           var req_data = wps_fetchFilteredDataAsync(options);
           toggleDownloadButton(false);
-          $.post( url, req_data, 'xml' )
+          $.post({
+            url: url,
+            data: req_data,
+            contentType: 'application/xml; charset=utf-8',
+            dataType: 'xml',
+          })
             .done(function( response ) {
               that.updateJobs();
             })
@@ -1099,7 +1104,12 @@
         var sendProcessingRequest = function(options){
           var req_data = wps_fetchFilteredDataAsync(options);
           toggleDownloadButton(false);
-          $.post( url, req_data, 'xml' )
+          $.post({
+            url: url,
+            data: req_data,
+            contentType: 'application/xml; charset=utf-8',
+            dataType: 'xml',
+          })
             .done(function( response ) {
               that.updateJobs();
             })
