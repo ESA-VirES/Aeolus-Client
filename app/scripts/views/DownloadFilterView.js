@@ -115,6 +115,7 @@
 
           this.xhr = new XMLHttpRequest();
           this.xhr.open('POST', url, true);
+          this.xhr.setRequestHeader("Content-Type", "application/xml; charset=utf-8");
           this.xhr.responseType = 'arraybuffer';
 
           //var that = this;
