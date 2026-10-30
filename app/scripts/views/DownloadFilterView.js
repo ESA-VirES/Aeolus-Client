@@ -789,13 +789,14 @@
         var sendProcessingRequest = function(options){
           var req_data = wps_fetchFilteredDataAsync(options);
           toggleDownloadButton(false);
-          $.post({
+          $.ajax({
+            type: "POST",
             url: url,
             data: req_data,
             contentType: 'application/xml; charset=utf-8',
             dataType: 'xml',
           })
-            .done(function( response ) {
+            .done(function(response) {
               that.updateJobs();
             })
             .error(function(resp){
@@ -1104,13 +1105,14 @@
         var sendProcessingRequest = function(options){
           var req_data = wps_fetchFilteredDataAsync(options);
           toggleDownloadButton(false);
-          $.post({
+          $.ajax({
+            type: "POST",
             url: url,
             data: req_data,
             contentType: 'application/xml; charset=utf-8',
             dataType: 'xml',
           })
-            .done(function( response ) {
+            .done(function(response) {
               that.updateJobs();
             })
             .error(function(resp){
