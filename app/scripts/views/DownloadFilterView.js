@@ -115,6 +115,7 @@
 
           this.xhr = new XMLHttpRequest();
           this.xhr.open('POST', url, true);
+          this.xhr.setRequestHeader("Content-Type", "application/xml; charset=utf-8");
           this.xhr.responseType = 'arraybuffer';
 
           //var that = this;
@@ -788,8 +789,14 @@
         var sendProcessingRequest = function(options){
           var req_data = wps_fetchFilteredDataAsync(options);
           toggleDownloadButton(false);
-          $.post( url, req_data, 'xml' )
-            .done(function( response ) {
+          $.ajax({
+            type: "POST",
+            url: url,
+            data: req_data,
+            contentType: 'application/xml; charset=utf-8',
+            dataType: 'xml',
+          })
+            .done(function(response) {
               that.updateJobs();
             })
             .error(function(resp){
@@ -1098,8 +1105,14 @@
         var sendProcessingRequest = function(options){
           var req_data = wps_fetchFilteredDataAsync(options);
           toggleDownloadButton(false);
-          $.post( url, req_data, 'xml' )
-            .done(function( response ) {
+          $.ajax({
+            type: "POST",
+            url: url,
+            data: req_data,
+            contentType: 'application/xml; charset=utf-8',
+            dataType: 'xml',
+          })
+            .done(function(response) {
               that.updateJobs();
             })
             .error(function(resp){
